@@ -65,14 +65,14 @@ private:
 
 	/* name of libraries to load */
 	version (Windows) {
-		const string[] libSDLname = ["SDL.dll"];
-		const string[] libGLUname = ["glu32.dll"];
+		enum string[] libSDLname = ["SDL.dll"];
+		enum string[] libGLUname = ["glu32.dll"];
 	} else version (Linux) {
-		const string[] libSDLname = ["libSDL.so", "libSDL-1.2.so.0"];
-		const string[] libGLUname = ["libGLU.so", "libGLU.so.1"];
+		enum string[] libSDLname = ["libSDL.so", "libSDL-1.2.so.0"];
+		enum string[] libGLUname = ["libGLU.so", "libGLU.so.1"];
 	} else version (OSX) {
-		const string[] libSDLname = ["SDL.framework/SDL"];
-		const string[] libGLUname = ["OpenGL.framework/OpenGL"];
+		enum string[] libSDLname = ["SDL.framework/SDL"];
+		enum string[] libGLUname = ["OpenGL.framework/OpenGL"];
 	} else version (DynamicSDL) {
 		static assert(false);
 	}
