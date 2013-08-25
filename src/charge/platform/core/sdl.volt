@@ -236,6 +236,7 @@ version (Emscripten) {
 			}
 			if (renderDg !is null) {
 				renderDg();
+				SDL_GL_SwapBuffers();
 			}
 		}
 
