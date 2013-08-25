@@ -321,6 +321,8 @@ private:
 			bits |= SDL_FULLSCREEN;
 		if (fullscreen && fullscreenAutoSize)
 			width = height = 0;
+		version (Emscripten)
+			bits = 0x04000000; // Emscripten is SDL1.3
 
 		//l.bug("w: ", width, " h: ", height);
 
