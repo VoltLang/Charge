@@ -15,6 +15,8 @@ import charge.platform.core.common;
 import watt.library;
 import lib.sdl.sdl;
 import lib.sdl.loader;
+import lib.gles;
+import lib.gles.loader;
 
 version (Emscripten) {
 	extern(C) void emscripten_set_main_loop(void function(), int fps, int infloop);
@@ -333,26 +335,11 @@ private:
 		width = cast(uint)s.w;
 		height = cast(uint)s.h;
 
-/+
-		loadGL(&loadFunc);
-+/
+		gladLoadGLES2(SDL_GL_GetProcAddress);
 
-/+
-		glu = Library.loads(libGLUname);
-		if (!glu)
-			l.fatal("Could not load GLU, crashing bye bye!");
-		loadGLU(&glu.symbol);
-
-		gfxLoaded = true;
-
-		string str;
-		str = std.string.toString(glGetString(GL_VENDOR));
-		l.info(str);
-		str = std.string.toString(glGetString(GL_VERSION));
-		l.info(str);
-		str = std.string.toString(glGetString(GL_RENDERER));
-		l.info(str);
-+/
+		printf("%s\n".ptr, glGetString(GL_VENDOR));
+		printf("%s\n".ptr, glGetString(GL_VERSION));
+		printf("%s\n".ptr, glGetString(GL_RENDERER));
 
 /+
 		auto numSticks = SDL_NumJoysticks();
