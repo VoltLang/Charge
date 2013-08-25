@@ -12,7 +12,7 @@ import charge.core;
 import charge.util.properties;
 import charge.platform.core.common;
 
-import lib.loader;
+import watt.library;
 import lib.sdl.sdl;
 import lib.sdl.loader;
 
@@ -64,20 +64,17 @@ private:
 
 
 	/* name of libraries to load */
-	version(Windows)
-	{
+	version (Windows) {
 		const string[] libSDLname = ["SDL.dll"];
 		const string[] libGLUname = ["glu32.dll"];
-	}
-	else version(linux)
-	{
+	} else version (Linux) {
 		const string[] libSDLname = ["libSDL.so", "libSDL-1.2.so.0"];
 		const string[] libGLUname = ["libGLU.so", "libGLU.so.1"];
-	}
-	else version(darwin)
-	{
+	} else version (OSX) {
 		const string[] libSDLname = ["SDL.framework/SDL"];
 		const string[] libGLUname = ["OpenGL.framework/OpenGL"];
+	} else version (DynamicSDL) {
+		static assert(false);
 	}
 
 	enum gfxFlags = coreFlag.GFX | coreFlag.AUTO;
@@ -256,23 +253,21 @@ private:
 
 	void loadLibraries()
 	{
-/+
-		version (OSX) {
-			string[] libSDLnames = [privateFrameworksPath ~ "/" ~ libSDLname[0]] ~ libSDLname;
-		} else {
-			string[] libSDLnames = [];
-		}
-
 		version (DynamicSDL) {
-			sdl = Library.loads(libSDLnames);
-			if (!sdl)
-				l.fatal("Could not load SDL, crashing bye bye!");
-
-			version (DynamicSDL) {
-				loadSDL(&sdl.symbol);
-			}
-		}
+			version (OSX) {
+/+
+				string[] libSDLnames = [privateFrameworksPath ~ "/" ~ libSDLname[0]] ~ libSDLname;
 +/
+				string[] libSDLnames = libSDLname;
+			} else {
+				string[] libSDLnames = libSDLname;
+			}
+
+			sdl = Library.loads(libSDLnames);
+			if (sdl is null)
+				printf("Could not load SDL, crashing bye bye!\n".ptr);
+			loadSDL(sdl.symbol);
+		}
 		return;
 	}
 

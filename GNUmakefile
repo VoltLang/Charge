@@ -14,8 +14,8 @@ MACHINE ?= $(HOST_MACHINE)
 # Basic settings.
 #
 
-VFLAGS ?= -I src
-LDFLAGS ?= -l SDL
+VFLAGS ?= -D DynamicSDL
+LDFLAGS ?=
 TARGET = charge
 TARGET_HTML = charge.html
 
@@ -36,7 +36,7 @@ all: $(TARGET)
 
 $(TARGET): $(SRC) GNUmakefile
 	@echo "  VOLT   $(TARGET)"
-	@$(VOLT) $(LDFLAGS) -o $(TARGET) $(SRC)
+	@$(VOLT) -I src $(VFLAGS) $(LDFLAGS) -o $(TARGET) $(SRC)
 
 emscripten:
 	@echo "  VOLT   $(TARGET_HTML)"
