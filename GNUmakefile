@@ -16,8 +16,8 @@ MACHINE ?= $(HOST_MACHINE)
 
 VFLAGS ?= -D DynamicSDL
 LDFLAGS ?=
-TARGET = charge
-TARGET_HTML = charge.html
+TARGET ?= Charge
+TARGET_HTML ?= $(TARGET).html
 
 
 ########################################
