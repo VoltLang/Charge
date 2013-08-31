@@ -3,6 +3,7 @@
 module main;
 
 import core.stdc.stdio : printf;
+import charge.gfx.shader;
 import charge.core : chargeCore, Core, CoreOptions;
 import lib.gles;
 
@@ -35,46 +36,23 @@ void main(void)
 class Main
 {
 public:
+	float val;
+	Shader shader;
+
+public:
 	this(Core c)
 	{
 		printf("ctor\n".ptr);
 		c.closeDg = close;
 		c.renderDg = render;
 
-		GLuint v, f, program, buf;
-		const(char)* p;
-		char[500] msg;
+		shader = new Shader(vertexShader, fragmentShader, ["position"], null);
+		shader.bind();
+		val = 0.1f;
 
-		/* Compile the vertex shader */
-		p = vertexShader.ptr;
-		v = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(v, 1, &p, null);
-		glCompileShader(v);
-		glGetShaderInfoLog(v, 500, null, msg.ptr);
-		printf("vertex shader info: %s\n".ptr, msg.ptr);
-
-		/* Compile the fragment shader */
-		p = fragmentShader.ptr;
-		f = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(f, 1, &p, null);
-		glCompileShader(f);
-		glGetShaderInfoLog(f, 500, null, msg.ptr);
-		printf("fragment shader info: %s\n".ptr, msg.ptr);
-
-		/* Create and link the shader program */
-		program = glCreateProgram();
-		glAttachShader(program, v);
-		glAttachShader(program, f);
-		glBindAttribLocation(program, 0, "position".ptr);
-
-		glLinkProgram(program);
-		glGetProgramInfoLog(program, 500, null, msg.ptr);
-		printf("program info: %s\n".ptr, msg.ptr);
-
-		glUseProgram(program);
+		GLuint buf;
 
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-
 
 		float[] verts = new float[](9);
 		verts[0] =  0.0f; verts[1] =  0.1f; verts[2] =  0.0f;
@@ -89,8 +67,9 @@ public:
 
 	void close()
 	{
-		printf("close\n".ptr);
+		shader.breakApart();
 
+		printf("close\n".ptr);
 		return;
 	}
 
@@ -98,10 +77,17 @@ public:
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		val = val + 0.003f;
+		if (val > 0.3f)
+			val = 0.1f;
+
+		glBufferSubData(GL_ARRAY_BUFFER, 4, 4, &val);
+
 		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 3 * 4, null);
 		glEnableVertexAttribArray(0);
 
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+
 		return;
 	}
 }
