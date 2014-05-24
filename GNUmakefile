@@ -4,10 +4,6 @@
 
 VOLT ?= $(shell which volt)
 EMCC ?= $(shell which emcc)
-HOST_UNAME := $(strip $(shell uname))
-HOST_MACHINE := $(strip $(shell uname -m))
-UNAME ?= $(HOST_UNAME)
-MACHINE ?= $(HOST_MACHINE)
 
 
 ########################################
