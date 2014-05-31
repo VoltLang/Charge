@@ -12,7 +12,7 @@ EMCC ?= $(shell which emcc)
 
 VFLAGS ?= -D DynamicSDL
 LDFLAGS ?=
-TARGET ?= Charge
+TARGET ?= charge
 TARGET_HTML ?= $(TARGET).html
 
 
