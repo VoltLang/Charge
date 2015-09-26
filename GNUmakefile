@@ -10,7 +10,7 @@ EMCC ?= $(shell which emcc)
 # Basic settings.
 #
 
-VFLAGS ?= -D DynamicSDL
+VFLAGS ?= --internal-perf -D DynamicSDL
 LDFLAGS ?=
 TARGET ?= charge
 TARGET_HTML ?= $(TARGET).html
