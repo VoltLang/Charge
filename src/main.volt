@@ -60,7 +60,7 @@ public:
 		verts[6] = -0.1f; verts[7] = -0.1f; verts[8] =  0.0f;
 		glGenBuffers(1, &buf);
 		glBindBuffer(GL_ARRAY_BUFFER, buf);
-		glBufferData(GL_ARRAY_BUFFER, 9 * 4, verts.ptr, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, 9 * 4, cast(void*)verts.ptr, GL_STATIC_DRAW);
 
 		return;
 	}
@@ -81,7 +81,7 @@ public:
 		if (val > 0.3f)
 			val = 0.1f;
 
-		glBufferSubData(GL_ARRAY_BUFFER, 4, 4, &val);
+		glBufferSubData(GL_ARRAY_BUFFER, 4, 4, cast(void*)&val);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 3 * 4, null);
 		glEnableVertexAttribArray(0);
