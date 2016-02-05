@@ -13,7 +13,7 @@ SRC = \
 
 all: charge.exe
 
-charge:
+charge.exe:
 	$(VOLT) -l SDL.lib -o charge.exe -I src $(SRC)
 
 clean:
