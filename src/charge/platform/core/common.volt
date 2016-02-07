@@ -53,6 +53,44 @@ protected:
 	enum phyFlags = coreFlag.PHY | coreFlag.AUTO;
 	enum sfxFlags = coreFlag.SFX | coreFlag.AUTO;
 
+	void delegate() logicDg;
+	void delegate() closeDg;
+	void delegate() renderDg;
+	void delegate(long) idleDg;
+
+public:
+	override void setIdle(void delegate(long) dg) {
+		if (dg is null) {
+			idleDg = defaultIdle;
+		} else {
+			idleDg = dg;
+		}
+	}
+
+	override void setRender(void delegate() dg) {
+		if (dg is null) {
+			renderDg = defaultDg;
+		} else {
+			renderDg = dg;
+		}
+	}
+
+	override void setLogic(void delegate() dg) {
+		if (dg is null) {
+			logicDg = defaultDg;
+		} else {
+			logicDg = dg;
+		}
+	}
+
+	override void setClose(void delegate() dg) {
+		if (dg is null) {
+			closeDg = defaultDg;
+		} else {
+			closeDg = dg;
+		}
+	}
+
 protected:
 /+
 	global this()
@@ -65,6 +103,11 @@ protected:
 	this(coreFlag flags)
 	{
 		super(flags);
+
+		setRender(null);
+		setLogic(null);
+		setClose(null);
+		setIdle(null);
 
 		initSettings();
 
@@ -146,6 +189,24 @@ protected:
 	Properties properties()
 	{
 		return p;
+	}
+
+
+	/*
+	 *
+	 * Default delegate methods.
+	 *
+	 */
+
+
+	void defaultIdle(long)
+	{
+		// This method intentionally left empty.
+	}
+
+	void defaultDg()
+	{
+		// This method intentionally left empty.
 	}
 
 

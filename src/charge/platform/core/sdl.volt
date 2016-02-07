@@ -63,6 +63,7 @@ private:
 	Library glu;
 	Library sdl;
 
+	bool running;
 
 	/* name of libraries to load */
 	version (Windows) {
@@ -84,6 +85,7 @@ public:
 	this(CoreOptions opts)
 	{
 		this.opts = opts;
+		this.running = true;
 		super(opts.flags);
 
 		loadLibraries();
@@ -101,8 +103,9 @@ public:
 
 	void close()
 	{
-		if (closeDg !is null)
+		if (closeDg !is null) {
 			closeDg();
+		}
 
 		for (size_t i; i < closeFuncs.length; i++)
 			closeFuncs[i]();
@@ -218,19 +221,40 @@ version (Emscripten) {
 
 	override int loop()
 	{
+		long now = SDL_GetTicks();
+		long step = 10;
+		long where = now;
+		long last = now;
+
 		int keypress = 0;
-		SDL_Event event;
-		while (!keypress) {
-			while (SDL_PollEvent(&event)) {
-				if (cast(int)event.type == SDL_QUIT) {
-					keypress = 1;
-				} else if (cast(int)event.type == SDL_KEYDOWN) {
-					keypress = 1;
-				}
+
+		bool changed; //< Tracks if should render
+		while (running) {
+			now = SDL_GetTicks();
+
+			doInput();
+
+			while (where < now) {
+				doInput();
+				logicDg();
+
+				where = where + step;
+				changed = true;
 			}
-			if (renderDg !is null) {
+
+			if (changed) {
 				renderDg();
 				SDL_GL_SwapBuffers();
+				changed = true;
+			}
+
+			long diff = (step + where) - now;
+			idleDg(diff);
+
+			// Do the sleep now if there is time left.
+			diff = (step + where) - SDL_GetTicks();
+			if (diff > 0) {
+				SDL_Delay(cast(uint)diff);
 			}
 		}
 
@@ -239,6 +263,17 @@ version (Emscripten) {
 		return 0;
 	}
 
+	void doInput()
+	{
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) {
+			if (cast(int)event.type == SDL_QUIT) {
+				running = false;
+			} else if (cast(int)event.type == SDL_KEYDOWN) {
+				running = false;
+			}
+		}
+	}
 }
 
 private:

@@ -23,17 +23,7 @@ abstract class App
 {
 protected:
 	Core c;
-
-	bool running;
-
-	Input i;
-	Mouse mouse;
-	Keyboard keyboard;
-
-/+
-	GfxSync curSync;
-+/
-	bool fastRender = true; //< Try to render as fast as possible.
+	Input input;
 
 /+
 	TimeTracker networkTime;
@@ -50,23 +40,18 @@ private:
 public:
 	this(CoreOptions opts = null)
 	{
-		running = true;
-
 		if (opts is null) {
 			opts = new CoreOptions();
 		}
 
 		c = chargeCore(opts);
 
-		i = Input.opCall();
-/+
-		i.quit ~= &quit;
-		i.resize ~= &resize;
-+/
+		c.setRender(doRender);
+		c.setIdle(doIdle);
+		c.setLogic(doLogic);
+		c.setClose(close);
 
-		keyboard = i.keyboard();
-		mouse = i.mouse();
-
+		input = Input.opCall();
 /+
 		renderTime = new TimeTracker("gfx");
 		inputTime = new TimeTracker("ctl");
@@ -83,103 +68,23 @@ public:
 
 	void close()
 	{
-		running = false;
-/+
-		i.quit -= &quit;
-		i.resize -= &resize;
-+/
-/+
-		c.close();
-+/
 		closed = true;
-	}
-
-	void quit()
-	{
-		running = false;
-	}
-
-	void resize(uint w, uint h)
-	{
-/+
-		Core().resize(w, h);
-+/
 	}
 
 	abstract void render();
 	abstract void logic();
 
 	/**
-	 * Idle is a bit missleading name, this function is always after a
-	 * frame is completed. Time is the difference between when the next
+	 * Idle is a bit missleading name, this function is always called after
+	 * a frame is completed. Time is the difference between when the next
 	 * logic step should happen and the current time, so it can be a
 	 * negative value if we are behind (often happens when rendering
 	 * takes to long to complete).
 	 */
-	void idle(long time)
-	{
-		if (time > 0) {
-/+
-			if (curSync && fastRender) {
-				gfxSyncWaitAndDelete(curSync, time);
-			} else {
-+/
-				SDL_Delay(cast(uint)time);
-/+
-			}
-+/
-		}
-	}
+	abstract void idle(long time);
 
-	void loop()
-	{
-		long now = SDL_GetTicks();
-		long step = 10;
-		long where = now;
-		long last = now;
-
-		bool changed; //< Tracks if should render
-
-		while(running) {
-			now = SDL_GetTicks();
-
-			doInput();
-
-			while(where < now) {
-				doInput();
-				doLogic();
-
-				where = where + step;
-				changed = true;
-			}
-/+
-			if (changed && gfxLoaded) {
-				changed = !gfxSyncWaitAndDelete(curSync, 0);
-				if (!changed) {
-					doRender();
-					curSync = gfxSyncInsert();
-				}
-			}
-+/
-
-			now = SDL_GetTicks();
-			long diff = (step + where) - now;
-			doIdle(diff);
-		}
-
-		close();
-	}
 
 private final:
-	void doInput()
-	{
-/+
-		inputTime.start();
-		scope(exit) inputTime.stop();
-+/
-		i.tick();
-	}
-
 	void doLogic()
 	{
 /+

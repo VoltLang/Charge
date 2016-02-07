@@ -43,8 +43,8 @@ public:
 	this(Core c)
 	{
 		printf("ctor\n".ptr);
-		c.closeDg = close;
-		c.renderDg = render;
+		c.setClose(close);
+		c.setRender(render);
 
 		shader = new Shader(vertexShader, fragmentShader, ["position"], null);
 		shader.bind();

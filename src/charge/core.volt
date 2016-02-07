@@ -63,19 +63,6 @@ public:
 	coreFlag flags;
 	bool resizeSupported;
 
-	/**
-	 * This is callback is the first thing called on shutdown.
-	 * There is no need to call chargeQuit from this function,
-	 * or close as this callback is called as part close/quit.
-	 */
-	void delegate() closeDg;
-
-	/**
-	 * Called each frame.
-	 */
-	void delegate() renderDg;
-
-
 protected:
 	static void function()[] initFuncs;
 	static void function()[] closeFuncs;
@@ -84,8 +71,19 @@ protected:
 private:
 	global Core instance;
 
-
 public:
+	/**
+	 * Sets callback functions.
+	 * @{
+	 */
+	abstract void setRender(void delegate() dg);
+	abstract void setLogic(void delegate() dg);
+	abstract void setClose(void delegate() dg);
+	abstract void setIdle(void delegate(long) dg);
+	/**
+	 * @}
+	 */
+
 	/**
 	 * Main loop functions, you should expect that this function returns.
 	 * Best usage is if you in your main function do this "return c.loop();".
