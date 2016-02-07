@@ -20,8 +20,8 @@ TARGET_HTML ?= $(TARGET).html
 # Setting up the source.
 #
 
-SRC = $(shell find src -name "*.volt")
-OBJ = $(patsubst src/%.volt, $(OBJ_DIR)/%.bc, $(SRC))
+include sources.mk
+SRC:= $(shell ls $(SRC))
 
 
 ########################################
