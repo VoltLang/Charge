@@ -94,8 +94,9 @@ public:
 			initNoGfx(p);
 		}
 
-		for (size_t i; i < initFuncs.length; i++)
+		for (size_t i; i < initFuncs.length; i++) {
 			initFuncs[i]();
+		}
 	}
 
 	void close()
@@ -343,21 +344,25 @@ private:
 /+
 		auto numSticks = SDL_NumJoysticks();
 		
-		if (numSticks != 0)
+		if (numSticks != 0) {
 			l.info("Found %s joystick%s", numSticks, numSticks != 1 ? "s" : "");
-		else
+		} else {
 			l.info("No joysticks found");
-		for(int i; i < numSticks; i++)
+		}
+		for(int i; i < numSticks; i++) {
 			l.info("   %s", .toString(SDL_JoystickName(i)));
+		}
 +/
 
 /+
 		// Check for minimum version.
-		if (!GL_VERSION_2_1)
+		if (!GL_VERSION_2_1) {
 			panic(format("OpenGL 2.1 not supported, can not run %s", opts.title));
+		}
 
-		if (!Renderer.init())
+		if (!Renderer.init()) {
 			panic(format("Missing graphics features, can not run %s", opts.title));
+		}
 +/
 		initedGfx = true;
 	}
