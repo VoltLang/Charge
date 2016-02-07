@@ -310,7 +310,7 @@ version (Emscripten) {
 				break;
 
 			case SDL_KEYDOWN:
-				auto k = input.keyboard();
+				auto k = input.keyboard;
 				k.mod = e.key.keysym.mod;
 
 				// Early out.
@@ -337,7 +337,7 @@ version (Emscripten) {
 				break;
 
 			case SDL_KEYUP:
-				auto k = input.keyboard();
+				auto k = input.keyboard;
 				k.mod = e.key.keysym.mod;
 
 				if (k.up is null) {
@@ -347,7 +347,7 @@ version (Emscripten) {
 				break;
 
 			case SDL_MOUSEMOTION:
-				auto m = input.mouse();
+				auto m = input.mouse;
 				m.state = cast(int)e.motion.state;
 				m.x = cast(int)e.motion.x;
 				m.y = cast(int)e.motion.y;
@@ -359,7 +359,7 @@ version (Emscripten) {
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
-				auto m = input.mouse();
+				auto m = input.mouse;
 				m.state |= (1 << e.button.button);
 				m.x = e.button.x;
 				m.y = e.button.y;
@@ -371,7 +371,7 @@ version (Emscripten) {
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				auto m = input.mouse();
+				auto m = input.mouse;
 				m.state = ~(1 << e.button.button) & m.state;
 				m.x = e.button.x;
 				m.y = e.button.y;

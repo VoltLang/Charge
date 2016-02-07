@@ -2,8 +2,8 @@
 // See copyright notice in src/charge/licence.volt (BOOST ver 1.0).
 module charge.ctl;
 
-import charge.ctl.input : CtlInput = Input;
-import charge.ctl.device : CtlDevice = Device;
-import charge.ctl.mouse : CtlMouse = Mouse;
-import charge.ctl.keyboard : CtlKeyboard = Keyboard;
-import charge.ctl.joystick :  CtlJoystick = Joystick;
+public import charge.ctl.input : CtlInput = Input;
+public import charge.ctl.device : CtlDevice = Device;
+public import charge.ctl.mouse : CtlMouse = Mouse;
+public import charge.ctl.keyboard : CtlKeyboard = Keyboard;
+public import charge.ctl.joystick :  CtlJoystick = Joystick;

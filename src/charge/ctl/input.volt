@@ -33,17 +33,17 @@ public:
 		return instance;
 	}
 
-	Mouse mouse()
+	final @property Mouse mouse()
 	{
 		return mouseArray[0];
 	}
 
-	Keyboard keyboard()
+	final @property Keyboard keyboard()
 	{
 		return keyboardArray[0];
 	}
 
-	Joystick joystick()
+	final @property Joystick joystick()
 	{
 		return joystickArray[0];
 	}

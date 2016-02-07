@@ -16,7 +16,7 @@ public:
 	int mod;
 
 public:
-	void delegate(Keyboard, int, dchar, scope char[]) down;
+	void delegate(Keyboard, int, dchar, scope const(char)[]) down;
 	void delegate(Keyboard, int) up;
 
 
