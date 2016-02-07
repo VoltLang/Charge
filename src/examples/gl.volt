@@ -2,9 +2,10 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module examples.gl;
 
+import charge.ctl;
 import charge.game.app;
 import charge.gfx.shader;
-import charge.core : chargeCore, Core, CoreOptions;
+import charge.core : chargeCore, chargeQuit, Core, CoreOptions;
 import lib.gles;
 
 
@@ -44,6 +45,8 @@ public:
 	this()
 	{
 		super();
+
+		input.keyboard.down = down;
 
 		shader = new Shader(vertexShader, fragmentShader, ["position"], null);
 		shader.bind();
@@ -94,5 +97,10 @@ public:
 	override void idle(long)
 	{
 		// This method intentionally left empty.
+	}
+
+	void down(CtlKeyboard, int, dchar, scope const(char)[] m)
+	{
+		chargeQuit();
 	}
 }
