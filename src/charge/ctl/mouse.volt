@@ -17,22 +17,11 @@ public:
 	int x;
 	int y;
 
+	void delegate(Mouse, int, int) move;
+	void delegate(Mouse, int) down;
+	void delegate(Mouse, int) up;
+
 public:
-/+
-	Signal!(Mouse, int, int) move;
-	Signal!(Mouse, int) down;
-	Signal!(Mouse, int) up;
-+/
-
-	~this()
-	{
-/+
-		move.destruct();
-		down.destruct();
-		up.destruct();
-+/
-	}
-
 	void warp(uint x, uint y)
 	{
 		SDL_WarpMouse(cast(Uint16)x, cast(Uint16)y);

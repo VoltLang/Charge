@@ -13,11 +13,9 @@ import charge.ctl.device;
 class Joystick : Device
 {
 public:
-/+
-	Signal!(Joystick, int, int) axis;
-	Signal!(Joystick, int) down;
-	Signal!(Joystick, int) up;
-+/
+	void delegate(Joystick, int, int) axis;
+	void delegate(Joystick, int) down;
+	void delegate(Joystick, int) up;
 
 private:
 	int id;
@@ -25,16 +23,6 @@ private:
 	SDL_Joystick* stick;
 
 public:
-	~this()
-	{
-/+
-		axis.destruct();
-		down.destruct();
-		up.destruct();
-+/
-		enable();
-	}
-
 	final bool enable() { return enabled = true; }
 	final void disable() { enabled = false; }
 
@@ -66,14 +54,18 @@ package:
 
 	void handleAxis(size_t which, short value)
 	{
-		if (which >= axisValues.length)
+		if (which >= axisValues.length) {
 			return;
-		if (value == axisValues[which])
+		}
+		if (value == axisValues[which]) {
 			return;
+		}
 
 		axisValues[which] = value;
-/+
-		axis(this, which, value);
-+/
+
+		if (axis is null) {
+			return;
+		}
+		axis(this, cast(int)which, cast(int)value);
 	}
 }

@@ -9,10 +9,6 @@ import watt.text.utf;
 
 import lib.sdl.sdl;
 
-//import charge.math.ints;
-//import charge.util.signal;
-//import charge.sys.logger;
-
 import charge.ctl.device;
 import charge.ctl.mouse;
 import charge.ctl.keyboard;
@@ -21,22 +17,15 @@ import charge.ctl.joystick;
 
 class Input
 {
-private:
-/+
-	mixin Logging;
-+/
+public:
+	void delegate(uint, uint) resize;
+	void delegate() quit;
 
+private:
 	global Input instance;
 	Mouse[] mouseArray;
 	Keyboard[] keyboardArray;
 	Joystick[] joystickArray;
-
-public:
-/+
-	Signal!(Device) hotplug;
-	Signal!(uint, uint) resize;
-	Signal!() quit;
-+/
 
 public:
 	global Input opCall()
@@ -88,29 +77,33 @@ public:
 		while(SDL_PollEvent(&e)) {
 			switch (e.type) {
 			case SDL_QUIT:
-/+
+				if (quit is null) {
+					break;
+				}
 				quit();
-+/
 				break;
 
 			case SDL_VIDEORESIZE:
-/+
+				if (resize is null) {
+					break;
+				}
 				resize(cast(uint)e.resize.w, cast(uint)e.resize.h);
-+/
 				break;
 
 			case SDL_JOYBUTTONDOWN:
 				auto j = joystickArray[e.jbutton.which];
-/+
-				j.down(j, e.jbutton.button);
-+/
+				if (j.down is null) {
+					break;
+				}
+				j.down(j, cast(int)e.jbutton.button);
 				break;
 
 			case SDL_JOYBUTTONUP:
 				auto j = joystickArray[e.jbutton.which];
-/+
-				j.up(j, e.jbutton.button);
-+/
+				if (j.up is null) {
+					break;
+				}
+				j.up(j, cast(int)e.jbutton.button);
 				break;
 
 			case SDL_JOYAXISMOTION:
@@ -119,38 +112,40 @@ public:
 				break;
 
 			case SDL_KEYDOWN:
-				size_t len;
-				char[8] tmp;
-
-				dchar unicode = e.key.keysym.unicode;
-
 				auto k = keyboardArray[0];
 				k.mod = e.key.keysym.mod;
 
+				// Early out.
+				if (k.down is null) {
+					break;
+				}
 
-
+				size_t len;
+				char[8] tmp;
+				dchar unicode = e.key.keysym.unicode;
 				if (unicode == 27) {
 					unicode = 0;
 				}
 
-				void sink(scope(char)[] t) {
+				void sink(scope const(char)[] t) {
 					tmp[0 .. t.length] = t;
 					len = t.length;
 				}
 				if (unicode) {
 					encode(sink, unicode);
 				}
-/+
-				k.down(k, e.key.keysym.sym, unicode, str);
-+/
+
+				k.down(k, e.key.keysym.sym, unicode, tmp[0 .. len]);
 				break;
 
 			case SDL_KEYUP:
 				auto k = keyboardArray[0];
 				k.mod = e.key.keysym.mod;
-/+
+
+				if (k.up is null) {
+					break;
+				}
 				k.up(k, e.key.keysym.sym);
-+/
 				break;
 
 			case SDL_MOUSEMOTION:
@@ -158,9 +153,11 @@ public:
 				m.state = cast(int)e.motion.state;
 				m.x = cast(int)e.motion.x;
 				m.y = cast(int)e.motion.y;
-/+
-				m.move(m, e.motion.xrel, e.motion.yrel);
-+/
+
+				if (m.move is null) {
+					break;
+				}
+				m.move(m, cast(int)e.motion.xrel, cast(int)e.motion.yrel);
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
@@ -168,9 +165,11 @@ public:
 				m.state |= (1 << e.button.button);
 				m.x = e.button.x;
 				m.y = e.button.y;
-/+
-				m.down(m, e.button.button);
-+/
+
+				if (m.move is null) {
+					break;
+				}
+				m.down(m, cast(int)e.button.button);
 				break;
 
 			case SDL_MOUSEBUTTONUP:
@@ -178,9 +177,11 @@ public:
 				m.state = ~(1 << e.button.button) & m.state;
 				m.x = e.button.x;
 				m.y = e.button.y;
-/+
-				m.up(m, e.button.button);
-+/
+
+				if (m.up is null) {
+					break;
+				}
+				m.up(m, cast(int)e.button.button);
 				break;
 
 			default:

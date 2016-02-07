@@ -16,19 +16,11 @@ public:
 	int mod;
 
 public:
-/+
-	Signal!(Keyboard, int, dchar, char[]) down;
-	Signal!(Keyboard, int) up;
-+/
+	void delegate(Keyboard, int, dchar, scope char[]) down;
+	void delegate(Keyboard, int) up;
 
-	~this()
-	{
-/+
-		down.destruct();
-		up.destruct();
-+/
-	}
 
+public:
 	final bool ctrl()
 	{
 		return (mod & KMOD_CTRL) != 0;
