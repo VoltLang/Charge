@@ -5,7 +5,7 @@
  */
 module charge.ctl.input;
 
-//import std.utf : toUTF8;
+import watt.text.utf;
 
 import lib.sdl.sdl;
 
@@ -119,18 +119,26 @@ public:
 				break;
 
 			case SDL_KEYDOWN:
-				char[4] tmp;
-				char[] str;
+				size_t len;
+				char[8] tmp;
+
 				dchar unicode = e.key.keysym.unicode;
 
 				auto k = keyboardArray[0];
 				k.mod = e.key.keysym.mod;
 
+
+
 				if (unicode == 27) {
 					unicode = 0;
 				}
+
+				void sink(scope(char)[] t) {
+					tmp[0 .. t.length] = t;
+					len = t.length;
+				}
 				if (unicode) {
-					//str = toUTF8(tmp, unicode);
+					encode(sink, unicode);
 				}
 /+
 				k.down(k, e.key.keysym.sym, unicode, str);
