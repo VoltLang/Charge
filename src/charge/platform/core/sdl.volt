@@ -8,11 +8,14 @@ module charge.platform.core.sdl;
 import core.stdc.stdio : printf;
 import core.stdc.stdlib : exit;
 
+import watt.library;
+import watt.text.utf;
+
 import charge.core;
+import charge.ctl.input;
 import charge.util.properties;
 import charge.platform.core.common;
 
-import watt.library;
 import lib.sdl.sdl;
 import lib.sdl.loader;
 import lib.gles;
@@ -46,6 +49,8 @@ class CoreSDL : CommonCore
 {
 private:
 	CoreOptions opts;
+
+	Input input;
 
 	string title;
 	int screenshotNum;
@@ -95,6 +100,8 @@ public:
 		} else {
 			initNoGfx(p);
 		}
+
+		this.input = Input.opCall();
 
 		for (size_t i; i < initFuncs.length; i++) {
 			initFuncs[i]();
@@ -265,12 +272,118 @@ version (Emscripten) {
 
 	void doInput()
 	{
-		SDL_Event event;
-		while (SDL_PollEvent(&event)) {
-			if (cast(int)event.type == SDL_QUIT) {
+		SDL_Event e;
+
+		SDL_JoystickUpdate();
+
+		while(SDL_PollEvent(&e)) {
+			switch (e.type) {
+			case SDL_QUIT:
 				running = false;
-			} else if (cast(int)event.type == SDL_KEYDOWN) {
-				running = false;
+				break;
+
+			case SDL_VIDEORESIZE:
+/+
+				resize(cast(uint)e.resize.w, cast(uint)e.resize.h);
++/
+				break;
+
+			case SDL_JOYBUTTONDOWN:
+				auto j = input.joystickArray[e.jbutton.which];
+				if (j.down is null) {
+					break;
+				}
+				j.down(j, cast(int)e.jbutton.button);
+				break;
+
+			case SDL_JOYBUTTONUP:
+				auto j = input.joystickArray[e.jbutton.which];
+				if (j.up is null) {
+					break;
+				}
+				j.up(j, cast(int)e.jbutton.button);
+				break;
+
+			case SDL_JOYAXISMOTION:
+				auto j = input.joystickArray[e.jbutton.which];
+				j.handleAxis(e.jaxis.axis, e.jaxis.value);
+				break;
+
+			case SDL_KEYDOWN:
+				auto k = input.keyboard();
+				k.mod = e.key.keysym.mod;
+
+				// Early out.
+				if (k.down is null) {
+					break;
+				}
+
+				size_t len;
+				char[8] tmp;
+				dchar unicode = e.key.keysym.unicode;
+				if (unicode == 27) {
+					unicode = 0;
+				}
+
+				void sink(scope const(char)[] t) {
+					tmp[0 .. t.length] = t;
+					len = t.length;
+				}
+				if (unicode) {
+					encode(sink, unicode);
+				}
+
+				k.down(k, e.key.keysym.sym, unicode, tmp[0 .. len]);
+				break;
+
+			case SDL_KEYUP:
+				auto k = input.keyboard();
+				k.mod = e.key.keysym.mod;
+
+				if (k.up is null) {
+					break;
+				}
+				k.up(k, e.key.keysym.sym);
+				break;
+
+			case SDL_MOUSEMOTION:
+				auto m = input.mouse();
+				m.state = cast(int)e.motion.state;
+				m.x = cast(int)e.motion.x;
+				m.y = cast(int)e.motion.y;
+
+				if (m.move is null) {
+					break;
+				}
+				m.move(m, cast(int)e.motion.xrel, cast(int)e.motion.yrel);
+				break;
+
+			case SDL_MOUSEBUTTONDOWN:
+				auto m = input.mouse();
+				m.state |= (1 << e.button.button);
+				m.x = e.button.x;
+				m.y = e.button.y;
+
+				if (m.move is null) {
+					break;
+				}
+				m.down(m, cast(int)e.button.button);
+				break;
+
+			case SDL_MOUSEBUTTONUP:
+				auto m = input.mouse();
+				m.state = ~(1 << e.button.button) & m.state;
+				m.x = e.button.x;
+				m.y = e.button.y;
+
+				if (m.up is null) {
+					break;
+				}
+				m.up(m, cast(int)e.button.button);
+				break;
+
+			default:
+				break;
 			}
 		}
 	}
