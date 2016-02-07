@@ -21,10 +21,11 @@ import charge.ctl.mouse;
 
 abstract class App
 {
-protected:
+public:
 	Core c;
 	Input input;
 
+protected:
 /+
 	TimeTracker networkTime;
 	TimeTracker renderTime;
