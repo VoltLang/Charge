@@ -18,13 +18,11 @@ public:
 	this(string vertex, string shader, string[] attr, string[] tex)
 	{
 		this.id = makeShader(vertex, shader, attr, tex);
-		return;
 	}
 
 	this(GLuint id)
 	{
 		this.id = id;
-		return;
 	}
 
 	~this()
@@ -33,7 +31,6 @@ public:
 			glDeleteProgram(id);
 		}
 		id = 0;
-		return;
 	}
 
 final:
@@ -43,19 +40,16 @@ final:
 			glDeleteProgram(id);
 		}
 		id = 0;
-		return;
 	}
 
 	void bind()
 	{
 		glUseProgram(id);
-		return;
 	}
 
 	void unbind()
 	{
 		glUseProgram(0);
-		return;
 	}
 
 	/*
@@ -66,13 +60,11 @@ final:
 	{
 		int loc = glGetUniformLocation(id, name);
 		glUniform4fv(loc, count, value);
-		return;
 	}
 
 	void float4(const(char)* name, float* value)
 	{
 		float4(name, 1, value);
-		return;
 	}
 
 	/*
@@ -83,13 +75,11 @@ final:
 	{
 		int loc = glGetUniformLocation(id, name);
 		glUniform3fv(loc, count, value);
-		return;
 	}
 
 	void float3(const(char)* name, float* value)
 	{
 		float3(name, 1, value);
-		return;
 	}
 
 	/*
@@ -100,13 +90,11 @@ final:
 	{
 		int loc = glGetUniformLocation(id, name);
 		glUniform2fv(loc, count, value);
-		return;
 	}
 
 	void float2(const(char)* name, float* value)
 	{
 		float2(name, 1, value);
-		return;
 	}
 
 	/*
@@ -117,7 +105,6 @@ final:
 	{
 		int loc = glGetUniformLocation(id, name);
 		glUniform1fv(loc, count, value);
-		return;
 	}
 
 
@@ -125,7 +112,6 @@ final:
 	{
 		int loc = glGetUniformLocation(id, name);
 		glUniform1f(loc, value);
-		return;
 	}
 
 	/*
@@ -136,7 +122,6 @@ final:
 	{
 		int loc = glGetUniformLocation(id, name);
 		glUniformMatrix4fv(loc, count, transpose, value);
-		return;
 	}
 
 	/*
@@ -147,7 +132,6 @@ final:
 	{
 		int loc = glGetUniformLocation(id, name);
 		glUniform1i(loc, value);
-		return;
 	}
 }
 
@@ -158,8 +142,9 @@ GLuint makeShader(string vert, string frag, string[] attr, string[] texs)
 
 	// Setup vertex attributes, needs to done before linking.
 	for (size_t i; i < attr.length; i++) {
-		if (attr[i] is null)
+		if (attr[i] is null) {
 			continue;
+		}
 
 		glBindAttribLocation(shader, cast(uint)i, attr[i].ptr);
 	}
@@ -224,7 +209,6 @@ void compileShader(GLuint shader, string source, string type)
 
 	// Print any debug message
 	printDebug(shader, false, type);
-	return;
 }
 
 bool printDebug(GLuint shader, bool program, string type)

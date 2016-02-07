@@ -44,7 +44,6 @@ public:
 	{
 		this.flags = coreFlag.AUTO;
 		this.title = Core.defaultTitle;
-		return;
 	}
 }
 
@@ -109,12 +108,13 @@ public:
 	 */
 	void addInitAndCloseRunners(void function() init, void function() close)
 	{
-		if (init !is null)
+		if (init !is null) {
 			initFuncs ~= init;
+		}
 
-		if (close !is null)
+		if (close !is null) {
 			closeFuncs ~= close;
-		return;
+		}
 	}
 
 	/**
@@ -148,6 +148,5 @@ protected:
 	{
 		this.flags = flags;
 		instance = this;
-		return;
 	}
 }

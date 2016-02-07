@@ -61,8 +61,6 @@ public:
 		glGenBuffers(1, &buf);
 		glBindBuffer(GL_ARRAY_BUFFER, buf);
 		glBufferData(GL_ARRAY_BUFFER, 9 * 4, cast(void*)verts.ptr, GL_STATIC_DRAW);
-
-		return;
 	}
 
 	void close()
@@ -70,7 +68,6 @@ public:
 		shader.breakApart();
 
 		printf("close\n".ptr);
-		return;
 	}
 
 	void render()
@@ -78,8 +75,9 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		val = val + 0.003f;
-		if (val > 0.3f)
+		if (val > 0.3f) {
 			val = 0.1f;
+		}
 
 		glBufferSubData(GL_ARRAY_BUFFER, 4, 4, cast(void*)&val);
 
@@ -87,8 +85,6 @@ public:
 		glEnableVertexAttribArray(0);
 
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
-
-		return;
 	}
 }
 

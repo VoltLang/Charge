@@ -32,15 +32,14 @@ extern(C) void chargeQuit()
 {
 	// If SDL haven't been loaded yet.
 	version (DynamicSDL) {
-		if (SDL_PushEvent is null)
+		if (SDL_PushEvent is null) {
 			return;
+		}
 	}
 
 	SDL_Event event;
 	event.type = SDL_QUIT;
 	SDL_PushEvent(&event);
-
-	return;
 }
 
 class CoreSDL : CommonCore
@@ -97,8 +96,6 @@ public:
 
 		for (size_t i; i < initFuncs.length; i++)
 			initFuncs[i]();
-
-		return;
 	}
 
 	void close()
@@ -124,8 +121,6 @@ public:
 		if (initedNoGfx) {
 			closeNoGfx();
 		}
-
-		return;
 	}
 
 	override void panic(string msg)
@@ -143,36 +138,36 @@ public:
 
 	override void screenShot()
 	{
-		if (initedGfx)
+		if (initedGfx) {
 			throw new Exception("Gfx not initd!");
-		return;
+		}
 	}
 
 	override void resize(uint w, uint h)
 	{
 		this.resize(w, h, fullscreen);
-		return;
 	}
 
 	override void resize(uint w, uint h, bool fullscreen)
 	{
-		if (!resizeSupported)
+		if (!resizeSupported) {
 			return;
+		}
 
-		if (initedGfx)
+		if (initedGfx) {
 			throw new Exception("Gfx not initd!");
-		return;
+		}
 	}
 
 	override void size(out uint w, out uint h, out bool fullscreen)
 	{
-		if (!initedGfx)
+		if (!initedGfx) {
 			throw new Exception("Gfx not initd!");
+		}
 
 		w = this.width;
 		h = this.height;
 		fullscreen = this.fullscreen;
-		return;
 	}
 
 
@@ -210,8 +205,6 @@ version (Emscripten) {
 			instance.renderDg();
 			SDL_GL_SwapBuffers();
 		}
-
-		return;
 	}
 
 	override int loop()
@@ -267,11 +260,11 @@ private:
 			}
 
 			sdl = Library.loads(libSDLnames);
-			if (sdl is null)
-				printf("Could not load SDL, crashing bye bye!\n".ptr);
+			if (sdl is null) {
+				printf("Could not load SDL, crashing bye bye!\n");
+			}
 			loadSDL(sdl.symbol);
 		}
-		return;
 	}
 
 
@@ -286,17 +279,16 @@ private:
 	{
 		initedNoGfx = true;
 		SDL_Init(SDL_INIT_JOYSTICK);
-		return;
 	}
 
 	void closeNoGfx()
 	{
-		if (!initedNoGfx)
+		if (!initedNoGfx) {
 			return;
+		}
 
 		SDL_Quit();
 		initedNoGfx = false;
-		return;
 	}
 
 	void initGfx(Properties p)
@@ -316,14 +308,18 @@ private:
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 		int bits = SDL_OPENGL;
-		if (resizeSupported)
+		if (resizeSupported) {
  			bits |= SDL_RESIZABLE;
-		if (fullscreen)
+		}
+		if (fullscreen) {
 			bits |= SDL_FULLSCREEN;
-		if (fullscreen && fullscreenAutoSize)
+		}
+		if (fullscreen && fullscreenAutoSize) {
 			width = height = 0;
-		version (Emscripten)
+		}
+		version (Emscripten) {
 			bits = 0x04000000; // Emscripten is SDL1.3
+		}
 
 		//l.bug("w: ", width, " h: ", height);
 
@@ -364,17 +360,16 @@ private:
 			panic(format("Missing graphics features, can not run %s", opts.title));
 +/
 		initedGfx = true;
-		return;
 	}
 
 	void closeGfx()
 	{
-		if (!initedGfx)
+		if (!initedGfx) {
 			return;
+		}
 
 		SDL_Quit();
 		initedGfx = false;
-		return;
 	}
 
 	void* loadFunc(string c)

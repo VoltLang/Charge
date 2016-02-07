@@ -58,8 +58,7 @@ protected:
 	global this()
 	{
 		// Pretend to be the Core class when logging.
-		/+l = Logger(Core.classinfo);+/
-		return;
+		l = Logger(Core.classinfo);
 	}
 +/
 
@@ -67,43 +66,46 @@ protected:
 	{
 		super(flags);
 
-
 		initSettings();
 
 /+
 		resizeSupported = p.getBool("forceResizeEnable", defaultForceResizeEnable);
 +/
 		// Init sub system
-		if (flags & phyFlags)
+		if (flags & phyFlags) {
 			initSubSystem(coreFlag.PHY);
+		}
 
-		if (flags & sfxFlags)
+		if (flags & sfxFlags) {
 			initSubSystem(coreFlag.SFX);
-
-		return;
+		}
 	}
 
 	override void initSubSystem(coreFlag flag)
 	{
 		auto not = coreFlag.PHY | coreFlag.SFX;
 
-		if (flag & ~not)
+		if (flag & ~not) {
 			throw new Exception("Flag not supported");
+		}
 
-		if (flag == not)
+		if (flag == not) {
 			throw new Exception("More then one flag not supported");
+		}
 
 /+
 		if (flag & coreFlag.PHY) {
-			if (phyLoaded)
+			if (phyLoaded) {
 				return;
+			}
 
 			flags |= coreFlag.PHY;
 			loadPhy();
 			initPhy(p);
 
-			if (phyLoaded)
+			if (phyLoaded) {
 				return;
+			}
 
 			flags &= ~coreFlag.PHY;
 			throw new Exception("Could not load PHY");
@@ -112,32 +114,33 @@ protected:
 
 /+
 		if (flag & coreFlag.SFX) {
-			if (sfxLoaded)
+			if (sfxLoaded) {
 				return;
+			}
 
 			flags |= coreFlag.SFX;
 			loadSfx();
 			initSfx(p);
 
-			if (sfxLoaded)
+			if (sfxLoaded) {
 				return;
+			}
 
 			flags &= ~coreFlag.SFX;
 			throw new Exception("Could not load SFX");
 		}
 +/
-		return;
 	}
 
 	void notLoaded(coreFlag mask, string name)
 	{
 /+
-		if (flags & mask)
+		if (flags & mask) {
 			l.fatal("Could not load %s, crashing bye bye!", name);
-		else
+		} else {
 			l.info("%s not found, this not an error.", name);
+		}
 +/
-		return;
 	}
 
 	Properties properties()
@@ -156,8 +159,9 @@ protected:
 	void loadPhy()
 	{
 /+
-		if (odeLoaded)
+		if (odeLoaded) {
 			return;
+		}
 
 		version(DynamicODE) {
 			ode = Library.loads(libODEname);
@@ -171,14 +175,14 @@ protected:
 			odeLoaded = true;
 		}
 +/
-		return;
 	}
 
 	void loadSfx()
 	{
 /+
-		if (openalLoaded)
+		if (openalLoaded) {
 			return;
+		}
 
 		openal = Library.loads(libOpenALname);
 		alut = Library.loads(libALUTname);
@@ -195,7 +199,6 @@ protected:
 		else
 			loadALUT(&alut.symbol);
 +/
-		return;
 	}
 
 	void initSettings()
@@ -218,19 +221,18 @@ protected:
 		p.addIfNotSet("fullscreenAutoSize", defaultFullscreenAutoSize);
 		p.addIfNotSet("forceResizeEnable", defaultForceResizeEnable);
 +/
-		return;
 	}
 
 	void saveSettings()
 	{
 /+
 		auto ret = p.save(settingsFile);
-		if (ret)
+		if (ret) {
 			l.info("Settings saved: %s", settingsFile);
-		else
+		} else {
 			l.error("Failed to save settings file %s", settingsFile);
+		}
 +/
-		return;
 	}
 
 	/*
@@ -242,35 +244,36 @@ protected:
 	void initPhy(Properties p)
 	{
 /+
-		if (!odeLoaded)
+		if (!odeLoaded) {
 			return;
+		}
 
 		dInitODE2(0);
 		dAllocateODEDataForThread(dAllocateMaskAll);
 
 		phyLoaded = true;
 +/
-		return;
 	}
 
 	void closePhy()
 	{
 /+
-		if (!phyLoaded)
+		if (!phyLoaded) {
 			return;
+		}
 
 		dCloseODE();
 
 		phyLoaded = false;
 +/
-		return;
 	}
 
 	void initSfx(Properties p)
 	{
 /+
-		if (!openalLoaded)
+		if (!openalLoaded) {
 			return;
+		}
 
 		alDevice = alcOpenDevice(null);
 
@@ -281,22 +284,23 @@ protected:
 			sfxLoaded = true;
 		}
 +/
-		return;
 	}
 
 	void closeSfx()
 	{
 /+
-		if (!openalLoaded)
+		if (!openalLoaded) {
 			return;
+		}
 
-		if (alContext)
+		if (alContext) {
 			alcDestroyContext(alContext);
-		if (alDevice)
+		}
+		if (alDevice) {
 			alcCloseDevice(alDevice);
+		}
 
 		sfxLoaded = false;
 +/
-		return;
 	}
 }
