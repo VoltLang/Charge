@@ -293,7 +293,7 @@ version (Emscripten) {
 				if (j.down is null) {
 					break;
 				}
-				j.down(j, cast(int)e.jbutton.button);
+				j.down(j, e.jbutton.button);
 				break;
 
 			case SDL_JOYBUTTONUP:
@@ -301,7 +301,7 @@ version (Emscripten) {
 				if (j.up is null) {
 					break;
 				}
-				j.up(j, cast(int)e.jbutton.button);
+				j.up(j, e.jbutton.button);
 				break;
 
 			case SDL_JOYAXISMOTION:
@@ -348,14 +348,14 @@ version (Emscripten) {
 
 			case SDL_MOUSEMOTION:
 				auto m = input.mouse;
-				m.state = cast(int)e.motion.state;
-				m.x = cast(int)e.motion.x;
-				m.y = cast(int)e.motion.y;
+				m.state = e.motion.state;
+				m.x = e.motion.x;
+				m.y = e.motion.y;
 
 				if (m.move is null) {
 					break;
 				}
-				m.move(m, cast(int)e.motion.xrel, cast(int)e.motion.yrel);
+				m.move(m, e.motion.xrel, e.motion.yrel);
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
@@ -367,7 +367,7 @@ version (Emscripten) {
 				if (m.move is null) {
 					break;
 				}
-				m.down(m, cast(int)e.button.button);
+				m.down(m, e.button.button);
 				break;
 
 			case SDL_MOUSEBUTTONUP:
@@ -379,7 +379,7 @@ version (Emscripten) {
 				if (m.up is null) {
 					break;
 				}
-				m.up(m, cast(int)e.button.button);
+				m.up(m, e.button.button);
 				break;
 
 			default:
