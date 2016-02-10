@@ -450,6 +450,7 @@ private:
 		height = 600;//p.getUint("h", defaultHeight);
 		fullscreen = false;//p.getBool("fullscreen", defaultFullscreen);
 		fullscreenAutoSize = true;//p.getBool("fullscreenAutoSize", defaultFullscreenAutoSize);
+		bool windowDecorations = opts.windowDecorations;
 		auto title = "Charge".ptr;
 
 		SDL_WM_SetCaption(title, title);
@@ -462,6 +463,9 @@ private:
 		}
 		if (fullscreen) {
 			bits |= SDL_FULLSCREEN;
+		}
+		if (!windowDecorations) {
+			bits |= SDL_NOFRAME;
 		}
 		if (fullscreen && fullscreenAutoSize) {
 			width = height = 0;

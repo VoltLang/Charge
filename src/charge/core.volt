@@ -38,12 +38,14 @@ class CoreOptions
 public:
 	string title;
 	coreFlag flags;
+	bool windowDecorations;
 
 public:
 	this()
 	{
 		this.flags = coreFlag.AUTO;
 		this.title = Core.defaultTitle;
+		this.windowDecorations = Core.defaultWindowDecorations;
 	}
 }
 
@@ -59,6 +61,7 @@ public:
 	enum bool defaultFullscreenAutoSize = true;
 	enum string defaultTitle = "Charge Game Engine";
 	enum bool defaultForceResizeEnable = false;
+	enum bool defaultWindowDecorations = true;
 
 	coreFlag flags;
 	bool resizeSupported;
