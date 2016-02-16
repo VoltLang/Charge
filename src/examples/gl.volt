@@ -9,7 +9,7 @@ import charge.core : chargeCore, chargeQuit, Core, CoreOptions;
 import lib.gl;
 
 
-enum string vertexShader = `
+enum string vertexShaderES = `
 #version 100
 #ifdef GL_ES
 precision mediump float;
@@ -23,11 +23,31 @@ void main(void)
 }
 `;
 
-enum string fragmentShader = `
+enum string fragmentShaderES = `
 #version 100
 #ifdef GL_ES
 precision mediump float;
 #endif
+
+void main(void)
+{
+	gl_FragColor = vec4(0.0, 0.0, 1.0, 0.0);
+}
+`;
+
+enum string vertexShader450 = `
+#version 450
+
+layout (location = 0) in vec3 position;
+
+void main(void)
+{
+	gl_Position = vec4(position, 1.0);
+}
+`;
+
+enum string fragmentShader450 = `
+#version 450
 
 void main(void)
 {
@@ -40,6 +60,7 @@ class Game : App
 public:
 	float val;
 	Shader shader;
+	GLuint buf;
 
 public:
 	this()
@@ -48,13 +69,13 @@ public:
 
 		input.keyboard.down = down;
 
-		shader = new Shader(vertexShader, fragmentShader, ["position"], null);
+		if (GL_VERSION_4_5) {
+			shader = new Shader(vertexShader450, fragmentShader450, null, null);
+		} else if (GL_ES_VERSION_2_0 || GL_ARB_ES2_compatibility) {
+			shader = new Shader(vertexShaderES, fragmentShaderES, ["position"], null);
+		}
 		shader.bind();
 		val = 0.1f;
-
-		GLuint buf;
-
-		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 
 		float[] verts = new float[](9);
 		verts[0] =  0.0f; verts[1] =  0.1f; verts[2] =  0.0f;
@@ -63,6 +84,7 @@ public:
 		glGenBuffers(1, &buf);
 		glBindBuffer(GL_ARRAY_BUFFER, buf);
 		glBufferData(GL_ARRAY_BUFFER, 9 * 4, cast(void*)verts.ptr, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
 	override void close()
@@ -82,15 +104,20 @@ public:
 
 	override void render()
 	{
+		// Clear the screen.
+		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 
-
+		// Setup vertex buffer and update the data a bit.
+		glBindBuffer(GL_ARRAY_BUFFER, buf);
 		glBufferSubData(GL_ARRAY_BUFFER, 4, 4, cast(void*)&val);
-
 		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 3 * 4, null);
 		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+
+		// Draw the triangle.
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
 	}
 
