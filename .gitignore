@@ -1,4 +1,6 @@
 /charge
 /charge.*
+/Charge
+/Charge.*
 *.dll
 *.lib
