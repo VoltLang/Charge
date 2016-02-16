@@ -36,7 +36,7 @@ void main(void)
 `;
 
 enum string vertexShader450 = `
-#version 450
+#version 450 core
 
 layout (location = 0) in vec3 position;
 
@@ -47,11 +47,13 @@ void main(void)
 `;
 
 enum string fragmentShader450 = `
-#version 450
+#version 450 core
+
+layout (location = 0) out vec4 color;
 
 void main(void)
 {
-	gl_FragColor = vec4(0.0, 0.0, 1.0, 0.0);
+	color = vec4(0.0, 0.0, 1.0, 0.0);
 }
 `;
 
