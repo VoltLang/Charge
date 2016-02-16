@@ -37,7 +37,7 @@ alias GLhalfNV = ushort;
 struct ___GLsync {}
 alias __GLsync = ___GLsync*;
 alias GLsync = __GLsync*;
-struct __cl_context {};
+struct __cl_context {}
 alias _cl_context = __cl_context*;
 struct __cl_event {}
 alias _cl_event = __cl_event*;
