@@ -18,8 +18,8 @@ import charge.platform.core.common;
 
 import lib.sdl.sdl;
 import lib.sdl.loader;
-import lib.gles;
-import lib.gles.loader;
+import lib.gl;
+import lib.gl.loader;
 
 version (Emscripten) {
 	extern(C) void emscripten_set_main_loop(void function(), int fps, int infloop);
@@ -487,7 +487,11 @@ private:
 		width = cast(uint)s.w;
 		height = cast(uint)s.h;
 
-		gladLoadGLES2(SDL_GL_GetProcAddress);
+		version (Emscripten) {
+			gladLoadGLES2(loadFunc);
+		} else {
+			gladLoadGL(loadFunc);
+		}
 
 		printf("%s\n".ptr, glGetString(GL_VENDOR));
 		printf("%s\n".ptr, glGetString(GL_VERSION));

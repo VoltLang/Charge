@@ -6,7 +6,7 @@ import charge.ctl;
 import charge.game.app;
 import charge.gfx.shader;
 import charge.core : chargeCore, chargeQuit, Core, CoreOptions;
-import lib.gles;
+import lib.gl;
 
 
 enum string vertexShader = `

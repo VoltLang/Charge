@@ -1,7 +1,7 @@
 
 SRC = \
 	src/lib/sdl/*.volt \
-	src/lib/gles/*.volt \
+	src/lib/gl/*.volt \
 	src/charge/*.volt \
 	src/charge/gfx/*.volt \
 	src/charge/ctl/*.volt \

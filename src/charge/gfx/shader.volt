@@ -6,7 +6,7 @@
 module charge.gfx.shader;
 
 import core.stdc.stdio;
-import lib.gles;
+import lib.gl;
 
 
 class Shader
