@@ -5,9 +5,9 @@ module main;
 static import examples.gl;
 
 
-int main()
+int main(string[] args)
 {
-	auto g = new examples.gl.Game();
+	auto g = new examples.gl.Game(args);
 
 	return g.c.loop();
 }

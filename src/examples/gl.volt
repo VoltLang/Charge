@@ -65,7 +65,7 @@ public:
 	GLuint buf;
 
 public:
-	this()
+	this(string[] args)
 	{
 		super();
 
