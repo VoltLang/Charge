@@ -3,6 +3,7 @@ SRC = \
 	src/lib/sdl/*.volt \
 	src/lib/gl/*.volt \
 	src/charge/*.volt \
+	src/charge/sys/*.volt \
 	src/charge/gfx/*.volt \
 	src/charge/ctl/*.volt \
 	src/charge/util/*.volt \
