@@ -4,3 +4,4 @@
 /Charge.*
 *.dll
 *.lib
+/perf.cvs
