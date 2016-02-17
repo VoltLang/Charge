@@ -2,14 +2,17 @@
 # Intended for Digital Mars Make and GNU Make.
 
 VOLT = volt
+VFLAGS =
+LDFLAGS = -l SDL.lib
+TARGET = Charge.exe
 include sources.mk
 
-all: charge.exe
+all: $(TARGET)
 
-charge.exe:
-	$(VOLT) -l SDL.lib -o charge.exe -I src $(SRC)
+$(TARGET):
+	$(VOLT) $(VFLAGS) $(LDFLAGS) -o $(TARGET) -I src $(SRC)
 
 clean:
-	del /q charge.exe
+	del /q $(TARGET)
 
 .PHONY: all clean
