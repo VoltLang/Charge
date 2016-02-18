@@ -12,6 +12,7 @@ import watt.library;
 import watt.text.utf;
 
 import charge.core;
+import charge.gfx.gfx;
 import charge.ctl.input;
 import charge.util.properties;
 import charge.platform.core.common;
@@ -25,6 +26,13 @@ version (Emscripten) {
 	extern(C) void emscripten_set_main_loop(void function(), int fps, int infloop);
 	extern(C) void emscripten_cancel_main_loop();
 }
+
+
+/*
+ *
+ * Exported functions.
+ *
+ */
 
 extern(C) Core chargeCore(CoreOptions opts)
 {
@@ -58,8 +66,7 @@ private:
 	bool fullscreen; //< Should we be fullscreen
 	bool fullscreenAutoSize; //< Only used at start
 
-	bool initedGfx;
-	bool initedNoGfx;
+	bool noVideo;
 
 	/* surface for window */
 	SDL_Surface *s;
@@ -126,10 +133,10 @@ public:
 		closeSfx();
 		closePhy();
 
-		if (initedGfx) {
+		if (gfxLoaded) {
 			closeGfx();
 		}
-		if (initedNoGfx) {
+		if (noVideo) {
 			closeNoGfx();
 		}
 	}
@@ -142,14 +149,14 @@ public:
 
 	override string getClipboardText()
 	{
-		if (initedGfx)
+		if (gfxLoaded)
 			throw new Exception("Gfx not initd!");
 		return null;
 	}
 
 	override void screenShot()
 	{
-		if (initedGfx) {
+		if (gfxLoaded) {
 			throw new Exception("Gfx not initd!");
 		}
 	}
@@ -165,14 +172,14 @@ public:
 			return;
 		}
 
-		if (initedGfx) {
+		if (gfxLoaded) {
 			throw new Exception("Gfx not initd!");
 		}
 	}
 
 	override void size(out uint w, out uint h, out bool fullscreen)
 	{
-		if (!initedGfx) {
+		if (!gfxLoaded) {
 			throw new Exception("Gfx not initd!");
 		}
 
@@ -426,18 +433,18 @@ private:
 
 	void initNoGfx(Properties p)
 	{
-		initedNoGfx = true;
+		noVideo = true;
 		SDL_Init(SDL_INIT_JOYSTICK);
 	}
 
 	void closeNoGfx()
 	{
-		if (!initedNoGfx) {
+		if (!noVideo) {
 			return;
 		}
 
 		SDL_Quit();
-		initedNoGfx = false;
+		noVideo = false;
 	}
 
 	void initGfx(Properties p)
@@ -520,17 +527,17 @@ private:
 			panic(format("Missing graphics features, can not run %s", opts.title));
 		}
 +/
-		initedGfx = true;
+		gfxLoaded = true;
 	}
 
 	void closeGfx()
 	{
-		if (!initedGfx) {
+		if (!gfxLoaded) {
 			return;
 		}
 
 		SDL_Quit();
-		initedGfx = false;
+		gfxLoaded = false;
 	}
 
 	void* loadFunc(string c)
