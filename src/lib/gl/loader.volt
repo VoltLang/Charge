@@ -153,6 +153,9 @@ bool gladLoadGL(Loader load) {
 
 	find_extensionsGL();
 	load_GL_ARB_ES2_compatibility(load);
+	load_GL_ARB_ES3_1_compatibility(load);
+	load_GL_ARB_ES3_2_compatibility(load);
+	load_GL_ARB_texture_storage(load);
 	return GL_MAJOR != 0 || GL_MINOR != 0;
 }
 
@@ -186,6 +189,11 @@ void find_coreGL() {
 
 void find_extensionsGL() {
 	GL_ARB_ES2_compatibility = has_ext("GL_ARB_ES2_compatibility");
+	GL_ARB_ES3_1_compatibility = has_ext("GL_ARB_ES3_1_compatibility");
+	GL_ARB_ES3_2_compatibility = has_ext("GL_ARB_ES3_2_compatibility");
+	GL_ARB_ES3_compatibility = has_ext("GL_ARB_ES3_compatibility");
+	GL_ARB_shading_language_420pack = has_ext("GL_ARB_shading_language_420pack");
+	GL_ARB_texture_storage = has_ext("GL_ARB_texture_storage");
 	return;
 }
 
@@ -1335,6 +1343,23 @@ void load_GL_ARB_ES2_compatibility(Loader load) {
 	glGetShaderPrecisionFormat = cast(typeof(glGetShaderPrecisionFormat))load("glGetShaderPrecisionFormat");
 	glDepthRangef = cast(typeof(glDepthRangef))load("glDepthRangef");
 	glClearDepthf = cast(typeof(glClearDepthf))load("glClearDepthf");
+	return;
+}
+void load_GL_ARB_ES3_1_compatibility(Loader load) {
+	if(!GL_ARB_ES3_1_compatibility) return;
+	glMemoryBarrierByRegion = cast(typeof(glMemoryBarrierByRegion))load("glMemoryBarrierByRegion");
+	return;
+}
+void load_GL_ARB_ES3_2_compatibility(Loader load) {
+	if(!GL_ARB_ES3_2_compatibility) return;
+	glPrimitiveBoundingBoxARB = cast(typeof(glPrimitiveBoundingBoxARB))load("glPrimitiveBoundingBoxARB");
+	return;
+}
+void load_GL_ARB_texture_storage(Loader load) {
+	if(!GL_ARB_texture_storage) return;
+	glTexStorage1D = cast(typeof(glTexStorage1D))load("glTexStorage1D");
+	glTexStorage2D = cast(typeof(glTexStorage2D))load("glTexStorage2D");
+	glTexStorage3D = cast(typeof(glTexStorage3D))load("glTexStorage3D");
 	return;
 }
 
