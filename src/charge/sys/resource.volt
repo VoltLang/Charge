@@ -21,8 +21,8 @@ public:
 private:
 	int mRefcount;
 
-public:
-	this()
+protected:
+	void _ctor()
 	{
 		this.mRefcount = 1;
 
@@ -30,14 +30,15 @@ public:
 		Pool.mInstance.resource(this);
 	}
 
-protected:
 	abstract void collect();
 
-	global Resource alloc(object.TypeInfo ti,
-	                      scope const(char)[] uri,
-	                      scope const(char)[] name)
+	global void* alloc(object.TypeInfo ti,
+	                   scope const(char)[] uri,
+	                   scope const(char)[] name,
+	                   size_t extraSize,
+	                   out void* extraPtr)
 	{
-		size_t sz = ti.classSize + uri.length + name.length;
+		size_t sz = ti.classSize + uri.length + name.length + extraSize;
 		void* ptr = cMalloc(sz);
 
 		size_t start = 0;
@@ -52,10 +53,14 @@ protected:
 		end = start + name.length;
 		ptr[start .. end] = cast(void[])name;
 
+		if (extraSize > 0) {
+			extraPtr = ptr + end;
+		}
+
 		auto r = cast(Resource)ptr;
 		r.url = cast(string)ptr[ti.classSize .. end];
 
-		return r;
+		return ptr;
 	}
 
 private:
@@ -78,6 +83,7 @@ private:
 		}
 	}
 }
+
 
 /**
  * Pool for named resources.
@@ -107,7 +113,6 @@ public:
 		return mInstance;
 	}
 
-
 	void collect()
 	{
 		foreach (r; mMarked) {
@@ -116,12 +121,6 @@ public:
 		}
 		mMarked = null;
 	}
-
-	/*
-	 *
-	 * File related functions.
-	 *
-	 */
 
 	void clean()
 	{
