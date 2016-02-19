@@ -593,11 +593,13 @@ stbi_uc* stbi__bmp_load(stbi__context *s, int *x, int *y, int *comp, int req_com
 	all_a = info.all_a;
 
 	if (info.hsz == 12) {
-		if (info.bpp < 24)
+		if (info.bpp < 24) {
 			psize = (info.offset - 14 - 24) / 3;
+		}
 	} else {
-		if (info.bpp < 16)
+		if (info.bpp < 16) {
 			psize = (info.offset - 14 - info.hsz) >> 2;
+		}
 	}
 
 	s.img_n = ma ? 4 : 3;
