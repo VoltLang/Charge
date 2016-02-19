@@ -53,7 +53,7 @@ public:
 		fclose(fp);
 
 		auto file = cast(File)raw;
-		file._ctor(ptr, size);
+		file.__ctor(ptr, size);
 		
 		return file;
 	}
@@ -98,11 +98,11 @@ protected:
 		}
 	}
 
-	void _ctor(void* ptr, size_t size)
+	this(void* ptr, size_t size)
 	{
 		this.ptr = ptr;
 		this.size = size;
 
-		super._ctor();
+		super();
 	}
 }

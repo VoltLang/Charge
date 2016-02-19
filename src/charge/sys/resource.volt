@@ -22,7 +22,7 @@ private:
 	int mRefcount;
 
 protected:
-	void _ctor()
+	this()
 	{
 		this.mRefcount = 1;
 

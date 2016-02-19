@@ -39,7 +39,7 @@ public:
 	}
 
 protected:
-	void _ctor(GLuint id, GLuint target, uint width, uint height, uint depth)
+	this(GLuint id, GLuint target, uint width, uint height, uint depth)
 	{
 		this.id = id;
 		this.target = target;
@@ -47,7 +47,7 @@ protected:
 		this.height = height;
 		this.depth = depth;
 
-		super._ctor();
+		super();
 	}
 
 	override void collect()
@@ -117,8 +117,15 @@ public:
 		auto tex = cast(Texture2D)Resource.alloc(typeid(Texture2D),
 		                                         uri, filename,
 		                                         0, out dummy);
-		tex._ctor(id, target, cast(uint) x, cast(uint) y, 1);
+		tex.__ctor(id, target, cast(uint) x, cast(uint) y, 1);
 
 		return tex;
+	}
+
+
+protected:
+	this(GLuint id, GLuint target, uint width, uint height, uint depth)
+	{
+		super(id, target, width, height, depth);
 	}
 }
