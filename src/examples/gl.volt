@@ -3,9 +3,8 @@
 module examples.gl;
 
 import charge.ctl;
-import charge.game.app;
+import charge.game;
 import charge.gfx.shader;
-import charge.core : chargeCore, chargeQuit, Core, CoreOptions;
 import lib.gl;
 
 
@@ -57,23 +56,45 @@ void main(void)
 }
 `;
 
-class Game : App
+
+class Game : GameSceneManagerApp
 {
 public:
+	this(string[] args)
+	{
+		// First init core.
+		super();
+
+		auto s = new Scene(this);
+		push(s);
+	}
+}
+
+class Scene : GameScene
+{
+public:
+	CtlInput input;
 	float val;
 	Shader shader;
 	GLuint buf;
 
 public:
-	this(string[] args)
+	this(GameSceneManager scm)
 	{
-		super();
+		super(scm, Type.Game);
+		input = CtlInput.opCall();
 
-		input.keyboard.down = down;
+		// Check gl version.
+		if (!GL_ARB_ES2_compatibility &&
+		    !GL_ES_VERSION_2_0 &&
+		    !GL_VERSION_4_5) {
+			throw new Exception("Need OpenGL ES 2.0, ARB_ES2_comp or OpenGL 4.5");
+		}
 
 		if (GL_VERSION_4_5) {
 			shader = new Shader(vertexShader450, fragmentShader450, null, null);
-		} else if (GL_ES_VERSION_2_0 || GL_ARB_ES2_compatibility) {
+		} else {
+			assert(GL_ES_VERSION_2_0 || GL_ARB_ES2_compatibility);
 			shader = new Shader(vertexShaderES, fragmentShaderES, ["position"], null);
 		}
 		shader.bind();
@@ -92,8 +113,6 @@ public:
 	override void close()
 	{
 		shader.breakApart();
-
-		super.close();
 	}
 
 	override void logic()
@@ -123,13 +142,20 @@ public:
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
 	}
 
-	override void idle(long)
+	override void assumeControl()
 	{
-		// This method intentionally left empty.
+		input.keyboard.down = down;
+	}
+
+	override void dropControl()
+	{
+		if (input.keyboard.down is down) {
+			input.keyboard.down = null;
+		}
 	}
 
 	void down(CtlKeyboard, int, dchar, scope const(char)[] m)
 	{
-		chargeQuit();
+		mManager.closeMe(this);
 	}
 }
