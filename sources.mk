@@ -9,6 +9,7 @@ SRC = \
 	src/charge/ctl/*.volt \
 	src/charge/util/*.volt \
 	src/charge/game/*.volt \
+	src/charge/game/scene/*.volt \
 	src/charge/platform/core/*.volt \
 	src/examples/*.volt \
 	src/power/*.volt \
