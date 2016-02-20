@@ -68,7 +68,6 @@ public:
 		void[] data = file.data;
 		int x, y, comp;
 
-		stbi_set_flip_vertically_on_load(true);
 		auto ptr = stbi_load_from_memory(data, out x, out y, out comp, STBI_rgb_alpha);
 
 		// Free and null everything.
