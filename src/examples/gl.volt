@@ -188,7 +188,7 @@ public:
 enum string vertexShader450 = `
 #version 450 core
 
-layout (location = 0) in vec3 inPosition;
+layout (location = 0) in vec2 inPosition;
 layout (location = 1) in vec2 inUv;
 layout (location = 2) in vec4 inColor;
 
@@ -201,7 +201,7 @@ void main(void)
 {
 	outUv = inUv;
 	outColor = inColor;
-	gl_Position = matrix * vec4(inPosition, 1.0);
+	gl_Position = matrix * vec4(inPosition, 0.0, 1.0);
 }
 `;
 
@@ -227,7 +227,7 @@ enum string vertexShaderES = `
 precision mediump float;
 #endif
 
-attribute vec3 position;
+attribute vec2 position;
 attribute vec2 uv;
 attribute vec4 color;
 
@@ -240,7 +240,7 @@ void main(void)
 {
 	uvFs = uv;
 	colorFs = color;
-	gl_Position = matrix * vec4(position, 1.0);
+	gl_Position = matrix * vec4(position, 0.0, 1.0);
 }
 `;
 

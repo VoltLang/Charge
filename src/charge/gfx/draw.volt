@@ -68,7 +68,7 @@ class VertexBuilder : Builder
 		glBufferData(GL_ARRAY_BUFFER, cast(GLsizeiptr)length, ptr, GL_STATIC_DRAW);
 
 		auto stride = cast(GLsizei)typeid(Vertex).size;
-		glVertexAttribPointer(0, 3, GL_FLOAT, 0, stride, null);
+		glVertexAttribPointer(0, 2, GL_FLOAT, 0, stride, null);
 		glVertexAttribPointer(1, 2, GL_FLOAT, 0, stride, cast(void*)(4 * 2));
 		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, 1, stride, cast(void*)(4 * 4));
 		glEnableVertexAttribArray(0);
