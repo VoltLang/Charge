@@ -84,10 +84,16 @@ public:
 
 	void initShaders()
 	{
-		shader = new Shader(vertexShaderES,
-		                    fragmentShaderES,
-		                    ["position", "uv", "color"],
-		                    ["tex"]);
+		if (GL_VERSION_4_5) {
+			shader = new Shader(vertexShader450,
+			                    fragmentShader450,
+			                    null, null);
+		} else {
+			shader = new Shader(vertexShaderES,
+			                    fragmentShaderES,
+			                    ["position", "uv", "color"],
+			                    ["tex"]);
+		}
 		shader.bind();
 
 		Matrix4x4f mat;
