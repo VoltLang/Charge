@@ -2,18 +2,17 @@
 # Find which compilers are installed.
 #
 
+CC ?= $(shell which gcc)
 VOLT ?= $(shell which volt)
-EMCC ?= $(shell which emcc)
-
 
 ########################################
 # Basic settings.
 #
 
+CFLAGS ?= -g
 VFLAGS ?= -d --internal-perf -D DynamicSDL
 LDFLAGS ?=
 TARGET ?= Charge
-TARGET_HTML ?= $(TARGET).html
 
 
 ########################################
@@ -22,6 +21,7 @@ TARGET_HTML ?= $(TARGET).html
 
 include sources.mk
 SRC:= $(shell ls $(SRC))
+OBJ = .obj/stb_image.o
 
 
 ########################################
@@ -30,13 +30,14 @@ SRC:= $(shell ls $(SRC))
 
 all: $(TARGET)
 
-$(TARGET): $(SRC) GNUmakefile
-	@echo "  VOLT   $(TARGET)"
-	@$(VOLT) -I src $(VFLAGS) $(LDFLAGS) -o $(TARGET) $(SRC)
+.obj/stb_image.o: src/lib/stb/stb_image.c src/lib/stb/stb_image.h
+	@mkdir -p .obj
+	@echo "  CC     $@"
+	@$(CC) $(CFLAGS) src/lib/stb/stb_image.c -c -o $@
 
-emscripten:
-	@echo "  VOLT   $(TARGET_HTML)"
-	@$(VOLT) --platform emscripten --linker $(EMCC) -o $(TARGET_HTML) $(SRC)
+$(TARGET): $(OBJ) $(SRC) GNUmakefile
+	@echo "  VOLT   $@"
+	@$(VOLT) -I src $(VFLAGS) $(LDFLAGS) -o $(TARGET) $(SRC) $(OBJ)
 
 run: all
 	@./$(TARGET)
