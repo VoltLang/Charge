@@ -36,6 +36,8 @@ extern(C) void chargeQuit();
 class CoreOptions
 {
 public:
+	uint width;
+	uint height;
 	string title;
 	coreFlag flags;
 	bool windowDecorations;
@@ -43,6 +45,8 @@ public:
 public:
 	this()
 	{
+		this.width = Core.defaultWidth;
+		this.height = Core.defaultHeight;
 		this.flags = coreFlag.AUTO;
 		this.title = Core.defaultTitle;
 		this.windowDecorations = Core.defaultWindowDecorations;
@@ -55,8 +59,8 @@ public:
 abstract class Core
 {
 public:
-	enum int defaultWidth = 800;
-	enum int defaultHeight = 600;
+	enum uint defaultWidth = 800;
+	enum uint defaultHeight = 600;
 	enum bool defaultFullscreen = false;
 	enum bool defaultFullscreenAutoSize = true;
 	enum string defaultTitle = "Charge Game Engine";

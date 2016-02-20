@@ -453,12 +453,12 @@ private:
 
 		SDL_EnableUNICODE(1);
 
-		width = 800;//p.getUint("w", defaultWidth);
-		height = 600;//p.getUint("h", defaultHeight);
+		width = opts.width;
+		height = opts.height;
 		fullscreen = false;//p.getBool("fullscreen", defaultFullscreen);
 		fullscreenAutoSize = true;//p.getBool("fullscreenAutoSize", defaultFullscreenAutoSize);
 		bool windowDecorations = opts.windowDecorations;
-		auto title = "Charge".ptr;
+		auto title = (opts.title ~ "\0").ptr;
 
 		SDL_WM_SetCaption(title, title);
 
