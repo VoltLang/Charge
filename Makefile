@@ -10,9 +10,13 @@ include sources.mk
 all: $(TARGET)
 
 $(TARGET):
-	$(VOLT) $(VFLAGS) $(LDFLAGS) -o $(TARGET) -I src $(SRC)
+	rmdir /s /q .obj
+	mkdir .obj
+	cl.exe /c src\lib\stb\stb.c /Fo.obj\stb.obj
+	$(VOLT) .obj/stb.obj $(VFLAGS) $(LDFLAGS) -o $(TARGET) -I src $(SRC)
 
 clean:
+	rmdir /s /q .obj
 	del /q $(TARGET)
 
 .PHONY: all clean
