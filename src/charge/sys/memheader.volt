@@ -33,61 +33,83 @@ public:
 	}
 }
 
+
 extern(C):
 
-size_t charge_usage()
+size_t cMemoryUsage()
 {
 	return MemHeader.memory;
 }
 
-void* charge_malloc(size_t size, const(char)* file, uint line)
-{
-	size_t totalSize = size + typeid(MemHeader).size;
-	MemHeader* mem = cast(MemHeader*)core.stdc.stdlib.malloc(totalSize);
+debug {
 
-	mem.file = file;
-	mem.line = line;
-	mem.size = size;
+	void* cMalloc(size_t size, const(char)* file, uint line)
+	{
+		size_t totalSize = size + typeid(MemHeader).size;
+		MemHeader* mem = cast(MemHeader*)core.stdc.stdlib.malloc(totalSize);
 
-	MemHeader.memory += size;
-	return mem.getData();
-}
+		mem.file = file;
+		mem.line = line;
+		mem.size = size;
 
-void* charge_realloc(void* ptr, size_t size, const(char)* file, uint line)
-{
-	size_t totalSize = size + typeid(MemHeader).size;
-
-	if (ptr is null && size == 0) {
-		return null;
+		MemHeader.memory += size;
+		return mem.getData();
 	}
 
-	if (ptr is null) {
-		return charge_malloc(size, file, line);
+	void* cRealloc(void* ptr, size_t size, const(char)* file, uint line)
+	{
+		size_t totalSize = size + typeid(MemHeader).size;
+
+		if (ptr is null && size == 0) {
+			return null;
+		}
+
+		if (ptr is null) {
+			return cMalloc(size, file, line);
+		}
+
+		if (size == 0) {
+			cFree(ptr, file, line);
+			return null;
+		}
+
+		auto mem = MemHeader.fromData(ptr);
+		MemHeader.memory -= mem.size;
+
+		mem = cast(MemHeader*)core.stdc.stdlib.realloc(
+				cast(void*)mem, totalSize);
+
+		mem.file = file;
+		mem.line = line;
+		mem.size = size;
+
+		MemHeader.memory += mem.size;
+		return mem.getData();
 	}
 
-	if (size == 0) {
-		charge_free(ptr, file, line);
-		return null;
+	void cFree(void* ptr, const(char)* file, uint line)
+	{
+		auto mem = MemHeader.fromData(ptr);
+
+		MemHeader.memory -= mem.size;
+		core.stdc.stdlib.free(cast(void*)mem);
 	}
 
-	auto mem = MemHeader.fromData(ptr);
-	MemHeader.memory -= mem.size;
+} else {
 
-	mem = cast(MemHeader*)core.stdc.stdlib.realloc(
-		cast(void*)mem, totalSize);
+	void* cMalloc(size_t size, const(char)* file, uint line)
+	{
+		return core.stdc.stdlib.malloc(size);
+	}
 
-	mem.file = file;
-	mem.line = line;
-	mem.size = size;
+	void* cRealloc(void* ptr, size_t size, const(char)* file, uint line)
+	{
+		return core.stdc.stdlib.realloc(ptr, size);
+	}
 
-	MemHeader.memory += mem.size;
-	return mem.getData();
-}
+	void cFree(void* ptr, const(char)* file, uint line)
+	{
+		cFree(ptr);
+	}
 
-void charge_free(void* ptr, const(char)* file, uint line)
-{
-	auto mem = MemHeader.fromData(ptr);
-
-	MemHeader.memory -= mem.size;
-	core.stdc.stdlib.free(cast(void*)mem);
 }
