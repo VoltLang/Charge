@@ -89,6 +89,10 @@ debug {
 
 	void cFree(void* ptr, const(char)* file, uint line)
 	{
+		if (ptr is null) {
+			return;
+		}
+
 		auto mem = MemHeader.fromData(ptr);
 
 		MemHeader.memory -= mem.size;
