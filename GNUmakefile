@@ -21,7 +21,7 @@ TARGET ?= Charge
 
 include sources.mk
 SRC:= $(shell ls $(SRC))
-OBJ = .obj/stb_image.o
+OBJ = .obj/stb.o
 
 
 ########################################
@@ -30,7 +30,7 @@ OBJ = .obj/stb_image.o
 
 all: $(TARGET)
 
-.obj/stb_image.o: src/lib/stb/stb_image.c src/lib/stb/stb_image.h
+.obj/stb.o: src/lib/stb/stb.c src/lib/stb/stb_image.h
 	@mkdir -p .obj
 	@echo "  CC     $@"
 	@$(CC) $(CFLAGS) src/lib/stb/stb_image.c -c -o $@
