@@ -113,7 +113,7 @@ debug {
 
 	void cFree(void* ptr, const(char)* file, uint line)
 	{
-		cFree(ptr);
+		core.stdc.stdlib.free(ptr);
 	}
 
 }
