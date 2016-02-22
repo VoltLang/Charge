@@ -24,8 +24,10 @@ debug {
 	}
 
 } else {
-	import core.stdc.stdlib :
+
+	public import core.stdc.stdlib :
 		cMalloc = malloc,
 		cRealloc = realloc,
 		cFree = free;
+
 }
