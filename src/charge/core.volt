@@ -111,7 +111,7 @@ public:
 	 * These functions are run just after Core is initialize and
 	 * right before Core is closed.
 	 */
-	void addInitAndCloseRunners(void function() init, void function() close)
+	global void addInitAndCloseRunners(void function() init, void function() close)
 	{
 		if (init !is null) {
 			initFuncs ~= init;
