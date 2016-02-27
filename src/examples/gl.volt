@@ -6,7 +6,7 @@ import charge.ctl;
 import charge.core;
 import charge.game;
 import charge.gfx.gl;
-import charge.gfx.draw;
+import draw = charge.gfx.draw;
 import charge.gfx.shader;
 import charge.gfx.texture;
 import charge.math.matrix;
@@ -32,7 +32,6 @@ class Scene : GameScene
 {
 public:
 	CtlInput input;
-	Shader shader;
 	Texture tex;
 	GLuint buf;
 	GLuint vao;
@@ -84,21 +83,11 @@ public:
 
 	void initShaders()
 	{
-		if (GL_VERSION_4_5) {
-			shader = new Shader(vertexShader450,
-			                    fragmentShader450,
-			                    null, null);
-		} else {
-			shader = new Shader(vertexShaderES,
-			                    fragmentShaderES,
-			                    ["position", "uv", "color"],
-			                    ["tex"]);
-		}
-		shader.bind();
+		draw.shader.bind();
 
 		Matrix4x4f mat;
 		mat.setToOrtho(0.0f, cast(float)width, cast(float)height, 0.0f, -1.0f, 1.0f);
-		shader.matrix4("matrix", 1, true, mat.u.a.ptr);
+		draw.shader.matrix4("matrix", 1, true, mat.u.a.ptr);
 	}
 
 	void initBuffers()
@@ -118,7 +107,7 @@ public:
 		float fXW = cast(float)(x + texWidth);
 		float fYH = cast(float)(y + texHeight);
 
-		auto b = new VertexBuilder(4);
+		auto b = new draw.VertexBuilder(4);
 		b.add(fX,  fY,  0.0f, 0.0f);
 		b.add(fXW, fY,  1.0f, 0.0f);
 		b.add(fXW, fYH, 1.0f, 1.0f);
@@ -142,7 +131,6 @@ public:
 	override void close()
 	{
 		tex.decRef(); tex = null;
-		shader.breakApart();
 		glDeleteBuffers(1, &buf);
 		glDeleteVertexArrays(1, &vao);
 	}
