@@ -2,11 +2,23 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.gfx.draw;
 
+import charge.core;
 import charge.gfx.gl;
+import charge.gfx.shader;
 import charge.sys.memory;
 import charge.math.color;
 
 
+/**
+ * Shader to be used with the vertex format in this file.
+ *
+ * It has one shader uniform called 'matrix' that is the.
+ */
+global Shader shader;
+
+/**
+ * Vertex format.
+ */
 struct Vertex
 {
 	float x, y;
@@ -127,3 +139,71 @@ private:
 		mPos = 0;
 	}
 }
+
+
+/*
+ *
+ * Shader setup code.
+ *
+ */
+
+global this()
+{
+	Core.addInitAndCloseRunners(initDraw, closeDraw);
+}
+
+void initDraw()
+{
+	shader = new Shader(vertexShaderES,
+	                    fragmentShaderES,
+	                    ["position", "uv", "color"],
+	                    ["tex"]);
+}
+
+void closeDraw()
+{
+	shader.breakApart();
+	shader = null;
+}
+
+enum string vertexShaderES = `
+#version 100
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+attribute vec2 position;
+attribute vec2 uv;
+attribute vec4 color;
+
+uniform mat4 matrix;
+
+varying vec2 uvFs;
+varying vec4 colorFs;
+
+void main(void)
+{
+	uvFs = uv;
+	colorFs = color;
+	gl_Position = matrix * vec4(position, 0.0, 1.0);
+}
+`;
+
+enum string fragmentShaderES = `
+#version 100
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+varying vec2 tx;
+uniform sampler2D tex;
+
+varying vec2 uvFs;
+varying vec4 colorFs;
+
+void main(void)
+{
+	vec4 t = texture2D(tex, uvFs);
+	gl_FragColor = t * colorFs;
+}
+`;
