@@ -4,7 +4,7 @@ module charge.game.scene.background;
 
 import charge.game.scene.scene;
 import charge.gfx.gl;
-import charge.gfx.draw;
+import draw = charge.gfx.draw;
 import charge.gfx.shader;
 import charge.gfx.texture;
 import charge.math.matrix;
@@ -15,7 +15,6 @@ import watt.io;
 class Background : Scene
 {
 public:
-	Shader shader;
 	Texture tile;
 	Texture logo;
 	GLuint buf;
@@ -52,15 +51,7 @@ public:
 
 	void initShaders()
 	{
-		shader = new Shader(vertexShaderES,
-		                    fragmentShaderES,
-		                    ["position", "uv", "color"],
-		                    ["tex"]);
-		shader.bind();
 
-		Matrix4x4f mat;
-		mat.setToOrtho(0.0f, cast(float)width, cast(float)height, 0.0f, -1.0f, 1.0f);
-		shader.matrix4("matrix", 1, true, mat.u.a.ptr);
 	}
 
 	void initBuffers()
@@ -69,7 +60,7 @@ public:
 			return;
 		}
 
-		auto b = new VertexBuilder(8);
+		auto b = new draw.VertexBuilder(8);
 
 		// Tile vertecies
 		if (tile !is null) {
@@ -129,7 +120,6 @@ public:
 	{
 		if (tile !is null) { tile.decRef(); tile = null; }
 		if (logo !is null) { logo.decRef(); logo = null; }
-		if (shader !is null) { shader.breakApart(); shader = null; }
 		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
 		if (vao) { glDeleteVertexArrays(1, &vao); vao = 0; }
 	}
@@ -148,6 +138,11 @@ public:
 		if (tile is null && logo is null) {
 			return;
 		}
+
+		Matrix4x4f mat;
+		mat.setToOrtho(0.0f, cast(float)width, cast(float)height, 0.0f, -1.0f, 1.0f);
+		draw.shader.bind();
+		draw.shader.matrix4("matrix", 1, true, mat.u.a.ptr);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
