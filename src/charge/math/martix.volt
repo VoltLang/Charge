@@ -1,4 +1,10 @@
+// Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
+// See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
+/**
+ * Source file for Matrix4x4f.
+ */
 module charge.math.matrix;
+
 
 struct Matrix4x4f
 {
