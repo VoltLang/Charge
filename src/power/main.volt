@@ -21,8 +21,7 @@ public:
 		opts.height = 768;
 		super(opts);
 
-		push(new Background(this, opts.width, opts.height,
-			"res/tile.png", "res/logo.png"));
+		push(new Background(this, "res/tile.png", "res/logo.png"));
 		push(new Scene(this));
 	}
 }

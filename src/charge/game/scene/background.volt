@@ -24,12 +24,9 @@ public:
 	uint height;
 
 public:
-	this(SceneManager sm, uint width, uint height
-	     string tileName, string logoName)
+	this(SceneManager sm, string tileName, string logoName)
 	{
 		super(sm, Type.Background);
-		this.width = width;
-		this.height = height;
 
 		if (tileName !is null) {
 			tile = Texture2D.load(Pool.opCall(), tileName);
@@ -37,10 +34,6 @@ public:
 		if (logoName !is null) {
 			logo = Texture2D.load(Pool.opCall(), logoName);
 		}
-
-		initShaders();
-
-		initBuffers();
 	}
 
 
@@ -50,16 +43,18 @@ public:
 	 *
 	 */
 
-	void initShaders()
-	{
-
-	}
-
-	void initBuffers()
+	void initBuffers(Target t)
 	{
 		if (tile is null && logo is null) {
 			return;
 		}
+
+		if (width == t.width ||
+		    height == t.height) {
+			return;
+		}
+		width = t.width;
+		height = t.height;
 
 		auto b = new draw.VertexBuilder(8);
 
@@ -107,6 +102,9 @@ public:
 			b.add(lX1, lY2, 0.0f, 1.0f);
 		}
 
+		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
+		if (vao) { glDeleteVertexArrays(1, &vao); vao = 0; }
+
 		b.bake(out vao, out buf);
 		b.close();
 	}
@@ -132,6 +130,8 @@ public:
 
 	override void render(Target t)
 	{
+		initBuffers(t);
+
 		// Clear the screen.
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
