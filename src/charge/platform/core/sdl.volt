@@ -13,6 +13,7 @@ import watt.text.utf;
 
 import charge.core;
 import charge.gfx.gfx;
+import charge.gfx.target;
 import charge.ctl.input;
 import charge.util.properties;
 import charge.platform.core.common;
@@ -62,7 +63,6 @@ private:
 
 	string title;
 	int screenshotNum;
-	uint width, height; //< Current size of the main window
 	bool fullscreen; //< Should we be fullscreen
 	bool fullscreenAutoSize; //< Only used at start
 
@@ -183,8 +183,8 @@ public:
 			throw new Exception("Gfx not initd!");
 		}
 
-		w = this.width;
-		h = this.height;
+		w = DefaultTarget.instance.width;
+		h = DefaultTarget.instance.height;
 		fullscreen = this.fullscreen;
 	}
 
@@ -290,9 +290,8 @@ version (Emscripten) {
 				break;
 
 			case SDL_VIDEORESIZE:
-/+
-				resize(cast(uint)e.resize.w, cast(uint)e.resize.h);
-+/
+				DefaultTarget.instance.width = cast(uint)e.resize.w;
+				DefaultTarget.instance.height = cast(uint)e.resize.h;
 				break;
 
 			case SDL_JOYBUTTONDOWN:
@@ -453,8 +452,8 @@ private:
 
 		SDL_EnableUNICODE(1);
 
-		width = opts.width;
-		height = opts.height;
+		uint width = opts.width;
+		uint height = opts.height;
 		fullscreen = false;//p.getBool("fullscreen", defaultFullscreen);
 		fullscreenAutoSize = true;//p.getBool("fullscreenAutoSize", defaultFullscreenAutoSize);
 		bool windowDecorations = opts.windowDecorations;
@@ -491,8 +490,8 @@ private:
 			);
 
 		// Readback size
-		width = cast(uint)s.w;
-		height = cast(uint)s.h;
+		DefaultTarget.instance = DefaultTarget.make(
+			cast(uint)s.w, cast(uint)s.h);
 
 		version (Emscripten) {
 			gladLoadGLES2(loadFunc);
@@ -534,6 +533,11 @@ private:
 	{
 		if (!gfxLoaded) {
 			return;
+		}
+
+		if (DefaultTarget.instance !is null) {
+			DefaultTarget.instance.decRef();
+			DefaultTarget.instance = null;
 		}
 
 		SDL_Quit();

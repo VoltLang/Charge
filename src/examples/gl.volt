@@ -7,6 +7,7 @@ import charge.core;
 import charge.game;
 import charge.gfx.gl;
 import draw = charge.gfx.draw;
+import charge.gfx.target;
 import charge.gfx.shader;
 import charge.gfx.texture;
 import charge.math.matrix;
@@ -140,7 +141,7 @@ public:
 
 	}
 
-	override void render()
+	override void render(Target t)
 	{
 		// Clear the screen.
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);

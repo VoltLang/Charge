@@ -5,6 +5,8 @@
  */
 module charge.game.scene.scene;
 
+import charge.gfx.target : Target;
+
 
 /**
  * A scene often is a level, menu overlay or a loading screen.
@@ -46,7 +48,7 @@ public:
 	/**
 	 * Render view of this scene into target.
 	 */
-	abstract void render();
+	abstract void render(Target t);
 
 	/**
 	 * Install all input listeners.

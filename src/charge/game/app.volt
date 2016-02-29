@@ -7,16 +7,12 @@ module charge.game.app;
 
 import lib.sdl.sdl;
 
-//import charge.util.vector;
 import charge.core;
 import charge.ctl.input;
 import charge.ctl.keyboard;
 import charge.ctl.mouse;
-//import charge.gfx.gfx;
-//import charge.gfx.sync;
-//import charge.gfx.target;
+import charge.gfx.target;
 //import charge.sys.tracker;
-//import charge.sys.resource;
 
 
 abstract class App
@@ -72,7 +68,7 @@ public:
 		closed = true;
 	}
 
-	abstract void render();
+	abstract void render(Target t);
 	abstract void logic();
 
 	/**
@@ -101,7 +97,10 @@ private final:
 		renderTime.start();
 		scope(exit) renderTime.stop();
 +/
-		render();
+		auto t = DefaultTarget.instance;
+		t.bind();
+		render(t);
+		// Core swaps default target.
 	}
 
 	void doIdle(long diff)

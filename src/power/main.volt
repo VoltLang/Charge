@@ -4,6 +4,7 @@ module power.main;
 
 import charge.ctl;
 import charge.core;
+import charge.gfx.target;
 import charge.game;
 import charge.game.scene.background;
 
@@ -63,7 +64,7 @@ public:
 
 	override void logic() {}
 
-	override void render() {}
+	override void render(Target t) {}
 
 	override void assumeControl()
 	{

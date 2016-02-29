@@ -7,6 +7,8 @@ module charge.game.scene.app;
 
 import charge.core : CoreOptions, chargeQuit;
 
+import charge.gfx.target;
+
 import charge.game.app;
 import charge.game.scene.scene;
 
@@ -60,10 +62,8 @@ public:
 		super.close();
 	}
 
-	override void render()
+	override void render(Target t)
 	{
-		//auto rt = DefaultTarget();
-
 		size_t i = vec.length;
 		foreach_reverse(r; vec) {
 			i--;
@@ -73,10 +73,8 @@ public:
 		}
 
 		for (; i < vec.length; i++) {
-			vec[i].render();
+			vec[i].render(t);
 		}
-
-		//rt.swap();
 	}
 
 	override void logic()
