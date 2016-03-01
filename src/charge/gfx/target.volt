@@ -8,6 +8,7 @@ module charge.gfx.target;
 import charge.sys.file;
 import charge.sys.resource;
 import charge.gfx.gl;
+import charge.gfx.texture;
 
 
 /**
@@ -93,4 +94,50 @@ private:
 	{
 		super(0, width, height);
 	}
+}
+
+class Framebuffer : Target
+{
+public:
+	Texture tex;
+
+public:
+	global Framebuffer make(string name, uint width, uint height)
+	{
+		uint levels = 1;
+
+		Texture tex = Texture2D.make(name, width, height, levels);
+
+		GLuint fbo;
+		glGenFramebuffers(1, &fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+			GL_TEXTURE_2D, tex.id, 0);
+
+		glCheckFramebufferError();
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		void* dummy;
+		auto t = cast(Framebuffer)Resource.alloc(typeid(Framebuffer),
+		                                         uri, name,
+		                                         0, out dummy);
+		t.__ctor(fbo, tex, width, height);
+
+		return t;
+	}
+
+	override void collect()
+	{
+		if (tex !is null) { tex.decRef(); tex = null; }
+		super.collect();
+	}
+
+protected:
+	this(GLuint fbo, Texture tex, uint width, uint height)
+	{
+		this.tex = tex;
+		super(fbo, width, height);
+	}
+
 }
