@@ -97,7 +97,7 @@ private final:
 		renderTime.start();
 		scope(exit) renderTime.stop();
 +/
-		auto t = DefaultTarget.instance;
+		auto t = DefaultTarget.opCall();
 		t.bind();
 		render(t);
 		// Core swaps default target.

@@ -58,20 +58,34 @@ protected:
 
 final class DefaultTarget : Target
 {
-	global DefaultTarget instance;
+private:
+	global DefaultTarget mInstance;
 
-	global DefaultTarget make(uint width, uint height)
+public:
+	global DefaultTarget opCall()
 	{
+		if (mInstance !is null) {
+			return mInstance;
+		}
+
 		string filename = "%default";
 
 		void* dummy;
 		auto t = cast(DefaultTarget)Resource.alloc(typeid(DefaultTarget),
 		                                           uri, filename,
 		                                           0, out dummy);
-		t.__ctor(width, height);
-		instance = t;
+		t.__ctor(0, 0);
+		mInstance = t;
 
 		return t;
+	}
+
+	global void close()
+	{
+		if (mInstance !is null) {
+			mInstance.decRef();
+			mInstance = null;
+		}
 	}
 
 private:

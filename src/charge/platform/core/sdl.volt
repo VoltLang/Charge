@@ -183,8 +183,9 @@ public:
 			throw new Exception("Gfx not initd!");
 		}
 
-		w = DefaultTarget.instance.width;
-		h = DefaultTarget.instance.height;
+		auto t = DefaultTarget.opCall();
+		w = t.width;
+		h = t.height;
 		fullscreen = this.fullscreen;
 	}
 
@@ -290,8 +291,9 @@ version (Emscripten) {
 				break;
 
 			case SDL_VIDEORESIZE:
-				DefaultTarget.instance.width = cast(uint)e.resize.w;
-				DefaultTarget.instance.height = cast(uint)e.resize.h;
+				auto t = DefaultTarget.opCall();
+				t.width = cast(uint)e.resize.w;
+				t.height = cast(uint)e.resize.h;
 				break;
 
 			case SDL_JOYBUTTONDOWN:
@@ -490,8 +492,9 @@ private:
 			);
 
 		// Readback size
-		DefaultTarget.instance = DefaultTarget.make(
-			cast(uint)s.w, cast(uint)s.h);
+		auto t = DefaultTarget.opCall();
+		t.width = cast(uint)s.w;
+		t.height = cast(uint)s.h;
 
 		version (Emscripten) {
 			gladLoadGLES2(loadFunc);
@@ -535,10 +538,7 @@ private:
 			return;
 		}
 
-		if (DefaultTarget.instance !is null) {
-			DefaultTarget.instance.decRef();
-			DefaultTarget.instance = null;
-		}
+		DefaultTarget.close();
 
 		SDL_Quit();
 		gfxLoaded = false;
