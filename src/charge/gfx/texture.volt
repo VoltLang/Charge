@@ -27,6 +27,7 @@ public:
 	uint height;
 	uint depth;
 
+
 public:
 	final void bind()
 	{
@@ -37,6 +38,7 @@ public:
 	{
 		glBindTexture(target, 0);
 	}
+
 
 protected:
 	this(GLuint id, GLuint target, uint width, uint height, uint depth)

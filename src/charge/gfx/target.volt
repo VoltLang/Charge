@@ -26,6 +26,7 @@ public:
 	uint width;
 	uint height;
 
+
 public:
 	final void bind()
 	{
@@ -40,6 +41,7 @@ public:
 
 	abstract void setMatrixToOrtho(ref Matrix4x4f mat);
 	abstract void setMatrixToOrtho(ref Matrix4x4f mat, float width, float height);
+
 
 protected:
 	this(GLuint fbo, uint width, uint height)
@@ -65,6 +67,7 @@ final class DefaultTarget : Target
 {
 private:
 	global DefaultTarget mInstance;
+
 
 public:
 	override final void setMatrixToOrtho(ref Matrix4x4f mat)
@@ -103,6 +106,7 @@ public:
 		}
 	}
 
+
 private:
 	this(uint width, uint height)
 	{
@@ -114,6 +118,7 @@ class Framebuffer : Target
 {
 public:
 	Texture tex;
+
 
 public:
 	override final void setMatrixToOrtho(ref Matrix4x4f mat)
