@@ -34,8 +34,7 @@ class Scene : GameScene
 public:
 	CtlInput input;
 	Texture tex;
-	GLuint buf;
-	GLuint vao;
+	draw.Buffer buf;
 	uint width;
 	uint height;
 
@@ -102,7 +101,7 @@ public:
 		b.add(fXW, fY,  1.0f, 0.0f);
 		b.add(fXW, fYH, 1.0f, 1.0f);
 		b.add(fX,  fYH, 0.0f, 1.0f);
-		b.bake(out vao, out buf);
+		buf = draw.Buffer.make("example/gl/buffer", b);
 		b.close();
 	}
 
@@ -120,9 +119,8 @@ public:
 
 	override void close()
 	{
-		tex.decRef(); tex = null;
-		glDeleteBuffers(1, &buf);
-		glDeleteVertexArrays(1, &vao);
+		if (tex !is null) { tex.decRef(); tex = null; }
+		if (buf !is null) { buf.decRef(); buf = null; }
 	}
 
 	override void logic()
@@ -143,7 +141,7 @@ public:
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBindVertexArray(vao);
+		glBindVertexArray(buf.vao);
 		tex.bind();
 
 		// Draw the triangle.

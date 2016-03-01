@@ -5,8 +5,41 @@ module charge.gfx.draw;
 import charge.core;
 import charge.gfx.gl;
 import charge.gfx.shader;
+import charge.gfx.buffer;
 import charge.sys.memory;
+import charge.sys.resource;
 import charge.math.color;
+
+
+/**
+ * VBO used for 2D drawing operations.
+ */
+class Buffer : charge.gfx.buffer.Buffer
+{
+public:
+	global Buffer make(string name, VertexBuilder vb)
+	{
+		void* dummy;
+		auto buffer = cast(Buffer)Resource.alloc(typeid(Buffer),
+		                                         uri, name,
+		                                         0, out dummy);
+		buffer.__ctor(0, 0);
+		buffer.update(vb);
+		return buffer;
+	}
+
+	void update(VertexBuilder vb)
+	{
+		deleteBuffers();
+		vb.bake(out vao, out buf);
+	}
+
+protected:
+	this(GLuint vao, GLuint buf)
+	{
+		super(vao, buf);
+	}
+}
 
 
 /**
@@ -15,6 +48,7 @@ import charge.math.color;
  * It has one shader uniform called 'matrix' that is the.
  */
 global Shader shader;
+
 
 /**
  * Vertex format.
@@ -25,6 +59,7 @@ struct Vertex
 	float u, v;
 	Color4b color;
 }
+
 
 class VertexBuilder : Builder
 {
