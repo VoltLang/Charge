@@ -62,6 +62,31 @@ protected:
 class Texture2D : Texture
 {
 public:
+	global Texture2D make(string name, uint width, uint height, uint levels)
+	{
+		int x = cast(int)width;
+		int y = cast(int)height;
+		int lvls = cast(int)levels;
+
+		GLuint id;
+		GLuint target = GL_TEXTURE_2D;
+		GLuint internal = GL_RGBA8;
+
+		glGenTextures(1, &id);
+		glBindTexture(target, id);
+		glTexStorage2D(target, lvls, internal, x, y);
+		glBindTexture(target, 0);
+		glCheckError();
+
+		void* dummy;
+		auto tex = cast(Texture2D)Resource.alloc(typeid(Texture2D),
+		                                         uri, name,
+		                                         0, out dummy);
+		tex.__ctor(id, target, cast(uint) x, cast(uint) y, 1);
+
+		return tex;
+	}
+
 	global Texture2D load(Pool p, string filename)
 	{
 		File file = File.load(filename);
@@ -77,23 +102,14 @@ public:
 			throw new Exception("could not load '" ~ filename ~ "'");
 		}
 
-		GLuint id;
-		GLuint target = GL_TEXTURE_2D;
-		GLuint internal = GL_RGBA8;
+		uint levels = log2(max(cast(uint)x, cast(uint)y)) + 1;
+		auto tex = make(filename, cast(uint)x, cast(uint)y, levels);
+		GLuint id = tex.id;
+		GLuint target = tex.target;
 		GLuint format = GL_RGBA;
-		GLsizei levels = cast(GLsizei)log2(
-			max(cast(uint)x, cast(uint)y)) + 1;
 
-		// Clear any error
 		glCheckError();
-
-		glGenTextures(1, &id);
 		glBindTexture(target, id);
-		glCheckError();
-
-		glTexStorage2D(target, levels, internal, x, y);
-		glCheckError();
-
 		glTexSubImage2D(
 			target,            // target
 			0,                 // level
@@ -104,19 +120,9 @@ public:
 			format,            // format
 			GL_UNSIGNED_BYTE,  // type
 			cast(void*)ptr);
-		glCheckError();
-
 		glGenerateMipmap(GL_TEXTURE_2D);
-		glCheckError();
-
 		glBindTexture(target, 0);
 		glCheckError();
-
-		void* dummy;
-		auto tex = cast(Texture2D)Resource.alloc(typeid(Texture2D),
-		                                         uri, filename,
-		                                         0, out dummy);
-		tex.__ctor(id, target, cast(uint) x, cast(uint) y, 1);
 
 		return tex;
 	}
