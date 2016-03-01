@@ -93,10 +93,12 @@ class Pool
 public:
 	bool suppress404;
 
+
 private:
 	Resource[] mMarked;
 
 	global Pool mInstance;
+
 
 public:
 	this()

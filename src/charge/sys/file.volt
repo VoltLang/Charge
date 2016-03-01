@@ -27,6 +27,7 @@ public:
 	size_t size;
 	void* ptr;
 
+
 public:
 	@property void[] data()
 	{
