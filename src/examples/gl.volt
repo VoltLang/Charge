@@ -52,8 +52,6 @@ public:
 
 		tex = Texture2D.load(Pool.opCall(), "res/logo.png");
 
-		initShaders();
-
 		initBuffers();
 	}
 
@@ -80,15 +78,6 @@ public:
 		    !GL_VERSION_4_5) {
 			throw new Exception("Need OpenGL ES 2.0, GL_ARB_ES2_compatibility or OpenGL 4.5");
 		}
-	}
-
-	void initShaders()
-	{
-		draw.shader.bind();
-
-		Matrix4x4f mat;
-		mat.setToOrtho(0.0f, cast(float)width, cast(float)height, 0.0f, -1.0f, 1.0f);
-		draw.shader.matrix4("matrix", 1, true, mat.u.a.ptr);
 	}
 
 	void initBuffers()
@@ -143,6 +132,11 @@ public:
 
 	override void render(Target t)
 	{
+		Matrix4x4f mat;
+		t.setMatrixToOrtho(ref mat);
+		draw.shader.bind();
+		draw.shader.matrix4("matrix", 1, true, mat.u.a.ptr);
+
 		// Clear the screen.
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);

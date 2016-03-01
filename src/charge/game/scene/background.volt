@@ -141,7 +141,7 @@ public:
 		}
 
 		Matrix4x4f mat;
-		mat.setToOrtho(0.0f, cast(float)width, cast(float)height, 0.0f, -1.0f, 1.0f);
+		t.setMatrixToOrtho(ref mat);
 		draw.shader.bind();
 		draw.shader.matrix4("matrix", 1, true, mat.u.a.ptr);
 

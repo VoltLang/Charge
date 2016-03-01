@@ -9,12 +9,13 @@ import charge.sys.file;
 import charge.sys.resource;
 import charge.gfx.gl;
 import charge.gfx.texture;
+import charge.math.matrix;
 
 
 /**
  * Base texture class.
  */
-class Target : Resource
+abstract class Target : Resource
 {
 public:
 	enum string uri = "target://";
@@ -36,6 +37,9 @@ public:
 	{
 		glBindFramebuffer(target, 0);
 	}
+
+	abstract void setMatrixToOrtho(ref Matrix4x4f mat);
+	abstract void setMatrixToOrtho(ref Matrix4x4f mat, float width, float height);
 
 protected:
 	this(GLuint fbo, uint width, uint height)
@@ -63,6 +67,16 @@ private:
 	global DefaultTarget mInstance;
 
 public:
+	override final void setMatrixToOrtho(ref Matrix4x4f mat)
+	{
+		setMatrixToOrtho(ref mat, cast(float)width, cast(float)height);
+	}
+
+	override final void setMatrixToOrtho(ref Matrix4x4f mat, float width, float height)
+	{
+		mat.setToOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
+	}
+
 	global DefaultTarget opCall()
 	{
 		if (mInstance !is null) {
@@ -102,6 +116,16 @@ public:
 	Texture tex;
 
 public:
+	override final void setMatrixToOrtho(ref Matrix4x4f mat)
+	{
+		setMatrixToOrtho(ref mat, cast(float)width, cast(float)height);
+	}
+
+	override final void setMatrixToOrtho(ref Matrix4x4f mat, float width, float height)
+	{
+		mat.setToOrtho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
+	}
+
 	global Framebuffer make(string name, uint width, uint height)
 	{
 		uint levels = 1;
