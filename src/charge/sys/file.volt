@@ -58,9 +58,6 @@ public:
 		return file;
 	}
 
-	override void collect()
-	{
-	}
 
 protected:
 	global void loadFile(string filename, out FILE* fp, out size_t size)

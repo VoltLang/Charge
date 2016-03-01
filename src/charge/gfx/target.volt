@@ -52,7 +52,7 @@ protected:
 		super();
 	}
 
-	override void collect()
+	~this()
 	{
 		if (fbo != 0) {
 			glDeleteFramebuffers(1, &fbo);
@@ -151,11 +151,6 @@ public:
 		return t;
 	}
 
-	override void collect()
-	{
-		if (tex !is null) { tex.decRef(); tex = null; }
-		super.collect();
-	}
 
 protected:
 	this(GLuint fbo, Texture tex, uint width, uint height)
@@ -164,4 +159,8 @@ protected:
 		super(fbo, width, height);
 	}
 
+	~this()
+	{
+		if (tex !is null) { tex.decRef(); tex = null; }
+	}
 }

@@ -50,7 +50,7 @@ protected:
 		super();
 	}
 
-	override void collect()
+	~this()
 	{
 		if (id != 0) {
 			glDeleteTextures(1, &id);

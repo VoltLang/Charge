@@ -30,8 +30,6 @@ protected:
 		Pool.mInstance.resource(this);
 	}
 
-	abstract void collect();
-
 	global void* alloc(object.TypeInfo ti,
 	                   scope const(char)[] uri,
 	                   scope const(char)[] name,
@@ -116,7 +114,7 @@ public:
 	void collect()
 	{
 		foreach (r; mMarked) {
-			r.collect();
+			r.__dtor();
 			cFree(cast(void*)r);
 		}
 		mMarked = null;
