@@ -19,7 +19,7 @@ debug {
 		               uint line = __LINE__);
 
 		void cFree(void *ptr,
-		           char* file = __FILE__,
+		           const(char)* file = __FILE__,
 		           uint line = __LINE__);
 	}
 
