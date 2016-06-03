@@ -17,6 +17,8 @@ import charge.math.matrix;
 
 import draw = charge.gfx.draw;
 
+import power.viewer;
+
 
 class Game : GameSceneManagerApp
 {
@@ -36,7 +38,7 @@ public:
 
 		push(new Background(this, "res/tile.png", "res/logo.png"));
 		push(new Scene(this));
-		fbo = Framebuffer.make("foo", opts.width * 2, opts.height * 2);
+		fbo = Framebuffer.make("power/fbo", opts.width * 2, opts.height * 2);
 
 		auto b = new draw.VertexBuilder(4);
 		b.add(0.0f, 0.0f, 0.0f, 0.0f);
@@ -114,6 +116,7 @@ public:
 		if (vbo !is null) { vbo.decRef(); vbo = null; }
 	}
 
+
 	/*
 	 *
 	 * Our own methods and helpers..
@@ -123,6 +126,7 @@ public:
 	void down(CtlKeyboard, int, dchar, scope const(char)[] m)
 	{
 		mManager.closeMe(this);
+		mManager.push(new Viewer(mManager));
 	}
 
 
@@ -131,7 +135,6 @@ public:
 	 * Scene methods.
 	 *
 	 */
-
 
 	override void logic() {}
 
