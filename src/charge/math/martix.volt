@@ -5,6 +5,10 @@
  */
 module charge.math.matrix;
 
+import watt.math : sin, cos, PIf;
+import charge.math.quat;
+import charge.math.point;
+
 
 struct Matrix4x4f
 {
@@ -56,6 +60,95 @@ public:
 		u.a[15] = 1.0f;
 	}
 
+	/**
+	 * Sets the matrix to a lookAt matrix looking at eye + rot * forward.
+	 *
+	 * Similar to gluLookAt.
+	 */
+	void setToLookFrom(ref Point3f eye, ref Quatf rot)
+	{
+		Point3f p;
+		Quatf q;
+
+		q.x = -rot.x;
+		q.y = -rot.y;
+		q.z = -rot.z;
+		q.w =  rot.w;
+
+		p.x = -eye.x;
+		p.y = -eye.y;
+		p.z = -eye.z;
+
+		u.m[0][0] = 1.f - 2.f * q.y * q.y - 2.f * q.z * q.z;
+		u.m[0][1] =       2.f * q.x * q.y - 2.f * q.w * q.z;
+		u.m[0][2] =       2.f * q.x * q.z + 2.f * q.w * q.y;
+		u.m[0][3] = p.x * u.m[0][0] + p.y * u.m[0][1] + p.z * u.m[0][2];
+
+		u.m[1][0] =       2.f * q.x * q.y + 2.f * q.w * q.z;
+		u.m[1][1] = 1.f - 2.f * q.x * q.x - 2.f * q.z * q.z;
+		u.m[1][2] =       2.f * q.y * q.z - 2.f * q.w * q.x;
+		u.m[1][3] = p.x * u.m[1][0] + p.y * u.m[1][1] + p.z * u.m[1][2];
+
+		u.m[2][0] =       2.f * q.x * q.z - 2.f * q.w * q.y;
+		u.m[2][1] =       2.f * q.y * q.z + 2.f * q.w * q.x;
+		u.m[2][2] = 1.f - 2.f * q.x * q.x - 2.f * q.y * q.y;
+		u.m[2][3] = p.x * u.m[2][0] + p.y * u.m[2][1] + p.z * u.m[2][2];
+
+		u.m[3][0] = 0.0f;
+		u.m[3][1] = 0.0f;
+		u.m[3][2] = 0.0f;
+		u.m[3][3] = 1.0f;
+	}
+
+	/**
+	 * Sets the matrix to the same as gluPerspective does.
+	 */
+	void setToPerspective(float fovy, float aspect, float near, float far)
+	{
+		float sine, cotangent, delta;
+		float radians = fovy / 2.f * PIf / 180.f;
+
+		delta = far - near;
+		sine = sin(radians);
+
+		if ((delta == 0) || (sine == 0) || (aspect == 0)) {
+			return;
+		}
+
+		cotangent = cos(radians) / sine;
+
+		u.m[0][0] = cotangent / aspect;
+		u.m[0][1] = 0.f;
+		u.m[0][2] = 0.f;
+		u.m[0][3] = 0.f;
+
+		u.m[1][0] = 0.f;
+		u.m[1][1] = cotangent;
+		u.m[1][2] = 0.f;
+		u.m[1][3] = 0.f;
+
+		u.m[2][0] = 0.f;
+		u.m[2][1] = 0.f;
+		u.m[2][2] = -(far + near) / delta;
+		u.m[2][3] = -2.f * near * far / delta;
+
+		u.m[3][0] = 0.f;
+		u.m[3][1] = 0.f;
+		u.m[3][2] = -1.f;
+		u.m[3][3] = 0.f;
+	}
+
+	void setToMultiply(ref Matrix4x4f b)
+	{
+		for(int i; i < 4; i++) {
+			float a0 = u.m[i][0], a1 = u.m[i][1], a2 = u.m[i][2], a3 = u.m[i][3];
+			u.m[i][0] = a0 * b.u.m[0][0] + a1 * b.u.m[1][0] + a2 * b.u.m[2][0] + a3 * b.u.m[3][0];
+			u.m[i][1] = a0 * b.u.m[0][1] + a1 * b.u.m[1][1] + a2 * b.u.m[2][1] + a3 * b.u.m[3][1];
+			u.m[i][2] = a0 * b.u.m[0][2] + a1 * b.u.m[1][2] + a2 * b.u.m[2][2] + a3 * b.u.m[3][2];
+			u.m[i][3] = a0 * b.u.m[0][3] + a1 * b.u.m[1][3] + a2 * b.u.m[2][3] + a3 * b.u.m[3][3];
+		}
+	}
+
 	void transpose()
 	{
 		Matrix4x4f temp;
@@ -79,4 +172,6 @@ public:
 
 		this = temp;
 	}
+
+	@property float* ptr() { return u.a.ptr; }
 }
