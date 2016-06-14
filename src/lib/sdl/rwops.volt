@@ -54,7 +54,7 @@ enum RW_SEEK_SET = 0;
 enum RW_SEEK_CUR = 1;
 enum RW_SEEK_END = 2;
 
-version (DynamicSDL) @loadDynamic:
+version (!StaticSDL) @loadDynamic:
 extern (C):
 SDL_RWops* SDL_RWFromFile(const(char)* file, const(char)* mode);
 SDL_RWops* SDL_RWFromFP(FILE *fp, int autoclose);

@@ -156,7 +156,7 @@ int SDL_SaveBMP(SDL_Surface* surface, char* file) { return SDL_SaveBMP_RW(surfac
 alias SDL_AllocSurface = SDL_CreateRGBSurface;
 alias SDL_BlitSurface = SDL_UpperBlit;
 
-version (DynamicSDL) @loadDynamic:
+version (!StaticSDL) @loadDynamic:
 extern (C):
 int SDL_VideoInit(char *driver_name, Uint32 flags);
 void SDL_VideoQuit();

@@ -16,7 +16,7 @@ alias SDL_TimerID = void*;
 alias SDL_TimerCallback = /* XXX extern(C)*/ Uint32 function(Uint32);
 alias SDL_NewTimerCallback = /* XXX extern(C)*/ Uint32 function(Uint32,void*);
 
-version (DynamicSDL) @loadDynamic:
+version (!StaticSDL) @loadDynamic:
 extern(C):
 Uint32 SDL_GetTicks();
 void SDL_Delay(Uint32);

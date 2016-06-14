@@ -3,7 +3,7 @@
 module lib.sdl.loader;
 
 
-version (DynamicSDL):
+version (!StaticSDL):
 
 import watt.library;
 import lib.sdl.sdl;

@@ -201,7 +201,7 @@ enum SDL_ENABLE  = 1;
 
 alias SDL_EventFilter = int function(SDL_Event *event);
 
-version (DynamicSDL) @loadDynamic:
+version (!StaticSDL) @loadDynamic:
 extern (C):
 void SDL_PumpEvents();
 int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action, Uint32 mask);

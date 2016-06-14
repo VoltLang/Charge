@@ -38,7 +38,7 @@ else
 	enum AUDIO_S16SYS = AUDIO_S16MSB;
 }
 
-version(DynamicSDL) @loadDynamic:
+version(!StaticSDL) @loadDynamic:
 extern(C):
 SDL_AudioSpec* SDL_LoadWAV_RW(SDL_RWops *src, int freesrc, SDL_AudioSpec *spec, Uint8 **audio_buf, Uint32 *audio_len);
 void SDL_FreeWAV(Uint8 *audio_buf);

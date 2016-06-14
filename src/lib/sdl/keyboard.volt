@@ -18,7 +18,7 @@ enum SDL_ALL_HOTKEYS             = 0xFFFFFFFF;
 enum SDL_DEFAULT_REPEAT_DELAY    = 500;
 enum SDL_DEFAULT_REPEAT_INTERVAL = 30;
 
-version (DynamicSDL) @loadDynamic:
+version (!StaticSDL) @loadDynamic:
 extern (C):
 int SDL_EnableUNICODE(int);
 int SDL_EnableKeyRepeat(int,int);

@@ -25,7 +25,7 @@ enum SDL_INIT_NOPARACHUTE = 0x00100000;
 enum SDL_INIT_EVENTTHREAD = 0x01000000;
 enum SDL_INIT_EVERYTHING  = 0x0000FFFF;
 
-version (DynamicSDL) @loadDynamic:
+version (!StaticSDL) @loadDynamic:
 extern (C):
 int SDL_Init(Uint32 flags);
 int SDL_InitSubSystem(Uint32 flags);

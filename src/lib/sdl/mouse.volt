@@ -5,7 +5,7 @@ module lib.sdl.mouse;
 import lib.sdl.types;
 
 
-version (DynamicSDL) @loadDynamic:
+version (!StaticSDL) @loadDynamic:
 extern (C):
 int SDL_ShowCursor(int toggle);
 void SDL_WarpMouse(Uint16 x, Uint16 y);

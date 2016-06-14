@@ -17,7 +17,7 @@ enum SDL_HAT_RIGHTDOWN =	(SDL_HAT_RIGHT|SDL_HAT_DOWN);
 enum SDL_HAT_LEFTUP =		(SDL_HAT_LEFT|SDL_HAT_UP);
 enum SDL_HAT_LEFTDOWN =	(SDL_HAT_LEFT|SDL_HAT_DOWN);
 
-version (DynamicSDL) @loadDynamic:
+version (!StaticSDL) @loadDynamic:
 extern(C):
 int SDL_NumJoysticks();
 char* SDL_JoystickName(int device_index);

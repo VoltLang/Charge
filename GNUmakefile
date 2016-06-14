@@ -10,7 +10,7 @@ VOLT ?= $(shell which volt)
 #
 
 CFLAGS ?= -g
-VFLAGS ?= -d --internal-perf -D DynamicSDL
+VFLAGS ?= -d --internal-perf
 LDFLAGS ?= -lm
 TARGET ?= charge
 

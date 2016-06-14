@@ -2,7 +2,7 @@
 # Intended for Digital Mars Make and GNU Make.
 
 VOLT = volt
-VFLAGS = -d
+VFLAGS = -d -D StaticSDL
 LDFLAGS = -l SDL.lib
 TARGET = Charge.exe
 include sources.mk

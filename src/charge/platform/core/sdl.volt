@@ -43,7 +43,7 @@ extern(C) Core chargeCore(CoreOptions opts)
 extern(C) void chargeQuit()
 {
 	// If SDL haven't been loaded yet.
-	version (DynamicSDL) {
+	version (!StaticSDL) {
 		if (SDL_PushEvent is null) {
 			return;
 		}
@@ -87,7 +87,7 @@ private:
 	} else version (OSX) {
 		enum string[] libSDLname = ["SDL.framework/SDL"];
 		enum string[] libGLUname = ["OpenGL.framework/OpenGL"];
-	} else version (DynamicSDL) {
+	} else version (!StaticSDL) {
 		static assert(false);
 	}
 
@@ -406,7 +406,7 @@ private:
 
 	void loadLibraries()
 	{
-		version (DynamicSDL) {
+		version (!StaticSDL) {
 			version (OSX) {
 /+
 				string[] libSDLnames = [privateFrameworksPath ~ "/" ~ libSDLname[0]] ~ libSDLname;
