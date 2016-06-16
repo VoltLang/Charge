@@ -8,6 +8,9 @@ module charge.math.quat;
 import watt.math;
 import io = watt.io;
 
+import charge.math.vector;
+
+
 struct Quatf
 {
 public:
@@ -43,6 +46,38 @@ public:
 
 		q.normalize();
 		return q;
+	}
+
+	/**
+	 * Return a new quat which is this rotation rotated by the given rotation.
+	 */
+	Quatf opMul(Quatf quat)
+	{
+		Quatf result;
+
+		result.w = w*quat.w - x*quat.x - y*quat.y - z*quat.z;
+		result.x = w*quat.x + x*quat.w + y*quat.z - z*quat.y;
+		result.y = w*quat.y - x*quat.z + y*quat.w + z*quat.x;
+		result.z = w*quat.z + x*quat.y - y*quat.x + z*quat.w;
+
+		return result;
+	}
+
+	/**
+	 * Return a copy of the given vector but rotated by this rotation.
+	 */
+	Vector3f opMul(Vector3f vec)
+	{
+		Quatf q = {vec.x * x + vec.y * y + vec.z * z,
+		           vec.x * w + vec.z * y - vec.y * z,
+		           vec.y * w + vec.x * z - vec.z * x,
+		           vec.z * w + vec.y * x - vec.x * y};
+
+		Vector3f v = {w * q.x + x * q.w + y * q.z - z * q.y,
+		              w * q.y + y * q.w + z * q.x - x * q.z,
+		              w * q.z + z * q.w + x * q.y - y * q.x};
+
+		return v;
 	}
 
 	/**
