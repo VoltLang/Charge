@@ -6,8 +6,7 @@
 module charge.game.scene.app;
 
 import charge.core : CoreOptions, chargeQuit;
-
-import charge.gfx.target;
+import charge.gfx;
 
 import charge.game.app;
 import charge.game.scene.scene;
@@ -62,7 +61,7 @@ public:
 		super.close();
 	}
 
-	override void render(Target t)
+	override void render(GfxTarget t)
 	{
 		size_t i = vec.length;
 		foreach_reverse(r; vec) {

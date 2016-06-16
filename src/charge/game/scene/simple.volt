@@ -6,7 +6,7 @@
 module charge.game.scene.simple;
 
 import charge.ctl;
-import gfx = charge.gfx.target;
+import charge.gfx;
 import charge.game.scene.scene;
 
 
@@ -28,7 +28,7 @@ public:
 
 	override void close() {}
 	override void logic() {}
-	override void render(gfx.Target t) {}
+	override void render(GfxTarget t) {}
 
 	void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m) {}
 	void keyUp(CtlKeyboard, int) {}
