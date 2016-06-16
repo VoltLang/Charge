@@ -5,7 +5,7 @@
  */
 module charge.game.scene.scene;
 
-import charge.gfx.target : Target;
+import charge.gfx.target;
 
 
 /**
