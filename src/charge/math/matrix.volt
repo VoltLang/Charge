@@ -103,7 +103,7 @@ public:
 	/**
 	 * Sets the matrix to the same as gluPerspective does.
 	 */
-	void setToPerspective(float fovy, float aspect, float near, float far)
+	void setToPerspective(float fovy, float aspect, float near, float far, bool flip = false)
 	{
 		float sine, cotangent, delta;
 		float radians = fovy / 2.f * PIf / 180.f;
@@ -123,7 +123,7 @@ public:
 		u.m[0][3] = 0.f;
 
 		u.m[1][0] = 0.f;
-		u.m[1][1] = cotangent;
+		u.m[1][1] = flip ? -cotangent : cotangent;
 		u.m[1][2] = 0.f;
 		u.m[1][3] = 0.f;
 
