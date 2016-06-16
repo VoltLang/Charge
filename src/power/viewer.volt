@@ -80,8 +80,8 @@ public:
 
 
 		rot := math.Quatf.opCall(rotation, 0.f, 0.f);
-		vec := rot.opMul(math.Vector3f.opCall(0.f, 0.f, -32.f));
-		pos := math.Point3f.opCall(16.f, 8.f, 16.f).opSub(vec);
+		vec := rot * math.Vector3f.opCall(0.f, 0.f, -32.f);
+		pos := math.Point3f.opCall(16.f, 8.f, 16.f) - vec;
 
 
 		math.Matrix4x4f view;
