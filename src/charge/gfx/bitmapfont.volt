@@ -53,7 +53,7 @@ void buildSize(ref BitmapState s, scope const(ubyte)[] text,
  * Builds the vertices in builder of the given text.
  * Uses quads, so for vertices per glyph.
  */
-void buildVertices(ref BitmapState s, VertexBuilder b,
+void buildVertices(ref BitmapState s, DrawVertexBuilder b,
                    scope const(ubyte)[] text)
 {
 	int x, y;
@@ -78,7 +78,7 @@ void buildVertices(ref BitmapState s, VertexBuilder b,
 	}
 }
 
-void buildVertex(ref BitmapState s, VertexBuilder b, int x, int y, ubyte c)
+void buildVertex(ref BitmapState s, DrawVertexBuilder b, int x, int y, ubyte c)
 {
 	float dstX1 = cast(float)x;
 	float dstY1 = cast(float)y;

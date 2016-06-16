@@ -3,21 +3,19 @@
 module charge.game.scene.background;
 
 import charge.game.scene.scene;
+import gfx = charge.gfx;
 import charge.gfx.gl;
-import draw = charge.gfx.draw;
-import charge.gfx.shader;
-import charge.gfx.target;
-import charge.gfx.texture;
 import charge.math.matrix;
 import charge.sys.resource;
 
 import watt.io;
 
+
 class Background : Scene
 {
 public:
-	Texture tile;
-	Texture logo;
+	gfx.Texture tile;
+	gfx.Texture logo;
 	GLuint buf;
 	GLuint vao;
 	GLsizei num;
@@ -30,10 +28,10 @@ public:
 		super(sm, Type.Background);
 
 		if (tileName !is null) {
-			tile = Texture2D.load(Pool.opCall(), tileName);
+			tile = gfx.Texture2D.load(Pool.opCall(), tileName);
 		}
 		if (logoName !is null) {
-			logo = Texture2D.load(Pool.opCall(), logoName);
+			logo = gfx.Texture2D.load(Pool.opCall(), logoName);
 		}
 	}
 
@@ -44,7 +42,7 @@ public:
 	 *
 	 */
 
-	void initBuffers(Target t)
+	void initBuffers(gfx.Target t)
 	{
 		if (tile is null && logo is null) {
 			return;
@@ -57,7 +55,7 @@ public:
 		width = t.width;
 		height = t.height;
 
-		auto b = new draw.VertexBuilder(8);
+		auto b = new gfx.DrawVertexBuilder(8);
 
 		// Tile vertecies
 		if (tile !is null) {
@@ -129,7 +127,7 @@ public:
 
 	}
 
-	override void render(Target t)
+	override void render(gfx.Target t)
 	{
 		initBuffers(t);
 
@@ -143,8 +141,8 @@ public:
 
 		Matrix4x4f mat;
 		t.setMatrixToOrtho(ref mat);
-		draw.shader.bind();
-		draw.shader.matrix4("matrix", 1, true, mat.u.a.ptr);
+		gfx.drawShader.bind();
+		gfx.drawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

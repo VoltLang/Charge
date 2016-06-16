@@ -14,25 +14,24 @@ import charge.math.color;
 /**
  * VBO used for 2D drawing operations.
  */
-class Buffer : charge.gfx.buffer.Buffer
+class DrawBuffer : Buffer
 {
 public:
 	GLsizei num;
 
 
 public:
-	global Buffer make(string name, VertexBuilder vb)
+	global DrawBuffer make(string name, DrawVertexBuilder vb)
 	{
 		void* dummy;
-		auto buffer = cast(Buffer)Resource.alloc(typeid(Buffer),
-		                                         uri, name,
-		                                         0, out dummy);
+		buffer := cast(DrawBuffer)Resource.alloc(
+			typeid(DrawBuffer), uri, name, 0, out dummy);
 		buffer.__ctor(0, 0);
 		buffer.update(vb);
 		return buffer;
 	}
 
-	void update(VertexBuilder vb)
+	void update(DrawVertexBuilder vb)
 	{
 		deleteBuffers();
 		vb.bake(out vao, out buf, out num);
@@ -51,13 +50,13 @@ protected:
  *
  * It has one shader uniform called 'matrix' that is the.
  */
-global Shader shader;
+global Shader drawShader;
 
 
 /**
  * Vertex format.
  */
-struct Vertex
+struct DrawVertex
 {
 	float x, y;
 	float u, v;
@@ -65,7 +64,7 @@ struct Vertex
 }
 
 
-class VertexBuilder : Builder
+class DrawVertexBuilder : Builder
 {
 	this(size_t num)
 	{
@@ -74,12 +73,12 @@ class VertexBuilder : Builder
 
 	final void reset(size_t num = 0)
 	{
-		resetStore(num * typeid(Vertex).size);
+		resetStore(num * typeid(DrawVertex).size);
 	}
 
 	final void add(float x, float y, float u, float v)
 	{
-		Vertex vert;
+		DrawVertex vert;
 		vert.x = x;
 		vert.y = y;
 		vert.u = u;
@@ -90,7 +89,7 @@ class VertexBuilder : Builder
 
 	final void add(float x, float y, float u, float v, Color4b color)
 	{
-		Vertex vert;
+		DrawVertex vert;
 		vert.x = x;
 		vert.y = y;
 		vert.u = u;
@@ -99,9 +98,9 @@ class VertexBuilder : Builder
 		add(&vert, 1);
 	}
 
-	final void add(Vertex* vert, size_t num)
+	final void add(DrawVertex* vert, size_t num)
 	{
-		add(cast(void*)vert, num * typeid(Vertex).size);
+		add(cast(void*)vert, num * typeid(DrawVertex).size);
 	}
 
 	alias add = Builder.add;
@@ -118,7 +117,7 @@ class VertexBuilder : Builder
 
 		glBufferData(GL_ARRAY_BUFFER, cast(GLsizeiptr)length, ptr, GL_STATIC_DRAW);
 
-		auto stride = cast(GLsizei)typeid(Vertex).size;
+		auto stride = cast(GLsizei)typeid(DrawVertex).size;
 		glVertexAttribPointer(0, 2, GL_FLOAT, 0, stride, null);
 		glVertexAttribPointer(1, 2, GL_FLOAT, 0, stride, cast(void*)(4 * 2));
 		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, 1, stride, cast(void*)(4 * 4));
@@ -195,7 +194,7 @@ global this()
 
 void initDraw()
 {
-	shader = new Shader(vertexShaderES,
+	drawShader = new Shader(vertexShaderES,
 	                    fragmentShaderES,
 	                    ["position", "uv", "color"],
 	                    ["tex"]);
@@ -203,8 +202,8 @@ void initDraw()
 
 void closeDraw()
 {
-	shader.breakApart();
-	shader = null;
+	drawShader.breakApart();
+	drawShader = null;
 }
 
 enum string vertexShaderES = `

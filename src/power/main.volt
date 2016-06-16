@@ -15,7 +15,7 @@ import charge.gfx.texture;
 import charge.gfx.bitmapfont;
 import charge.math.matrix;
 
-import draw = charge.gfx.draw;
+import gfx = charge.gfx;
 
 import power.viewer;
 
@@ -24,7 +24,7 @@ class Game : GameSceneManagerApp
 {
 public:
 	Framebuffer fbo;
-	draw.Buffer vbo;
+	gfx.DrawBuffer vbo;
 	GLuint sampler;
 
 
@@ -42,12 +42,12 @@ public:
 		push(new Scene(this));
 		fbo = Framebuffer.make("power/fbo", opts.width * 2, opts.height * 2);
 
-		auto b = new draw.VertexBuilder(4);
+		auto b = new gfx.DrawVertexBuilder(4);
 		b.add(0.0f, 0.0f, 0.0f, 0.0f);
 		b.add(1.0f, 0.0f, 1.0f, 0.0f);
 		b.add(1.0f, 1.0f, 1.0f, 1.0f);
 		b.add(0.0f, 1.0f, 0.0f, 1.0f);
-		vbo = draw.Buffer.make("power/puff", b);
+		vbo = gfx.DrawBuffer.make("power/puff", b);
 
 		glGenSamplers(1, &sampler);
 		glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -76,8 +76,8 @@ public:
 		Matrix4x4f mat;
 		t.setMatrixToOrtho(ref mat, 1.0f, 1.0f);
 
-		draw.shader.bind();
-		draw.shader.matrix4("matrix", 1, true, mat.u.a.ptr);
+		gfx.drawShader.bind();
+		gfx.drawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
 
 		glBindVertexArray(vbo.vao);
 
@@ -98,7 +98,7 @@ class Scene : GameSimpleScene
 public:
 	CtlInput input;
 	Texture bitmap;
-	draw.Buffer vbo;
+	gfx.DrawBuffer vbo;
 	string str;
 
 public:
@@ -115,9 +115,9 @@ public:
 		arg.glyphHeight = cast(int)bitmap.height / 16;
 		arg.offX = 16;
 		arg.offY = 16;
-		auto b = new draw.VertexBuilder(str.length);
+		auto b = new gfx.DrawVertexBuilder(str.length);
 		buildVertices(ref arg, b, cast(ubyte[])str);
-		vbo = draw.Buffer.make("power/scene", b);
+		vbo = gfx.DrawBuffer.make("power/scene", b);
 	}
 
 	override void close()
@@ -138,8 +138,8 @@ public:
 		Matrix4x4f mat;
 		t.setMatrixToOrtho(ref mat);
 
-		draw.shader.bind();
-		draw.shader.matrix4("matrix", 1, true, mat.u.a.ptr);
+		gfx.drawShader.bind();
+		gfx.drawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
