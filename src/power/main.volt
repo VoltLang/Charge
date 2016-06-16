@@ -25,6 +25,8 @@ class Game : GameSceneManagerApp
 public:
 	Framebuffer fbo;
 	draw.Buffer vbo;
+	GLuint sampler;
+
 
 
 	this(string[] args)
@@ -47,12 +49,17 @@ public:
 		b.add(0.0f, 1.0f, 0.0f, 1.0f);
 		vbo = draw.Buffer.make("power/puff", b);
 		writefln("%s", vbo.mRefcount);
+
+		glGenSamplers(1, &sampler);
+		glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 
 	override void close()
 	{
 		if (fbo !is null) { fbo.decRef(); fbo = null; }
 		if (vbo !is null) { vbo.decRef(); vbo = null; }
+		if (sampler) { glDeleteSamplers(1, &sampler); sampler = 0; }
 	}
 
 	override void render(Target t)
@@ -76,7 +83,11 @@ public:
 		glBindVertexArray(vbo.vao);
 
 		fbo.tex.bind();
-		glDrawArrays(GL_QUADS, 0, 4);
+		glBindSampler(0, sampler);
+
+		glDrawArrays(GL_QUADS, 0, vbo.num);
+
+		glBindSampler(0, 0);
 		fbo.tex.unbind();
 
 		glBindVertexArray(0);
