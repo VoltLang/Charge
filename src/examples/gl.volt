@@ -29,7 +29,7 @@ public:
 }
 
 
-class Scene : GameScene
+class Scene : GameSimpleScene
 {
 public:
 	CtlInput input;
@@ -105,11 +105,6 @@ public:
 		b.close();
 	}
 
-	void down(CtlKeyboard, int, dchar, scope const(char)[] m)
-	{
-		mManager.closeMe(this);
-	}
-
 
 	/*
 	 *
@@ -121,11 +116,6 @@ public:
 	{
 		if (tex !is null) { tex.decRef(); tex = null; }
 		if (buf !is null) { buf.decRef(); buf = null; }
-	}
-
-	override void logic()
-	{
-
 	}
 
 	override void render(Target t)
@@ -153,16 +143,9 @@ public:
 		glDisable(GL_BLEND);
 	}
 
-	override void assumeControl()
+	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
 	{
-		input.keyboard.down = down;
-	}
-
-	override void dropControl()
-	{
-		if (input.keyboard.down is down) {
-			input.keyboard.down = null;
-		}
+		mManager.closeMe(this);
 	}
 }
 
