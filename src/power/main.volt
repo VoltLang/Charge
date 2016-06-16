@@ -48,7 +48,6 @@ public:
 		b.add(1.0f, 1.0f, 1.0f, 1.0f);
 		b.add(0.0f, 1.0f, 0.0f, 1.0f);
 		vbo = draw.Buffer.make("power/puff", b);
-		writefln("%s", vbo.mRefcount);
 
 		glGenSamplers(1, &sampler);
 		glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
