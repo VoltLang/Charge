@@ -41,6 +41,7 @@ public:
 
 	abstract void setMatrixToOrtho(ref Matrix4x4f mat);
 	abstract void setMatrixToOrtho(ref Matrix4x4f mat, float width, float height);
+	abstract void setMatrixToProjection(ref Matrix4x4f mat, f32 fov, f32 near, f32 far);
 
 
 protected:
@@ -78,6 +79,12 @@ public:
 	override final void setMatrixToOrtho(ref Matrix4x4f mat, float width, float height)
 	{
 		mat.setToOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
+	}
+
+	override final void setMatrixToProjection(ref Matrix4x4f mat, f32 fov, f32 near, f32 far)
+	{
+		mat.setToPerspective(fov, cast(f32)width / cast(f32)height,
+			near, far, false);
 	}
 
 	global DefaultTarget opCall()
@@ -129,6 +136,12 @@ public:
 	override final void setMatrixToOrtho(ref Matrix4x4f mat, float width, float height)
 	{
 		mat.setToOrtho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
+	}
+
+	override final void setMatrixToProjection(ref Matrix4x4f mat, f32 fov, f32 near, f32 far)
+	{
+		mat.setToPerspective(fov, cast(f32)width / cast(f32)height,
+			near, far, true);
 	}
 
 	global Framebuffer make(string name, uint width, uint height)
