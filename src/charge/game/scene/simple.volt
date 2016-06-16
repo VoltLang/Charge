@@ -1,7 +1,7 @@
 // Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 /**
- * Source file for Scene base class and SceneManager interface.
+ * Source file for SimpleScene, helper default implementation.
  */
 module charge.game.scene.simple;
 
