@@ -11,7 +11,7 @@ public import charge.gfx.draw :
 	GfxDrawBuffer = DrawBuffer, GfxDrawVertex = DrawVertex,
 	GfxDrawVertexBuilder = DrawVertexBuilder, gfxDrawShader = drawShader;
 public import charge.gfx.buffer :
-	GfxBuffer = Buffer;
+	GfxBuffer = Buffer, GfxBuilder = Builder;
 public import charge.gfx.shader :
 	GfxShader = Shader;
 public import charge.gfx.target :

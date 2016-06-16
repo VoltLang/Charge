@@ -3,6 +3,7 @@
 module charge.gfx.buffer;
 
 import charge.gfx.gl;
+import charge.sys.memory;
 import charge.sys.resource;
 
 
@@ -33,5 +34,53 @@ private:
 	~this()
 	{
 		deleteBuffers();
+	}
+}
+
+class Builder
+{
+private:
+	void* mPtr;
+	size_t mPos;
+	size_t mSize;
+
+public:
+	final @property void* ptr() { return mPtr; }
+	final @property size_t length() { return mPos; }
+
+	~this()
+	{
+		close();
+	}
+
+	final void close()
+	{
+		if (mPtr !is null) {
+			cFree(mPtr);
+			mPtr = null;
+		}
+		mPos = 0;
+		mSize = 0;
+	}
+
+	final void add(void* input, size_t size)
+	{
+		if (mPos + size >= mSize) {
+			mSize += mPos + size;
+			mPtr = cRealloc(mPtr, mSize);
+		}
+		mPtr[mPos .. mPos + size] = input[0 .. size];
+		mPos += size;
+	}
+
+private:
+	void resetStore(size_t size)
+	{
+		if (mSize < size) {
+			cFree(mPtr);
+			mPtr = cMalloc(size);
+			mSize = size;
+		}
+		mPos = 0;
 	}
 }

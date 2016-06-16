@@ -6,7 +6,6 @@ import charge.core;
 import charge.gfx.gl;
 import charge.gfx.shader;
 import charge.gfx.buffer;
-import charge.sys.memory;
 import charge.sys.resource;
 import charge.math.color;
 
@@ -129,54 +128,6 @@ class DrawVertexBuilder : Builder
 		glBindVertexArray(0);
 
 		num = cast(GLsizei)length / stride;
-	}
-}
-
-class Builder
-{
-private:
-	void* mPtr;
-	size_t mPos;
-	size_t mSize;
-
-public:
-	final @property void* ptr() { return mPtr; }
-	final @property size_t length() { return mPos; }
-
-	~this()
-	{
-		close();
-	}
-
-	final void close()
-	{
-		if (mPtr !is null) {
-			cFree(mPtr);
-			mPtr = null;
-		}
-		mPos = 0;
-		mSize = 0;
-	}
-
-	final void add(void* input, size_t size)
-	{
-		if (mPos + size >= mSize) {
-			mSize += mPos + size;
-			mPtr = cRealloc(mPtr, mSize);
-		}
-		mPtr[mPos .. mPos + size] = input[0 .. size];
-		mPos += size;
-	}
-
-private:
-	void resetStore(size_t size)
-	{
-		if (mSize < size) {
-			cFree(mPtr);
-			mPtr = cMalloc(size);
-			mSize = size;
-		}
-		mPos = 0;
 	}
 }
 
