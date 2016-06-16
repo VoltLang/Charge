@@ -20,6 +20,7 @@ public:
 	Texture logo;
 	GLuint buf;
 	GLuint vao;
+	GLsizei num;
 	uint width;
 	uint height;
 
@@ -105,7 +106,7 @@ public:
 		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
 		if (vao) { glDeleteVertexArrays(1, &vao); vao = 0; }
 
-		b.bake(out vao, out buf);
+		b.bake(out vao, out buf, out num);
 		b.close();
 	}
 

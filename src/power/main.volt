@@ -151,7 +151,7 @@ public:
 		glBindVertexArray(vbo.vao);
 
 		bitmap.bind();
-		glDrawArrays(GL_QUADS, 0, cast(GLint)str.length * 4);
+		glDrawArrays(GL_QUADS, 0, vbo.num);
 		bitmap.unbind();
 
 		glBindVertexArray(0);

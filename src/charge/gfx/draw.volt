@@ -17,6 +17,10 @@ import charge.math.color;
 class Buffer : charge.gfx.buffer.Buffer
 {
 public:
+	GLsizei num;
+
+
+public:
 	global Buffer make(string name, VertexBuilder vb)
 	{
 		void* dummy;
@@ -31,7 +35,7 @@ public:
 	void update(VertexBuilder vb)
 	{
 		deleteBuffers();
-		vb.bake(out vao, out buf);
+		vb.bake(out vao, out buf, out num);
 	}
 
 protected:
@@ -102,7 +106,7 @@ class VertexBuilder : Builder
 
 	alias add = Builder.add;
 
-	final void bake(out GLuint vao, out GLuint buf)
+	final void bake(out GLuint vao, out GLuint buf, out GLsizei num)
 	{
 		// Setup vertex buffer and upload the data.
 		glGenBuffers(1, &buf);
@@ -124,6 +128,8 @@ class VertexBuilder : Builder
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
+
+		num = cast(GLsizei)length / stride;
 	}
 }
 
