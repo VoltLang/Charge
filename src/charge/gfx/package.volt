@@ -5,9 +5,18 @@
  */
 module charge.gfx;
 
-public import charge.gfx.gfx;
-public import charge.gfx.draw;
-public import charge.gfx.buffer;
-public import charge.gfx.shader;
-public import charge.gfx.target;
-public import charge.gfx.texture;
+public import charge.gfx.gl;
+public import charge.gfx.gfx : gfxLoaded;
+public import charge.gfx.draw :
+	GfxDrawBuffer = DrawBuffer, GfxDrawVertex = DrawVertex,
+	GfxDrawVertexBuilder = DrawVertexBuilder, gfxDrawShader = drawShader;
+public import charge.gfx.buffer :
+	GfxBuffer = Buffer;
+public import charge.gfx.shader :
+	GfxShader = Shader;
+public import charge.gfx.target :
+	GfxTarget = Target, GfxFramebuffer = Framebuffer;
+public import charge.gfx.texture : 
+	GfxTexture = Texture, GfxTexture2D = Texture2D;
+public import charge.gfx.bitmapfont :
+	GfxBitmapState = BitmapState, gfxBuildVertices = buildVertices;

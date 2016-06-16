@@ -11,9 +11,8 @@ import charge.sys.memory;
 import charge.sys.resource;
 import charge.core;
 import charge.game;
-import charge.gfx.gl;
+import charge.gfx;
 
-import gfx = charge.gfx;
 import math = charge.math;
 
 
@@ -23,7 +22,7 @@ public:
 	CtlInput input;
 	VoxelBuffer vbo;
 	float rotation;
-	gfx.Shader voxelShader;
+	GfxShader voxelShader;
 
 
 public:
@@ -33,7 +32,7 @@ public:
 		input = CtlInput.opCall();
 		vbo = doit();
 
-		voxelShader = new gfx.Shader(vertexShaderES, fragmentShaderES,
+		voxelShader = new GfxShader(vertexShaderES, fragmentShaderES,
 		                             ["position", "color"], null);
 	}
 
@@ -58,7 +57,7 @@ public:
 		rotation += 0.01f;
 	}
 
-	override void render(gfx.Target t)
+	override void render(GfxTarget t)
 	{
 		// Clear the screen.
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
@@ -102,7 +101,7 @@ public:
 /**
  * VBO used for Voxels.
  */
-class VoxelBuffer : gfx.Buffer
+class VoxelBuffer : GfxBuffer
 {
 public:
 	GLsizei num;

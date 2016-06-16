@@ -6,16 +6,10 @@ import watt.io;
 import charge.ctl;
 import charge.sys.resource;
 import charge.core;
-import charge.gfx.target;
+import charge.gfx;
 import charge.game;
 import charge.game.scene.background;
-import charge.gfx.gl;
-import charge.gfx.shader;
-import charge.gfx.texture;
-import charge.gfx.bitmapfont;
 import charge.math.matrix;
-
-import gfx = charge.gfx;
 
 import power.viewer;
 
@@ -23,8 +17,8 @@ import power.viewer;
 class Game : GameSceneManagerApp
 {
 public:
-	Framebuffer fbo;
-	gfx.DrawBuffer vbo;
+	GfxFramebuffer fbo;
+	GfxDrawBuffer vbo;
 	GLuint sampler;
 
 
@@ -40,14 +34,14 @@ public:
 
 		push(new Background(this, "res/tile.png", "res/logo.png"));
 		push(new Scene(this));
-		fbo = Framebuffer.make("power/fbo", opts.width * 2, opts.height * 2);
+		fbo = GfxFramebuffer.make("power/fbo", opts.width * 2, opts.height * 2);
 
-		auto b = new gfx.DrawVertexBuilder(4);
+		auto b = new GfxDrawVertexBuilder(4);
 		b.add(0.0f, 0.0f, 0.0f, 0.0f);
 		b.add(1.0f, 0.0f, 1.0f, 0.0f);
 		b.add(1.0f, 1.0f, 1.0f, 1.0f);
 		b.add(0.0f, 1.0f, 0.0f, 1.0f);
-		vbo = gfx.DrawBuffer.make("power/puff", b);
+		vbo = GfxDrawBuffer.make("power/puff", b);
 
 		glGenSamplers(1, &sampler);
 		glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -61,7 +55,7 @@ public:
 		if (sampler) { glDeleteSamplers(1, &sampler); sampler = 0; }
 	}
 
-	override void render(Target t)
+	override void render(GfxTarget t)
 	{
 		fbo.bind();
 		super.render(fbo);
@@ -76,8 +70,8 @@ public:
 		Matrix4x4f mat;
 		t.setMatrixToOrtho(ref mat, 1.0f, 1.0f);
 
-		gfx.drawShader.bind();
-		gfx.drawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
+		gfxDrawShader.bind();
+		gfxDrawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
 
 		glBindVertexArray(vbo.vao);
 
@@ -97,8 +91,8 @@ class Scene : GameSimpleScene
 {
 public:
 	CtlInput input;
-	Texture bitmap;
-	gfx.DrawBuffer vbo;
+	GfxTexture bitmap;
+	GfxDrawBuffer vbo;
 	string str;
 
 public:
@@ -108,16 +102,16 @@ public:
 		this.str = text;
 
 		input = CtlInput.opCall();
-		bitmap = Texture2D.load(Pool.opCall(), "res/font.png");
+		bitmap = GfxTexture2D.load(Pool.opCall(), "res/font.png");
 
-		BitmapState arg;
+		GfxBitmapState arg;
 		arg.glyphWidth = cast(int)bitmap.width / 16;
 		arg.glyphHeight = cast(int)bitmap.height / 16;
 		arg.offX = 16;
 		arg.offY = 16;
-		auto b = new gfx.DrawVertexBuilder(str.length);
-		buildVertices(ref arg, b, cast(ubyte[])str);
-		vbo = gfx.DrawBuffer.make("power/scene", b);
+		auto b = new GfxDrawVertexBuilder(str.length);
+		gfxBuildVertices(ref arg, b, cast(ubyte[])str);
+		vbo = GfxDrawBuffer.make("power/scene", b);
 	}
 
 	override void close()
@@ -133,13 +127,13 @@ public:
 	 *
 	 */
 
-	override void render(Target t)
+	override void render(GfxTarget t)
 	{
 		Matrix4x4f mat;
 		t.setMatrixToOrtho(ref mat);
 
-		gfx.drawShader.bind();
-		gfx.drawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
+		gfxDrawShader.bind();
+		gfxDrawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
