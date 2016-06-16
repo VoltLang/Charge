@@ -93,7 +93,7 @@ public:
 	}
 }
 
-class Scene : GameScene
+class Scene : GameSimpleScene
 {
 public:
 	CtlInput input;
@@ -129,24 +129,9 @@ public:
 
 	/*
 	 *
-	 * Our own methods and helpers..
-	 *
-	 */
-
-	void down(CtlKeyboard, int, dchar, scope const(char)[] m)
-	{
-		mManager.closeMe(this);
-		mManager.push(new Viewer(mManager));
-	}
-
-
-	/*
-	 *
 	 * Scene methods.
 	 *
 	 */
-
-	override void logic() {}
 
 	override void render(Target t)
 	{
@@ -169,16 +154,10 @@ public:
 		glDisable(GL_BLEND);
 	}
 
-	override void assumeControl()
+	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
 	{
-		input.keyboard.down = down;
-	}
-
-	override void dropControl()
-	{
-		if (input.keyboard.down is down) {
-			input.keyboard.down = null;
-		}
+		mManager.closeMe(this);
+		mManager.push(new Viewer(mManager));
 	}
 }
 

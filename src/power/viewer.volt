@@ -17,7 +17,7 @@ import gfx = charge.gfx;
 import math = charge.math;
 
 
-class Viewer : GameScene
+class Viewer : GameSimpleScene
 {
 public:
 	CtlInput input;
@@ -44,18 +44,6 @@ public:
 			voxelShader.breakApart();
 			voxelShader = null;
 		}
-	}
-
-
-	/*
-	 *
-	 * Our own methods and helpers.
-	 *
-	 */
-
-	void down(CtlKeyboard, int, dchar, scope const(char)[] m)
-	{
-		mManager.closeMe(this);
 	}
 
 
@@ -105,16 +93,9 @@ public:
 		glDisable(GL_DEPTH_TEST);
 	}
 
-	override void assumeControl()
+	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
 	{
-		input.keyboard.down = down;
-	}
-
-	override void dropControl()
-	{
-		if (input.keyboard.down is down) {
-			input.keyboard.down = null;
-		}
+		mManager.closeMe(this);
 	}
 }
 
