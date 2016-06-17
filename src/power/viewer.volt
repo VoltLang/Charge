@@ -148,7 +148,7 @@ struct Vertex
 	}
 }
 
-class VoxelBuilder : Builder
+class VoxelBuilder : GfxBuilder
 {
 	this(size_t num)
 	{
@@ -201,7 +201,7 @@ class VoxelBuilder : Builder
 		add(cast(void*)vert, num * typeid(Vertex).size);
 	}
 
-	alias add = Builder.add;
+	alias add = GfxBuilder.add;
 
 	final void bake(out GLuint vao, out GLuint buf, out GLsizei num)
 	{
@@ -227,55 +227,6 @@ class VoxelBuilder : Builder
 		num = cast(GLsizei)length / stride;
 	}
 }
-
-class Builder
-{
-private:
-	void* mPtr;
-	size_t mPos;
-	size_t mSize;
-
-public:
-	final @property void* ptr() { return mPtr; }
-	final @property size_t length() { return mPos; }
-
-	~this()
-	{
-		close();
-	}
-
-	final void close()
-	{
-		if (mPtr !is null) {
-			cFree(mPtr);
-			mPtr = null;
-		}
-		mPos = 0;
-		mSize = 0;
-	}
-
-	final void add(void* input, size_t size)
-	{
-		if (mPos + size >= mSize) {
-			mSize += mPos + size;
-			mPtr = cRealloc(mPtr, mSize);
-		}
-		mPtr[mPos .. mPos + size] = input[0 .. size];
-		mPos += size;
-	}
-
-private:
-	void resetStore(size_t size)
-	{
-		if (mSize < size) {
-			cFree(mPtr);
-			mPtr = cMalloc(size);
-			mSize = size;
-		}
-		mPos = 0;
-	}
-}
-
 
 
 @mangledName("llvm.ctpop.i64") u64 bitcount(u64);
