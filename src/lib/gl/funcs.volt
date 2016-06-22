@@ -20,7 +20,6 @@ global bool GL_VERSION_4_2;
 global bool GL_VERSION_4_3;
 global bool GL_VERSION_4_4;
 global bool GL_VERSION_4_5;
-global bool GL_ES_VERSION_2_0;
 extern(System) @loadDynamic {
 void glCullFace(GLenum);
 void glFrontFace(GLenum);

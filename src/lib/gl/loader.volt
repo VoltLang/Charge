@@ -6,90 +6,13 @@ private import lib.gl.ext;
 private import lib.gl.enums;
 private import lib.gl.types;
 import watt.library;
-
-private global Library libGL;
-extern(System) private alias gladGetProcAddressPtrType = void* function(const(char)*);
-private global gladGetProcAddressPtrType gladGetProcAddressPtr;
-
-private
-bool open_gl() {
-    version(Windows) {
-        libGL = Library.load("opengl32.dll");
-    } else version(OSX) {
-        libGL = Library.loads([
-            "../Frameworks/OpenGL.framework/OpenGL",
-            "/Library/Frameworks/OpenGL.framework/OpenGL",
-            "/System/Library/Frameworks/OpenGL.framework/OpenGL",
-            "/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL"
-        ]);
-    } else {
-        libGL = Library.loads(["libGL.so.1", "libGL.so"]);
-    }
-
-    if(libGL !is null) {
-        version(Windows) {
-            string sym = "wglGetProcAddress";
-        } else {
-            string sym = "glXGetProcAddressARB";
-        }
-        // returns null on OSX, but that's fine
-        gladGetProcAddressPtr = cast(typeof(gladGetProcAddressPtr))libGL.symbol(sym);
-        return true;
-    }
-
-    return false;
-}
-
-private struct StructToDg {
-    void* instance;
-    void* func;
-}
-
-private
-void* get_proc(string name) {
-    if(libGL is null) return null;
-    void* result;
-
-    if(gladGetProcAddressPtr !is null) {
-        // TODO: name.ptr
-        result = gladGetProcAddressPtr(name.ptr);
-    }
-    if(result is null) {
-        result = libGL.symbol(name);
-    }
-
-    return result;
-}
-
-private
-void close_gl() {
-    if(libGL !is null) {
-        libGL.free();
-    }
-    return;
-}
-
-bool gladLoadGL() {
-    StructToDg structToDg;
-    structToDg.func = cast(void*)get_proc;
-    auto dg = *cast(Loader*)&structToDg;
-
-    bool status = false;
-
-    if(open_gl()) {
-        status = gladLoadGL(dg);
-        close_gl();
-    }
-
-    return status;
-}
 global int GL_MAJOR = 0;
 global int GL_MINOR = 0;
-private extern(C) char* strstr(const(char)*, const(char)*);
-private extern(C) int strcmp(const(char)*, const(char)*);
-private extern(C) int strncmp(const(char)*, const(char)*, size_t);
-private extern(C) size_t strlen(const(char)*);
-private bool has_ext(const(char)* ext) {
+private extern(C) char* strstr(const(char)*, const(char)*) ;
+private extern(C) int strcmp(const(char)*, const(char)*) ;
+private extern(C) int strncmp(const(char)*, const(char)*, size_t) ;
+private extern(C) size_t strlen(const(char)*) ;
+private bool has_ext(const(char)* ext)  {
     if(GL_MAJOR < 3) {
         const(char)* extensions = cast(const(char)*)glGetString(GL_EXTENSIONS);
         const(char)* loc;
@@ -155,8 +78,8 @@ bool gladLoadGL(Loader load) {
 	load_GL_ARB_ES2_compatibility(load);
 	load_GL_ARB_ES3_1_compatibility(load);
 	load_GL_ARB_ES3_2_compatibility(load);
-	load_GL_ARB_texture_storage(load);
 	load_GL_ARB_sampler_objects(load);
+	load_GL_ARB_texture_storage(load);
 	return GL_MAJOR != 0 || GL_MINOR != 0;
 }
 
@@ -193,9 +116,10 @@ void find_extensionsGL() {
 	GL_ARB_ES3_1_compatibility = has_ext("GL_ARB_ES3_1_compatibility");
 	GL_ARB_ES3_2_compatibility = has_ext("GL_ARB_ES3_2_compatibility");
 	GL_ARB_ES3_compatibility = has_ext("GL_ARB_ES3_compatibility");
-	GL_ARB_shading_language_420pack = has_ext("GL_ARB_shading_language_420pack");
-	GL_ARB_texture_storage = has_ext("GL_ARB_texture_storage");
 	GL_ARB_sampler_objects = has_ext("GL_ARB_sampler_objects");
+	GL_ARB_shading_language_420pack = has_ext("GL_ARB_shading_language_420pack");
+	GL_ARB_shading_language_packing = has_ext("GL_ARB_shading_language_packing");
+	GL_ARB_texture_storage = has_ext("GL_ARB_texture_storage");
 	return;
 }
 
@@ -1357,14 +1281,6 @@ void load_GL_ARB_ES3_2_compatibility(Loader load) {
 	glPrimitiveBoundingBoxARB = cast(typeof(glPrimitiveBoundingBoxARB))load("glPrimitiveBoundingBoxARB");
 	return;
 }
-void load_GL_ARB_texture_storage(Loader load) {
-	if(!GL_ARB_texture_storage) return;
-	glTexStorage1D = cast(typeof(glTexStorage1D))load("glTexStorage1D");
-	glTexStorage2D = cast(typeof(glTexStorage2D))load("glTexStorage2D");
-	glTexStorage3D = cast(typeof(glTexStorage3D))load("glTexStorage3D");
-	return;
-}
-
 void load_GL_ARB_sampler_objects(Loader load) {
 	if(!GL_ARB_sampler_objects) return;
 	glGenSamplers = cast(typeof(glGenSamplers))load("glGenSamplers");
@@ -1372,190 +1288,22 @@ void load_GL_ARB_sampler_objects(Loader load) {
 	glIsSampler = cast(typeof(glIsSampler))load("glIsSampler");
 	glBindSampler = cast(typeof(glBindSampler))load("glBindSampler");
 	glSamplerParameteri = cast(typeof(glSamplerParameteri))load("glSamplerParameteri");
-	glSamplerParameterf = cast(typeof(glSamplerParameterf))load("glSamplerParameterf");
 	glSamplerParameteriv = cast(typeof(glSamplerParameteriv))load("glSamplerParameteriv");
+	glSamplerParameterf = cast(typeof(glSamplerParameterf))load("glSamplerParameterf");
 	glSamplerParameterfv = cast(typeof(glSamplerParameterfv))load("glSamplerParameterfv");
 	glSamplerParameterIiv = cast(typeof(glSamplerParameterIiv))load("glSamplerParameterIiv");
 	glSamplerParameterIuiv = cast(typeof(glSamplerParameterIuiv))load("glSamplerParameterIuiv");
 	glGetSamplerParameteriv = cast(typeof(glGetSamplerParameteriv))load("glGetSamplerParameteriv");
-	glGetSamplerParameterfv = cast(typeof(glGetSamplerParameterfv))load("glGetSamplerParameterfv");
 	glGetSamplerParameterIiv = cast(typeof(glGetSamplerParameterIiv))load("glGetSamplerParameterIiv");
+	glGetSamplerParameterfv = cast(typeof(glGetSamplerParameterfv))load("glGetSamplerParameterfv");
 	glGetSamplerParameterIuiv = cast(typeof(glGetSamplerParameterIuiv))load("glGetSamplerParameterIuiv");
-}
-
-} /* private */
-
-bool gladLoadGLES2(Loader load) {
-	glGetString = cast(typeof(glGetString))load("glGetString");
-	if(glGetString is null) { return false; }
-	if(glGetString(GL_VERSION) is null) { return false; }
-
-	find_coreGLES2();
-	load_GL_ES_VERSION_2_0(load);
-
-	find_extensionsGLES2();
-	return GL_MAJOR != 0 || GL_MINOR != 0;
-}
-
-private {
-
-void find_coreGLES2() {
-	const(char)* v = cast(const(char)*)glGetString(GL_VERSION);
-	int major = v[0] - '0';
-	int minor = v[2] - '0';
-	GL_MAJOR = major; GL_MINOR = minor;
-	GL_ES_VERSION_2_0 = (major == 2 && minor >= 0) || major > 2;
 	return;
 }
-
-void find_extensionsGLES2() {
-	return;
-}
-
-void load_GL_ES_VERSION_2_0(Loader load) {
-	if(!GL_ES_VERSION_2_0) return;
-	glActiveTexture = cast(typeof(glActiveTexture))load("glActiveTexture");
-	glAttachShader = cast(typeof(glAttachShader))load("glAttachShader");
-	glBindAttribLocation = cast(typeof(glBindAttribLocation))load("glBindAttribLocation");
-	glBindBuffer = cast(typeof(glBindBuffer))load("glBindBuffer");
-	glBindFramebuffer = cast(typeof(glBindFramebuffer))load("glBindFramebuffer");
-	glBindRenderbuffer = cast(typeof(glBindRenderbuffer))load("glBindRenderbuffer");
-	glBindTexture = cast(typeof(glBindTexture))load("glBindTexture");
-	glBlendColor = cast(typeof(glBlendColor))load("glBlendColor");
-	glBlendEquation = cast(typeof(glBlendEquation))load("glBlendEquation");
-	glBlendEquationSeparate = cast(typeof(glBlendEquationSeparate))load("glBlendEquationSeparate");
-	glBlendFunc = cast(typeof(glBlendFunc))load("glBlendFunc");
-	glBlendFuncSeparate = cast(typeof(glBlendFuncSeparate))load("glBlendFuncSeparate");
-	glBufferData = cast(typeof(glBufferData))load("glBufferData");
-	glBufferSubData = cast(typeof(glBufferSubData))load("glBufferSubData");
-	glCheckFramebufferStatus = cast(typeof(glCheckFramebufferStatus))load("glCheckFramebufferStatus");
-	glClear = cast(typeof(glClear))load("glClear");
-	glClearColor = cast(typeof(glClearColor))load("glClearColor");
-	glClearDepthf = cast(typeof(glClearDepthf))load("glClearDepthf");
-	glClearStencil = cast(typeof(glClearStencil))load("glClearStencil");
-	glColorMask = cast(typeof(glColorMask))load("glColorMask");
-	glCompileShader = cast(typeof(glCompileShader))load("glCompileShader");
-	glCompressedTexImage2D = cast(typeof(glCompressedTexImage2D))load("glCompressedTexImage2D");
-	glCompressedTexSubImage2D = cast(typeof(glCompressedTexSubImage2D))load("glCompressedTexSubImage2D");
-	glCopyTexImage2D = cast(typeof(glCopyTexImage2D))load("glCopyTexImage2D");
-	glCopyTexSubImage2D = cast(typeof(glCopyTexSubImage2D))load("glCopyTexSubImage2D");
-	glCreateProgram = cast(typeof(glCreateProgram))load("glCreateProgram");
-	glCreateShader = cast(typeof(glCreateShader))load("glCreateShader");
-	glCullFace = cast(typeof(glCullFace))load("glCullFace");
-	glDeleteBuffers = cast(typeof(glDeleteBuffers))load("glDeleteBuffers");
-	glDeleteFramebuffers = cast(typeof(glDeleteFramebuffers))load("glDeleteFramebuffers");
-	glDeleteProgram = cast(typeof(glDeleteProgram))load("glDeleteProgram");
-	glDeleteRenderbuffers = cast(typeof(glDeleteRenderbuffers))load("glDeleteRenderbuffers");
-	glDeleteShader = cast(typeof(glDeleteShader))load("glDeleteShader");
-	glDeleteTextures = cast(typeof(glDeleteTextures))load("glDeleteTextures");
-	glDepthFunc = cast(typeof(glDepthFunc))load("glDepthFunc");
-	glDepthMask = cast(typeof(glDepthMask))load("glDepthMask");
-	glDepthRangef = cast(typeof(glDepthRangef))load("glDepthRangef");
-	glDetachShader = cast(typeof(glDetachShader))load("glDetachShader");
-	glDisable = cast(typeof(glDisable))load("glDisable");
-	glDisableVertexAttribArray = cast(typeof(glDisableVertexAttribArray))load("glDisableVertexAttribArray");
-	glDrawArrays = cast(typeof(glDrawArrays))load("glDrawArrays");
-	glDrawElements = cast(typeof(glDrawElements))load("glDrawElements");
-	glEnable = cast(typeof(glEnable))load("glEnable");
-	glEnableVertexAttribArray = cast(typeof(glEnableVertexAttribArray))load("glEnableVertexAttribArray");
-	glFinish = cast(typeof(glFinish))load("glFinish");
-	glFlush = cast(typeof(glFlush))load("glFlush");
-	glFramebufferRenderbuffer = cast(typeof(glFramebufferRenderbuffer))load("glFramebufferRenderbuffer");
-	glFramebufferTexture2D = cast(typeof(glFramebufferTexture2D))load("glFramebufferTexture2D");
-	glFrontFace = cast(typeof(glFrontFace))load("glFrontFace");
-	glGenBuffers = cast(typeof(glGenBuffers))load("glGenBuffers");
-	glGenerateMipmap = cast(typeof(glGenerateMipmap))load("glGenerateMipmap");
-	glGenFramebuffers = cast(typeof(glGenFramebuffers))load("glGenFramebuffers");
-	glGenRenderbuffers = cast(typeof(glGenRenderbuffers))load("glGenRenderbuffers");
-	glGenTextures = cast(typeof(glGenTextures))load("glGenTextures");
-	glGetActiveAttrib = cast(typeof(glGetActiveAttrib))load("glGetActiveAttrib");
-	glGetActiveUniform = cast(typeof(glGetActiveUniform))load("glGetActiveUniform");
-	glGetAttachedShaders = cast(typeof(glGetAttachedShaders))load("glGetAttachedShaders");
-	glGetAttribLocation = cast(typeof(glGetAttribLocation))load("glGetAttribLocation");
-	glGetBooleanv = cast(typeof(glGetBooleanv))load("glGetBooleanv");
-	glGetBufferParameteriv = cast(typeof(glGetBufferParameteriv))load("glGetBufferParameteriv");
-	glGetError = cast(typeof(glGetError))load("glGetError");
-	glGetFloatv = cast(typeof(glGetFloatv))load("glGetFloatv");
-	glGetFramebufferAttachmentParameteriv = cast(typeof(glGetFramebufferAttachmentParameteriv))load("glGetFramebufferAttachmentParameteriv");
-	glGetIntegerv = cast(typeof(glGetIntegerv))load("glGetIntegerv");
-	glGetProgramiv = cast(typeof(glGetProgramiv))load("glGetProgramiv");
-	glGetProgramInfoLog = cast(typeof(glGetProgramInfoLog))load("glGetProgramInfoLog");
-	glGetRenderbufferParameteriv = cast(typeof(glGetRenderbufferParameteriv))load("glGetRenderbufferParameteriv");
-	glGetShaderiv = cast(typeof(glGetShaderiv))load("glGetShaderiv");
-	glGetShaderInfoLog = cast(typeof(glGetShaderInfoLog))load("glGetShaderInfoLog");
-	glGetShaderPrecisionFormat = cast(typeof(glGetShaderPrecisionFormat))load("glGetShaderPrecisionFormat");
-	glGetShaderSource = cast(typeof(glGetShaderSource))load("glGetShaderSource");
-	glGetString = cast(typeof(glGetString))load("glGetString");
-	glGetTexParameterfv = cast(typeof(glGetTexParameterfv))load("glGetTexParameterfv");
-	glGetTexParameteriv = cast(typeof(glGetTexParameteriv))load("glGetTexParameteriv");
-	glGetUniformfv = cast(typeof(glGetUniformfv))load("glGetUniformfv");
-	glGetUniformiv = cast(typeof(glGetUniformiv))load("glGetUniformiv");
-	glGetUniformLocation = cast(typeof(glGetUniformLocation))load("glGetUniformLocation");
-	glGetVertexAttribfv = cast(typeof(glGetVertexAttribfv))load("glGetVertexAttribfv");
-	glGetVertexAttribiv = cast(typeof(glGetVertexAttribiv))load("glGetVertexAttribiv");
-	glGetVertexAttribPointerv = cast(typeof(glGetVertexAttribPointerv))load("glGetVertexAttribPointerv");
-	glHint = cast(typeof(glHint))load("glHint");
-	glIsBuffer = cast(typeof(glIsBuffer))load("glIsBuffer");
-	glIsEnabled = cast(typeof(glIsEnabled))load("glIsEnabled");
-	glIsFramebuffer = cast(typeof(glIsFramebuffer))load("glIsFramebuffer");
-	glIsProgram = cast(typeof(glIsProgram))load("glIsProgram");
-	glIsRenderbuffer = cast(typeof(glIsRenderbuffer))load("glIsRenderbuffer");
-	glIsShader = cast(typeof(glIsShader))load("glIsShader");
-	glIsTexture = cast(typeof(glIsTexture))load("glIsTexture");
-	glLineWidth = cast(typeof(glLineWidth))load("glLineWidth");
-	glLinkProgram = cast(typeof(glLinkProgram))load("glLinkProgram");
-	glPixelStorei = cast(typeof(glPixelStorei))load("glPixelStorei");
-	glPolygonOffset = cast(typeof(glPolygonOffset))load("glPolygonOffset");
-	glReadPixels = cast(typeof(glReadPixels))load("glReadPixels");
-	glReleaseShaderCompiler = cast(typeof(glReleaseShaderCompiler))load("glReleaseShaderCompiler");
-	glRenderbufferStorage = cast(typeof(glRenderbufferStorage))load("glRenderbufferStorage");
-	glSampleCoverage = cast(typeof(glSampleCoverage))load("glSampleCoverage");
-	glScissor = cast(typeof(glScissor))load("glScissor");
-	glShaderBinary = cast(typeof(glShaderBinary))load("glShaderBinary");
-	glShaderSource = cast(typeof(glShaderSource))load("glShaderSource");
-	glStencilFunc = cast(typeof(glStencilFunc))load("glStencilFunc");
-	glStencilFuncSeparate = cast(typeof(glStencilFuncSeparate))load("glStencilFuncSeparate");
-	glStencilMask = cast(typeof(glStencilMask))load("glStencilMask");
-	glStencilMaskSeparate = cast(typeof(glStencilMaskSeparate))load("glStencilMaskSeparate");
-	glStencilOp = cast(typeof(glStencilOp))load("glStencilOp");
-	glStencilOpSeparate = cast(typeof(glStencilOpSeparate))load("glStencilOpSeparate");
-	glTexImage2D = cast(typeof(glTexImage2D))load("glTexImage2D");
-	glTexParameterf = cast(typeof(glTexParameterf))load("glTexParameterf");
-	glTexParameterfv = cast(typeof(glTexParameterfv))load("glTexParameterfv");
-	glTexParameteri = cast(typeof(glTexParameteri))load("glTexParameteri");
-	glTexParameteriv = cast(typeof(glTexParameteriv))load("glTexParameteriv");
-	glTexSubImage2D = cast(typeof(glTexSubImage2D))load("glTexSubImage2D");
-	glUniform1f = cast(typeof(glUniform1f))load("glUniform1f");
-	glUniform1fv = cast(typeof(glUniform1fv))load("glUniform1fv");
-	glUniform1i = cast(typeof(glUniform1i))load("glUniform1i");
-	glUniform1iv = cast(typeof(glUniform1iv))load("glUniform1iv");
-	glUniform2f = cast(typeof(glUniform2f))load("glUniform2f");
-	glUniform2fv = cast(typeof(glUniform2fv))load("glUniform2fv");
-	glUniform2i = cast(typeof(glUniform2i))load("glUniform2i");
-	glUniform2iv = cast(typeof(glUniform2iv))load("glUniform2iv");
-	glUniform3f = cast(typeof(glUniform3f))load("glUniform3f");
-	glUniform3fv = cast(typeof(glUniform3fv))load("glUniform3fv");
-	glUniform3i = cast(typeof(glUniform3i))load("glUniform3i");
-	glUniform3iv = cast(typeof(glUniform3iv))load("glUniform3iv");
-	glUniform4f = cast(typeof(glUniform4f))load("glUniform4f");
-	glUniform4fv = cast(typeof(glUniform4fv))load("glUniform4fv");
-	glUniform4i = cast(typeof(glUniform4i))load("glUniform4i");
-	glUniform4iv = cast(typeof(glUniform4iv))load("glUniform4iv");
-	glUniformMatrix2fv = cast(typeof(glUniformMatrix2fv))load("glUniformMatrix2fv");
-	glUniformMatrix3fv = cast(typeof(glUniformMatrix3fv))load("glUniformMatrix3fv");
-	glUniformMatrix4fv = cast(typeof(glUniformMatrix4fv))load("glUniformMatrix4fv");
-	glUseProgram = cast(typeof(glUseProgram))load("glUseProgram");
-	glValidateProgram = cast(typeof(glValidateProgram))load("glValidateProgram");
-	glVertexAttrib1f = cast(typeof(glVertexAttrib1f))load("glVertexAttrib1f");
-	glVertexAttrib1fv = cast(typeof(glVertexAttrib1fv))load("glVertexAttrib1fv");
-	glVertexAttrib2f = cast(typeof(glVertexAttrib2f))load("glVertexAttrib2f");
-	glVertexAttrib2fv = cast(typeof(glVertexAttrib2fv))load("glVertexAttrib2fv");
-	glVertexAttrib3f = cast(typeof(glVertexAttrib3f))load("glVertexAttrib3f");
-	glVertexAttrib3fv = cast(typeof(glVertexAttrib3fv))load("glVertexAttrib3fv");
-	glVertexAttrib4f = cast(typeof(glVertexAttrib4f))load("glVertexAttrib4f");
-	glVertexAttrib4fv = cast(typeof(glVertexAttrib4fv))load("glVertexAttrib4fv");
-	glVertexAttribPointer = cast(typeof(glVertexAttribPointer))load("glVertexAttribPointer");
-	glViewport = cast(typeof(glViewport))load("glViewport");
+void load_GL_ARB_texture_storage(Loader load) {
+	if(!GL_ARB_texture_storage) return;
+	glTexStorage1D = cast(typeof(glTexStorage1D))load("glTexStorage1D");
+	glTexStorage2D = cast(typeof(glTexStorage2D))load("glTexStorage2D");
+	glTexStorage3D = cast(typeof(glTexStorage3D))load("glTexStorage3D");
 	return;
 }
 

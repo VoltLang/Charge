@@ -69,9 +69,8 @@ public:
 
 		// For shaders.
 		if (!GL_ARB_ES2_compatibility &&
-		    !GL_ES_VERSION_2_0 &&
 		    !GL_VERSION_4_5) {
-			throw new Exception("Need OpenGL ES 2.0, GL_ARB_ES2_compatibility or OpenGL 4.5");
+			throw new Exception("Need GL_ARB_ES2_compatibility or OpenGL 4.5");
 		}
 	}
 
