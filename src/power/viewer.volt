@@ -564,12 +564,13 @@ void main(void)
 	// Get color.
 	vec4 c = texture(color, uvFS);
 
-	vec4 a = textureGather(color, uvFS, 3);
 	vec4 s1 = textureGatherOffset(color, uvFS, ivec2(0,  1), 3);
 	vec4 s2 = textureGatherOffset(color, uvFS, ivec2(0, -1), 3);
 	vec4 s3 = textureGatherOffset(color, uvFS, ivec2( 1, 0), 3);
 	vec4 s4 = textureGatherOffset(color, uvFS, ivec2(-1, 0), 3);
 
+	// textureGather(color, uvFS, 3);
+	vec4 a = vec4(s1.wz, s2.yx);
 
 	float factor = doTest(a) * .4 +
 		doTest(s1) * .3 +
