@@ -23,7 +23,11 @@ public:
 	CtlInput input;
 	VoxelBuffer vbo;
 	float rotation;
+	GfxFramebuffer fbo;
+	GfxDrawBuffer quad;
 	GfxShader voxelShader;
+	GfxShader aaShader;
+	GLuint sampler;
 
 
 public:
@@ -33,16 +37,37 @@ public:
 		input = CtlInput.opCall();
 		vbo = doit();
 
-		voxelShader = new GfxShader(vertexShaderES, fragmentShaderES,
-		                             ["position", "color"], null);
+		voxelShader = new GfxShader(voxelVertexES, voxelFragmentES,
+		                            ["position", "color"], null);
+		aaShader = new GfxShader(aaVertex130, aaFragment130,
+		                         ["position"], ["color", "depth"]);
+
+
+		auto b = new GfxDrawVertexBuilder(4);
+		b.add(-1.f, -1.f, -1.f, -1.f);
+		b.add( 1.f, -1.f,  1.f, -1.f);
+		b.add( 1.f,  1.f,  1.f,  1.f);
+		b.add(-1.f,  1.f, -1.f,  1.f);
+		quad = GfxDrawBuffer.make("power/quad", b);
+
+		glGenSamplers(1, &sampler);
+		glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 
 	override void close()
 	{
+		if (fbo !is null) { fbo.decRef(); fbo = null; }
 		if (vbo !is null) { vbo.decRef(); vbo = null; }
+		if (quad !is null) { quad.decRef(); quad = null; }
+		if (sampler) { glDeleteSamplers(1, &sampler); sampler = 0; }
 		if (voxelShader !is null) {
 			voxelShader.breakApart();
 			voxelShader = null;
+		}
+		if (aaShader !is null) {
+			aaShader.breakApart();
+			aaShader = null;
 		}
 	}
 
@@ -59,6 +84,55 @@ public:
 	}
 
 	override void render(GfxTarget t)
+	{
+		// If there is none or if t has a different size.
+		setupFramebuffer(t);
+
+		// Use the fbo
+		t.unbind();
+		fbo.bind();
+		renderScene(fbo);
+		fbo.unbind();
+		t.bind();
+
+
+		// Clear the screen.
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		aaShader.bind();
+
+		glBindVertexArray(quad.vao);
+
+		fbo.tex.bind();
+		glBindSampler(0, sampler);
+
+		glDrawArrays(GL_QUADS, 0, quad.num);
+
+		glBindSampler(0, 0);
+		fbo.tex.unbind();
+
+		glBindVertexArray(0);
+	}
+
+	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
+	{
+		mManager.closeMe(this);
+	}
+
+	void setupFramebuffer(GfxTarget t)
+	{
+		if (fbo !is null &&
+		    (t.width * 2) == fbo.width &&
+		    (t.height * 2) == fbo.height) {
+			return;
+		}
+
+		if (fbo !is null) { fbo.decRef(); fbo = null; }
+		fbo = GfxFramebuffer.make("power/fbo", t.width * 2, t.height * 2);
+	}
+
+	void renderScene(GfxTarget t)
 	{
 		// Clear the screen.
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
@@ -91,11 +165,6 @@ public:
 
 		glUseProgram(0);
 		glDisable(GL_DEPTH_TEST);
-	}
-
-	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
-	{
-		mManager.closeMe(this);
 	}
 }
 
@@ -164,31 +233,37 @@ class VoxelBuilder : GfxBuilder
 	final void addCube(f32 x, f32 y, f32 z, math.Color4b color)
 	{
 		Vertex[24] vert;
+		color.a = 0;
 		vert[ 0] = Vertex.opCall(  x, 1+y,   z, color);
 		vert[ 1] = Vertex.opCall(  x,   y,   z, color);
 		vert[ 2] = Vertex.opCall(1+x,   y,   z, color);
 		vert[ 3] = Vertex.opCall(1+x, 1+y,   z, color);
 
+		color.a = 1;
 		vert[ 4] = Vertex.opCall(  x, 1+y, 1+z, color);
 		vert[ 5] = Vertex.opCall(  x,   y, 1+z, color);
 		vert[ 6] = Vertex.opCall(1+x,   y, 1+z, color);
 		vert[ 7] = Vertex.opCall(1+x, 1+y, 1+z, color);
 
+		color.a = 2;
 		vert[ 8] = Vertex.opCall(  x, 1+y,   z, color);
 		vert[ 9] = Vertex.opCall(  x,   y,   z, color);
 		vert[10] = Vertex.opCall(  x,   y, 1+z, color);
 		vert[11] = Vertex.opCall(  x, 1+y, 1+z, color);
 
+		color.a = 3;
 		vert[12] = Vertex.opCall(1+x, 1+y,   z, color);
 		vert[13] = Vertex.opCall(1+x,   y,   z, color);
 		vert[14] = Vertex.opCall(1+x,   y, 1+z, color);
 		vert[15] = Vertex.opCall(1+x, 1+y, 1+z, color);
 
+		color.a = 4;
 		vert[16] = Vertex.opCall(  x,   y, 1+z, color);
 		vert[17] = Vertex.opCall(  x,   y,   z, color);
 		vert[18] = Vertex.opCall(1+x,   y,   z, color);
 		vert[19] = Vertex.opCall(1+x,   y, 1+z, color);
 
+		color.a = 5;
 		vert[20] = Vertex.opCall(  x, 1+y, 1+z, color);
 		vert[21] = Vertex.opCall(  x, 1+y,   z, color);
 		vert[22] = Vertex.opCall(1+x, 1+y,   z, color);
@@ -303,7 +378,9 @@ VoxelBuffer doit()
 	// Loop trough voxels in morton order.
 	pos : size_t;
 	foreach (i, v; voxels) {
-		vb.addCube(cast(f32)v.x, cast(f32)v.z, cast(f32)v.y, colors[v.c-1]);
+		color := colors[v.c-1];
+		color.a = v.c;
+		vb.addCube(cast(f32)v.x, cast(f32)v.z, cast(f32)v.y, color);
 	}
 
 	return VoxelBuffer.make("voxels", vb);
@@ -342,7 +419,7 @@ global math.Color4b[] defaultColors = [
 	{255, 102, 102, 255}, {255, 102,  51, 255}, {255, 102,   0, 255},
 	{255,  51, 255, 255}, {255,  51, 204, 255}, {255,  51, 153, 255},
 	{255,  51, 102, 255}, {255,  51,  51, 255}, {255,  51,   0, 255},
-	{255,   0, 255, 250}, {255,   0, 204, 255}, {255,   0, 153, 255},
+	{255,   0, 255, 255}, {255,   0, 204, 255}, {255,   0, 153, 255},
 	{255,   0, 102, 255}, {255,   0,  51, 255}, {255,   0,   0, 255},
 	{204, 255, 255, 255}, {204, 255, 204, 255}, {204, 255, 153, 255},
 	{204, 255, 102, 255}, {204, 255,  51, 255}, {204, 255,   0, 255},
@@ -419,7 +496,7 @@ global math.Color4b[] defaultColors = [
 	{ 68,  68,  68, 255}, { 34,  34,  34, 255}, { 17,  17,  17, 255}
 ];
 
-enum string vertexShaderES = `
+enum string voxelVertexES = `
 #version 100
 #ifdef GL_ES
 precision mediump float;
@@ -439,7 +516,7 @@ void main(void)
 }
 `;
 
-enum string fragmentShaderES = `
+enum string voxelFragmentES = `
 #version 100
 #ifdef GL_ES
 precision mediump float;
@@ -450,5 +527,56 @@ varying vec4 colorFs;
 void main(void)
 {
 	gl_FragColor = colorFs;
+}
+`;
+
+enum string aaVertex130 = `
+#version 130
+#extension GL_ARB_gpu_shader5 : require
+
+attribute vec2 position;
+
+varying vec2 uvFS;
+
+void main(void)
+{
+	uvFS = (position / 2 + 0.5);
+	uvFS.y = 1 - uvFS.y;
+	gl_Position = vec4(position, 0.0, 1.0);
+}
+`;
+
+enum string aaFragment130 = `
+#version 130
+#extension GL_ARB_gpu_shader5 : require
+
+uniform sampler2D color;
+
+varying vec2 uvFS;
+
+float doTest(vec4 a)
+{
+	return float(any(notEqual(a, a.yzwx)));
+}
+
+void main(void)
+{
+	// Get color.
+	vec4 c = texture(color, uvFS);
+
+	vec4 a = textureGather(color, uvFS, 3);
+	vec4 s1 = textureGatherOffset(color, uvFS, ivec2(0,  1), 3);
+	vec4 s2 = textureGatherOffset(color, uvFS, ivec2(0, -1), 3);
+	vec4 s3 = textureGatherOffset(color, uvFS, ivec2( 1, 0), 3);
+	vec4 s4 = textureGatherOffset(color, uvFS, ivec2(-1, 0), 3);
+
+
+	float factor = doTest(a) * .4 +
+		doTest(s1) * .3 +
+		doTest(s2) * .3 +
+		doTest(s3) * .3 +
+		doTest(s4) * .3;
+
+	gl_FragColor = mix(c, vec4(0, 0, 0, 1), factor);
 }
 `;

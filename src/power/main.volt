@@ -17,12 +17,6 @@ import power.viewer;
 class Game : GameSceneManagerApp
 {
 public:
-	GfxFramebuffer fbo;
-	GfxDrawBuffer vbo;
-	GLuint sampler;
-
-
-
 	this(string[] args)
 	{
 		// First init core.
@@ -32,58 +26,44 @@ public:
 		opts.height = 600;
 		super(opts);
 
+		checkVersion();
+
 		push(new Background(this, "res/tile.png", "res/logo.png"));
 		push(new Scene(this));
-		fbo = GfxFramebuffer.make("power/fbo", opts.width * 2, opts.height * 2);
-
-		auto b = new GfxDrawVertexBuilder(4);
-		b.add(0.0f, 0.0f, 0.0f, 0.0f);
-		b.add(1.0f, 0.0f, 1.0f, 0.0f);
-		b.add(1.0f, 1.0f, 1.0f, 1.0f);
-		b.add(0.0f, 1.0f, 0.0f, 1.0f);
-		vbo = GfxDrawBuffer.make("power/puff", b);
-
-		glGenSamplers(1, &sampler);
-		glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 
-	override void close()
+
+	/*
+	 *
+	 * Our own methods and helpers..
+	 *
+	 */
+
+	void checkVersion()
 	{
-		if (fbo !is null) { fbo.decRef(); fbo = null; }
-		if (vbo !is null) { vbo.decRef(); vbo = null; }
-		if (sampler) { glDeleteSamplers(1, &sampler); sampler = 0; }
-	}
+		// For texture functions.
+		if (!GL_ARB_ES3_compatibility &&
+		    !GL_ARB_texture_storage &&
+		    !GL_VERSION_4_2) {
+			throw new Exception("Need GL_ARB_texture_storage or OpenGL 4.2");
+		}
 
-	override void render(GfxTarget t)
-	{
-		fbo.bind();
-		super.render(fbo);
-		fbo.unbind();
+		// For samplers functions.
+		if (!GL_ARB_ES3_compatibility &&
+		    !GL_ARB_sampler_objects &&
+		    !GL_VERSION_3_3) {
+			throw new Exception("Need GL_ARB_sampler_objects or OpenGL 3.3");
+		}
 
-		t.bind();
-
-		// Clear the screen.
-		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		Matrix4x4f mat;
-		t.setMatrixToOrtho(ref mat, 1.0f, 1.0f);
-
-		gfxDrawShader.bind();
-		gfxDrawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
-
-		glBindVertexArray(vbo.vao);
-
-		fbo.tex.bind();
-		glBindSampler(0, sampler);
-
-		glDrawArrays(GL_QUADS, 0, vbo.num);
-
-		glBindSampler(0, 0);
-		fbo.tex.unbind();
-
-		glBindVertexArray(0);
+/+
+		// Works on mesa.
+		// For shaders.
+		if (!GL_ARB_ES2_compatibility ||
+		    (!GL_ARB_gpu_shader5 &&
+		     !GL_VERSION_4_5)) {
+			throw new Exception("Need GL_ARB_gpu_shader5 or OpenGL 4.5");
+		}
++/
 	}
 }
 
@@ -100,6 +80,8 @@ public:
 	{
 		super(g, Type.Menu);
 		this.str = text;
+
+
 
 		input = CtlInput.opCall();
 		bitmap = GfxTexture2D.load(Pool.opCall(), "res/font.png");
