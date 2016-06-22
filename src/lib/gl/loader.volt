@@ -116,7 +116,9 @@ void find_extensionsGL() {
 	GL_ARB_ES3_1_compatibility = has_ext("GL_ARB_ES3_1_compatibility");
 	GL_ARB_ES3_2_compatibility = has_ext("GL_ARB_ES3_2_compatibility");
 	GL_ARB_ES3_compatibility = has_ext("GL_ARB_ES3_compatibility");
+	GL_ARB_gpu_shader5 = has_ext("GL_ARB_gpu_shader5");
 	GL_ARB_sampler_objects = has_ext("GL_ARB_sampler_objects");
+	GL_ARB_shader_group_vote = has_ext("GL_ARB_shader_group_vote");
 	GL_ARB_shading_language_420pack = has_ext("GL_ARB_shading_language_420pack");
 	GL_ARB_shading_language_packing = has_ext("GL_ARB_shading_language_packing");
 	GL_ARB_texture_storage = has_ext("GL_ARB_texture_storage");
