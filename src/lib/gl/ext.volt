@@ -10,6 +10,7 @@ global bool GL_ARB_ES3_2_compatibility;
 global bool GL_ARB_ES3_compatibility;
 global bool GL_ARB_shading_language_420pack;
 global bool GL_ARB_texture_storage;
+global bool GL_ARB_sampler_objects;
 extern(System) @loadDynamic {
 void glPrimitiveBoundingBoxARB(GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat);
 }
