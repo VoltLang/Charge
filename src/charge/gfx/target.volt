@@ -124,7 +124,8 @@ private:
 class Framebuffer : Target
 {
 public:
-	Texture tex;
+	Texture color;
+	Texture depth;
 
 
 public:
@@ -148,14 +149,22 @@ public:
 	{
 		uint levels = 1;
 
-		Texture tex = Texture2D.make(name, width, height, levels);
+		Texture color = Texture2D.make(
+			name:name, width:width, height:height,
+			levels:levels, depth:false);
+		Texture depth = Texture2D.make(
+			name:name, width:width, height:height,
+			levels:levels, depth:true);
 
 		GLuint fbo;
 		glGenFramebuffers(1, &fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glFramebufferTexture2D(
 			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-			GL_TEXTURE_2D, tex.id, 0);
+			GL_TEXTURE_2D, color.id, 0);
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+			GL_TEXTURE_2D, depth.id, 0);
 
 		glCheckFramebufferError();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -164,21 +173,23 @@ public:
 		auto t = cast(Framebuffer)Resource.alloc(typeid(Framebuffer),
 		                                         uri, name,
 		                                         0, out dummy);
-		t.__ctor(fbo, tex, width, height);
+		t.__ctor(fbo, color, depth, width, height);
 
 		return t;
 	}
 
 
 protected:
-	this(GLuint fbo, Texture tex, uint width, uint height)
+	this(GLuint fbo, Texture color, Texture depth, uint width, uint height)
 	{
-		this.tex = tex;
+		this.color = color;
+		this.depth = depth;
 		super(fbo, width, height);
 	}
 
 	~this()
 	{
-		if (tex !is null) { tex.decRef(); tex = null; }
+		if (color !is null) { color.decRef(); color = null; }
+		if (depth !is null) { depth.decRef(); depth = null; }
 	}
 }

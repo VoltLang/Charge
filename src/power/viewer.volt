@@ -104,13 +104,13 @@ public:
 
 		glBindVertexArray(quad.vao);
 
-		fbo.tex.bind();
+		fbo.color.bind();
 		glBindSampler(0, sampler);
 
 		glDrawArrays(GL_QUADS, 0, quad.num);
 
 		glBindSampler(0, 0);
-		fbo.tex.unbind();
+		fbo.color.unbind();
 
 		glBindVertexArray(0);
 	}

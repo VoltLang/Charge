@@ -64,7 +64,8 @@ protected:
 class Texture2D : Texture
 {
 public:
-	global Texture2D make(string name, uint width, uint height, uint levels)
+	global Texture2D make(string name, uint width, uint height, uint levels,
+		bool depth = false)
 	{
 		int x = cast(int)width;
 		int y = cast(int)height;
@@ -72,7 +73,7 @@ public:
 
 		GLuint id;
 		GLuint target = GL_TEXTURE_2D;
-		GLuint internal = GL_RGBA8;
+		GLuint internal = depth ? GL_DEPTH_COMPONENT24 : GL_RGBA8;
 
 		glGenTextures(1, &id);
 		glBindTexture(target, id);
