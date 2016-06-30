@@ -5,6 +5,8 @@
  */
 module charge.sys.resource;
 
+static import object;
+
 import charge.sys.memory;
 
 
