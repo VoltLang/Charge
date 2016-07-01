@@ -5,6 +5,7 @@
  */
 module charge.gfx.texture;
 
+import core.exception;
 import lib.stb.image;
 
 import charge.sys.file;

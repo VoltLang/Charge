@@ -2,7 +2,10 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module power.main;
 
+import core.exception;
+
 import watt.io;
+
 import charge.ctl;
 import charge.sys.resource;
 import charge.core;

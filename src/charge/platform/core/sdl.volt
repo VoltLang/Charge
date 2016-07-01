@@ -5,6 +5,7 @@
  */
 module charge.platform.core.sdl;
 
+import core.exception;
 import core.stdc.stdio : printf;
 import core.stdc.stdlib : exit;
 

@@ -2,6 +2,8 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module examples.gl;
 
+import core.exception;
+
 import charge.ctl;
 import charge.core;
 import charge.game;

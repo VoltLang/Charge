@@ -5,6 +5,7 @@
  */
 module charge.platform.core.common;
 
+import core.exception;
 import charge.core;
 import charge.util.properties;
 
