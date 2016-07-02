@@ -5,7 +5,7 @@
  */
 module charge.sys.resource;
 
-static import object;
+import core.typeinfo;
 
 import charge.sys.memory;
 
@@ -32,7 +32,7 @@ protected:
 		Pool.mInstance.resource(this);
 	}
 
-	global void* alloc(object.TypeInfo ti,
+	global void* alloc(TypeInfo ti,
 	                   scope const(char)[] uri,
 	                   scope const(char)[] name,
 	                   size_t extraSize,
