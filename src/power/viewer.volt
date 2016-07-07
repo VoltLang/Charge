@@ -345,7 +345,9 @@ VoxelBuffer doit()
 
 	void setBit(Voxel v) {
 		i := encodeVoxel(v);
-		bitArray[i / 64] |= 1UL << (i % 64);
+		index := i / 64;
+		bit := 1UL << (i % 64UL);
+		bitArray[index] |= bit;
 	}
 
 	while (cast(size_t)ptr < cast(size_t)end) {
@@ -362,8 +364,12 @@ VoxelBuffer doit()
 			bitArray = new u64[](max);
 			break;
 		case "XYZI":
-			voxels = (cast(Voxel*)(ptr + 4))[0 .. *cast(u32*)ptr];
+			numVoxels = *cast(u32*)ptr;
+			voxels = (cast(Voxel*)(ptr + 4))[0 .. numVoxels];
 			sortVoxels(voxels);
+			foreach (v; voxels) {
+				setBit(v);
+			}
 			break;
 		case "RGBA":
 			colors = (cast(math.Color4b*)ptr)[0 .. 256];
@@ -375,12 +381,24 @@ VoxelBuffer doit()
 
 	vb := new VoxelBuilder(numVoxels);
 
+	bool isSet(u32 x, u32 y, u32 z) {
+		return false;
+	}
+
 	// Loop trough voxels in morton order.
-	pos : size_t;
-	foreach (i, v; voxels) {
-		color := colors[v.c-1];
-		color.a = v.c;
-		vb.addCube(cast(f32)v.x, cast(f32)v.z, cast(f32)v.y, color);
+	voxelPos : size_t;
+	foreach (block; bitArray) {
+		foreach (shift; 0UL .. 64UL) {
+			bit := 1UL << shift;
+
+			if (!(bit & block)) {
+				continue;
+			}
+
+			v := voxels[voxelPos++];
+			color := colors[v.c-1];
+			vb.addCube(cast(f32)v.x, cast(f32)v.z, cast(f32)v.y, color);
+		}
 	}
 
 	return VoxelBuffer.make("voxels", vb);
