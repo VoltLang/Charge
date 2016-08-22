@@ -50,6 +50,11 @@ public:
 		return p;
 	}
 
+	@property float* ptr()
+	{
+		return &x;
+	}
+
 /+
 	double opIndex(uint index) const
 	{

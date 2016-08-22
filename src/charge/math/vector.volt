@@ -50,6 +50,11 @@ public:
 		return v;
 	}
 
+	@property float* ptr()
+	{
+		return &x;
+	}
+
 	Vector3f opAdd(ref Vector3f vec)
 	{
 		return Vector3f.opCall(vec.x + x, vec.y + y, vec.z + z);
