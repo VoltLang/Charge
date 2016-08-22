@@ -14,6 +14,7 @@ import charge.game;
 import charge.game.scene.background;
 import charge.math.matrix;
 
+import power.exp;
 import power.viewer;
 
 
@@ -136,7 +137,7 @@ public:
 	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
 	{
 		mManager.closeMe(this);
-		mManager.push(new Viewer(mManager));
+		mManager.push(new Exp(mManager));
 	}
 }
 
