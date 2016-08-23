@@ -9,6 +9,7 @@ import core.exception;
 import core.stdc.stdio : printf;
 import core.stdc.stdlib : exit;
 
+import watt.conv : toStringz;
 import watt.library;
 import watt.text.utf;
 
@@ -547,6 +548,6 @@ private:
 
 	void* loadFunc(string c)
 	{
-		return SDL_GL_GetProcAddress(c.ptr);
+		return SDL_GL_GetProcAddress(toStringz(c));
 	}
 }
