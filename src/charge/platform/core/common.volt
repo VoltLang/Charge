@@ -60,35 +60,35 @@ protected:
 	void delegate(long) idleDg;
 
 public:
-	override void setIdle(void delegate(long) dg) {
-		if (dg is null) {
+	override void setIdle(void delegate(long) dgt) {
+		if (dgt is null) {
 			idleDg = defaultIdle;
 		} else {
-			idleDg = dg;
+			idleDg = dgt;
 		}
 	}
 
-	override void setRender(void delegate() dg) {
-		if (dg is null) {
+	override void setRender(void delegate() dgt) {
+		if (dgt is null) {
 			renderDg = defaultDg;
 		} else {
-			renderDg = dg;
+			renderDg = dgt;
 		}
 	}
 
-	override void setLogic(void delegate() dg) {
-		if (dg is null) {
+	override void setLogic(void delegate() dgt) {
+		if (dgt is null) {
 			logicDg = defaultDg;
 		} else {
-			logicDg = dg;
+			logicDg = dgt;
 		}
 	}
 
-	override void setClose(void delegate() dg) {
-		if (dg is null) {
+	override void setClose(void delegate() dgt) {
+		if (dgt is null) {
 			closeDg = defaultDg;
 		} else {
-			closeDg = dg;
+			closeDg = dgt;
 		}
 	}
 

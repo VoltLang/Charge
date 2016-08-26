@@ -83,10 +83,10 @@ public:
 	 * Sets callback functions.
 	 * @{
 	 */
-	abstract void setRender(void delegate() dg);
-	abstract void setLogic(void delegate() dg);
-	abstract void setClose(void delegate() dg);
-	abstract void setIdle(void delegate(long) dg);
+	abstract void setRender(void delegate() dgt);
+	abstract void setLogic(void delegate() dgt);
+	abstract void setClose(void delegate() dgt);
+	abstract void setIdle(void delegate(long) dgt);
 	/**
 	 * @}
 	 */
