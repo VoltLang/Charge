@@ -205,20 +205,12 @@ uniform vec3 cameraPos;
 
 varying vec3 posFs;
 
-vec4 getColor()
+vec4 getColor(vec3 center, float r)
 {
-	vec3 direction = normalize(posFs - cameraPos);
-	vec3 center = vec3(0.5, 0.5, 0.5);
+	vec3 direction = posFs - cameraPos;
 	vec3 origin = cameraPos;
-	float r = 0.5;
 
-//	float len = dot(direction, center - origin);
-//	if (len < 0.0) {
-//		return vec4(0.0, 0.0, 0.0, 1.0);
-//	}
-//	return vec4(1.0, 1.0, 1.0, 1.0);
-
-	float a = 1.0;//dot(direction, direction);
+	float a = dot(direction, direction);
 	float b = 2.0 * dot(direction, origin - center);
 	float c = dot(center, center) + dot(origin, origin) - 2.0 * dot(center, origin) - r*r;
 	float test = b*b - 4.0*a*c;
@@ -228,34 +220,29 @@ vec4 getColor()
 		vec3 hitp = origin + u * direction;
 		return vec4(hitp, 1.0);
 	}
-	return vec4(0.0, 0.0, 0.0, 1.0);
+	return vec4(0.0, 0.0, 0.0, 0.0);
 }
 
 void main(void)
 {
-	gl_FragColor = getColor();
+	vec4 c1 = getColor(vec3(1.5, 0.5, 1.5), 0.5);
+	vec4 c2 = getColor(vec3(0.5, 1.0, 0.5), 0.5);
 
-	//}
-
-	//float test = b*b - 4.0*a*c;
-
-	//if (test >= 0.0) {
-	//}
-	//vec3 p = vec3(cameraPos.x, 0.0f, cameraPos.z);//normalize(posFs + cameraPos);
-
-	//float x = (posFs.x - cameraPos.x) + 0.5;
-	//float y = (posFs.y - cameraPos.y) + 0.5;
-	//gl_FragColor = vec4(x, x, x, 1.0);
+	if (c1.w == 1.0) {
+		gl_FragColor = c1;
+	} else {
+		gl_FragColor = c2;
+	}
 }
 `;
 
 enum string aaVertex130 = `
 #version 130
-#extension GL_ARB_gpu_shader5 : require
 
 attribute vec2 position;
 
 varying vec2 uvFS;
+
 
 void main(void)
 {
@@ -267,7 +254,6 @@ void main(void)
 
 enum string aaFragment130 = `
 #version 130
-#extension GL_ARB_gpu_shader5 : require
 
 uniform sampler2D color;
 
