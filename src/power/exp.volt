@@ -36,6 +36,9 @@ public:
 	GfxDrawVertexBuilder textBuilder;
 	GfxBitmapState textState;
 
+	GLuint query;
+	bool queryInFlight;
+
 
 public:
 	this(GameSceneManager g)
@@ -77,6 +80,8 @@ public:
 		textBuilder.reset(text.length * 4u);
 		gfxBuildVertices(ref textState, textBuilder, cast(ubyte[])text);
 		textVbo = GfxDrawBuffer.make("power/exp/text", textBuilder);
+
+		glGenQueries(1, &query);
 	}
 
 	override void close()
@@ -188,7 +193,7 @@ public:
 
 
 		rot := math.Quatf.opCall(rotation, 0.f, 0.f);
-		vec := rot * math.Vector3f.opCall(0.f, 0.f, -4.f);
+		vec := rot * math.Vector3f.opCall(0.f, 0.f, -2.f);
 		pos := math.Point3f.opCall(0.5f, 0.5f, 0.5f) - vec;
 
 
@@ -199,16 +204,26 @@ public:
 		t.setMatrixToProjection(ref proj, 45.f, 0.1f, 256.f);
 		proj.setToMultiply(ref view);
 
-
 		// Setup shader.
 		voxelShader.bind();
 		voxelShader.matrix4("matrix", 1, true, proj.ptr);
 		voxelShader.float3("cameraPos".ptr, 1, pos.ptr);
 
-		// Setup shader.
+		shouldEnd: bool;
+		if (!queryInFlight) {
+			glBeginQuery(GL_TIME_ELAPSED, query);
+			shouldEnd = true;
+		}
+
+		// Setup vertex buffer.
 		glBindVertexArray(vbo.vao);
 		glDrawArrays(GL_QUADS, 0, vbo.num);
 		glBindVertexArray(0);
+
+		if (shouldEnd) {
+			glEndQuery(GL_TIME_ELAPSED);
+			queryInFlight = true;
+		}
 
 		glUseProgram(0);
 		glDisable(GL_DEPTH_TEST);
@@ -216,10 +231,24 @@ public:
 
 	void updateText()
 	{
-		str := `Info:
-Rotation: %s`;
+		if (!queryInFlight) {
+			return;
+		}
 
-		text := format(str, cast(double)rotation);
+		available: GLint;
+		glGetQueryObjectiv(query, GL_QUERY_RESULT_AVAILABLE, &available);
+		if (!available) {
+			return;
+		}
+
+		timeElapsed: GLuint64;
+		glGetQueryObjectui64v(query, GL_QUERY_RESULT, &timeElapsed);
+		queryInFlight = false;
+
+		str := `Info:
+Elapsed time: %sms`;
+
+		text := format(str, timeElapsed / 1_000_000_000.0 * 1_000.0);
 
 		textBuilder.reset(text.length * 4u);
 		gfxBuildVertices(ref textState, textBuilder, cast(ubyte[])text);
