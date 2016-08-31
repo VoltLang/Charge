@@ -5,6 +5,7 @@ module power.exp;
 import watt.math;
 import watt.io.file;
 import watt.algorithm;
+import watt.text.format;
 import io = watt.io;
 
 import charge.ctl;
@@ -29,6 +30,11 @@ public:
 	GfxShader voxelShader;
 	GfxShader aaShader;
 	GLuint sampler;
+
+	GfxTexture2D bitmap;
+	GfxDrawBuffer textVbo;
+	GfxDrawVertexBuilder textBuilder;
+	GfxBitmapState textState;
 
 
 public:
@@ -58,6 +64,19 @@ public:
 		glGenSamplers(1, &sampler);
 		glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		bitmap = GfxTexture2D.load(Pool.opCall(), "res/font.png");
+
+		textState.glyphWidth = cast(int)bitmap.width / 16;
+		textState.glyphHeight = cast(int)bitmap.height / 16;
+		textState.offX = 16;
+		textState.offY = 16;
+
+		text := "Info";
+		textBuilder = new GfxDrawVertexBuilder(0);
+		textBuilder.reset(text.length * 4u);
+		gfxBuildVertices(ref textState, textBuilder, cast(ubyte[])text);
+		textVbo = GfxDrawBuffer.make("power/exp/text", textBuilder);
 	}
 
 	override void close()
@@ -65,6 +84,8 @@ public:
 		if (fbo !is null) { fbo.decRef(); fbo = null; }
 		if (vbo !is null) { vbo.decRef(); vbo = null; }
 		if (quad !is null) { quad.decRef(); quad = null; }
+		if (bitmap !is null) { bitmap.decRef(); bitmap = null; }
+		if (textVbo !is null) { textVbo.decRef(); textVbo = null; }
 		if (sampler) { glDeleteSamplers(1, &sampler); sampler = 0; }
 		if (voxelShader !is null) {
 			voxelShader.breakApart();
@@ -93,6 +114,7 @@ public:
 		// If there is none or if t has a different size.
 		setupFramebuffer(t);
 
+
 		// Use the fbo
 		t.unbind();
 		fbo.bind();
@@ -108,7 +130,6 @@ public:
 		aaShader.bind();
 
 		glBindVertexArray(quad.vao);
-
 		fbo.color.bind();
 		glBindSampler(0, sampler);
 
@@ -116,8 +137,28 @@ public:
 
 		glBindSampler(0, 0);
 		fbo.color.unbind();
-
 		glBindVertexArray(0);
+
+
+		// Draw text
+		updateText();
+		math.Matrix4x4f mat;
+		t.setMatrixToOrtho(ref mat);
+
+		gfxDrawShader.bind();
+		gfxDrawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBindVertexArray(textVbo.vao);
+		bitmap.bind();
+
+		glDrawArrays(GL_QUADS, 0, textVbo.num);
+
+		bitmap.unbind();
+		glBindVertexArray(0);
+		glBlendFunc(GL_ONE, GL_ZERO);
+		glDisable(GL_BLEND);
 	}
 
 	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
@@ -171,6 +212,18 @@ public:
 
 		glUseProgram(0);
 		glDisable(GL_DEPTH_TEST);
+	}
+
+	void updateText()
+	{
+		str := `Info:
+Rotation: %s`;
+
+		text := format(str, cast(double)rotation);
+
+		textBuilder.reset(text.length * 4u);
+		gfxBuildVertices(ref textState, textBuilder, cast(ubyte[])text);
+		textVbo.update(textBuilder);
 	}
 }
 
