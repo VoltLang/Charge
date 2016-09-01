@@ -80,6 +80,7 @@ bool gladLoadGL(Loader load) {
 	load_GL_ARB_ES3_2_compatibility(load);
 	load_GL_ARB_sampler_objects(load);
 	load_GL_ARB_texture_storage(load);
+	load_GL_ARB_timer_query(load);
 	return GL_MAJOR != 0 || GL_MINOR != 0;
 }
 
@@ -122,6 +123,7 @@ void find_extensionsGL() {
 	GL_ARB_shading_language_420pack = has_ext("GL_ARB_shading_language_420pack");
 	GL_ARB_shading_language_packing = has_ext("GL_ARB_shading_language_packing");
 	GL_ARB_texture_storage = has_ext("GL_ARB_texture_storage");
+	GL_ARB_timer_query = has_ext("GL_ARB_timer_query");
 	return;
 }
 
@@ -1306,6 +1308,13 @@ void load_GL_ARB_texture_storage(Loader load) {
 	glTexStorage1D = cast(typeof(glTexStorage1D))load("glTexStorage1D");
 	glTexStorage2D = cast(typeof(glTexStorage2D))load("glTexStorage2D");
 	glTexStorage3D = cast(typeof(glTexStorage3D))load("glTexStorage3D");
+	return;
+}
+void load_GL_ARB_timer_query(Loader load) {
+	if(!GL_ARB_timer_query) return;
+	glQueryCounter = cast(typeof(glQueryCounter))load("glQueryCounter");
+	glGetQueryObjecti64v = cast(typeof(glGetQueryObjecti64v))load("glGetQueryObjecti64v");
+	glGetQueryObjectui64v = cast(typeof(glGetQueryObjectui64v))load("glGetQueryObjectui64v");
 	return;
 }
 

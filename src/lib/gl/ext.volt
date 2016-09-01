@@ -14,6 +14,7 @@ global bool GL_ARB_shader_group_vote;
 global bool GL_ARB_shading_language_420pack;
 global bool GL_ARB_shading_language_packing;
 global bool GL_ARB_texture_storage;
+global bool GL_ARB_timer_query;
 extern(System) @loadDynamic {
 void glPrimitiveBoundingBoxARB(GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat);
 }
