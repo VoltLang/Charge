@@ -15,6 +15,13 @@ global bool GL_ARB_shading_language_420pack;
 global bool GL_ARB_shading_language_packing;
 global bool GL_ARB_texture_storage;
 global bool GL_ARB_timer_query;
+global bool GL_EXT_texture_integer;
 extern(System) @loadDynamic {
 void glPrimitiveBoundingBoxARB(GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat);
+void glTexParameterIivEXT(GLenum, GLenum, const(GLint)*);
+void glTexParameterIuivEXT(GLenum, GLenum, const(GLuint)*);
+void glGetTexParameterIivEXT(GLenum, GLenum, GLint*);
+void glGetTexParameterIuivEXT(GLenum, GLenum, GLuint*);
+void glClearColorIiEXT(GLint, GLint, GLint, GLint);
+void glClearColorIuiEXT(GLuint, GLuint, GLuint, GLuint);
 }

@@ -81,6 +81,7 @@ bool gladLoadGL(Loader load) {
 	load_GL_ARB_sampler_objects(load);
 	load_GL_ARB_texture_storage(load);
 	load_GL_ARB_timer_query(load);
+	load_GL_EXT_texture_integer(load);
 	return GL_MAJOR != 0 || GL_MINOR != 0;
 }
 
@@ -124,6 +125,7 @@ void find_extensionsGL() {
 	GL_ARB_shading_language_packing = has_ext("GL_ARB_shading_language_packing");
 	GL_ARB_texture_storage = has_ext("GL_ARB_texture_storage");
 	GL_ARB_timer_query = has_ext("GL_ARB_timer_query");
+	GL_EXT_texture_integer = has_ext("GL_EXT_texture_integer");
 	return;
 }
 
@@ -1315,6 +1317,16 @@ void load_GL_ARB_timer_query(Loader load) {
 	glQueryCounter = cast(typeof(glQueryCounter))load("glQueryCounter");
 	glGetQueryObjecti64v = cast(typeof(glGetQueryObjecti64v))load("glGetQueryObjecti64v");
 	glGetQueryObjectui64v = cast(typeof(glGetQueryObjectui64v))load("glGetQueryObjectui64v");
+	return;
+}
+void load_GL_EXT_texture_integer(Loader load) {
+	if(!GL_EXT_texture_integer) return;
+	glTexParameterIivEXT = cast(typeof(glTexParameterIivEXT))load("glTexParameterIivEXT");
+	glTexParameterIuivEXT = cast(typeof(glTexParameterIuivEXT))load("glTexParameterIuivEXT");
+	glGetTexParameterIivEXT = cast(typeof(glGetTexParameterIivEXT))load("glGetTexParameterIivEXT");
+	glGetTexParameterIuivEXT = cast(typeof(glGetTexParameterIuivEXT))load("glGetTexParameterIuivEXT");
+	glClearColorIiEXT = cast(typeof(glClearColorIiEXT))load("glClearColorIiEXT");
+	glClearColorIuiEXT = cast(typeof(glClearColorIuiEXT))load("glClearColorIuiEXT");
 	return;
 }
 
