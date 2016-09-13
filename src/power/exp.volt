@@ -40,6 +40,17 @@ public:
 	bool queryInFlight;
 
 
+
+	/**
+	 * For ray tracing.
+	 * @{
+	 */
+	GLuint octBuffer;
+	GLuint octTexture;
+	/**
+	 * @}
+	 */
+
 public:
 	this(GameSceneManager g)
 	{
@@ -51,8 +62,8 @@ public:
 		vb.addCube(2.0f, 2.0f, 2.0f, math.Color4b.White);
 		vbo = VoxelBuffer.make("voxels", vb);
 
-		voxelShader = new GfxShader(voxelVertexES, voxelFragmentES,
-		                            ["position", "color"], null);
+		voxelShader = new GfxShader(voxelVertex450, voxelFragment450,
+		                            null, null);
 		aaShader = new GfxShader(aaVertex130, aaFragment130,
 		                         ["position"], ["color", "depth"]);
 
@@ -82,6 +93,19 @@ public:
 		textVbo = GfxDrawBuffer.make("power/exp/text", textBuilder);
 
 		glGenQueries(1, &query);
+
+		// Setup raytracing code.
+		data := read("res/bunny_512x512x512.voxels");
+
+		glGenBuffers(1, &octBuffer);
+		glBindBuffer(GL_TEXTURE_BUFFER, octBuffer);
+		glBufferData(GL_TEXTURE_BUFFER, cast(GLsizeiptr)data.length, data.ptr, GL_STATIC_DRAW);
+		glBindBuffer(GL_TEXTURE_BUFFER, 0);
+
+		glGenTextures(1, &octTexture);
+		glBindTexture(GL_TEXTURE_BUFFER, octTexture);
+		glTexBuffer(GL_TEXTURE_BUFFER, GL_INTENSITY32UI_EXT, octBuffer);
+		glBindTexture(GL_TEXTURE_BUFFER, 0);
 	}
 
 	override void close()
@@ -92,6 +116,8 @@ public:
 		if (bitmap !is null) { bitmap.decRef(); bitmap = null; }
 		if (textVbo !is null) { textVbo.decRef(); textVbo = null; }
 		if (sampler) { glDeleteSamplers(1, &sampler); sampler = 0; }
+		if (octTexture) { glDeleteTextures(1, &octTexture); octTexture = 0; }
+		if (octBuffer) { glDeleteBuffers(1, &octBuffer); octBuffer = 0; }
 		if (voxelShader !is null) {
 			voxelShader.breakApart();
 			voxelShader = null;
@@ -216,8 +242,13 @@ public:
 		}
 
 		// Setup vertex buffer.
+		glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
 		glBindVertexArray(vbo.vao);
+		glBindTexture(GL_TEXTURE_BUFFER, octTexture);
 		glDrawArrays(GL_QUADS, 0, vbo.num);
+		glBindTexture(GL_TEXTURE_BUFFER, 0);
+		glDisable(GL_CULL_FACE);
 		glBindVertexArray(0);
 
 		if (shouldEnd) {
@@ -256,65 +287,152 @@ Elapsed time: %sms`;
 	}
 }
 
+enum string voxelVertex450 = `
+#version 450 core
 
-enum string voxelVertexES = `
-#version 100
-#ifdef GL_ES
-precision mediump float;
-#endif
-
-attribute vec3 position;
-attribute vec4 color;
+layout (location = 0) in vec3 inPosition;
+layout (location = 1) in vec4 inColor;
+layout (location = 0) out vec3 outPosition;
 
 uniform mat4 matrix;
 
-varying vec3 posFs;
 
 void main(void)
 {
-	posFs = position;
-	gl_Position = matrix * vec4(position, 1.0);
+	outPosition = inPosition;
+	gl_Position = matrix * vec4(inPosition, 1.0);
 }
 `;
 
-enum string voxelFragmentES = `
-#version 100
-#ifdef GL_ES
-precision mediump float;
-#endif
+enum string voxelFragment450 = `
+#version 450 core
+#define MAX_ITERATIONS	500
+
+layout (location = 0) in vec3 inPosition;
+layout (binding = 0) uniform isamplerBuffer octree;
+layout (location = 0) out vec4 outColor;
 
 uniform vec3 cameraPos;
 
-varying vec3 posFs;
 
-vec4 getColor(vec3 center, float r)
+vec3 rayAABBTest (vec3 rayOrigin, vec3 rayDir, vec3 aabbMin, vec3 aabbMax)
 {
-	vec3 direction = posFs - cameraPos;
-	vec3 origin = cameraPos;
+	float tMin, tMax;
 
-	float a = dot(direction, direction);
-	float b = 2.0 * dot(direction, origin - center);
-	float c = dot(center, center) + dot(origin, origin) - 2.0 * dot(center, origin) - r*r;
-	float test = b*b - 4.0*a*c;
-
-	if (test >= 0.0) {
-		float u = (-b - sqrt(test)) / (2.0 * a);
-		vec3 hitp = origin + u * direction;
-		return vec4(hitp, 1.0);
-	}
-	return vec4(0.0, 0.0, 0.0, 0.0);
+	// Project ray through aabb
+	vec3 invRayDir = 1.0 / rayDir;	
+	vec3 t1 = (aabbMin - rayOrigin) * invRayDir;
+	vec3 t2 = (aabbMax - rayOrigin) * invRayDir;	
+	
+	vec3 tmin = min(t1, t2);
+	vec3 tmax = max(t1, t2);
+	
+	tMin = max(max(0.0, tmin.x), max(tmin.y, tmin.z));
+	tMax = min(min(99999.0, tmax.x), min(tmax.y, tmax.z));
+	
+	vec3 result;
+	result.x = (tMax > tMin) ? 1.0 : 0.0;
+	result.y = tMin;
+	result.z = tMax;
+	return result;
 }
 
 void main(void)
 {
-	vec4 c1 = getColor(vec3(1.5, 0.5, 1.5), 0.5);
-	vec4 c2 = getColor(vec3(0.5, 1.0, 0.5), 0.5);
+	vec4 finalColor = vec4(0.0);
+	vec3 rayDir = inPosition - cameraPos; 
+	vec3 rayOrigin = cameraPos; 
 
-	if (c1.w == 1.0) {
-		gl_FragColor = c1;
-	} else {
-		gl_FragColor = c2;
+	rayDir = normalize(rayDir);
+
+	// Check for ray components being parallel to axes (i.e. values of 0).
+	const float epsilon = 0.000001;	// Platform dependent value!
+	if (abs(rayDir.x) <= epsilon) rayDir.x = epsilon * sign(rayDir.x);
+	if (abs(rayDir.y) <= epsilon) rayDir.y = epsilon * sign(rayDir.y);
+	if (abs(rayDir.z) <= epsilon) rayDir.z = epsilon * sign(rayDir.z);
+	
+	// Calculate inverse of ray direction once.
+	vec3 invRayDir = 1.0 / rayDir;
+	
+	// Store maximum extents of voxel volume.
+	vec3 minEdge = vec3(0.0);
+	vec3 maxEdge = vec3(1.0);
+	float bias = maxEdge.x / 1000000.0;
+	
+	// Only process ray if it intersects voxel volume.
+	float tMin, tMax;
+	vec3 result = rayAABBTest(rayOrigin, rayDir, minEdge, maxEdge);	
+	tMin = result.y;
+	tMax = result.z;
+
+	float depth = 1.0;
+	bool hit = false;
+
+	if (result.x > 0.0)
+	{
+		// Force initial ray position to start at the camera origin.
+		tMin = max(0.0f, tMin);
+	
+		// Loop until ray exits volume.
+		int itr = 0;
+		while (tMin < tMax && ++itr < MAX_ITERATIONS)
+		{
+			vec3 pos = rayOrigin + rayDir * tMin;
+			uint node = uint(texelFetchBuffer(octree, int(0)).a);
+			vec3 boxMin = minEdge;
+			vec3 boxDim = maxEdge - minEdge;
+			
+			// Loop until a leaf or max subdivided node is found.
+			while ((node & uint(0xC0000000)) >> uint(30) == uint(0))
+			{
+				boxDim *= 0.5f;
+				vec3 s = step(boxMin + boxDim, pos);
+				boxMin = boxMin + boxDim * s;
+				uint offset = (node & uint(0x3FFFFFFF)) + uint(dot(s, vec3(1, 2, 4)));
+				node = uint(texelFetchBuffer(octree, int(offset)).a);
+			}
+			
+			// If final node is a leaf, extract color and exit loop.
+			if ((node & uint(0x80000000)) >> uint(31) == uint(1))
+			{
+				uint alpha = (node & uint(0x3F000000)) >> uint(24);
+				uint red = (node & uint(0x00FF0000)) >> uint(16);
+				uint green = (node & uint(0x0000FF00)) >> uint(8);
+				uint blue = (node & uint(0x000000FF));
+				
+				alpha = alpha * uint(255) / uint(63);
+				alpha /= uint(2);
+				finalColor = vec4(red, green, blue, 255) / 255.0;
+				
+				// Record intersection depth point.
+				vec3 t0 = (boxMin - rayOrigin) * invRayDir;
+				vec3 t1 = (boxMin + boxDim - rayOrigin) * invRayDir;
+				vec3 tIntersection = min(t0, t1);
+				vec3 point = rayOrigin + rayDir * tIntersection;
+				point = point / (maxEdge - minEdge);
+				depth = clamp(point.z, 0.0, 1.0);
+
+				hit = true;
+				break;
+			}
+
+			// Update ray position to exit current node			
+			vec3 t0 = (boxMin - pos) * invRayDir;
+			vec3 t1 = (boxMin + boxDim - pos) * invRayDir;
+			vec3 tNext = max(t0, t1);
+			tMin += min(tNext.x, min(tNext.y, tNext.z)) + bias;
+		}
+
+		if (itr == MAX_ITERATIONS) {
+			finalColor = vec4(0, 1, 0, 1);
+		}
 	}
+
+	//if (!hit) {
+	//	discard;
+	//}
+
+	outColor = finalColor;
 }
 `;
 
