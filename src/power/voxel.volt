@@ -79,16 +79,16 @@ class VoxelBuilder : GfxBuilder
 		vert[ 3] = Vertex.opCall(1+x, 1+y,   z, color);
 
 		color.a = 1;
-		vert[ 4] = Vertex.opCall(  x, 1+y, 1+z, color);
-		vert[ 5] = Vertex.opCall(  x,   y, 1+z, color);
-		vert[ 6] = Vertex.opCall(1+x,   y, 1+z, color);
-		vert[ 7] = Vertex.opCall(1+x, 1+y, 1+z, color);
+		vert[ 4] = Vertex.opCall(  x,   y, 1+z, color);
+		vert[ 5] = Vertex.opCall(  x, 1+y, 1+z, color);
+		vert[ 6] = Vertex.opCall(1+x, 1+y, 1+z, color);
+		vert[ 7] = Vertex.opCall(1+x,   y, 1+z, color);
 
 		color.a = 2;
-		vert[ 8] = Vertex.opCall(  x, 1+y,   z, color);
-		vert[ 9] = Vertex.opCall(  x,   y,   z, color);
-		vert[10] = Vertex.opCall(  x,   y, 1+z, color);
-		vert[11] = Vertex.opCall(  x, 1+y, 1+z, color);
+		vert[ 8] = Vertex.opCall(  x,   y,   z, color);
+		vert[ 9] = Vertex.opCall(  x, 1+y,   z, color);
+		vert[10] = Vertex.opCall(  x, 1+y, 1+z, color);
+		vert[11] = Vertex.opCall(  x,   y, 1+z, color);
 
 		color.a = 3;
 		vert[12] = Vertex.opCall(1+x, 1+y,   z, color);
@@ -97,10 +97,10 @@ class VoxelBuilder : GfxBuilder
 		vert[15] = Vertex.opCall(1+x, 1+y, 1+z, color);
 
 		color.a = 4;
-		vert[16] = Vertex.opCall(  x,   y, 1+z, color);
-		vert[17] = Vertex.opCall(  x,   y,   z, color);
-		vert[18] = Vertex.opCall(1+x,   y,   z, color);
-		vert[19] = Vertex.opCall(1+x,   y, 1+z, color);
+		vert[16] = Vertex.opCall(  x,   y,   z, color);
+		vert[17] = Vertex.opCall(  x,   y, 1+z, color);
+		vert[18] = Vertex.opCall(1+x,   y, 1+z, color);
+		vert[19] = Vertex.opCall(1+x,   y,   z, color);
 
 		color.a = 5;
 		vert[20] = Vertex.opCall(  x, 1+y, 1+z, color);
