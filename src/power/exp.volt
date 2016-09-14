@@ -306,7 +306,7 @@ void main(void)
 
 enum string voxelFragment450 = `
 #version 450 core
-#define MAX_ITERATIONS	500
+#define MAX_ITERATIONS 500
 
 layout (location = 0) in vec3 inPosition;
 layout (binding = 0) uniform isamplerBuffer octree;
@@ -315,14 +315,14 @@ layout (location = 0) out vec4 outColor;
 uniform vec3 cameraPos;
 
 
-vec3 rayAABBTest (vec3 rayOrigin, vec3 rayDir, vec3 aabbMin, vec3 aabbMax)
+vec3 rayAABBTest(vec3 rayOrigin, vec3 rayDir, vec3 aabbMin, vec3 aabbMax)
 {
 	float tMin, tMax;
 
 	// Project ray through aabb
-	vec3 invRayDir = 1.0 / rayDir;	
+	vec3 invRayDir = 1.0 / rayDir;
 	vec3 t1 = (aabbMin - rayOrigin) * invRayDir;
-	vec3 t2 = (aabbMax - rayOrigin) * invRayDir;	
+	vec3 t2 = (aabbMax - rayOrigin) * invRayDir;
 	
 	vec3 tmin = min(t1, t2);
 	vec3 tmax = max(t1, t2);
@@ -337,102 +337,106 @@ vec3 rayAABBTest (vec3 rayOrigin, vec3 rayDir, vec3 aabbMin, vec3 aabbMax)
 	return result;
 }
 
-void main(void)
+bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 {
-	vec4 finalColor = vec4(0.0);
-	vec3 rayDir = inPosition - cameraPos; 
-	vec3 rayOrigin = cameraPos; 
-
-	rayDir = normalize(rayDir);
+	//rayOrigin -= vec3(0.0, 0.5, 0.0);
 
 	// Check for ray components being parallel to axes (i.e. values of 0).
 	const float epsilon = 0.000001;	// Platform dependent value!
 	if (abs(rayDir.x) <= epsilon) rayDir.x = epsilon * sign(rayDir.x);
 	if (abs(rayDir.y) <= epsilon) rayDir.y = epsilon * sign(rayDir.y);
 	if (abs(rayDir.z) <= epsilon) rayDir.z = epsilon * sign(rayDir.z);
-	
+
 	// Calculate inverse of ray direction once.
 	vec3 invRayDir = 1.0 / rayDir;
-	
+
 	// Store maximum extents of voxel volume.
 	vec3 minEdge = vec3(0.0);
 	vec3 maxEdge = vec3(1.0);
 	float bias = maxEdge.x / 1000000.0;
-	
+
 	// Only process ray if it intersects voxel volume.
 	float tMin, tMax;
-	vec3 result = rayAABBTest(rayOrigin, rayDir, minEdge, maxEdge);	
+	vec3 result = rayAABBTest(rayOrigin, rayDir, minEdge, maxEdge);
 	tMin = result.y;
 	tMax = result.z;
 
 	float depth = 1.0;
-	bool hit = false;
 
-	if (result.x > 0.0)
-	{
-		// Force initial ray position to start at the camera origin.
-		tMin = max(0.0f, tMin);
-	
-		// Loop until ray exits volume.
-		int itr = 0;
-		while (tMin < tMax && ++itr < MAX_ITERATIONS)
-		{
-			vec3 pos = rayOrigin + rayDir * tMin;
-			uint node = uint(texelFetchBuffer(octree, int(0)).a);
-			vec3 boxMin = minEdge;
-			vec3 boxDim = maxEdge - minEdge;
-			
-			// Loop until a leaf or max subdivided node is found.
-			while ((node & uint(0xC0000000)) >> uint(30) == uint(0))
-			{
-				boxDim *= 0.5f;
-				vec3 s = step(boxMin + boxDim, pos);
-				boxMin = boxMin + boxDim * s;
-				uint offset = (node & uint(0x3FFFFFFF)) + uint(dot(s, vec3(1, 2, 4)));
-				node = uint(texelFetchBuffer(octree, int(offset)).a);
-			}
-			
-			// If final node is a leaf, extract color and exit loop.
-			if ((node & uint(0x80000000)) >> uint(31) == uint(1))
-			{
-				uint alpha = (node & uint(0x3F000000)) >> uint(24);
-				uint red = (node & uint(0x00FF0000)) >> uint(16);
-				uint green = (node & uint(0x0000FF00)) >> uint(8);
-				uint blue = (node & uint(0x000000FF));
-				
-				alpha = alpha * uint(255) / uint(63);
-				alpha /= uint(2);
-				finalColor = vec4(red, green, blue, 255) / 255.0;
-				
-				// Record intersection depth point.
-				vec3 t0 = (boxMin - rayOrigin) * invRayDir;
-				vec3 t1 = (boxMin + boxDim - rayOrigin) * invRayDir;
-				vec3 tIntersection = min(t0, t1);
-				vec3 point = rayOrigin + rayDir * tIntersection;
-				point = point / (maxEdge - minEdge);
-				depth = clamp(point.z, 0.0, 1.0);
-
-				hit = true;
-				break;
-			}
-
-			// Update ray position to exit current node			
-			vec3 t0 = (boxMin - pos) * invRayDir;
-			vec3 t1 = (boxMin + boxDim - pos) * invRayDir;
-			vec3 tNext = max(t0, t1);
-			tMin += min(tNext.x, min(tNext.y, tNext.z)) + bias;
-		}
-
-		if (itr == MAX_ITERATIONS) {
-			finalColor = vec4(0, 1, 0, 1);
-		}
+	if (result.x <= 0.0) {
+		return false;
 	}
 
-	//if (!hit) {
-	//	discard;
-	//}
+	// Force initial ray position to start at the
+	// camera origin if it is in the voxel box.
+	tMin = max(0.0f, tMin);
 
-	outColor = finalColor;
+	// Loop until ray exits volume.
+	int itr = 0;
+	while (tMin < tMax && ++itr < MAX_ITERATIONS) {
+		vec3 pos = rayOrigin + rayDir * tMin;
+		uint node = uint(texelFetchBuffer(octree, int(0)).a);
+		// Which part of the space the voxel volume occupy.
+		vec3 boxMin = vec3(0.0);
+		vec3 boxDim = vec3(1.0);
+
+		// Loop until a leaf or max subdivided node is found.
+		while ((node & uint(0xC0000000)) >> uint(30) == uint(0)) {
+			boxDim *= 0.5f;
+			vec3 s = step(boxMin + boxDim, pos);
+			boxMin = boxMin + boxDim * s;
+			uint offset = (node & uint(0x3FFFFFFF)) + uint(dot(s, vec3(1, 2, 4)));
+			node = uint(texelFetchBuffer(octree, int(offset)).a);
+		}
+
+		// If final node is a leaf, extract color and exit loop.
+		if ((node & uint(0x80000000)) >> uint(31) == uint(1)) {
+			uint alpha = (node & uint(0x3F000000)) >> uint(24);
+			uint red = (node & uint(0x00FF0000)) >> uint(16);
+			uint green = (node & uint(0x0000FF00)) >> uint(8);
+			uint blue = (node & uint(0x000000FF));
+
+			alpha = alpha * uint(255) / uint(63);
+			alpha /= uint(2);
+			finalColor = vec4(red, green, blue, 255) / 255.0;
+			return true;
+
+/*
+			// Record intersection depth point.
+			vec3 t0 = (boxMin - rayOrigin) * invRayDir;
+			vec3 t1 = (boxMin + boxDim - rayOrigin) * invRayDir;
+			vec3 tIntersection = min(t0, t1);
+			vec3 point = rayOrigin + rayDir * tIntersection;
+			point = point / (maxEdge - minEdge);
+			depth = clamp(point.z, 0.0, 1.0);
+			hit = true;
+			break;
+*/
+		}
+
+		// Update ray position to exit current node			
+		vec3 t0 = (boxMin - pos) * invRayDir;
+		vec3 t1 = (boxMin + boxDim - pos) * invRayDir;
+		vec3 tNext = max(t0, t1);
+		tMin += min(tNext.x, min(tNext.y, tNext.z)) + bias;
+	}
+
+	if (itr == MAX_ITERATIONS) {
+		finalColor = vec4(0, 1, 0, 1);
+		return false;
+	}
+
+	return false;
+}
+
+void main(void)
+{
+	vec3 rayDir = normalize(inPosition - cameraPos);
+	vec3 rayOrigin = inPosition;
+
+	if (!trace(outColor, rayDir, rayOrigin)) {
+		discard;
+	}
 }
 `;
 
