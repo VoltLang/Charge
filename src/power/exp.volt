@@ -62,8 +62,8 @@ public:
 		vb.addCube(2.0f, 2.0f, 2.0f, math.Color4b.White);
 		vbo = VoxelBuffer.make("voxels", vb);
 
-		voxelShader = new GfxShader(voxelVertex450, voxelFragment450,
-		                            null, null);
+		voxelShader = new GfxShader(voxelVertex450, voxelGeometry450,
+			voxelFragment450, null, null);
 		aaShader = new GfxShader(aaVertex130, aaFragment130,
 		                         ["position"], ["color", "depth"]);
 
@@ -219,7 +219,7 @@ public:
 
 
 		rot := math.Quatf.opCall(rotation, 0.f, 0.f);
-		vec := rot * math.Vector3f.opCall(0.f, 0.f, -2.f);
+		vec := rot * math.Vector3f.opCall(0.f, 0.f, -1.0f);
 		pos := math.Point3f.opCall(0.5f, 0.5f, 0.5f) - vec;
 
 
@@ -241,15 +241,22 @@ public:
 			shouldEnd = true;
 		}
 
-		// Setup vertex buffer.
+		// Draw the array.
 		glCullFace(GL_BACK);
 		glEnable(GL_CULL_FACE);
-		glBindVertexArray(vbo.vao);
 		glBindTexture(GL_TEXTURE_BUFFER, octTexture);
-		glDrawArrays(GL_QUADS, 0, vbo.num);
+		glBegin(GL_POINTS);
+		int max = 32;
+		foreach (x; 0 .. max) {
+			foreach (y; 0 .. max) {
+				foreach (z; 0 .. max) {
+					glVertex3i(x, y, z);
+				}
+			}
+		}
+		glEnd();
 		glBindTexture(GL_TEXTURE_BUFFER, 0);
 		glDisable(GL_CULL_FACE);
-		glBindVertexArray(0);
 
 		if (shouldEnd) {
 			glEndQuery(GL_TIME_ELAPSED);
@@ -291,16 +298,120 @@ enum string voxelVertex450 = `
 #version 450 core
 
 layout (location = 0) in vec3 inPosition;
-layout (location = 1) in vec4 inColor;
-layout (location = 0) out vec3 outPosition;
-
-uniform mat4 matrix;
-
 
 void main(void)
 {
-	outPosition = inPosition;
-	gl_Position = matrix * vec4(inPosition, 1.0);
+	gl_Position = vec4(inPosition, 1.0);
+}
+`;
+
+enum string voxelGeometry450 = `
+#version 450 core
+
+#define POW 5
+#define DIVISOR pow(2, float(POW))
+#define DIVISOR_INV (1.0/DIVISOR)
+
+layout (points) in;
+
+layout (binding = 0) uniform isamplerBuffer octree;
+
+layout (triangle_strip, max_vertices = 24) out;
+
+layout (location = 0) out vec3 outPosition;
+layout (location = 1) out vec3 outMinEdge;
+layout (location = 2) out vec3 outMaxEdge;
+layout (location = 3) out flat int outOffset;
+
+uniform mat4 matrix;
+
+void emit(vec3 off)
+{
+	vec3 pos = gl_in[0].gl_Position.xyz;
+	pos += off;
+	pos *= DIVISOR_INV;
+	outPosition = pos;
+	gl_Position = matrix * vec4(pos, 1.0);
+	EmitVertex();
+}
+
+bool findStart(vec3 pos, out int offset)
+{
+	// Which part of the space the voxel volume occupy.
+	vec3 boxMin = vec3(0.0);
+	vec3 boxDim = vec3(1.0);
+
+	// Initial node address.
+	offset = 0;
+
+	// Jitter
+	pos += vec3(0.00001);
+
+	// Subdivid until empty node or found the node for this box.
+	for (int i = POW; i > 0; i--) {
+		// Get the node.
+		uint node = uint(texelFetchBuffer(octree, offset).a);
+
+		// Found empty node, so return false to not emit a box.
+		// We could have hit this if we hit a color.
+		if ((node & uint(0xC0000000)) != uint(0)) {
+			return false;
+		}
+
+		boxDim *= 0.5f;
+		vec3 s = step(boxMin + boxDim, pos);
+		boxMin = boxMin + boxDim * s;
+		offset = int((node & uint(0x3FFFFFFF)) + uint(dot(s, vec3(1, 2, 4))));
+	}
+
+	return true;
+}
+
+void main(void)
+{
+	vec3 pos = gl_in[0].gl_Position.xyz;
+	outMinEdge = pos * DIVISOR_INV;
+	outMaxEdge = outMinEdge + vec3(1.0) * DIVISOR_INV;
+
+	if (!findStart(outMinEdge, outOffset)) {
+		return;
+	}
+
+	emit(vec3(1.0, 1.0, 0.0));
+	emit(vec3(0.0, 1.0, 0.0));
+	emit(vec3(1.0, 0.0, 0.0));
+	emit(vec3(0.0, 0.0, 0.0));
+	EndPrimitive();
+
+	emit(vec3(0.0, 0.0, 1.0));
+	emit(vec3(0.0, 1.0, 1.0));
+	emit(vec3(1.0, 0.0, 1.0));
+	emit(vec3(1.0, 1.0, 1.0));
+	EndPrimitive();
+
+	emit(vec3(0.0, 0.0, 0.0));
+	emit(vec3(0.0, 0.0, 1.0));
+	emit(vec3(1.0, 0.0, 0.0));
+	emit(vec3(1.0, 0.0, 1.0));
+	EndPrimitive();
+
+	emit(vec3(1.0, 1.0, 1.0));
+	emit(vec3(0.0, 1.0, 1.0));
+	emit(vec3(1.0, 1.0, 0.0));
+	emit(vec3(0.0, 1.0, 0.0));
+	EndPrimitive();
+
+	emit(vec3(1.0, 1.0, 1.0));
+	emit(vec3(1.0, 1.0, 0.0));
+	emit(vec3(1.0, 0.0, 1.0));
+	emit(vec3(1.0, 0.0, 0.0));
+	EndPrimitive();
+
+	emit(vec3(0.0, 0.0, 0.0));
+	emit(vec3(0.0, 1.0, 0.0));
+	emit(vec3(0.0, 0.0, 1.0));
+	emit(vec3(0.0, 1.0, 1.0));
+	EndPrimitive();
 }
 `;
 
@@ -309,6 +420,9 @@ enum string voxelFragment450 = `
 #define MAX_ITERATIONS 500
 
 layout (location = 0) in vec3 inPosition;
+layout (location = 1) in vec3 inMinEdge;
+layout (location = 2) in vec3 inMaxEdge;
+layout (location = 3) in flat int inOffset;
 layout (binding = 0) uniform isamplerBuffer octree;
 layout (location = 0) out vec4 outColor;
 
@@ -351,8 +465,8 @@ bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 	vec3 invRayDir = 1.0 / rayDir;
 
 	// Store maximum extents of voxel volume.
-	vec3 minEdge = vec3(0.0);
-	vec3 maxEdge = vec3(1.0);
+	vec3 minEdge = inMinEdge;
+	vec3 maxEdge = inMaxEdge;
 	float bias = maxEdge.x / 1000000.0;
 
 	// Only process ray if it intersects voxel volume.
@@ -375,13 +489,13 @@ bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 	int itr = 0;
 	while (tMin < tMax && ++itr < MAX_ITERATIONS) {
 		vec3 pos = rayOrigin + rayDir * tMin;
-		uint node = uint(texelFetchBuffer(octree, int(0)).a);
+		uint node = uint(texelFetchBuffer(octree, inOffset).a);
 		// Which part of the space the voxel volume occupy.
-		vec3 boxMin = vec3(0.0);
-		vec3 boxDim = vec3(1.0);
+		vec3 boxMin = inMinEdge;
+		vec3 boxDim = inMaxEdge - inMinEdge;
 
 		// Loop until a leaf or max subdivided node is found.
-		while ((node & uint(0xC0000000)) >> uint(30) == uint(0)) {
+		while ((node & uint(0xC0000000)) == uint(0)) {
 			boxDim *= 0.5f;
 			vec3 s = step(boxMin + boxDim, pos);
 			boxMin = boxMin + boxDim * s;
