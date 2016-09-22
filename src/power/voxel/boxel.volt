@@ -1,6 +1,6 @@
 // Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-module power.voxel;
+module power.voxel.boxel;
 
 import charge.sys.resource;
 import charge.gfx;
@@ -8,26 +8,26 @@ import charge.gfx;
 import math = charge.math;
 
 /**
- * VBO used for Voxels.
+ * VBO used for boxed base voxels.
  */
-class VoxelBuffer : GfxBuffer
+class BoxelBuffer : GfxBuffer
 {
 public:
 	GLsizei num;
 
 
 public:
-	global VoxelBuffer make(string name, VoxelBuilder vb)
+	global BoxelBuffer make(string name,(BoxelBuilder vb)
 	{
 		void* dummy;
-		auto buffer = cast(VoxelBuffer)Resource.alloc(
-			typeid(VoxelBuffer), uri, name, 0, out dummy);
+		auto buffer = cast(BoxelBuffer)Resource.alloc(
+			typeid(BoxelBuffer), uri, name, 0, out dummy);
 		buffer.__ctor(0, 0);
 		buffer.update(vb);
 		return buffer;
 	}
 
-	void update(VoxelBuilder vb)
+	void update(BoxelBuilder vb)
 	{
 		deleteBuffers();
 		vb.bake(out vao, out buf, out num);
@@ -57,7 +57,7 @@ struct Vertex
 	}
 }
 
-class VoxelBuilder : GfxBuilder
+class BoxelBuilder : GfxBuilder
 {
 	this(size_t num)
 	{

@@ -16,14 +16,13 @@ import charge.game;
 import charge.gfx;
 
 import math = charge.math;
-import power.voxel;
+import power.voxel.boxel;
 
 
 class Exp : GameSimpleScene
 {
 public:
 	CtlInput input;
-	VoxelBuffer vbo;
 	float rotation;
 	GfxFramebuffer fbo;
 	GfxDrawBuffer quad;
@@ -56,11 +55,6 @@ public:
 	{
 		super(g, Type.Game);
 		input = CtlInput.opCall();
-		vb := new VoxelBuilder(3);
-		vb.addCube(0.0f, 0.0f, 0.0f, math.Color4b.White);
-		vb.addCube(1.0f, 1.0f, 1.0f, math.Color4b.White);
-		vb.addCube(2.0f, 2.0f, 2.0f, math.Color4b.White);
-		vbo = VoxelBuffer.make("voxels", vb);
 
 		voxelShader = new GfxShader(voxelVertex450, voxelGeometry450,
 			voxelFragment450, null, null);
@@ -111,7 +105,6 @@ public:
 	override void close()
 	{
 		if (fbo !is null) { fbo.decRef(); fbo = null; }
-		if (vbo !is null) { vbo.decRef(); vbo = null; }
 		if (quad !is null) { quad.decRef(); quad = null; }
 		if (bitmap !is null) { bitmap.decRef(); bitmap = null; }
 		if (textVbo !is null) { textVbo.decRef(); textVbo = null; }

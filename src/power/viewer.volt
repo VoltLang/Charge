@@ -16,14 +16,14 @@ import charge.gfx;
 
 import math = charge.math;
 
-import power.voxel;
+import power.voxel.boxel;
 
 
 class Viewer : GameSimpleScene
 {
 public:
 	CtlInput input;
-	VoxelBuffer vbo;
+	BoxelBuffer vbo;
 	float rotation;
 	GfxFramebuffer fbo;
 	GfxDrawBuffer quad;
@@ -170,41 +170,6 @@ public:
 	}
 }
 
-/**
- * VBO used for Voxels.
- */
-class VoxelBuffer : GfxBuffer
-{
-public:
-	GLsizei num;
-
-
-public:
-	global VoxelBuffer make(string name, VoxelBuilder vb)
-	{
-		void* dummy;
-		auto buffer = cast(VoxelBuffer)Resource.alloc(
-			typeid(VoxelBuffer), uri, name, 0, out dummy);
-		buffer.__ctor(0, 0);
-		buffer.update(vb);
-		return buffer;
-	}
-
-	void update(VoxelBuilder vb)
-	{
-		deleteBuffers();
-		vb.bake(out vao, out buf, out num);
-	}
-
-
-protected:
-	this(GLuint vao, GLuint buf)
-	{
-		super(vao, buf);
-	}
-}
-
-
 @mangledName("llvm.ctpop.i64") u64 bitcount(u64);
 
 struct Header
@@ -228,7 +193,7 @@ struct Voxel
 	u8 c;
 }
 
-VoxelBuffer doit()
+BoxelBuffer doit()
 {
 	arr := cast(ubyte[])read("res/test.vox");
 	ptr := cast(ubyte*)arr.ptr;
@@ -277,7 +242,7 @@ VoxelBuffer doit()
 		ptr = ptr + c.chunkSize;
 	}
 
-	vb := new VoxelBuilder(numVoxels);
+	vb := new BoxelBuilder(numVoxels);
 
 	bool isSet(u32 x, u32 y, u32 z) {
 		return false;
@@ -299,7 +264,7 @@ VoxelBuffer doit()
 		}
 	}
 
-	return VoxelBuffer.make("voxels", vb);
+	return BoxelBuffer.make("voxels", vb);
 }
 
 private u64 encodeVoxel(Voxel a)
