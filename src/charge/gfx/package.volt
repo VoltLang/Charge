@@ -7,6 +7,8 @@ module charge.gfx;
 
 public import charge.gfx.gl;
 public import charge.gfx.gfx : gfxLoaded;
+public import charge.gfx.aa :
+	GfxAA = AA;
 public import charge.gfx.draw :
 	GfxDrawBuffer = DrawBuffer, GfxDrawVertex = DrawVertex,
 	GfxDrawVertexBuilder = DrawVertexBuilder, gfxDrawShader = drawShader;
