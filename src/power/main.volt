@@ -14,7 +14,6 @@ import charge.game;
 import charge.game.scene.background;
 import charge.math.matrix;
 
-import power.exp;
 import power.viewer;
 
 
@@ -32,8 +31,10 @@ public:
 
 		checkVersion();
 
-		push(new Background(this, "res/tile.png", "res/logo.png"));
-		push(new Scene(this));
+		push(new Viewer(this));
+
+		//push(new Background(this, "res/tile.png", "res/logo.png"));
+		//push(new Scene(this));
 	}
 
 
@@ -137,7 +138,7 @@ public:
 	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
 	{
 		mManager.closeMe(this);
-		mManager.push(new Exp(mManager));
+		mManager.push(new Viewer(mManager));
 	}
 }
 
