@@ -9,27 +9,27 @@ import watt.text.format;
 import io = watt.io;
 
 import charge.ctl;
-import charge.sys.memory;
-import charge.sys.resource;
+import charge.gfx;
 import charge.core;
 import charge.game;
-import charge.gfx;
+import charge.sys.memory;
+import charge.sys.resource;
 
 import math = charge.math;
+
 import power.voxel.boxel;
 
 
 class Exp : GameSimpleScene
 {
 public:
-	CtlInput input;
-	float rotation;
-	GfxFramebuffer fbo;
-	GfxDrawBuffer quad;
-	GfxShader voxelShader;
-	GfxShader aaShader;
-	GLuint sampler;
+	GfxAA aa;
 
+	CtlInput input;
+
+	float rotation;
+
+	GfxShader voxelShader;
 	GfxTexture2D bitmap;
 	GfxDrawBuffer textVbo;
 	GfxDrawVertexBuilder textBuilder;
@@ -37,7 +37,6 @@ public:
 
 	GLuint query;
 	bool queryInFlight;
-
 
 
 	/**
@@ -58,20 +57,6 @@ public:
 
 		voxelShader = new GfxShader(voxelVertex450, voxelGeometry450,
 			voxelFragment450, null, null);
-		aaShader = new GfxShader(aaVertex130, aaFragment130,
-		                         ["position"], ["color", "depth"]);
-
-
-		auto b = new GfxDrawVertexBuilder(4);
-		b.add(-1.f, -1.f, -1.f, -1.f);
-		b.add( 1.f, -1.f,  1.f, -1.f);
-		b.add( 1.f,  1.f,  1.f,  1.f);
-		b.add(-1.f,  1.f, -1.f,  1.f);
-		quad = GfxDrawBuffer.make("power/exp/quad", b);
-
-		glGenSamplers(1, &sampler);
-		glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		bitmap = GfxTexture2D.load(Pool.opCall(), "res/font.png");
 
@@ -104,20 +89,14 @@ public:
 
 	override void close()
 	{
-		if (fbo !is null) { fbo.decRef(); fbo = null; }
-		if (quad !is null) { quad.decRef(); quad = null; }
-		if (bitmap !is null) { bitmap.decRef(); bitmap = null; }
+		aa.breakApart();
+
 		if (textVbo !is null) { textVbo.decRef(); textVbo = null; }
-		if (sampler) { glDeleteSamplers(1, &sampler); sampler = 0; }
 		if (octTexture) { glDeleteTextures(1, &octTexture); octTexture = 0; }
 		if (octBuffer) { glDeleteBuffers(1, &octBuffer); octBuffer = 0; }
 		if (voxelShader !is null) {
 			voxelShader.breakApart();
 			voxelShader = null;
-		}
-		if (aaShader !is null) {
-			aaShader.breakApart();
-			aaShader = null;
 		}
 	}
 
@@ -128,6 +107,11 @@ public:
 	 *
 	 */
 
+	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
+	{
+		mManager.closeMe(this);
+	}
+
 	override void logic()
 	{
 		rotation += 0.01f;
@@ -135,34 +119,9 @@ public:
 
 	override void render(GfxTarget t)
 	{
-		// If there is none or if t has a different size.
-		setupFramebuffer(t);
-
-
-		// Use the fbo
-		t.unbind();
-		fbo.bind();
-		renderScene(fbo);
-		fbo.unbind();
-		t.bind();
-
-
-		// Clear the screen.
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		aaShader.bind();
-
-		glBindVertexArray(quad.vao);
-		fbo.color.bind();
-		glBindSampler(0, sampler);
-
-		glDrawArrays(GL_QUADS, 0, quad.num);
-
-		glBindSampler(0, 0);
-		fbo.color.unbind();
-		glBindVertexArray(0);
-
+		aa.bind(t);
+		renderScene(aa.fbo);
+		aa.unbindAndDraw(t);
 
 		// Draw text
 		updateText();
@@ -183,23 +142,6 @@ public:
 		glBindVertexArray(0);
 		glBlendFunc(GL_ONE, GL_ZERO);
 		glDisable(GL_BLEND);
-	}
-
-	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
-	{
-		mManager.closeMe(this);
-	}
-
-	void setupFramebuffer(GfxTarget t)
-	{
-		if (fbo !is null &&
-		    (t.width * 2) == fbo.width &&
-		    (t.height * 2) == fbo.height) {
-			return;
-		}
-
-		if (fbo !is null) { fbo.decRef(); fbo = null; }
-		fbo = GfxFramebuffer.make("power/exp/fbo", t.width * 2, t.height * 2);
 	}
 
 	void renderScene(GfxTarget t)
@@ -542,38 +484,5 @@ void main(void)
 	if (!trace(outColor, rayDir, rayOrigin)) {
 		discard;
 	}
-}
-`;
-
-enum string aaVertex130 = `
-#version 130
-
-attribute vec2 position;
-
-varying vec2 uvFS;
-
-
-void main(void)
-{
-	uvFS = (position / 2 + 0.5);
-	uvFS.y = 1 - uvFS.y;
-	gl_Position = vec4(position, 0.0, 1.0);
-}
-`;
-
-enum string aaFragment130 = `
-#version 130
-
-uniform sampler2D color;
-
-varying vec2 uvFS;
-
-
-void main(void)
-{
-	// Get color.
-	vec4 c = texture(color, uvFS);
-
-	gl_FragColor = vec4(c.xyz, 1.0);
 }
 `;
