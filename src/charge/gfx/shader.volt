@@ -195,7 +195,7 @@ GLuint makeShader(string vert, string geom, string frag, string[] attr, string[]
 	glLinkProgram(shader);
 
 	// Check status and print any debug message.
-	if (!printDebug(shader, true, "program (vert/frag)")) {
+	if (!printDebug(shader, true, "program (vert/geom/frag)")) {
 		glDeleteProgram(shader);
 		return 0;
 	}
