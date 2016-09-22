@@ -251,7 +251,7 @@ layout (points) in;
 
 layout (binding = 0) uniform isamplerBuffer octree;
 
-layout (triangle_strip, max_vertices = 24) out;
+layout (triangle_strip, max_vertices = 12) out;
 
 layout (location = 0) out vec3 outPosition;
 layout (location = 1) out vec3 outMinEdge;
@@ -259,6 +259,8 @@ layout (location = 2) out vec3 outMaxEdge;
 layout (location = 3) out flat int outOffset;
 
 uniform mat4 matrix;
+uniform vec3 cameraPos;
+
 
 void emit(vec3 off)
 {
@@ -312,41 +314,53 @@ void main(void)
 		return;
 	}
 
-	emit(vec3(1.0, 1.0, 0.0));
-	emit(vec3(0.0, 1.0, 0.0));
-	emit(vec3(1.0, 0.0, 0.0));
-	emit(vec3(0.0, 0.0, 0.0));
-	EndPrimitive();
+	if (cameraPos.z < outMinEdge.z) {
+		emit(vec3(1.0, 1.0, 0.0));
+		emit(vec3(0.0, 1.0, 0.0));
+		emit(vec3(1.0, 0.0, 0.0));
+		emit(vec3(0.0, 0.0, 0.0));
+		EndPrimitive();
+	}
 
-	emit(vec3(0.0, 0.0, 1.0));
-	emit(vec3(0.0, 1.0, 1.0));
-	emit(vec3(1.0, 0.0, 1.0));
-	emit(vec3(1.0, 1.0, 1.0));
-	EndPrimitive();
+	if (cameraPos.z > outMaxEdge.z) {
+		emit(vec3(0.0, 0.0, 1.0));
+		emit(vec3(0.0, 1.0, 1.0));
+		emit(vec3(1.0, 0.0, 1.0));
+		emit(vec3(1.0, 1.0, 1.0));
+		EndPrimitive();
+	}
 
-	emit(vec3(0.0, 0.0, 0.0));
-	emit(vec3(0.0, 0.0, 1.0));
-	emit(vec3(1.0, 0.0, 0.0));
-	emit(vec3(1.0, 0.0, 1.0));
-	EndPrimitive();
+	if (cameraPos.y < outMinEdge.y) {
+		emit(vec3(0.0, 0.0, 0.0));
+		emit(vec3(0.0, 0.0, 1.0));
+		emit(vec3(1.0, 0.0, 0.0));
+		emit(vec3(1.0, 0.0, 1.0));
+		EndPrimitive();
+	}
 
-	emit(vec3(1.0, 1.0, 1.0));
-	emit(vec3(0.0, 1.0, 1.0));
-	emit(vec3(1.0, 1.0, 0.0));
-	emit(vec3(0.0, 1.0, 0.0));
-	EndPrimitive();
+	if (cameraPos.y > outMaxEdge.y) {
+		emit(vec3(1.0, 1.0, 1.0));
+		emit(vec3(0.0, 1.0, 1.0));
+		emit(vec3(1.0, 1.0, 0.0));
+		emit(vec3(0.0, 1.0, 0.0));
+		EndPrimitive();
+	}
 
-	emit(vec3(1.0, 1.0, 1.0));
-	emit(vec3(1.0, 1.0, 0.0));
-	emit(vec3(1.0, 0.0, 1.0));
-	emit(vec3(1.0, 0.0, 0.0));
-	EndPrimitive();
+	if (cameraPos.x < outMinEdge.x) {
+		emit(vec3(0.0, 0.0, 0.0));
+		emit(vec3(0.0, 1.0, 0.0));
+		emit(vec3(0.0, 0.0, 1.0));
+		emit(vec3(0.0, 1.0, 1.0));
+		EndPrimitive();
+	}
 
-	emit(vec3(0.0, 0.0, 0.0));
-	emit(vec3(0.0, 1.0, 0.0));
-	emit(vec3(0.0, 0.0, 1.0));
-	emit(vec3(0.0, 1.0, 1.0));
-	EndPrimitive();
+	if (cameraPos.x > outMaxEdge.x) {
+		emit(vec3(1.0, 1.0, 1.0));
+		emit(vec3(1.0, 1.0, 0.0));
+		emit(vec3(1.0, 0.0, 1.0));
+		emit(vec3(1.0, 0.0, 0.0));
+		EndPrimitive();
+	}
 }
 `;
 
