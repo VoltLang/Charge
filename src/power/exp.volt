@@ -453,8 +453,6 @@ vec3 rayAABBTest(vec3 rayOrigin, vec3 rayDir, vec3 aabbMin, vec3 aabbMax)
 
 bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 {
-	//rayOrigin -= vec3(0.0, 0.5, 0.0);
-
 	// Check for ray components being parallel to axes (i.e. values of 0).
 	const float epsilon = 0.000001;	// Platform dependent value!
 	if (abs(rayDir.x) <= epsilon) rayDir.x = epsilon * sign(rayDir.x);
