@@ -27,7 +27,7 @@ public:
 
 	CtlInput input;
 
-	float rotation;
+	float rotationX, rotationY;
 
 	GfxShader voxelShader;
 	GfxTexture2D bitmap;
@@ -37,6 +37,7 @@ public:
 
 	GLuint query;
 	bool queryInFlight;
+	bool isDragging;
 
 
 	/**
@@ -112,9 +113,34 @@ public:
 		mManager.closeMe(this);
 	}
 
+	override void mouseMove(CtlMouse m, int x, int y)
+	{
+		if (isDragging) {
+			rotationX += x * -0.01f;
+			rotationY += y * -0.01f;
+		}
+	}
+
+	override void mouseDown(CtlMouse m, int button)
+	{
+		if (button == 1) {
+			m.show(false);
+			m.grab(true);
+			isDragging = true;
+		}
+	}
+
+	override void mouseUp(CtlMouse m, int button)
+	{
+		if (button == 1) {
+			isDragging = false;
+			m.show(true);
+			m.grab(false);
+		}
+	}
+
 	override void logic()
 	{
-		rotation += 0.01f;
 	}
 
 	override void render(GfxTarget t)
@@ -153,7 +179,7 @@ public:
 		glUseProgram(0);
 
 
-		rot := math.Quatf.opCall(rotation, 0.f, 0.f);
+		rot := math.Quatf.opCall(rotationX, rotationY, 0.f);
 		vec := rot * math.Vector3f.opCall(0.f, 0.f, -1.0f);
 		pos := math.Point3f.opCall(0.5f, 0.5f, 0.5f) - vec;
 
