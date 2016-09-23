@@ -9,6 +9,7 @@ VOLT ?= $(shell which volt)
 # Basic settings.
 #
 
+BUILD_DIR ?= make
 CFLAGS ?= -g
 VFLAGS ?= -d --internal-perf
 LDFLAGS ?= -lm
@@ -21,7 +22,8 @@ TARGET ?= charge
 
 include sources.mk
 SRC:= $(shell ls $(SRC))
-OBJ = .obj/stb.o
+STB = .obj/$(BUILD_DIR)/stb.o
+OBJ = $(STB)
 
 
 ########################################
@@ -30,9 +32,9 @@ OBJ = .obj/stb.o
 
 all: $(TARGET)
 
-.obj/stb.o: src/lib/stb/stb.c src/lib/stb/stb_image.h
-	@mkdir -p .obj
+$(STB): src/lib/stb/stb.c src/lib/stb/stb_image.h
 	@echo "  CC     $@"
+	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) src/lib/stb/stb.c -c -o $@
 
 $(TARGET): $(OBJ) $(SRC) GNUmakefile
