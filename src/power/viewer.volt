@@ -307,9 +307,6 @@ bool findStart(vec3 pos, out int offset)
 	// Initial node address.
 	offset = 0;
 
-	// Jitter
-	pos += vec3(0.00001);
-
 	// Subdivid until empty node or found the node for this box.
 	for (int i = POW; i > 0; i--) {
 		// Get the node.
