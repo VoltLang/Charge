@@ -60,13 +60,13 @@ class DagBuilder : GfxBuilder
 		resetStore(num * typeid(Vertex).size);
 	}
 
-	final void add(ubyte x, ubyte y, ubyte z)
+	final void add(u8 x, u8 y, u8 z, u8 w)
 	{
 		Vertex vert;
 		vert.x = x;
 		vert.y = y;
 		vert.z = z;
-		vert.w = 0;
+		vert.w = w;
 
 		add(&vert, 1);
 	}

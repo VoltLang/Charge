@@ -94,7 +94,7 @@ public:
 		foreach (i; 0 .. max*max*max) {
 			u32[3] vals;
 			math.decode3(i, out vals);
-			b.add(cast(u8)vals[0], cast(u8)vals[1], cast(u8)vals[2]);
+			b.add(cast(u8)vals[0], cast(u8)vals[1], cast(u8)vals[2], 1);
 		}
 		vbo = DagBuffer.make("power/dag", b);
 	}
