@@ -18,6 +18,7 @@ import charge.sys.resource;
 import math = charge.math;
 
 import power.voxel.boxel;
+import power.voxel.dag;
 
 
 class Viewer : GameSimpleScene
@@ -29,6 +30,7 @@ public:
 
 	float rotationX, rotationY;
 
+	DagBuffer vbo;
 	GfxShader voxelShader;
 	GfxTexture2D bitmap;
 	GfxDrawBuffer textVbo;
@@ -86,6 +88,15 @@ public:
 		glBindTexture(GL_TEXTURE_BUFFER, octTexture);
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_INTENSITY32UI_EXT, octBuffer);
 		glBindTexture(GL_TEXTURE_BUFFER, 0);
+
+		size_t max = 64;
+		b := new DagBuilder(max * max * max);
+		foreach (i; 0 .. max*max*max) {
+			u32[3] vals;
+			math.decode3(i, out vals);
+			b.add(cast(u8)vals[0], cast(u8)vals[1], cast(u8)vals[2]);
+		}
+		vbo = DagBuffer.make("power/dag", b);
 	}
 
 	override void close()
@@ -206,16 +217,11 @@ public:
 		glCullFace(GL_BACK);
 		glEnable(GL_CULL_FACE);
 		glBindTexture(GL_TEXTURE_BUFFER, octTexture);
-		glBegin(GL_POINTS);
-		int max = 32;
-		foreach (x; 0 .. max) {
-			foreach (y; 0 .. max) {
-				foreach (z; 0 .. max) {
-					glVertex3i(x, y, z);
-				}
-			}
-		}
-		glEnd();
+
+		glBindVertexArray(vbo.vao);
+		glDrawArrays(GL_POINTS, 0, vbo.num);
+		glBindVertexArray(0);
+
 		glBindTexture(GL_TEXTURE_BUFFER, 0);
 		glDisable(GL_CULL_FACE);
 
@@ -269,7 +275,7 @@ void main(void)
 enum string voxelGeometry450 = `
 #version 450 core
 
-#define POW 5
+#define POW 6
 #define DIVISOR pow(2, float(POW))
 #define DIVISOR_INV (1.0/DIVISOR)
 
