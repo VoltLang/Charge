@@ -28,7 +28,7 @@ public:
 
 	CtlInput input;
 
-	float rotationX, rotationY;
+	float rotationX, rotationY, distance;
 
 	DagBuffer vbo;
 	GfxShader voxelShader;
@@ -56,6 +56,7 @@ public:
 	this(GameSceneManager g)
 	{
 		super(g, Type.Game);
+		distance = 1.0;
 		input = CtlInput.opCall();
 
 		voxelShader = new GfxShader(voxelVertex450, voxelGeometry450,
@@ -134,10 +135,22 @@ public:
 
 	override void mouseDown(CtlMouse m, int button)
 	{
-		if (button == 1) {
+		switch (button) {
+		case 1:
 			m.show(false);
 			m.grab(true);
 			isDragging = true;
+			break;
+		case 4: // Mouse wheel up.
+			distance -= 0.1f;
+			if (distance < 0.0f) {
+				distance = 0.0f;
+			}
+			break;
+		case 5: // Mouse wheel down.
+			distance += 0.1f;
+			break;
+		default:
 		}
 	}
 
@@ -191,7 +204,7 @@ public:
 
 
 		rot := math.Quatf.opCall(rotationX, rotationY, 0.f);
-		vec := rot * math.Vector3f.opCall(0.f, 0.f, -1.0f);
+		vec := rot * math.Vector3f.opCall(0.f, 0.f, -distance);
 		pos := math.Point3f.opCall(0.5f, 0.5f, 0.5f) - vec;
 
 
