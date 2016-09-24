@@ -19,27 +19,17 @@ import math = charge.math;
 
 import power.voxel.boxel;
 import power.voxel.dag;
+import power.experiments.viewer;
 
 
-class RayTracer : GameSimpleScene
+class RayTracer : Viewer
 {
 public:
-	GfxAA aa;
-
-	CtlInput input;
-
-	float rotationX, rotationY, distance;
-
 	DagBuffer vbo;
 	GfxShader voxelShader;
-	GfxTexture2D bitmap;
-	GfxDrawBuffer textVbo;
-	GfxDrawVertexBuilder textBuilder;
-	GfxBitmapState textState;
 
 	GLuint query;
 	bool queryInFlight;
-	bool isDragging;
 
 
 	/**
@@ -52,28 +42,15 @@ public:
 	 * @}
 	 */
 
+
 public:
 	this(GameSceneManager g)
 	{
-		super(g, Type.Game);
+		super(g);
 		distance = 1.0;
-		input = CtlInput.opCall();
 
 		voxelShader = new GfxShader(voxelVertex450, voxelGeometry450,
 			voxelFragment450, null, null);
-
-		bitmap = GfxTexture2D.load(Pool.opCall(), "res/font.png");
-
-		textState.glyphWidth = cast(int)bitmap.width / 16;
-		textState.glyphHeight = cast(int)bitmap.height / 16;
-		textState.offX = 16;
-		textState.offY = 16;
-
-		text := "Info";
-		textBuilder = new GfxDrawVertexBuilder(0);
-		textBuilder.reset(text.length * 4u);
-		gfxBuildVertices(ref textState, textBuilder, cast(ubyte[])text);
-		textVbo = GfxDrawBuffer.make("power/exp/text", textBuilder);
 
 		glGenQueries(1, &query);
 
@@ -100,11 +77,17 @@ public:
 		vbo = DagBuffer.make("power/dag", b);
 	}
 
+
+	/*
+	 *
+	 * Scene methods.
+	 *
+	 */
+
 	override void close()
 	{
-		aa.breakApart();
+		super.close();
 
-		if (textVbo !is null) { textVbo.decRef(); textVbo = null; }
 		if (octTexture) { glDeleteTextures(1, &octTexture); octTexture = 0; }
 		if (octBuffer) { glDeleteBuffers(1, &octBuffer); octBuffer = 0; }
 		if (voxelShader !is null) {
@@ -116,85 +99,11 @@ public:
 
 	/*
 	 *
-	 * Scene methods.
+	 * Viewer methods.
 	 *
 	 */
 
-	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
-	{
-		mManager.closeMe(this);
-	}
-
-	override void mouseMove(CtlMouse m, int x, int y)
-	{
-		if (isDragging) {
-			rotationX += x * -0.01f;
-			rotationY += y * -0.01f;
-		}
-	}
-
-	override void mouseDown(CtlMouse m, int button)
-	{
-		switch (button) {
-		case 1:
-			m.show(false);
-			m.grab(true);
-			isDragging = true;
-			break;
-		case 4: // Mouse wheel up.
-			distance -= 0.1f;
-			if (distance < 0.0f) {
-				distance = 0.0f;
-			}
-			break;
-		case 5: // Mouse wheel down.
-			distance += 0.1f;
-			break;
-		default:
-		}
-	}
-
-	override void mouseUp(CtlMouse m, int button)
-	{
-		if (button == 1) {
-			isDragging = false;
-			m.show(true);
-			m.grab(false);
-		}
-	}
-
-	override void logic()
-	{
-	}
-
-	override void render(GfxTarget t)
-	{
-		aa.bind(t);
-		renderScene(aa.fbo);
-		aa.unbindAndDraw(t);
-
-		// Draw text
-		updateText();
-		math.Matrix4x4f mat;
-		t.setMatrixToOrtho(ref mat);
-
-		gfxDrawShader.bind();
-		gfxDrawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBindVertexArray(textVbo.vao);
-		bitmap.bind();
-
-		glDrawArrays(GL_QUADS, 0, textVbo.num);
-
-		bitmap.unbind();
-		glBindVertexArray(0);
-		glBlendFunc(GL_ONE, GL_ZERO);
-		glDisable(GL_BLEND);
-	}
-
-	void renderScene(GfxTarget t)
+	override void renderScene(GfxTarget t)
 	{
 		// Clear the screen.
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
@@ -245,9 +154,12 @@ public:
 
 		glUseProgram(0);
 		glDisable(GL_DEPTH_TEST);
+
+		// Check for last frames query.
+		checkQuery();
 	}
 
-	void updateText()
+	void checkQuery()
 	{
 		if (!queryInFlight) {
 			return;
@@ -268,9 +180,7 @@ Elapsed time: %sms`;
 
 		text := format(str, timeElapsed / 1_000_000_000.0 * 1_000.0);
 
-		textBuilder.reset(text.length * 4u);
-		gfxBuildVertices(ref textState, textBuilder, cast(ubyte[])text);
-		textVbo.update(textBuilder);
+		updateText(text);
 	}
 }
 
