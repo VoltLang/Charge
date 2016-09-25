@@ -177,8 +177,7 @@ public:
 		glGetQueryObjectui64v(query, GL_QUERY_RESULT, &timeElapsed);
 		queryInFlight = false;
 
-		str := `Info:
-Elapsed time: %sms`;
+		str := "Info:\nElapsed time: %sms";
 
 		text := format(str, timeElapsed / 1_000_000_000.0 * 1_000.0);
 
