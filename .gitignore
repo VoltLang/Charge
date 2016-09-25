@@ -6,4 +6,5 @@
 *.lib
 /.obj
 /perf.cvs
-/res
+/res/*.png
+/res/*.vox*
