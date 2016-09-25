@@ -14,7 +14,7 @@ import charge.game;
 import charge.game.scene.background;
 import charge.math.matrix;
 
-import power.viewer;
+import power.experiments.raytracer;
 
 
 class Game : GameSceneManagerApp
@@ -31,7 +31,7 @@ public:
 
 		checkVersion();
 
-		push(new Viewer(this));
+		push(new RayTracer(this));
 
 		//push(new Background(this, "res/tile.png", "res/logo.png"));
 		//push(new Scene(this));
@@ -138,7 +138,7 @@ public:
 	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
 	{
 		mManager.closeMe(this);
-		mManager.push(new Viewer(mManager));
+		mManager.push(new RayTracer(mManager));
 	}
 }
 

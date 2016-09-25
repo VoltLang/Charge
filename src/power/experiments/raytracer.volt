@@ -1,6 +1,6 @@
 // Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-module power.viewer;
+module power.experiments.raytracer;
 
 import watt.math;
 import watt.io.file;
@@ -21,7 +21,7 @@ import power.voxel.boxel;
 import power.voxel.dag;
 
 
-class Viewer : GameSimpleScene
+class RayTracer : GameSimpleScene
 {
 public:
 	GfxAA aa;
