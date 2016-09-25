@@ -14,6 +14,7 @@ import charge.game;
 import charge.game.scene.background;
 import charge.math.matrix;
 
+import power.experiments.brute;
 import power.experiments.raytracer;
 
 
@@ -31,7 +32,7 @@ public:
 
 		checkVersion();
 
-		push(new RayTracer(this));
+		push(new Brute(this));
 	}
 
 
