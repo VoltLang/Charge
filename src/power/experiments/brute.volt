@@ -25,10 +25,17 @@ import power.experiments.viewer;
 class Brute : Viewer
 {
 public:
-	DagBuffer vbo;
+	DagBuffer first;
+	DagBuffer second;
+	DagBuffer third;
+	IndirectBuffer ibo;
 	GfxShader voxelShader;
 
+	GLuint feedback;
+	GfxShader feedbackShader;
+
 	GLuint query;
+	GLuint fbQuery;
 	bool queryInFlight;
 
 
@@ -49,12 +56,18 @@ public:
 		super(g);
 		distance = 1.0;
 
-		vert := cast(string)read("res/power/shaders/voxel.vert.glsl");
-		geom := cast(string)read("res/power/shaders/voxel.geom.glsl");
-		frag := cast(string)read("res/power/shaders/voxel.frag.glsl");
+		vert := cast(string)read("res/power/shaders/brute/voxel.vert.glsl");
+		geom := cast(string)read("res/power/shaders/brute/voxel.geom.glsl");
+		frag := cast(string)read("res/power/shaders/brute/voxel.frag.glsl");
 		voxelShader = new GfxShader(vert, geom, frag, null, null);
 
+		vert = cast(string)read("res/power/shaders/brute/feedback.vert.glsl");
+		geom = cast(string)read("res/power/shaders/brute/feedback.geom.glsl");
+		frag = cast(string)read("res/power/shaders/brute/feedback.frag.glsl");
+		feedbackShader = new GfxShader(vert, geom, frag, null, null);
+
 		glGenQueries(1, &query);
+		glGenQueries(1, &fbQuery);
 
 		// Setup raytracing code.
 		data := read("res/bunny_512x512x512.voxels");
@@ -69,14 +82,14 @@ public:
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_INTENSITY32UI_EXT, octBuffer);
 		glBindTexture(GL_TEXTURE_BUFFER, 0);
 
-		size_t max = 32;
-		b := new DagBuilder(max * max * max);
-		foreach (i; 0 .. max*max*max) {
-			u32[3] vals;
-			math.decode3(i, out vals);
-			b.add(cast(u8)vals[0], cast(u8)vals[1], cast(u8)vals[2]);
-		}
-		vbo = DagBuffer.make("power/dag", b);
+		maxFirst : size_t = 1;
+		maxSecond : size_t = cast(size_t)(8 * 8 * 8);
+		maxThird : size_t = cast(size_t)(64 * 64 * 64);
+
+		first = DagBuffer.make("power/dag/second", cast(GLsizei)maxFirst, maxFirst);
+		second = DagBuffer.make("power/dag/second", cast(GLsizei)maxSecond, maxSecond);
+		third = DagBuffer.make("power/dag/second", cast(GLsizei)maxThird, maxThird);
+		ibo = IndirectBuffer.make("power/ido", 1, cast(GLuint)(8*8*8));
 	}
 
 
@@ -126,10 +139,6 @@ public:
 		t.setMatrixToProjection(ref proj, 45.f, 0.1f, 256.f);
 		proj.setToMultiply(ref view);
 
-		// Setup shader.
-		voxelShader.bind();
-		voxelShader.matrix4("matrix", 1, true, proj.ptr);
-		voxelShader.float3("cameraPos".ptr, 1, pos.ptr);
 
 		shouldEnd: bool;
 		if (!queryInFlight) {
@@ -140,15 +149,69 @@ public:
 		// Draw the array.
 		glCullFace(GL_BACK);
 		glEnable(GL_CULL_FACE);
-		glEnable(GL_PROGRAM_POINT_SIZE);
 		glBindTexture(GL_TEXTURE_BUFFER, octTexture);
 
-		glBindVertexArray(vbo.vao);
-		glDrawArraysInstanced(GL_POINTS, 0, vbo.num, 1);//, 16*16*16);
+		// Setup shader.
+		feedbackShader.bind();
+
+		//
+		// First feedback step
+		//
+		glEnable(GL_RASTERIZER_DISCARD);
+		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, second.buf);
+
+		glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, fbQuery);
+		glBeginTransformFeedback(GL_POINTS);
+		glBindVertexArray(first.vao);
+		glDrawArrays(GL_POINTS, 0, 8*8*8);
+		glBindVertexArray(0);
+		glEndTransformFeedback();
+		glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+
+		// Feedback the number of read objects into indirect buffer.
+		glBindBuffer(GL_QUERY_BUFFER, ibo.buf);
+		glGetQueryObjectuiv(fbQuery, GL_QUERY_RESULT, (cast(GLuint*)null) + 1);
+		glBindBuffer(GL_QUERY_BUFFER, 0);
+
+		//
+		// Second feedback stage
+		//
+		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, third.buf);
+		glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, fbQuery);
+		glBeginTransformFeedback(GL_POINTS);
+
+		glBindVertexArray(second.vao);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, ibo.buf);
+		glDrawArraysIndirect(GL_POINTS, null);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 		glBindVertexArray(0);
 
-		glBindTexture(GL_TEXTURE_BUFFER, 0);
+		glEndTransformFeedback();
+		glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+
+		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
+		glDisable(GL_RASTERIZER_DISCARD);
+
+		// Feedback the number of read objects into indirect buffer.
+		glBindBuffer(GL_QUERY_BUFFER, ibo.buf);
+		glGetQueryObjectuiv(fbQuery, GL_QUERY_RESULT, (cast(GLuint*)null) + 1);
+		glBindBuffer(GL_QUERY_BUFFER, 0);
+
+		// Setup shader.
+		voxelShader.bind();
+		voxelShader.matrix4("matrix", 1, true, proj.ptr);
+		voxelShader.float3("cameraPos".ptr, 1, pos.ptr);
+
+		// Draw voxels
+		glEnable(GL_PROGRAM_POINT_SIZE);
+		glBindVertexArray(third.vao);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, ibo.buf);
+		glDrawArraysIndirect(GL_POINTS, null);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+		glBindVertexArray(0);
 		glDisable(GL_PROGRAM_POINT_SIZE);
+
+		glBindTexture(GL_TEXTURE_BUFFER, 0);
 		glDisable(GL_CULL_FACE);
 
 		if (shouldEnd) {
@@ -187,6 +250,70 @@ public:
 	}
 }
 
+struct IndirectData
+{
+	GLuint count;
+	GLuint instanceCount;
+	GLuint first;
+	GLuint baseInstance;
+}
+
+/**
+ * Inderect buffer used for drawing.
+ */
+class IndirectBuffer : Resource
+{
+public:
+	GLuint buf;
+	GLsizei num;
+
+
+public:
+	global IndirectBuffer make(string name, GLsizei num, GLuint count)
+	{
+		void* dummy;
+		auto buffer = cast(IndirectBuffer)Resource.alloc(
+			typeid(IndirectBuffer), GfxBuffer.uri, name, 0, out dummy);
+		buffer.__ctor(num, count);
+		return buffer;
+	}
+
+
+protected:
+	this(GLsizei num, GLuint count)
+	{
+		super();
+		this.num = num;
+
+		IndirectData data;
+		data.count = count;
+		data.instanceCount = 1;
+
+		indirectStride := cast(GLsizei)typeid(IndirectData).size;
+		indirectLength := num * indirectStride;
+
+		// First allocate the storage.
+		glCreateBuffers(1, &buf);
+		glNamedBufferStorage(buf, indirectLength, null, GL_DYNAMIC_STORAGE_BIT);
+
+		// Then fill out the first slot.
+		glNamedBufferSubData(buf, 0, indirectStride, cast(void*)&data);
+
+		glCheckError();
+	}
+
+	~this()
+	{
+		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
+	}
+}
+
+
+struct InstanceData
+{
+	uint position, offset;
+}
+
 /**
  * VBO used for boxed base voxels.
  */
@@ -195,91 +322,44 @@ class DagBuffer : GfxBuffer
 public:
 	GLsizei num;
 
-
 public:
-	global DagBuffer make(string name,(DagBuilder vb)
+	global DagBuffer make(string name, GLsizei num, size_t instances)
 	{
 		void* dummy;
 		auto buffer = cast(DagBuffer)Resource.alloc(
 			typeid(DagBuffer), uri, name, 0, out dummy);
-		buffer.__ctor(0, 0);
-		buffer.update(vb);
+		buffer.__ctor(num, instances);
 		return buffer;
 	}
 
-	void update(DagBuilder vb)
-	{
-		deleteBuffers();
-		vb.bake(out vao, out buf, out num);
-	}
-
-
 protected:
-	this(GLuint vao, GLuint buf)
+	this(GLsizei num, size_t instances)
 	{
-		super(vao, buf);
-	}
-}
+		super(0, 0);
+		this.num = num;
 
-struct Vertex
-{
-	ubyte x, y, z, w;
-}
-
-
-class DagBuilder : GfxBuilder
-{
-	this(size_t num)
-	{
-		reset(num);
-	}
-
-	final void reset(size_t num = 0)
-	{
-		resetStore(num * typeid(Vertex).size);
-	}
-
-	final void add(ubyte x, ubyte y, ubyte z)
-	{
-		Vertex vert;
-		vert.x = x;
-		vert.y = y;
-		vert.z = z;
-		vert.w = 0;
-
-		add(&vert, 1);
-	}
-
-	final void add(Vertex* vert, size_t num)
-	{
-		add(cast(void*)vert, num * typeid(Vertex).size);
-	}
-
-	alias add = GfxBuilder.add;
-
-	final void bake(out GLuint vao, out GLuint buf, out GLsizei num)
-	{
-		// Setup vertex buffer and upload the data.
+		// Setup instance buffer and upload the data.
 		glGenBuffers(1, &buf);
 		glGenVertexArrays(1, &vao);
 
 		// And the darkness bind them.
 		glBindVertexArray(vao);
+
 		glBindBuffer(GL_ARRAY_BUFFER, buf);
 
-		glBufferData(GL_ARRAY_BUFFER, cast(GLsizeiptr)length, ptr, GL_STATIC_DRAW);
+		instanceStride := cast(GLsizei)typeid(InstanceData).size;
+		instancesLength := cast(GLsizei)instances * instanceStride;
+		glBindBuffer(GL_ARRAY_BUFFER, buf);
+		glBufferData(GL_ARRAY_BUFFER, cast(GLsizeiptr)instancesLength, null, GL_STATIC_DRAW);
 
-		stride := cast(GLsizei)typeid(Vertex).size;
-		glVertexAttribIPointer(0, 4, GL_UNSIGNED_BYTE, stride, null);
-		glVertexAttribDivisor(0, 0);
-		glEnableVertexAttribArray(0);
-		glVertexAttribIPointer(1, 4, GL_UNSIGNED_BYTE, stride, null);
+		glVertexAttribIPointer(0, 4, GL_UNSIGNED_BYTE, instanceStride, null);
+		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, instanceStride, cast(void*)4);
+		glVertexAttribDivisor(0, 1);
 		glVertexAttribDivisor(1, 1);
+		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
-
-		num = cast(GLsizei)length / stride;
 	}
 }

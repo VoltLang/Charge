@@ -1,15 +1,17 @@
 #version 450 core
 
-#define POW 5
+#define UPPER 6
+#define POW 9
+#define LOOP (POW - UPPER)
 #define DIVISOR pow(2, float(POW))
 #define DIVISOR_INV (1.0/DIVISOR)
 
 layout (points) in;
 layout (location = 0) in ivec3[] inPosition;
-
+layout (location = 1) in uint[] inOffset;
 layout (binding = 0) uniform isamplerBuffer octree;
 
-//#define POINTS
+#define POINTS
 #ifdef POINTS
 layout (points, max_vertices = 1) out;
 #else
@@ -21,18 +23,21 @@ uniform mat4 matrix;
 uniform vec3 cameraPos;
 
 
-bool findStart(ivec3 ipos, out int offset, out vec4 color)
+bool findStart(out ivec3 ipos, out uint offset, out vec4 color)
 {
+	// The morton value for this position.
+	uint morton = gl_PrimitiveIDIn;
+
 	// Initial node address.
-	offset = 0;
+	offset = inOffset[0];
 
 	// Subdivid until empty node or found the node for this box.
-	for (int i = POW; i >= 0; i--) {
+	for (int i = LOOP;;) {
 		// Get the node.
-		uint node = uint(texelFetchBuffer(octree, offset).a);
+		uint node = uint(texelFetchBuffer(octree, int(offset)).a);
 
 		// Found color, return the voxol color.
-		if ((node & uint(0x80000000)) >> uint(31) == uint(1)) {
+		if ((node & uint(0x80000000)) != uint(0)) {
 			uint alpha = (node & uint(0x3F000000)) >> uint(24);
 			uint red = (node & uint(0x00FF0000)) >> uint(16);
 			uint green = (node & uint(0x0000FF00)) >> uint(8);
@@ -47,17 +52,26 @@ bool findStart(ivec3 ipos, out int offset, out vec4 color)
 			return false;
 		}
 
-		// 3D bit selector, each element is in the range [0, 1].
-		ivec3 range = (ipos % (1 << i)) >> (i - 1);
+		// Reach end of tree, but has more none-empty node.
+		// Just color it to the position and say that something is here.
+		if (i-- <= 0) {
+			color = vec4(ipos * DIVISOR_INV, 1.0);
+			return true;
+		}
 
+		// 3D bit selector, each element is in the range [0, 1].
 		// Turn that into scalar in the range [0, 8].
-		uint select = uint(dot(range, vec3(1, 2, 4)));
+		uint select = (morton >> (i * 3)) & 0x07;
+
+		ipos += ivec3(
+			(select     ) & 0x1,
+			(select >> 1) & 0x1,
+			(select >> 2)      ) << i;
 
 		// Use the selector and node pointer to get the new node position.
-		offset = int((node & uint(0x3FFFFFFF)) + select);
+		offset = (node & uint(0x3FFFFFFF)) + select;
 	}
 
-	color = vec4(ipos * DIVISOR_INV, 1.0);
 	return true;
 }
 
@@ -72,14 +86,16 @@ void emit(ivec3 ipos, vec3 off)
 
 void main(void)
 {
-	int outOffset;
-	ivec3 ipos = inPosition[0];
+	uint outOffset;
+	ivec3 ipos;
 	if (!findStart(ipos, outOffset, outColor)) {
 		return;
 	}
 
+	ipos += inPosition[0] * 8;
+
 #ifdef POINTS
-	gl_PointSize = 16.0;
+	gl_PointSize = 4.0;
 	gl_Position = matrix * vec4(vec3(ipos) * DIVISOR_INV, 1.0);
 	EmitVertex();
 	EndPrimitive();
