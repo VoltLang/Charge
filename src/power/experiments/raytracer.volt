@@ -21,6 +21,43 @@ import power.voxel.boxel;
 import power.voxel.dag;
 import power.experiments.viewer;
 
+void loadDag(string filename, out void[] data)
+{
+	// Setup raytracing code.
+	data = read(filename);
+	f32ptr := cast(f32*)data.ptr;
+	u32ptr := cast(u32*)data.ptr;
+	u64ptr := cast(u64*)data.ptr;
+
+	id := u64ptr[0];
+	frames := u64ptr[1];
+	resolution := u64ptr[2];
+	dataSizeInU32 := u64ptr[3];
+	minX := f32ptr[ 8];
+	minY := f32ptr[ 9];
+	minZ := f32ptr[10];
+	maxX := f32ptr[11];
+	maxY := f32ptr[12];
+	maxZ := f32ptr[13];
+
+	// Calculate offset to data, both values are orignally in u32s.
+	offset := (frames + 14UL) * 4;
+	data = data[offset .. offset + dataSizeInU32 * 4];
+
+/*
+	io.writefln("id:         %016x", id);
+	io.writefln("frames:     %s", frames);
+	io.writefln("resolution: %s", resolution);
+	io.writefln("ndwords:    %s", dataSizeInU32);
+	io.writefln("rootMin:    %s %s %s", cast(f64)minX, cast(f64)minY, cast(f64)minZ);
+	io.writefln("rootMax:    %s %s %s", cast(f64)maxX, cast(f64)maxY, cast(f64)maxZ);
+
+	io.writefln("%s %s", dataSizeInU32 * 4, data.length);
+	foreach (i; 0U .. 128U) {
+		io.writefln("%04x: %08x", i, u32ptr[(offset / 4) + i]);
+	}
+*/
+}
 
 class RayTracer : Viewer
 {
@@ -54,8 +91,8 @@ public:
 
 		glGenQueries(1, &query);
 
-		// Setup raytracing code.
-		data := read("res/bunny_512x512x512.voxels");
+		void[] data;
+		loadDag("res/alley.dag", out data);
 
 		glGenBuffers(1, &octBuffer);
 		glBindBuffer(GL_TEXTURE_BUFFER, octBuffer);
@@ -121,7 +158,7 @@ public:
 		view.setToLookFrom(ref pos, ref rot);
 
 		math.Matrix4x4f proj;
-		t.setMatrixToProjection(ref proj, 45.f, 0.1f, 256.f);
+		t.setMatrixToProjection(ref proj, 45.f, 0.0001f, 256.f);
 		proj.setToMultiply(ref view);
 
 		// Setup shader.
@@ -241,16 +278,20 @@ bool findStart(vec3 pos, out int offset)
 		// Get the node.
 		uint node = uint(texelFetchBuffer(octree, offset).a);
 
-		// Found empty node, so return false to not emit a box.
-		// We could have hit this if we hit a color.
-		if ((node & uint(0xC0000000)) != uint(0)) {
-			return false;
-		}
-
 		boxDim *= 0.5f;
 		vec3 s = step(boxMin + boxDim, pos);
 		boxMin = boxMin + boxDim * s;
-		offset = int((node & uint(0x3FFFFFFF)) + uint(dot(s, vec3(1, 2, 4))));
+		uint select = uint(dot(s, vec3(4, 1, 2)));
+		if ((node & (uint(1) << select)) == uint(0)) {
+			return false;
+		}
+
+		int bits = int(select + 1);
+		uint toCount = bitfieldExtract(node, 0, bits);
+		int address = int(bitCount(toCount));
+		address += int(offset);
+
+		offset = texelFetchBuffer(octree, address).a;
 	}
 
 	return true;
@@ -388,46 +429,46 @@ bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 	int itr = 0;
 	while (tMin < tMax && ++itr < MAX_ITERATIONS) {
 		vec3 pos = rayOrigin + rayDir * tMin;
-		uint node = uint(texelFetchBuffer(octree, inOffset).a);
+
+		// Restart at top of tree.
+		int offset = inOffset;
+
 		// Which part of the space the voxel volume occupy.
 		vec3 boxMin = inMinEdge;
 		vec3 boxDim = inMaxEdge - inMinEdge;
 
 		// Loop until a leaf or max subdivided node is found.
-		while ((node & uint(0xC0000000)) == uint(0)) {
+		bool hit = true;
+		for (int i = 5; i > 0; i--) {
+
+			uint node = uint(texelFetchBuffer(octree, offset).a);
+
 			boxDim *= 0.5f;
 			vec3 s = step(boxMin + boxDim, pos);
 			boxMin = boxMin + boxDim * s;
-			uint offset = (node & uint(0x3FFFFFFF)) + uint(dot(s, vec3(1, 2, 4)));
-			node = uint(texelFetchBuffer(octree, int(offset)).a);
+			uint select = uint(dot(s, vec3(4, 1, 2)));
+			if ((node & (uint(1) << select)) == uint(0)) {
+				hit = false;
+				break;
+			}
+
+			if (i <= 1) {
+				finalColor = vec4(mod(pos * 16, 1.0), 1.0);
+				return true;
+			}
+
+			int bits = int(select + 1);
+			uint toCount = bitfieldExtract(node, 0, bits);
+			int address = int(bitCount(toCount));
+			address += int(offset);
+
+			offset = texelFetchBuffer(octree, address).a;
+			if (offset == 0) {
+				return true;
+			}
 		}
 
-		// If final node is a leaf, extract color and exit loop.
-		if ((node & uint(0x80000000)) >> uint(31) == uint(1)) {
-			uint alpha = (node & uint(0x3F000000)) >> uint(24);
-			uint red = (node & uint(0x00FF0000)) >> uint(16);
-			uint green = (node & uint(0x0000FF00)) >> uint(8);
-			uint blue = (node & uint(0x000000FF));
-
-			alpha = alpha * uint(255) / uint(63);
-			alpha /= uint(2);
-			finalColor = vec4(red, green, blue, 255) / 255.0;
-			return true;
-
-/*
-			// Record intersection depth point.
-			vec3 t0 = (boxMin - rayOrigin) * invRayDir;
-			vec3 t1 = (boxMin + boxDim - rayOrigin) * invRayDir;
-			vec3 tIntersection = min(t0, t1);
-			vec3 point = rayOrigin + rayDir * tIntersection;
-			point = point / (maxEdge - minEdge);
-			depth = clamp(point.z, 0.0, 1.0);
-			hit = true;
-			break;
-*/
-		}
-
-		// Update ray position to exit current node			
+		// Update ray position to exit current node
 		vec3 t0 = (boxMin - pos) * invRayDir;
 		vec3 t1 = (boxMin + boxDim - pos) * invRayDir;
 		vec3 tNext = max(t0, t1);

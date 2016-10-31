@@ -18,7 +18,7 @@ public:
 
 
 public:
-	global DagBuffer make(string name,(DagBuilder vb)
+	global DagBuffer make(string name, DagBuilder vb)
 	{
 		void* dummy;
 		auto buffer = cast(DagBuffer)Resource.alloc(

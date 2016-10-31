@@ -32,7 +32,8 @@ public:
 
 		checkVersion();
 
-		push(new Brute(this));
+		push(new RayTracer(this));
+		//push(new Brute(this));
 	}
 
 
