@@ -18,6 +18,12 @@ public:
 
 
 public:
+	global Quatf opCall()
+	{
+		Quatf q = { 1.f, 0.f, 0.f, 0.f };
+		return q;
+	}
+
 	/**
 	 * Convert from Euler (and Tait-Bryan) angles to Quaternion.
 	 *
