@@ -2,6 +2,9 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module power.experiments.viewer;
 
+import io = watt.io;
+import watt.math;
+
 import charge.ctl;
 import charge.gfx;
 import charge.game;
@@ -21,7 +24,11 @@ public:
 
 	// Rotation stuff.
 	bool isDragging;
-	float rotationX, rotationY, distance;
+	float camHeading, camPitch, distance;
+	camRotation: math.Quatf;
+	camPosition: math.Point3f;
+
+	bool camFore, camBack, camLeft, camRight;
 
 	/// Text rendering stuff.
 	GfxTexture2D bitmap;
@@ -34,8 +41,9 @@ public:
 	this(GameSceneManager g)
 	{
 		super(g, Type.Game);
+		camPosition = math.Point3f.opCall( 0.5f, 0.5f, 2.0f );
+		camRotation = math.Quatf.opCall();
 		distance = 1.0;
-
 
 		bitmap = GfxTexture2D.load(Pool.opCall(), "res/font.png");
 
@@ -78,6 +86,32 @@ public:
 		if (textVbo !is null) { textVbo.decRef(); textVbo = null; }
 	}
 
+	override void logic()
+	{
+		camRotation = math.Quatf.opCall(camHeading, camPitch, 0.0f);
+		math.Vector3f sum;
+
+		if (camFore != camBack) {
+			math.Vector3f v;
+			v.z = camBack ? 1.0f : -1.0f;
+			sum += camRotation * v;
+		}
+
+		if (camLeft != camRight) {
+			math.Vector3f v;
+			v.x = camRight ? 1.0f : -1.0f;
+			sum += camRotation * v;
+		}
+
+		if (sum.lengthSqrd() == 0.f) {
+			return;
+		}
+
+		sum.normalize();
+		sum.scale(0.005f);
+		camPosition += sum;
+	}
+
 	override void render(GfxTarget t)
 	{
 		aa.bind(t);
@@ -104,17 +138,47 @@ public:
 		glDisable(GL_BLEND);
 	}
 
-	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
+	override void dropControl()
 	{
-		mManager.closeMe(this);
+		super.dropControl();
+		camFore = false;
+		camBack = false;
+		camLeft = false;
+		camRight = false;
+	}
+
+	override void keyDown(CtlKeyboard, int keycode, dchar, scope const(char)[] m)
+	{
+		switch (keycode) {
+		case 27: mManager.closeMe(this); break;
+		case 'w': camFore = true; break;
+		case 's': camBack = true; break;
+		case 'a': camLeft = true; break;
+		case 'd': camRight = true; break;
+		default:
+		}	
+	}
+
+	override void keyUp(CtlKeyboard, int keycode)
+	{
+		switch (keycode) {
+		case 'w': camFore = false; break;
+		case 's': camBack = false; break;
+		case 'a': camLeft = false; break;
+		case 'd': camRight = false; break;
+		default:
+		}
 	}
 
 	override void mouseMove(CtlMouse m, int x, int y)
 	{
 		if (isDragging) {
-			rotationX += x * -0.01f;
-			rotationY += y * -0.01f;
+			camHeading += x * -0.003f;
+			camPitch += y * -0.003f;
 		}
+
+		if (camPitch < -PIf) camPitch = -PIf;
+		if (camPitch >  PIf) camPitch =  PIf;
 	}
 
 	override void mouseDown(CtlMouse m, int button)

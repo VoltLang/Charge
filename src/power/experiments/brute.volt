@@ -127,13 +127,8 @@ public:
 		glUseProgram(0);
 
 
-		rot := math.Quatf.opCall(rotationX, rotationY, 0.f);
-		vec := rot * math.Vector3f.opCall(0.f, 0.f, -distance);
-		pos := math.Point3f.opCall(0.5f, 0.5f, 0.5f) - vec;
-
-
 		math.Matrix4x4f view;
-		view.setToLookFrom(ref pos, ref rot);
+		view.setToLookFrom(ref camPosition, ref camRotation);
 
 		math.Matrix4x4f proj;
 		t.setMatrixToProjection(ref proj, 45.f, 0.1f, 256.f);
@@ -200,7 +195,7 @@ public:
 		// Setup shader.
 		voxelShader.bind();
 		voxelShader.matrix4("matrix", 1, true, proj.ptr);
-		voxelShader.float3("cameraPos".ptr, 1, pos.ptr);
+		voxelShader.float3("cameraPos".ptr, 1, camPosition.ptr);
 
 		// Draw voxels
 		glEnable(GL_PROGRAM_POINT_SIZE);
