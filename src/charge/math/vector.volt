@@ -5,6 +5,7 @@
  */
 module charge.math.vector;
 
+import watt.math;
 import watt.text.format;
 import charge.math.point;
 
@@ -109,31 +110,30 @@ public:
 		z *= v;
 	}
 
-/+
 	void floor()
 	{
-		x = cast(double).floor(x);
-		y = cast(double).floor(y);
-		z = cast(double).floor(z);
+		x = .floor(x);
+		y = .floor(y);
+		z = .floor(z);
 	}
 
 	void normalize()
 	{
-		double l = length();
+		f32 l = length();
 
-		if (l == 0.0)
+		if (l == 0.0) {
 			return;
+		}
 
 		x /= l;
 		y /= l;
 		z /= l;
 	}
 
-	double length() const
+	float length()
 	{
 		return sqrt(lengthSqrd());
 	}
-+/
 
 	float lengthSqrd()
 	{
