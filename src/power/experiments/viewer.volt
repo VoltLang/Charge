@@ -28,7 +28,7 @@ public:
 	camRotation: math.Quatf;
 	camPosition: math.Point3f;
 
-	bool camFore, camBack, camLeft, camRight;
+	bool camUp, camFore, camBack, camLeft, camRight;
 
 	/// Text rendering stuff.
 	GfxTexture2D bitmap;
@@ -103,12 +103,16 @@ public:
 			sum += camRotation * v;
 		}
 
+		if (camUp) {
+			sum.y += 1;
+		}
+
 		if (sum.lengthSqrd() == 0.f) {
 			return;
 		}
 
 		sum.normalize();
-		sum.scale(0.005f);
+		sum.scale(0.001f);
 		camPosition += sum;
 	}
 
@@ -141,6 +145,7 @@ public:
 	override void dropControl()
 	{
 		super.dropControl();
+		camUp = false;
 		camFore = false;
 		camBack = false;
 		camLeft = false;
@@ -151,6 +156,7 @@ public:
 	{
 		switch (keycode) {
 		case 27: mManager.closeMe(this); break;
+		case 32: camUp = true; break;
 		case 'w': camFore = true; break;
 		case 's': camBack = true; break;
 		case 'a': camLeft = true; break;
@@ -162,6 +168,7 @@ public:
 	override void keyUp(CtlKeyboard, int keycode)
 	{
 		switch (keycode) {
+		case 32: camUp = false; break;
 		case 'w': camFore = false; break;
 		case 's': camBack = false; break;
 		case 'a': camLeft = false; break;
