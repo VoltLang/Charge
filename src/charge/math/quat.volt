@@ -24,6 +24,12 @@ public:
 		return q;
 	}
 
+	global Quatf opCall(float w, float x, float y, float z)
+	{
+		Quatf q = { w, x, y, z };
+		return q;
+	}
+
 	/**
 	 * Convert from Euler (and Tait-Bryan) angles to Quaternion.
 	 *
