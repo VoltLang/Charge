@@ -19,29 +19,66 @@ import charge.sys.resource;
 import math = charge.math;
 
 
-fn alignAxis(pos: i32) i32
+fn calcAlign(pos: i32, level: i32) i32
 {
-	return ((pos - 1) >> 1) * 2;
+	shift := level + 1;
+	size := 1 << level;
+	return ((pos + size) >> shift) << shift;
 }
 
-fn alignAxis(pos: i32, level: i32) i32
+fn getColor(c: u32) math.Color4b
 {
-	return (((pos >> (level - 1)) - 1) >> 1) * (1 << level);
+	steps := 17u;
+	mod := c % (steps * 4);
+	f := ((c % steps) + 1) / cast(f32)(steps + 1);
+
+	r, g, b: u8;
+	if (mod < steps) {
+		r = cast(u8)floor(f * 256.f);
+	} else if (mod < (steps * 2)) {
+		g = cast(u8)floor(f * 256.f);
+	} else if (mod < (steps * 3)) {
+		b = cast(u8)floor(f * 256.f);
+	} else {
+		r = g = b = cast(u8)floor(f * 256.f);
+	}
+
+	return math.Color4b.opCall(r, g, b, 255);
 }
 
 class AlignTest : GameSimpleScene
 {
 public:
 	i32 x, y, offsetX, offsetY, size;
-
+	GfxDrawBuffer buf;
 
 public:
 	this(GameSceneManager g)
 	{
 		super(g, Type.Game);
-		size = 2;
-		offsetX = 100;
-		offsetY = 100;
+		size = 8;
+		offsetX = 0;
+		offsetY = 0;
+
+		b := new GfxDrawVertexBuilder(16u*16u*4u);
+		foreach (i; 0u .. 16u*16u) {
+			arr: u32[2];
+			math.decode2(i, out arr);
+
+			x := cast(i32)arr[0]; y := cast(i32)arr[1];
+
+			color := getColor(i + (x < 8 ? 0 : 16) + (y < 8 ? 0 : 32));
+
+			x = x < 8 ? x : 7 - x;
+			y = y < 8 ? y : 7 - y;
+			x1 := x; x2 := x + 1;
+			y1 := y; y2 := y + 1;
+			b.add(cast(f32)x1, cast(f32)y1, 0.f, 0.f, color);
+			b.add(cast(f32)x1, cast(f32)y2, 0.f, 0.f, color);
+			b.add(cast(f32)x2, cast(f32)y2, 0.f, 0.f, color);
+			b.add(cast(f32)x2, cast(f32)y1, 0.f, 0.f, color);
+		}
+		buf = GfxDrawBuffer.make("aligntest", b);
 	}
 
 
@@ -73,67 +110,31 @@ public:
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		x1 := alignAxis(x);
-		x2 := alignAxis(x >> 1) *  2;
-		x3 := alignAxis(x >> 2) *  4;
-		x4 := alignAxis(x >> 3) *  8;
-		x5 := alignAxis(x >> 4) * 16;
-
-		y1 := alignAxis(y);
-		y2 := alignAxis(y >> 1) *  2;
-		y3 := alignAxis(y >> 2) *  4;
-		y4 := alignAxis(y >> 3) *  8;
-		y5 := alignAxis(y >> 4) * 16;
-
-		if (x1 != alignAxis(x, 1)) { io.writefln("1"); }
-		if (x2 != alignAxis(x, 2)) { io.writefln("2"); }
-		if (x3 != alignAxis(x, 3)) { io.writefln("3"); }
-		if (x4 != alignAxis(x, 4)) { io.writefln("4"); }
-		if (x5 != alignAxis(x, 5)) { io.writefln("5"); }
-
-		glBegin(GL_QUADS);
-		doLoop(x5, y5, 16);
-		doLoop(x4, y4, 8);
-		doLoop(x3, y3, 4);
-		doLoop(x2, y2, 2);
-		doLoop(x1, y1, 1);
-		glEnd();
+		drawLevel(x, y, 4);
+		drawLevel(x, y, 3);
+		drawLevel(x, y, 2);
+		drawLevel(x, y, 1);
+		drawLevel(x, y, 0);
 	}
 
-	fn doLoop(x: i32, y: i32, size: i32)
+	fn drawLevel(x: i32, y: i32, level: i32)
 	{
-		foreach (i; 0 .. 16) {
-			foreach(k; 0 .. 16) {
-				color(i * 4 + k + i);
-				tX := x + k * size - size * 6;
-				tY := y + i * size - size * 6;
-				draw(tX, tY, size);
-			}
-		}
-	}
+		size := 1 << level;
+		flipX := (x >> level) % 2 == 1;
+		flipY := (y >> level) % 2 == 1;
+		lsize := this.size * size;
 
-	fn color(c: i32)
-	{
-		switch (c % 4) {
-		default: glColor4f(1.f, 0.f, 1.f, 1.f); break;
-		case 0: glColor4f(1.f, 1.f, 1.f, 1.f); break;
-		case 1: glColor4f(0.f, 0.f, 0.f, 1.f); break;
-		case 2: glColor4f(1.f, 0.f, 0.f, 1.f); break;
-		case 3: glColor4f(0.f, 1.f, 0.f, 1.f); break;
-		case 4: glColor4f(0.f, 0.f, 1.f, 1.f); break;
-		}
-	}
+		vec: f32[4];
+		vec[0] = cast(f32)(calcAlign(x, level) * this.size);
+		vec[1] = cast(f32)(calcAlign(y, level) * this.size);
+		testShader.float2("offset".ptr, 1, &vec[0]);
+		vec[0] = cast(f32)lsize * (flipX ? -1.f : 1.f);
+		vec[1] = cast(f32)lsize * (flipY ? -1.f : 1.f);
+		testShader.float2("scale".ptr, 1, &vec[0]);
 
-	fn draw(x: i32, y: i32, size: i32)
-	{
-		lsize := size * this.size;
-		x1 := x * this.size + offsetX * this.size;
-		y1 := y * this.size + offsetY * this.size;
-
-		glVertex2i(x1        , y1        );
-		glVertex2i(x1        , y1 + lsize);
-		glVertex2i(x1 + lsize, y1 + lsize);
-		glVertex2i(x1 + lsize, y1        );
+		glBindVertexArray(buf.vao);
+		glDrawArrays(GL_QUADS, 0, buf.num);
+		glBindVertexArray(0);
 	}
 }
 
@@ -162,15 +163,19 @@ enum string vertexShader120 = `
 #version 120
 
 attribute vec2 position;
+attribute vec2 uv;
+attribute vec4 color;
 
 uniform mat4 matrix;
+uniform vec2 offset;
+uniform vec2 scale;
 
 varying vec4 colorFs;
 
 void main(void)
 {
-	colorFs = gl_Color;
-	gl_Position = matrix * vec4(position, 0.0, 1.0);
+	colorFs = color;
+	gl_Position = matrix * vec4((position * scale) + offset, 0.0, 1.0);
 }
 `;
 
