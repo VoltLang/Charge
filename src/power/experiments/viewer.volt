@@ -73,6 +73,20 @@ public:
 		textVbo.update(textBuilder);
 	}
 
+	void printInfo()
+	{
+		io.writefln("\t\tcamHeading = %sf;", cast(f64)camHeading);
+		io.writefln("\t\tcamPitch = %sf;", cast(f64)camPitch);
+		io.writefln("\t\tcamPosition = math.Point3f.opCall(%sf, %sf, %sf);",
+			cast(f64)camPosition.x, cast(f64)camPosition.y,
+			cast(f64)camPosition.z);
+
+		x := cast(i32)floor(camPosition.x * 2048);
+		y := cast(i32)floor(camPosition.y * 2048);
+		z := cast(i32)floor(camPosition.z * 2048);
+
+		io.writefln("%s %s %s", x, y, z);
+	}
 
 	/*
 	 *
@@ -161,6 +175,7 @@ public:
 		case 's': camBack = true; break;
 		case 'a': camLeft = true; break;
 		case 'd': camRight = true; break;
+		case 'q': printInfo(); break;
 		default:
 		}	
 	}
