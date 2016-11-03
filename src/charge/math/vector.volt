@@ -56,17 +56,29 @@ public:
 		return &x;
 	}
 
+
+	Point3f opAdd(ref Point3f vec)
+	{
+		return Point3f.opCall(vec.x + x, vec.y + y, vec.z + z);
+	}
+
 	Vector3f opAdd(ref Vector3f vec)
 	{
 		return Vector3f.opCall(vec.x + x, vec.y + y, vec.z + z);
 	}
 
-	Vector3f opAddAssign(Vector3f vec)
+	void opAddAssign(Vector3f vec)
 	{
 		x += vec.x;
 		y += vec.y;
 		z += vec.z;
-		return this;
+	}
+
+	void opAddAssign(float v)
+	{
+		x += v;
+		y += v;
+		z += v;
 	}
 
 	Vector3f opSub(ref Vector3f vec)
@@ -74,17 +86,18 @@ public:
 		return Vector3f.opCall(vec.x - x, vec.y - y, vec.z - z);
 	}
 
-	Vector3f opSubAssign(ref Vector3f vec)
+	void opSubAssign(ref Vector3f vec)
 	{
 		x -= vec.x;
 		y -= vec.y;
 		z -= vec.z;
-		return this;
 	}
 
-	Point3f opAdd(ref Point3f vec)
+	void opSubAssign(float v)
 	{
-		return Point3f.opCall(vec.x + x, vec.y + y, vec.z + z);
+		x -= v;
+		y -= v;
+		z -= v;
 	}
 
 	Vector3f opNeg()
