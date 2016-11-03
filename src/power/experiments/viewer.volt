@@ -85,7 +85,7 @@ public:
 		y := cast(i32)floor(camPosition.y * 2048);
 		z := cast(i32)floor(camPosition.z * 2048);
 
-		io.writefln("%s %s %s", x, y, z);
+		io.writefln("%3s %3s %3s", x, y, z);
 	}
 
 	/*
@@ -177,7 +177,7 @@ public:
 		case 'd': camRight = true; break;
 		case 'q': printInfo(); break;
 		default:
-		}	
+		}
 	}
 
 	override void keyUp(CtlKeyboard, int keycode)
