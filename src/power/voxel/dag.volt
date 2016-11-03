@@ -44,7 +44,7 @@ protected:
 
 struct Vertex
 {
-	ubyte x, y, z, w;
+	byte x, y, z, w;
 }
 
 
@@ -60,7 +60,7 @@ class DagBuilder : GfxBuilder
 		resetStore(num * typeid(Vertex).size);
 	}
 
-	final void add(u8 x, u8 y, u8 z, u8 w)
+	final void add(i8 x, i8 y, i8 z, i8 w)
 	{
 		Vertex vert;
 		vert.x = x;
@@ -91,7 +91,7 @@ class DagBuilder : GfxBuilder
 		glBufferData(GL_ARRAY_BUFFER, cast(GLsizeiptr)length, ptr, GL_STATIC_DRAW);
 
 		stride := cast(GLsizei)typeid(Vertex).size;
-		glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, 0, stride, null);
+		glVertexAttribPointer(0, 4, GL_BYTE, 0, stride, null);
 		glEnableVertexAttribArray(0);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);

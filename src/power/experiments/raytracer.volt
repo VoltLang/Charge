@@ -59,6 +59,13 @@ void loadDag(string filename, out void[] data)
 */
 }
 
+fn calcAlign(pos: i32, level: i32) i32
+{
+	shift := level + 1;
+	size := 1 << level;
+	return ((pos + size) >> shift) << shift;
+}
+
 class RayTracer : Viewer
 {
 public:
@@ -68,6 +75,11 @@ public:
 	GLuint query;
 	bool queryInFlight;
 
+	i32 mPatchSize;
+	i32 mPatchStartLevel;
+	i32 mPatchStopLevel;
+	i32 mVoxelPower;
+	i32 mVoxelPerUnit;
 
 	/**
 	 * For ray tracing.
@@ -84,7 +96,11 @@ public:
 	this(GameSceneManager g)
 	{
 		super(g);
-		distance = 1.0;
+		mVoxelPower = 11;
+		mVoxelPerUnit = (1 << mVoxelPower);
+		mPatchSize = 4;
+		mPatchStartLevel = 1;
+		mPatchStopLevel = 10;
 
 		voxelShader = new GfxShader(voxelVertex450, voxelGeometry450,
 			voxelFragment450, null, null);
@@ -104,12 +120,23 @@ public:
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_INTENSITY32UI_EXT, octBuffer);
 		glBindTexture(GL_TEXTURE_BUFFER, 0);
 
-		size_t max = 64;
-		b := new DagBuilder(max * max * max);
+		max := mPatchSize;
+		half := max / 2;
+		halfM1 := half - 1;
+		b := new DagBuilder(cast(size_t)(max * max * max));
 		foreach (i; 0 .. max*max*max) {
 			u32[3] vals;
-			math.decode3(i, out vals);
-			b.add(cast(u8)vals[0], cast(u8)vals[1], cast(u8)vals[2], 1);
+			math.decode3(cast(u64)i, out vals);
+
+			x := cast(i32)vals[0];
+			y := cast(i32)vals[1];
+			z := cast(i32)vals[2];
+
+			x = x < half ? x : halfM1 - x;
+			y = y < half ? y : halfM1 - y;
+			z = z < half ? z : halfM1 - z;
+
+			b.add(cast(i8)x, cast(i8)y, cast(i8)z, 1);
 		}
 		vbo = DagBuffer.make("power/dag", b);
 	}
@@ -133,6 +160,18 @@ public:
 		}
 	}
 
+	override void keyDown(CtlKeyboard device, int keycode, dchar c, scope const(char)[] m)
+	{
+		switch (keycode) {
+		case 'e':
+			mPatchStartLevel++;
+			if (mPatchStartLevel > mPatchStopLevel) {
+				mPatchStartLevel = 1;
+			}
+			break;
+		default: super.keyDown(device, keycode, c, m);
+		}	
+	}
 
 	/*
 	 *
@@ -143,7 +182,7 @@ public:
 	override void renderScene(GfxTarget t)
 	{
 		// Clear the screen.
-		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glUseProgram(0);
@@ -154,11 +193,11 @@ public:
 		math.Matrix4x4f proj;
 		t.setMatrixToProjection(ref proj, 45.f, 0.0001f, 256.f);
 		proj.setToMultiply(ref view);
+		proj.transpose();
 
 		// Setup shader.
 		voxelShader.bind();
-		voxelShader.matrix4("matrix", 1, true, proj.ptr);
-		voxelShader.float3("cameraPos".ptr, 1, camPosition.ptr);
+		setupStatic(ref proj);
 
 		shouldEnd: bool;
 		if (!queryInFlight) {
@@ -167,12 +206,16 @@ public:
 		}
 
 		// Draw the array.
-		glCullFace(GL_BACK);
+		glCullFace(GL_FRONT);
 		glEnable(GL_CULL_FACE);
 		glBindTexture(GL_TEXTURE_BUFFER, octTexture);
 
 		glBindVertexArray(vbo.vao);
-		glDrawArrays(GL_POINTS, 0, vbo.num);
+
+		foreach (i; mPatchStartLevel .. mPatchStopLevel+1) {
+			drawLevel(i);
+		}
+
 		glBindVertexArray(0);
 
 		glBindTexture(GL_TEXTURE_BUFFER, 0);
@@ -206,12 +249,69 @@ public:
 		glGetQueryObjectui64v(query, GL_QUERY_RESULT, &timeElapsed);
 		queryInFlight = false;
 
-		str := `Info:
-Elapsed time: %sms`;
+		str := "Info:\nElapsed time: %sms\nPatch start level: %s";
 
-		text := format(str, timeElapsed / 1_000_000_000.0 * 1_000.0);
+		text := format(str,
+			timeElapsed / 1_000_000_000.0 * 1_000.0,
+			mPatchStartLevel);
 
 		updateText(text);
+	}
+
+	fn setupStatic(ref mat: math.Matrix4x4f)
+	{
+		voxelsPerUnit := cast(f32)(1 << mVoxelPower);
+		voxelSize := 1.0f / voxelsPerUnit;
+		voxelSizeInv := voxelsPerUnit;
+
+		voxelShader.matrix4("matrix", 1, false, mat.ptr);
+		voxelShader.float3("cameraPos".ptr, camPosition.ptr);
+		voxelShader.float1("voxelSize".ptr, voxelSize);
+		voxelShader.float1("voxelSizeInv".ptr, voxelSizeInv);
+	}
+
+	fn drawLevel(level: i32)
+	{
+		splitPower := mVoxelPower - level;
+		splitPerUnit := cast(f32)(1 << splitPower);
+		splitSize := 1.0f / splitPerUnit;
+		splitSizeInv := splitPerUnit;
+
+		voxelShader.int1("splitPower".ptr, splitPower);
+		voxelShader.float1("splitSize".ptr, splitSize);
+		voxelShader.float1("splitSizeInv".ptr, splitSizeInv);
+		voxelShader.int1("tracePower".ptr, level);
+
+		pos := math.Vector3f.opCall(camPosition);
+		pos.scale(cast(f32)mVoxelPerUnit);
+		pos.floor();
+
+		vec := math.Vector3f.opCall(
+			cast(f32)calcAlign(cast(i32)pos.x, level),
+			cast(f32)calcAlign(cast(i32)pos.y, level),
+			cast(f32)calcAlign(cast(i32)pos.z, level));
+		voxelShader.float3("offset".ptr, 1, vec.ptr);
+
+		if (level <= mPatchStartLevel) {
+			vec = math.Vector3f.opCall(0.0f, 0.0f, 0.0f);
+			voxelShader.float3("lowerMin".ptr, 1, vec.ptr);
+			voxelShader.float3("lowerMax".ptr, 1, vec.ptr);
+		} else {
+			lowerLevel := level-1;
+			vec.x = cast(f32)calcAlign(cast(i32)pos.x, lowerLevel);
+			vec.y = cast(f32)calcAlign(cast(i32)pos.y, lowerLevel);
+			vec.z = cast(f32)calcAlign(cast(i32)pos.z, lowerLevel);
+			vec -= cast(f32)((mPatchSize / 2) * (1 << lowerLevel));
+			voxelShader.float3("lowerMin".ptr, 1, vec.ptr);
+			vec += cast(f32)(mPatchSize * (1 << lowerLevel));
+			voxelShader.float3("lowerMax".ptr, 1, vec.ptr);	
+		}
+
+		vec.x = 1; vec.y = 1; vec.z = 1;
+		vec.scale(cast(f32)(1 << level));
+		voxelShader.float3("scale".ptr, 1, vec.ptr);
+
+		glDrawArrays(GL_POINTS, 0, vbo.num);
 	}
 }
 
@@ -220,25 +320,25 @@ enum string voxelVertex450 = `
 
 layout (location = 0) in vec3 inPosition;
 
+layout (location = 0) out vec3 outPosition;
+
+uniform vec3 offset;
+uniform vec3 scale;
+
+
 void main(void)
 {
-	gl_Position = vec4(inPosition, 1.0);
+	outPosition = (inPosition * scale) + offset;
 }
 `;
 
 enum string voxelGeometry450 = `
 #version 450 core
 
-#define POW 6
-#define DIVISOR pow(2, float(POW))
-#define DIVISOR_INV (1.0/DIVISOR)
-
 layout (points) in;
-
+layout (location = 0) in vec3[] inPosition;
 layout (binding = 0) uniform isamplerBuffer octree;
-
 layout (triangle_strip, max_vertices = 12) out;
-
 layout (location = 0) out vec3 outPosition;
 layout (location = 1) out vec3 outMinEdge;
 layout (location = 2) out vec3 outMaxEdge;
@@ -246,13 +346,18 @@ layout (location = 3) out flat int outOffset;
 
 uniform mat4 matrix;
 uniform vec3 cameraPos;
+uniform float voxelSize;
+uniform float voxelSizeInv;
+uniform int splitPower;
+uniform float splitSize;
+uniform float splitSizeInv;
+uniform vec3 lowerMin;
+uniform vec3 lowerMax;
 
 
-void emit(vec3 off)
+void emit(vec3 pos, vec3 off)
 {
-	vec3 pos = gl_in[0].gl_Position.xyz;
-	pos += off;
-	pos *= DIVISOR_INV;
+	pos += off * splitSize;
 	outPosition = pos;
 	gl_Position = matrix * vec4(pos, 1.0);
 	EmitVertex();
@@ -268,7 +373,7 @@ bool findStart(vec3 pos, out int offset)
 	offset = 0;
 
 	// Subdivid until empty node or found the node for this box.
-	for (int i = POW; i > 0; i--) {
+	for (int i = splitPower; i > 0; i--) {
 		// Get the node.
 		uint node = uint(texelFetchBuffer(octree, offset).a);
 
@@ -293,59 +398,73 @@ bool findStart(vec3 pos, out int offset)
 
 void main(void)
 {
-	vec3 pos = gl_in[0].gl_Position.xyz;
-	outMinEdge = pos * DIVISOR_INV;
-	outMaxEdge = outMinEdge + vec3(1.0) * DIVISOR_INV;
+	// Scale position with voxel size.
+	vec3 pos = inPosition[0];
+
+	// Is this split voxel position outside of voxel box.
+	if (any(lessThan(pos, vec3(0.0))) ||
+	    any(greaterThanEqual(pos, vec3(voxelSizeInv)))) {
+		return;
+	}
+
+	// Is this split voxel of the lower levels area.
+	if (all(greaterThanEqual(pos, lowerMin)) &&
+	    all(lessThan(pos, lowerMax))) {
+		return;
+	}
+
+	outMinEdge = inPosition[0] * voxelSize;
+	outMaxEdge = outMinEdge + splitSize;
 
 	if (!findStart(outMinEdge, outOffset)) {
 		return;
 	}
 
 	if (cameraPos.z < outMinEdge.z) {
-		emit(vec3(1.0, 1.0, 0.0));
-		emit(vec3(0.0, 1.0, 0.0));
-		emit(vec3(1.0, 0.0, 0.0));
-		emit(vec3(0.0, 0.0, 0.0));
+		emit(outMinEdge, vec3(1.0, 1.0, 0.0));
+		emit(outMinEdge, vec3(0.0, 1.0, 0.0));
+		emit(outMinEdge, vec3(1.0, 0.0, 0.0));
+		emit(outMinEdge, vec3(0.0, 0.0, 0.0));
 		EndPrimitive();
 	}
 
 	if (cameraPos.z > outMaxEdge.z) {
-		emit(vec3(0.0, 0.0, 1.0));
-		emit(vec3(0.0, 1.0, 1.0));
-		emit(vec3(1.0, 0.0, 1.0));
-		emit(vec3(1.0, 1.0, 1.0));
+		emit(outMinEdge, vec3(0.0, 0.0, 1.0));
+		emit(outMinEdge, vec3(0.0, 1.0, 1.0));
+		emit(outMinEdge, vec3(1.0, 0.0, 1.0));
+		emit(outMinEdge, vec3(1.0, 1.0, 1.0));
 		EndPrimitive();
 	}
 
 	if (cameraPos.y < outMinEdge.y) {
-		emit(vec3(0.0, 0.0, 0.0));
-		emit(vec3(0.0, 0.0, 1.0));
-		emit(vec3(1.0, 0.0, 0.0));
-		emit(vec3(1.0, 0.0, 1.0));
+		emit(outMinEdge, vec3(0.0, 0.0, 0.0));
+		emit(outMinEdge, vec3(0.0, 0.0, 1.0));
+		emit(outMinEdge, vec3(1.0, 0.0, 0.0));
+		emit(outMinEdge, vec3(1.0, 0.0, 1.0));
 		EndPrimitive();
 	}
 
 	if (cameraPos.y > outMaxEdge.y) {
-		emit(vec3(1.0, 1.0, 1.0));
-		emit(vec3(0.0, 1.0, 1.0));
-		emit(vec3(1.0, 1.0, 0.0));
-		emit(vec3(0.0, 1.0, 0.0));
+		emit(outMinEdge, vec3(1.0, 1.0, 1.0));
+		emit(outMinEdge, vec3(0.0, 1.0, 1.0));
+		emit(outMinEdge, vec3(1.0, 1.0, 0.0));
+		emit(outMinEdge, vec3(0.0, 1.0, 0.0));
 		EndPrimitive();
 	}
 
 	if (cameraPos.x < outMinEdge.x) {
-		emit(vec3(0.0, 0.0, 0.0));
-		emit(vec3(0.0, 1.0, 0.0));
-		emit(vec3(0.0, 0.0, 1.0));
-		emit(vec3(0.0, 1.0, 1.0));
+		emit(outMinEdge, vec3(0.0, 0.0, 0.0));
+		emit(outMinEdge, vec3(0.0, 1.0, 0.0));
+		emit(outMinEdge, vec3(0.0, 0.0, 1.0));
+		emit(outMinEdge, vec3(0.0, 1.0, 1.0));
 		EndPrimitive();
 	}
 
 	if (cameraPos.x > outMaxEdge.x) {
-		emit(vec3(1.0, 1.0, 1.0));
-		emit(vec3(1.0, 1.0, 0.0));
-		emit(vec3(1.0, 0.0, 1.0));
-		emit(vec3(1.0, 0.0, 0.0));
+		emit(outMinEdge, vec3(1.0, 1.0, 1.0));
+		emit(outMinEdge, vec3(1.0, 1.0, 0.0));
+		emit(outMinEdge, vec3(1.0, 0.0, 1.0));
+		emit(outMinEdge, vec3(1.0, 0.0, 0.0));
 		EndPrimitive();
 	}
 }
@@ -363,6 +482,8 @@ layout (binding = 0) uniform isamplerBuffer octree;
 layout (location = 0) out vec4 outColor;
 
 uniform vec3 cameraPos;
+uniform int tracePower;
+uniform int splitPower;
 
 
 vec3 rayAABBTest(vec3 rayOrigin, vec3 rayDir, vec3 aabbMin, vec3 aabbMax)
@@ -432,8 +553,7 @@ bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 		vec3 boxDim = inMaxEdge - inMinEdge;
 
 		// Loop until a leaf or max subdivided node is found.
-		bool hit = true;
-		for (int i = 5; i > 0; i--) {
+		for (int i = tracePower; i > 0; i--) {
 
 			uint node = uint(texelFetchBuffer(octree, offset).a);
 
@@ -442,12 +562,12 @@ bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 			boxMin = boxMin + boxDim * s;
 			uint select = uint(dot(s, vec3(4, 1, 2)));
 			if ((node & (uint(1) << select)) == uint(0)) {
-				hit = false;
 				break;
 			}
 
 			if (i <= 1) {
-				finalColor = vec4(mod(pos * 16, 1.0), 1.0);
+				int traceSize = (1 << splitPower);
+				finalColor = vec4(mod(pos * traceSize, 1.0), 1.0);
 				return true;
 			}
 
@@ -485,5 +605,9 @@ void main(void)
 	if (!trace(outColor, rayDir, rayOrigin)) {
 		discard;
 	}
+/*
+	int traceSize = 1 << splitPower;
+	outColor = vec4(mod(inPosition * traceSize, 1.0), 1.0);
+*/
 }
 `;
