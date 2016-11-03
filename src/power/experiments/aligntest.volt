@@ -28,7 +28,7 @@ fn calcAlign(pos: i32, level: i32) i32
 
 fn getColor(c: u32) math.Color4b
 {
-	steps := 17u;
+	steps := 16u;
 	mod := c % (steps * 4);
 	f := ((c % steps) + 1) / cast(f32)(steps + 1);
 
@@ -56,21 +56,22 @@ public:
 	this(GameSceneManager g)
 	{
 		super(g, Type.Game);
-		size = 8;
+		size = 16;
 		offsetX = 0;
 		offsetY = 0;
 
-		b := new GfxDrawVertexBuilder(16u*16u*4u);
-		foreach (i; 0u .. 16u*16u) {
+		max := 8u;
+		b := new GfxDrawVertexBuilder(max*max*4u);
+		foreach (i; 0u .. max*max) {
 			arr: u32[2];
 			math.decode2(i, out arr);
 
 			x := cast(i32)arr[0]; y := cast(i32)arr[1];
 
-			color := getColor(i + (x < 8 ? 0 : 16) + (y < 8 ? 0 : 32));
+			color := getColor(i);
 
-			x = x < 8 ? x : 7 - x;
-			y = y < 8 ? y : 7 - y;
+			x = x % 2 == 1 ? -x >> 1 : x >> 1;
+			y = y % 2 == 1 ? -y >> 1 : y >> 1;
 			x1 := x; x2 := x + 1;
 			y1 := y; y2 := y + 1;
 			b.add(cast(f32)x1, cast(f32)y1, 0.f, 0.f, color);

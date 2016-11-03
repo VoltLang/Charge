@@ -98,7 +98,7 @@ public:
 		super(g);
 		mVoxelPower = 11;
 		mVoxelPerUnit = (1 << mVoxelPower);
-		mPatchSize = 4;
+		mPatchSize = 64;
 		mPatchStartLevel = 1;
 		mPatchStopLevel = 10;
 
@@ -120,11 +120,9 @@ public:
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_INTENSITY32UI_EXT, octBuffer);
 		glBindTexture(GL_TEXTURE_BUFFER, 0);
 
-		max := mPatchSize;
-		half := max / 2;
-		halfM1 := half - 1;
-		b := new DagBuilder(cast(size_t)(max * max * max));
-		foreach (i; 0 .. max*max*max) {
+		numMorton := mPatchSize * mPatchSize * mPatchSize;
+		b := new DagBuilder(cast(size_t)numMorton);
+		foreach (i; 0 .. numMorton) {
 			u32[3] vals;
 			math.decode3(cast(u64)i, out vals);
 
@@ -132,9 +130,9 @@ public:
 			y := cast(i32)vals[1];
 			z := cast(i32)vals[2];
 
-			x = x < half ? x : halfM1 - x;
-			y = y < half ? y : halfM1 - y;
-			z = z < half ? z : halfM1 - z;
+			x = x % 2 == 1 ? -x >> 1 : x >> 1;
+			y = y % 2 == 1 ? -y >> 1 : y >> 1;
+			z = z % 2 == 1 ? -z >> 1 : z >> 1;
 
 			b.add(cast(i8)x, cast(i8)y, cast(i8)z, 1);
 		}
