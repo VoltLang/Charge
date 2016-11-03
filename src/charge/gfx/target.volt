@@ -83,8 +83,7 @@ public:
 
 	override final void setMatrixToProjection(ref Matrix4x4f mat, f32 fov, f32 near, f32 far)
 	{
-		mat.setToPerspective(fov, cast(f32)width / cast(f32)height,
-			near, far, false);
+		mat.setToPerspective(fov, cast(f32)width / cast(f32)height, near, far);
 	}
 
 	global DefaultTarget opCall()
@@ -141,8 +140,7 @@ public:
 
 	override final void setMatrixToProjection(ref Matrix4x4f mat, f32 fov, f32 near, f32 far)
 	{
-		mat.setToPerspective(fov, cast(f32)width / cast(f32)height,
-			near, far, true);
+		mat.setToPerspective(fov, cast(f32)width / cast(f32)height, near, far);
 	}
 
 	global Framebuffer make(string name, uint width, uint height)

@@ -103,10 +103,10 @@ public:
 	/**
 	 * Sets the matrix to the same as gluPerspective does.
 	 */
-	void setToPerspective(float fovy, float aspect, float near, float far, bool flip = false)
+	void setToPerspective(float fovy, float aspect, float near, float far)
 	{
 		float sine, cotangent, delta;
-		float radians = fovy / 2.f * PIf / 180.f;
+		float radians = (fovy / 2.f) * (PIf / 180.f);
 
 		delta = far - near;
 		sine = sin(radians);
@@ -123,7 +123,7 @@ public:
 		u.m[0][3] = 0.f;
 
 		u.m[1][0] = 0.f;
-		u.m[1][1] = flip ? -cotangent : cotangent;
+		u.m[1][1] = cotangent;
 		u.m[1][2] = 0.f;
 		u.m[1][3] = 0.f;
 
@@ -136,6 +136,31 @@ public:
 		u.m[3][1] = 0.f;
 		u.m[3][2] = -1.f;
 		u.m[3][3] = 0.f;
+	}
+
+	Point3f opMul(Point3f point)
+	{
+		Point3f result;
+		result.x = point.x * u.m[0][0] + point.y * u.m[0][1] + point.z * u.m[0][2] + u.m[0][3];
+		result.y = point.x * u.m[1][0] + point.y * u.m[1][1] + point.z * u.m[1][2] + u.m[1][3];
+		result.z = point.x * u.m[2][0] + point.y * u.m[2][1] + point.z * u.m[2][2] + u.m[2][3];
+		//result.w = point.x * m[3][0] + point.y * m[3][1] + point.z * m[3][2] + m[3][3];
+		return result;
+	}
+
+	Point3f opDiv(Point3f point)
+	{
+		Point3f result;
+		result.x = point.x * u.m[0][0] + point.y * u.m[0][1] + point.z * u.m[0][2] + u.m[0][3];
+		result.y = point.x * u.m[1][0] + point.y * u.m[1][1] + point.z * u.m[1][2] + u.m[1][3];
+		result.z = point.x * u.m[2][0] + point.y * u.m[2][1] + point.z * u.m[2][2] + u.m[2][3];
+		float  w = point.x * u.m[3][0] + point.y * u.m[3][1] + point.z * u.m[3][2] + u.m[3][3];
+
+		result.x /= w;
+		result.y /= w;
+		result.z /= w;
+
+		return result;
 	}
 
 	void setToMultiply(ref Matrix4x4f b)
