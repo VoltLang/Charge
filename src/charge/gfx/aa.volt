@@ -91,10 +91,10 @@ global this()
 void initAA()
 {
 	auto b = new DrawVertexBuilder(4);
-	b.add(-1.f, -1.f, -1.f, -1.f);
-	b.add( 1.f, -1.f,  1.f, -1.f);
-	b.add( 1.f,  1.f,  1.f,  1.f);
-	b.add(-1.f,  1.f, -1.f,  1.f);
+	b.add(-1.f, -1.f, 0.f, 0.f);
+	b.add( 1.f, -1.f, 1.f, 0.f);
+	b.add( 1.f,  1.f, 1.f, 1.f);
+	b.add(-1.f,  1.f, 0.f, 1.f);
 	aaVbo = DrawBuffer.make("power/aaQuad", b);
 
 	// Setup sampler
@@ -126,7 +126,6 @@ varying vec2 uvFS;
 void main(void)
 {
 	uvFS = (position / 2 + 0.5);
-	uvFS.y = 1 - uvFS.y;
 	gl_Position = vec4(position, 0.0, 1.0);
 }
 `;
