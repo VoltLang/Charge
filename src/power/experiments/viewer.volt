@@ -42,8 +42,9 @@ public:
 	this(GameSceneManager g)
 	{
 		super(g, Type.Game);
-		camPosition = math.Point3f.opCall( 0.5f, 0.5f, 2.0f );
-		camRotation = math.Quatf.opCall();
+		camHeading = 0.f;
+		camPitch = 0.f;
+		camPosition = math.Point3f.opCall(0.20f, 0.20f, 1.0f);
 		distance = 1.0;
 
 		bitmap = GfxTexture2D.load(Pool.opCall(), "res/font.png");
