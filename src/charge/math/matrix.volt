@@ -153,16 +153,16 @@ public:
 	{
 		Matrix4x4f temp;
 
-		temp.u.a[0] = u.a[ 0];
-		temp.u.a[1] = u.a[ 4];
-		temp.u.a[2] = u.a[ 8];
-		temp.u.a[3] = u.a[12];
-		temp.u.a[4] = u.a[ 1];
-		temp.u.a[5] = u.a[ 5];
-		temp.u.a[6] = u.a[ 9];
-		temp.u.a[7] = u.a[13];
-		temp.u.a[8] = u.a[ 2];
-		temp.u.a[9] = u.a[ 6];
+		temp.u.a[ 0] = u.a[ 0];
+		temp.u.a[ 1] = u.a[ 4];
+		temp.u.a[ 2] = u.a[ 8];
+		temp.u.a[ 3] = u.a[12];
+		temp.u.a[ 4] = u.a[ 1];
+		temp.u.a[ 5] = u.a[ 5];
+		temp.u.a[ 6] = u.a[ 9];
+		temp.u.a[ 7] = u.a[13];
+		temp.u.a[ 8] = u.a[ 2];
+		temp.u.a[ 9] = u.a[ 6];
 		temp.u.a[10] = u.a[10];
 		temp.u.a[11] = u.a[14];
 		temp.u.a[12] = u.a[ 3];
