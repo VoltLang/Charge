@@ -112,11 +112,50 @@ final:
 		glUniform1fv(loc, count, value);
 	}
 
-
 	void float1(const(char)* name, float value)
 	{
 		int loc = glGetUniformLocation(id, name);
 		glUniform1f(loc, value);
+	}
+
+	/*
+	 * int4
+	 */
+
+	void int4(const(char)* name, i32* value)
+	{
+		int loc = glGetUniformLocation(id, name);
+		glUniform4iv(loc, 1, value);
+	}
+
+	/*
+	 * int3
+	 */
+
+	void int3(const(char)* name, i32* value)
+	{
+		int loc = glGetUniformLocation(id, name);
+		glUniform3iv(loc, 1, value);
+	}
+
+	/*
+	 * int2
+	 */
+
+	void int2(const(char)* name, i32* value)
+	{
+		int loc = glGetUniformLocation(id, name);
+		glUniform2iv(loc, 1, value);
+	}
+
+	/*
+	 * int1
+	 */
+
+	void int1(const(char)* name, i32 value)
+	{
+		int loc = glGetUniformLocation(id, name);
+		glUniform1i(loc, value);
 	}
 
 	/*
