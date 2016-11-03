@@ -7,4 +7,5 @@
 /.obj
 /perf.cvs
 /res/*.png
+/res/*.dag
 /res/*.vox*
