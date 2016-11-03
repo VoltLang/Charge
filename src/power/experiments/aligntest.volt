@@ -99,6 +99,14 @@ public:
 		y = m.y / size - offsetY;
 	}
 
+	override void keyDown(CtlKeyboard, int keycode, dchar, scope const(char)[] m)
+	{
+		switch (keycode) {
+		case 27: mManager.closeMe(this); break;
+		default:
+		}
+	}
+
 	override void render(GfxTarget t)
 	{
 		math.Matrix4x4f mat;
