@@ -12,7 +12,6 @@ import charge.core;
 import charge.gfx;
 import charge.game;
 import charge.game.scene.background;
-import charge.math.matrix;
 
 import power.experiments.brute;
 import power.experiments.aligntest;
@@ -27,14 +26,13 @@ public:
 		// First init core.
 		auto opts = new CoreOptions();
 		opts.title = "Charged Power";
-		opts.width = 800;
-		opts.height = 600;
+		opts.width = 1920;
+		opts.height = 1080;
 		super(opts);
 
 		checkVersion();
 
 		push(new RayTracer(this));
-		//push(new Brute(this));
 	}
 
 

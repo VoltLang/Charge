@@ -20,6 +20,7 @@ class Viewer : GameSimpleScene
 {
 public:
 	// AA
+	bool mUseAA;
 	GfxAA aa;
 
 	// Rotation stuff.
@@ -132,9 +133,13 @@ public:
 
 	override void render(GfxTarget t)
 	{
-		aa.bind(t);
-		renderScene(aa.fbo);
-		aa.unbindAndDraw(t);
+		if (mUseAA) {
+			aa.bind(t);
+			renderScene(aa.fbo);
+			aa.unbindAndDraw(t);
+		} else {
+			renderScene(t);
+		}
 
 		// Draw text
 		math.Matrix4x4f mat;
