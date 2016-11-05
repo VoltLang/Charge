@@ -70,11 +70,13 @@ class RayTracer : Viewer
 {
 public:
 	DagBuffer vbo;
-	GfxShader voxelShader;
 
 	GLuint query;
 	bool queryInFlight;
 
+	GfxShader[2] mShaders;
+	u32 mShaderIndex;
+	GfxShader mShader;
 	i32 mPatchSize;
 	i32 mPatchMinSize;
 	i32 mPatchMaxSize;
@@ -109,8 +111,11 @@ public:
 
 		vert := cast(string)read("res/power/shaders/raytracer/voxel.vert.glsl");
 		geom := cast(string)read("res/power/shaders/raytracer/voxel.geom.glsl");
-		frag := cast(string)read("res/power/shaders/raytracer/voxel.frag.glsl");
-		voxelShader = new GfxShader(vert, geom, frag, null, null);
+		frag1 := cast(string)read("res/power/shaders/raytracer/voxel.frag.glsl");
+		frag2 := cast(string)read("res/power/shaders/raytracer/simple.frag.glsl");
+		mShaders[0] = new GfxShader(vert, geom, frag1, null, null);
+		mShaders[1] = new GfxShader(vert, geom, frag2, null, null);
+		mShader = mShaders[0];
 
 		glGenQueries(1, &query);
 
@@ -159,9 +164,10 @@ public:
 
 		if (octTexture) { glDeleteTextures(1, &octTexture); octTexture = 0; }
 		if (octBuffer) { glDeleteBuffers(1, &octBuffer); octBuffer = 0; }
-		if (voxelShader !is null) {
-			voxelShader.breakApart();
-			voxelShader = null;
+		mShader = null;
+		foreach (ref s; mShaders) {
+			s.breakApart();
+			s = null;	
 		}
 	}
 
@@ -179,6 +185,13 @@ public:
 			if (mPatchSize > mPatchMaxSize) {
 				mPatchSize = mPatchMinSize;
 			}
+			break;
+		case 't':
+			mShaderIndex++;
+			if (mShaderIndex >= mShaders.length) {
+				mShaderIndex = 0;
+			}
+			mShader = mShaders[mShaderIndex];
 			break;
 		default: super.keyDown(device, keycode, c, m);
 		}	
@@ -207,7 +220,7 @@ public:
 		proj.transpose();
 
 		// Setup shader.
-		voxelShader.bind();
+		mShader.bind();
 		setupStatic(ref proj);
 
 		shouldEnd: bool;
@@ -263,12 +276,14 @@ public:
 		str := `Info:
 Elapsed time: %sms
 e - patch start level: %s
-r - patch size %s^3`;
+r - patch size %s^3
+t - shader index %s`;
 
 		text := format(str,
 			timeElapsed / 1_000_000_000.0 * 1_000.0,
 			mPatchStartLevel,
-			mPatchSize);
+			mPatchSize,
+			mShaderIndex);
 
 		updateText(text);
 	}
@@ -279,10 +294,10 @@ r - patch size %s^3`;
 		voxelSize := 1.0f / voxelsPerUnit;
 		voxelSizeInv := voxelsPerUnit;
 
-		voxelShader.matrix4("matrix", 1, false, mat.ptr);
-		voxelShader.float3("cameraPos".ptr, camPosition.ptr);
-		voxelShader.float1("voxelSize".ptr, voxelSize);
-		voxelShader.float1("voxelSizeInv".ptr, voxelSizeInv);
+		mShader.matrix4("matrix", 1, false, mat.ptr);
+		mShader.float3("cameraPos".ptr, camPosition.ptr);
+		mShader.float1("voxelSize".ptr, voxelSize);
+		mShader.float1("voxelSizeInv".ptr, voxelSizeInv);
 	}
 
 	fn drawLevel(level: i32)
@@ -292,10 +307,10 @@ r - patch size %s^3`;
 		splitSize := 1.0f / splitPerUnit;
 		splitSizeInv := splitPerUnit;
 
-		voxelShader.int1("splitPower".ptr, splitPower);
-		voxelShader.float1("splitSize".ptr, splitSize);
-		voxelShader.float1("splitSizeInv".ptr, splitSizeInv);
-		voxelShader.int1("tracePower".ptr, level);
+		mShader.int1("splitPower".ptr, splitPower);
+		mShader.float1("splitSize".ptr, splitSize);
+		mShader.float1("splitSizeInv".ptr, splitSizeInv);
+		mShader.int1("tracePower".ptr, level);
 
 		pos := math.Vector3f.opCall(camPosition);
 		pos.scale(cast(f32)mVoxelPerUnit);
@@ -305,26 +320,26 @@ r - patch size %s^3`;
 			cast(f32)calcAlign(cast(i32)pos.x, level),
 			cast(f32)calcAlign(cast(i32)pos.y, level),
 			cast(f32)calcAlign(cast(i32)pos.z, level));
-		voxelShader.float3("offset".ptr, 1, vec.ptr);
+		mShader.float3("offset".ptr, 1, vec.ptr);
 
 		if (level <= mPatchStartLevel) {
 			vec = math.Vector3f.opCall(0.0f, 0.0f, 0.0f);
-			voxelShader.float3("lowerMin".ptr, 1, vec.ptr);
-			voxelShader.float3("lowerMax".ptr, 1, vec.ptr);
+			mShader.float3("lowerMin".ptr, 1, vec.ptr);
+			mShader.float3("lowerMax".ptr, 1, vec.ptr);
 		} else {
 			lowerLevel := level-1;
 			vec.x = cast(f32)calcAlign(cast(i32)pos.x, lowerLevel);
 			vec.y = cast(f32)calcAlign(cast(i32)pos.y, lowerLevel);
 			vec.z = cast(f32)calcAlign(cast(i32)pos.z, lowerLevel);
 			vec -= cast(f32)((mPatchSize / 2) * (1 << lowerLevel));
-			voxelShader.float3("lowerMin".ptr, 1, vec.ptr);
+			mShader.float3("lowerMin".ptr, 1, vec.ptr);
 			vec += cast(f32)(mPatchSize * (1 << lowerLevel));
-			voxelShader.float3("lowerMax".ptr, 1, vec.ptr);	
+			mShader.float3("lowerMax".ptr, 1, vec.ptr);	
 		}
 
 		vec.x = 1; vec.y = 1; vec.z = 1;
 		vec.scale(cast(f32)(1 << level));
-		voxelShader.float3("scale".ptr, 1, vec.ptr);
+		mShader.float3("scale".ptr, 1, vec.ptr);
 
 		glDrawArrays(GL_POINTS, 0, calcNumMorton(mPatchSize));
 	}
