@@ -76,10 +76,13 @@ public:
 	bool queryInFlight;
 
 	i32 mPatchSize;
+	i32 mPatchMinSize;
+	i32 mPatchMaxSize;
 	i32 mPatchStartLevel;
 	i32 mPatchStopLevel;
 	i32 mVoxelPower;
 	i32 mVoxelPerUnit;
+
 
 	/**
 	 * For ray tracing.
@@ -98,7 +101,9 @@ public:
 		super(g);
 		mVoxelPower = 11;
 		mVoxelPerUnit = (1 << mVoxelPower);
-		mPatchSize = 32;
+		mPatchSize = 16;
+		mPatchMinSize = 4;
+		mPatchMaxSize = 32;
 		mPatchStartLevel = 1;
 		mPatchStopLevel = 10;
 
@@ -122,7 +127,7 @@ public:
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_INTENSITY32UI_EXT, octBuffer);
 		glBindTexture(GL_TEXTURE_BUFFER, 0);
 
-		numMorton := mPatchSize * mPatchSize * mPatchSize;
+		numMorton := calcNumMorton(mPatchMaxSize);
 		b := new DagBuilder(cast(size_t)numMorton);
 		foreach (i; 0 .. numMorton) {
 			u32[3] vals;
@@ -167,6 +172,12 @@ public:
 			mPatchStartLevel++;
 			if (mPatchStartLevel > mPatchStopLevel) {
 				mPatchStartLevel = 1;
+			}
+			break;
+		case 'r':
+			mPatchSize *= 2;
+			if (mPatchSize > mPatchMaxSize) {
+				mPatchSize = mPatchMinSize;
 			}
 			break;
 		default: super.keyDown(device, keycode, c, m);
@@ -249,11 +260,15 @@ public:
 		glGetQueryObjectui64v(query, GL_QUERY_RESULT, &timeElapsed);
 		queryInFlight = false;
 
-		str := "Info:\nElapsed time: %sms\nPatch start level: %s";
+		str := `Info:
+Elapsed time: %sms
+e - patch start level: %s
+r - patch size %s^3`;
 
 		text := format(str,
 			timeElapsed / 1_000_000_000.0 * 1_000.0,
-			mPatchStartLevel);
+			mPatchStartLevel,
+			mPatchSize);
 
 		updateText(text);
 	}
@@ -311,6 +326,11 @@ public:
 		vec.scale(cast(f32)(1 << level));
 		voxelShader.float3("scale".ptr, 1, vec.ptr);
 
-		glDrawArrays(GL_POINTS, 0, vbo.num);
+		glDrawArrays(GL_POINTS, 0, calcNumMorton(mPatchSize));
+	}
+
+	fn calcNumMorton(dim: i32) i32
+	{
+		return dim * dim * dim;
 	}
 }
