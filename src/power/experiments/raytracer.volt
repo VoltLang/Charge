@@ -74,7 +74,8 @@ public:
 	GLuint query;
 	bool queryInFlight;
 
-	GfxShader[2] mShaders;
+	GfxShader[3] mShaders;
+	string[3] mShaderNames;
 	u32 mShaderIndex;
 	GfxShader mShader;
 	i32 mPatchSize;
@@ -111,10 +112,15 @@ public:
 
 		vert := cast(string)read("res/power/shaders/raytracer/voxel.vert.glsl");
 		geom := cast(string)read("res/power/shaders/raytracer/voxel.geom.glsl");
-		frag1 := cast(string)read("res/power/shaders/raytracer/voxel.frag.glsl");
-		frag2 := cast(string)read("res/power/shaders/raytracer/simple.frag.glsl");
+		frag1 := cast(string)read("res/power/shaders/raytracer/voxel-amd.frag.glsl");
+		frag2 := cast(string)read("res/power/shaders/raytracer/voxel-org.frag.glsl");
+		frag3 := cast(string)read("res/power/shaders/raytracer/voxel-notrace.frag.glsl");
 		mShaders[0] = new GfxShader(vert, geom, frag1, null, null);
 		mShaders[1] = new GfxShader(vert, geom, frag2, null, null);
+		mShaders[2] = new GfxShader(vert, geom, frag3, null, null);
+		mShaderNames[0] = "AMD-OPTZ";
+		mShaderNames[1] = "original";
+		mShaderNames[2] = "no trace";
 		mShader = mShaders[0];
 
 		glGenQueries(1, &query);
@@ -275,15 +281,16 @@ public:
 
 		str := `Info:
 Elapsed time: %sms
+w a s d - move camera
 e - patch start level: %s
-r - patch size %s^3
-t - shader index %s`;
+r - patch size: %s^3
+t - shader: %s`;
 
 		text := format(str,
 			timeElapsed / 1_000_000_000.0 * 1_000.0,
 			mPatchStartLevel,
 			mPatchSize,
-			mShaderIndex);
+			mShaderNames[mShaderIndex]);
 
 		updateText(text);
 	}
