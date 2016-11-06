@@ -57,8 +57,6 @@ bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 	tMin = result.y;
 	tMax = result.z;
 
-	float depth = 1.0;
-
 	if (result.x <= 0.0) {
 		return false;
 	}
@@ -116,11 +114,6 @@ bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 		tMin += min(tNext.x, min(tNext.y, tNext.z)) + bias;
 	}
 
-	if (itr == MAX_ITERATIONS) {
-		finalColor = vec4(0, 1, 0, 1);
-		return false;
-	}
-
 	return false;
 }
 
@@ -132,8 +125,4 @@ void main(void)
 	if (!trace(outColor, rayDir, rayOrigin)) {
 		discard;
 	}
-/*
-	int traceSize = 1 << splitPower;
-	outColor = vec4(mod(inPosition * traceSize, 1.0), 1.0);
-*/
 }
