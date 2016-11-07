@@ -62,6 +62,7 @@ void main(void)
 	tMin = max(0.0f, tMin);
 
 	// Loop until ray exits volume.
+	bool hit;
 	int itr = 0;
 	while (tMin < tMax && ++itr < MAX_ITERATIONS) {
 		// Restart at top of tree.
@@ -86,10 +87,8 @@ void main(void)
 			}
 
 			if (i <= 1) {
-				int traceSize = (1 << splitPower);
-				vec3 pos = inPosition + rayDir * tMin;
-				outColor = vec4(mod(pos * traceSize, 1.0), 1.0);
-				return;
+				hit = true;
+				break;
 			}
 
 			int bits = int(select + 1);
@@ -100,6 +99,10 @@ void main(void)
 			offset = texelFetchBuffer(octree, address).a;
 		}
 
+		if (hit) {
+			break;
+		}
+
 		// Update ray position to exit current node
 		vec3 pos = inPosition + rayDir * tMin;
 		vec3 t0 = (boxMin - pos) / rayDir;
@@ -108,5 +111,11 @@ void main(void)
 		tMin += min(tNext.x, min(tNext.y, tNext.z)) + epsilon;
 	}
 
-	discard;
+	if (hit) {
+		int traceSize = (1 << splitPower);
+		vec3 pos = inPosition + rayDir * tMin;
+		outColor = vec4(mod(pos * traceSize, 1.0), 1.0);
+	} else {
+		discard;
+	}
 }
