@@ -79,7 +79,7 @@ public:
 
 		glGenTextures(1, &octTexture);
 		glBindTexture(GL_TEXTURE_BUFFER, octTexture);
-		glTexBuffer(GL_TEXTURE_BUFFER, GL_INTENSITY32UI_EXT, octBuffer);
+		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, octBuffer);
 		glBindTexture(GL_TEXTURE_BUFFER, 0);
 
 		maxFirst : size_t = 1;

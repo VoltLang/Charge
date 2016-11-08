@@ -80,7 +80,7 @@ bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 		// Loop until a leaf or max subdivided node is found.
 		for (int i = tracePower; i > 0; i--) {
 
-			uint node = uint(texelFetchBuffer(octree, offset).a);
+			uint node = uint(texelFetchBuffer(octree, offset).r);
 
 			boxDim *= 0.5f;
 			vec3 s = step(boxMin + boxDim, pos);
@@ -101,7 +101,7 @@ bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 			int address = int(bitCount(toCount));
 			address += int(offset);
 
-			offset = texelFetchBuffer(octree, address).a;
+			offset = texelFetchBuffer(octree, address).r;
 			if (offset == 0) {
 				return true;
 			}

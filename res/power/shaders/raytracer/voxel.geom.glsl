@@ -40,7 +40,7 @@ bool findStart(vec3 pos, out int offset)
 	// Subdivid until empty node or found the node for this box.
 	for (int i = splitPower; i > 0; i--) {
 		// Get the node.
-		uint node = uint(texelFetchBuffer(octree, offset).a);
+		uint node = uint(texelFetchBuffer(octree, offset).r);
 
 		boxDim *= 0.5f;
 		vec3 s = step(boxMin + boxDim, pos);
@@ -55,7 +55,7 @@ bool findStart(vec3 pos, out int offset)
 		int address = int(bitCount(toCount));
 		address += int(offset);
 
-		offset = texelFetchBuffer(octree, address).a;
+		offset = texelFetchBuffer(octree, address).r;
 	}
 
 	return true;
