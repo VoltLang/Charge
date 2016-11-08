@@ -7,11 +7,11 @@ SRC = \
 	src/charge/sys/*.volt \
 	src/charge/gfx/*.volt \
 	src/charge/ctl/*.volt \
+	src/charge/core/*.volt \
 	src/charge/util/*.volt \
 	src/charge/math/*.volt \
 	src/charge/game/*.volt \
 	src/charge/game/scene/*.volt \
-	src/charge/platform/core/*.volt \
 	src/examples/*.volt \
 	src/power/experiments/*.volt \
 	src/power/voxel/*.volt \
