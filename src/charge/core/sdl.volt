@@ -3,7 +3,7 @@
 /**
  * Source file for CoreSDL.
  */
-module charge.platform.core.sdl;
+module charge.core.sdl;
 
 import core.exception;
 import core.stdc.stdio : printf;
@@ -17,8 +17,8 @@ import charge.core;
 import charge.gfx.gfx;
 import charge.gfx.target;
 import charge.ctl.input;
+import charge.core.common;
 import charge.util.properties;
-import charge.platform.core.common;
 
 import lib.sdl.sdl;
 import lib.sdl.loader;

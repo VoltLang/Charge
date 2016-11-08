@@ -1,5 +1,5 @@
 --dep
 watt
 # Extra files needed for compile
-src/charge/platform/core/sdl.volt
+src/charge/core/sdl.volt
 src/charge/sys/memheader.volt

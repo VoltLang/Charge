@@ -3,7 +3,7 @@
 /**
  * Source file for CommonCore.
  */
-module charge.platform.core.common;
+module charge.core.common;
 
 import core.exception;
 import charge.core;
