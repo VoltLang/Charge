@@ -46,7 +46,7 @@ public:
 		camPitch = 0.f;
 		camPosition = math.Point3f.opCall(0.20f, 0.20f, 1.0f);
 		distance = 1.0;
-		mUseAA = true;
+		mUseAA = false;
 
 		bitmap = GfxTexture2D.load(Pool.opCall(), "res/font.png");
 
