@@ -393,6 +393,7 @@ private:
 
 	void loadLibraries()
 	{
+/*
 		version (!StaticSDL) {
 			version (OSX) {
 /+
@@ -409,6 +410,7 @@ private:
 			}
 			loadSDL(sdl.symbol);
 		}
+*/
 	}
 
 
