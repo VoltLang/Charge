@@ -5,7 +5,7 @@
  */
 module charge.ctl.mouse;
 
-import lib.sdl.sdl;
+import lib.sdl2.mouse;
 
 import charge.ctl.device;
 
@@ -13,7 +13,7 @@ import charge.ctl.device;
 class Mouse : Device
 {
 public:
-	int state; /**< Mask of button state, 1 == pressed */
+	u32 state; /**< Mask of button state, 1 == pressed */
 	int x;
 	int y;
 
@@ -22,11 +22,18 @@ public:
 	void delegate(Mouse, int) up;
 
 public:
-	void warp(uint x, uint y)
+	bool relativeMode(bool value)
 	{
-		SDL_WarpMouse(cast(Uint16)x, cast(Uint16)y);
+		SDL_SetRelativeMouseMode(value);
+		return value;
 	}
 
+	bool relativeMode()
+	{
+		return cast(bool)SDL_GetRelativeMouseMode();
+	}
+
+/+
 	bool grab(bool status)
 	{
 		auto mode = status ? SDL_GrabMode.SDL_GRAB_ON : SDL_GrabMode.SDL_GRAB_OFF;
@@ -49,4 +56,5 @@ public:
 	{
 		return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE;
 	}
++/
 }

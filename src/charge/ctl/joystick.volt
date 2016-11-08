@@ -5,7 +5,7 @@
  */
 module charge.ctl.joystick;
 
-import lib.sdl.sdl;
+import lib.sdl2.joystick;
 
 import charge.ctl.device;
 
@@ -19,7 +19,7 @@ public:
 
 private:
 	int id;
-	Sint16[32] axisValues;
+	i16[32] axisValues;
 	SDL_Joystick* stick;
 
 public:

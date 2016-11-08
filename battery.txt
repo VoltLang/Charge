@@ -1,5 +1,12 @@
 --dep
 watt
+# SDL2
+--if-msvc
+SDL2.lib
+--if-linux
+--if-osx
+--cmd
+sdl2-config --libs
 # Extra files needed for compile
 src/charge/core/sdl.volt
 src/charge/sys/memheader.volt

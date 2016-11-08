@@ -214,8 +214,7 @@ public:
 	{
 		switch (button) {
 		case 1:
-			m.show(false);
-			m.grab(true);
+			m.relativeMode(true);
 			isDragging = true;
 			break;
 		case 4: // Mouse wheel up.
@@ -235,8 +234,7 @@ public:
 	{
 		if (button == 1) {
 			isDragging = false;
-			m.show(true);
-			m.grab(false);
+			m.relativeMode(false);
 		}
 	}
 }

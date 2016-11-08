@@ -7,7 +7,7 @@ module charge.ctl.keyboard;
 
 import charge.ctl.device;
 
-import lib.sdl.keysym;
+import lib.sdl2.keycode;
 
 
 class Keyboard : Device
@@ -33,7 +33,7 @@ public:
 
 	final bool meta()
 	{
-		return (mod & KMOD_META) != 0;
+		return (mod & KMOD_GUI) != 0;
 	}
 
 	final bool shift()

@@ -20,8 +20,7 @@ import charge.ctl.input;
 import charge.core.common;
 import charge.util.properties;
 
-import lib.sdl.sdl;
-import lib.sdl.loader;
+import lib.sdl2;
 import lib.gl;
 import lib.gl.loader;
 
@@ -71,7 +70,8 @@ private:
 	bool noVideo;
 
 	/* surface for window */
-	SDL_Surface *s;
+	SDL_Window* window;
+	SDL_GLContext glcontext;
 
 	/* run time libraries */
 	Library glu;
@@ -224,7 +224,7 @@ version (Emscripten) {
 
 		if (instance.renderDg !is null) {
 			instance.renderDg();
-			SDL_GL_SwapBuffers();
+			SDL_GL_SwapWindow(window);
 		}
 	}
 
@@ -261,7 +261,7 @@ version (Emscripten) {
 
 			if (changed) {
 				renderDg();
-				SDL_GL_SwapBuffers();
+				SDL_GL_SwapWindow(window);
 				changed = true;
 			}
 
@@ -292,11 +292,13 @@ version (Emscripten) {
 				running = false;
 				break;
 
+/*
 			case SDL_VIDEORESIZE:
 				auto t = DefaultTarget.opCall();
 				t.width = cast(uint)e.resize.w;
 				t.height = cast(uint)e.resize.h;
 				break;
+*/
 
 			case SDL_JOYBUTTONDOWN:
 				auto j = input.joystickArray[e.jbutton.which];
@@ -323,27 +325,10 @@ version (Emscripten) {
 				auto k = input.keyboard;
 				k.mod = e.key.keysym.mod;
 
-				// Early out.
 				if (k.down is null) {
 					break;
 				}
-
-				size_t len;
-				char[8] tmp;
-				dchar unicode = e.key.keysym.unicode;
-				if (unicode == 27) {
-					unicode = 0;
-				}
-
-				void sink(scope const(char)[] t) {
-					tmp[0 .. t.length] = t;
-					len = t.length;
-				}
-				if (unicode) {
-					encode(sink, unicode);
-				}
-
-				k.down(k, e.key.keysym.sym, unicode, tmp[0 .. len]);
+				k.down(k, e.key.keysym.sym, 0, null);
 				break;
 
 			case SDL_KEYUP:
@@ -370,7 +355,7 @@ version (Emscripten) {
 
 			case SDL_MOUSEBUTTONDOWN:
 				auto m = input.mouse;
-				m.state |= (1 << e.button.button);
+				m.state |= cast(u32)(1 << e.button.button);
 				m.x = e.button.x;
 				m.y = e.button.y;
 
@@ -382,7 +367,7 @@ version (Emscripten) {
 
 			case SDL_MOUSEBUTTONUP:
 				auto m = input.mouse;
-				m.state = ~(1 << e.button.button) & m.state;
+				m.state = cast(u32)~(1 << e.button.button) & m.state;
 				m.x = e.button.x;
 				m.y = e.button.y;
 
@@ -454,8 +439,6 @@ private:
 	{
 		SDL_Init(cast(uint)(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK));
 
-		SDL_EnableUNICODE(1);
-
 		uint width = opts.width;
 		uint height = opts.height;
 		fullscreen = false;//p.getBool("fullscreen", defaultFullscreen);
@@ -463,52 +446,49 @@ private:
 		bool windowDecorations = opts.windowDecorations;
 		auto title = (opts.title ~ "\0").ptr;
 
-		SDL_WM_SetCaption(title, title);
-
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-		int bits = SDL_OPENGL;
+		uint bits = SDL_WINDOW_OPENGL;
 		if (resizeSupported) {
- 			bits |= SDL_RESIZABLE;
+ 			bits |= SDL_WINDOW_RESIZABLE;
 		}
 		if (fullscreen) {
-			bits |= SDL_FULLSCREEN;
+			bits |= SDL_WINDOW_FULLSCREEN;
 		}
 		if (!windowDecorations) {
-			bits |= SDL_NOFRAME;
+			bits |= SDL_WINDOW_BORDERLESS;
 		}
 		if (fullscreen && fullscreenAutoSize) {
 			width = height = 0;
 		}
-		version (Emscripten) {
-			bits = 0x04000000; // Emscripten is SDL1.3
+
+		window = SDL_CreateWindow(title,
+			SDL_WINDOWPOS_UNDEFINED,
+			SDL_WINDOWPOS_UNDEFINED,
+			cast(int)width, cast(int)height, bits);
+
+		glcontext = createCoreGL(4, 5);
+		if (glcontext is null) {
+			glcontext = createCoreGL(3, 3);
 		}
+		
+		if (glcontext !is null) {
+			gladLoadGL(loadFunc);
+			gfxLoaded = true;
 
-		//l.bug("w: ", width, " h: ", height);
-
-		s = SDL_SetVideoMode(
-				cast(int)width,
-				cast(int)height,
-				0,
-				cast(uint)bits
-			);
+			printf("%s\n".ptr, glGetString(GL_VENDOR));
+			printf("%s\n".ptr, glGetString(GL_VERSION));
+			printf("%s\n".ptr, glGetString(GL_RENDERER));
+		}
 
 		// Readback size
+		int w, h;
 		auto t = DefaultTarget.opCall();
-		t.width = cast(uint)s.w;
-		t.height = cast(uint)s.h;
-
-		version (Emscripten) {
-			gladLoadGLES2(loadFunc);
-		} else {
-			gladLoadGL(loadFunc);
-		}
-
-		printf("%s\n".ptr, glGetString(GL_VENDOR));
-		printf("%s\n".ptr, glGetString(GL_VERSION));
-		printf("%s\n".ptr, glGetString(GL_RENDERER));
+		SDL_GetWindowSize(window, &w, &h);
+		t.width = cast(uint)w;
+		t.height = cast(uint)h;
 
 /+
 		auto numSticks = SDL_NumJoysticks();
@@ -522,18 +502,14 @@ private:
 			l.info("   %s", .toString(SDL_JoystickName(i)));
 		}
 +/
+	}
 
-/+
-		// Check for minimum version.
-		if (!GL_VERSION_2_1) {
-			panic(format("OpenGL 2.1 not supported, can not run %s", opts.title));
-		}
-
-		if (!Renderer.init()) {
-			panic(format("Missing graphics features, can not run %s", opts.title));
-		}
-+/
-		gfxLoaded = true;
+	SDL_GLContext createCoreGL(int major, int minor)
+	{
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, major);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minor);
+		return SDL_GL_CreateContext(window);
 	}
 
 	void closeGfx()

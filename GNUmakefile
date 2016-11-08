@@ -4,6 +4,8 @@
 
 CC ?= $(shell which gcc)
 VOLT ?= $(shell which volt)
+SDL2_CONFIG ?= $(shell which SDL2_CONFIG)
+
 
 ########################################
 # Basic settings.
@@ -12,7 +14,7 @@ VOLT ?= $(shell which volt)
 BUILD_DIR ?= make
 CFLAGS ?= -g
 VFLAGS ?= -d --internal-perf
-LDFLAGS ?= -lm
+LDFLAGS ?= -lm $(shell $(SDL2_CONFIG) --libs)
 TARGET ?= charge
 
 

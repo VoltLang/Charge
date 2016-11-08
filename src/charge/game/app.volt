@@ -5,8 +5,6 @@
  */
 module charge.game.app;
 
-import lib.sdl.sdl;
-
 import charge.core;
 import charge.ctl.input;
 import charge.ctl.keyboard;

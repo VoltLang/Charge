@@ -7,7 +7,7 @@ module charge.ctl.input;
 
 import watt.text.utf;
 
-import lib.sdl.sdl;
+import lib.sdl2.sdl2;
 
 import charge.ctl.device;
 import charge.ctl.mouse;
