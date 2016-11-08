@@ -1,6 +1,7 @@
 
 SRC = \
-	src/lib/sdl/*.volt \
+	src/lib/sdl2/*.volt \
+	src/lib/sdl2/image/*.volt \
 	src/lib/gl/*.volt \
 	src/lib/stb/*.volt \
 	src/charge/*.volt \

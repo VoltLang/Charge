@@ -4,7 +4,7 @@
 
 CC ?= $(shell which gcc)
 VOLT ?= $(shell which volt)
-SDL2_CONFIG ?= $(shell which SDL2_CONFIG)
+SDL2_CONFIG ?= $(shell which sdl2-config)
 
 
 ########################################
