@@ -61,7 +61,7 @@ public:
 		offsetY = 0;
 
 		max := 8u;
-		b := new GfxDrawVertexBuilder(max*max*4u);
+		b := new GfxDrawVertexBuilder(max*max*6u);
 		foreach (i; 0u .. max*max) {
 			arr: u32[2];
 			math.decode2(i, out arr);
@@ -77,7 +77,9 @@ public:
 			b.add(cast(f32)x1, cast(f32)y1, 0.f, 0.f, color);
 			b.add(cast(f32)x1, cast(f32)y2, 0.f, 0.f, color);
 			b.add(cast(f32)x2, cast(f32)y2, 0.f, 0.f, color);
+			b.add(cast(f32)x2, cast(f32)y2, 0.f, 0.f, color);
 			b.add(cast(f32)x2, cast(f32)y1, 0.f, 0.f, color);
+			b.add(cast(f32)x1, cast(f32)y1, 0.f, 0.f, color);
 		}
 		buf = GfxDrawBuffer.make("aligntest", b);
 	}
@@ -142,7 +144,7 @@ public:
 		testShader.float2("scale".ptr, 1, &vec[0]);
 
 		glBindVertexArray(buf.vao);
-		glDrawArrays(GL_QUADS, 0, buf.num);
+		glDrawArrays(GL_TRIANGLES, 0, buf.num);
 		glBindVertexArray(0);
 	}
 }

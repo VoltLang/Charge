@@ -62,10 +62,7 @@ public:
 	void checkVersion()
 	{
 		// For texture functions.
-		if (!GL_ARB_ES3_compatibility &&
-		    !GL_ARB_texture_storage &&
-		    //!GL_ES_VERSION_3_0 &&
-		    !GL_VERSION_4_2) {
+		if (!GL_VERSION_4_5) {
 			throw new Exception("OpenGL features missing");
 		}
 
@@ -93,11 +90,13 @@ public:
 		float fXW = cast(float)(x + texWidth);
 		float fYH = cast(float)(y + texHeight);
 
-		auto b = new GfxDrawVertexBuilder(4);
+		auto b = new GfxDrawVertexBuilder(6);
 		b.add(fX,  fY,  0.0f, 0.0f);
 		b.add(fXW, fY,  1.0f, 0.0f);
 		b.add(fXW, fYH, 1.0f, 1.0f);
+		b.add(fXW, fYH, 1.0f, 1.0f);
 		b.add(fX,  fYH, 0.0f, 1.0f);
+		b.add(fX,  fY,  0.0f, 0.0f);
 		buf = GfxDrawBuffer.make("example/gl/buffer", b);
 		b.close();
 	}
@@ -132,7 +131,7 @@ public:
 		tex.bind();
 
 		// Draw the triangle.
-		glDrawArrays(GL_QUADS, 0, 4);
+		glDrawArrays(GL_TRIANGLES, 0, buf.num);
 
 		tex.unbind();
 		glBindVertexArray(0);

@@ -45,16 +45,12 @@ public:
 	void checkVersion()
 	{
 		// For texture functions.
-		if (!GL_ARB_ES3_compatibility &&
-		    !GL_ARB_texture_storage &&
-		    !GL_VERSION_4_2) {
+		if (!GL_VERSION_4_5) {
 			throw new Exception("Need GL_ARB_texture_storage or OpenGL 4.2");
 		}
 
 		// For samplers functions.
-		if (!GL_ARB_ES3_compatibility &&
-		    !GL_ARB_sampler_objects &&
-		    !GL_VERSION_3_3) {
+		if (!GL_VERSION_3_3) {
 			throw new Exception("Need GL_ARB_sampler_objects or OpenGL 3.3");
 		}
 

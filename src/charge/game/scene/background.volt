@@ -153,14 +153,14 @@ public:
 		GLint offset;
 		if (tile !is null) {
 			tile.bind();
-			glDrawArrays(GL_QUADS, 0, 4);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			tile.unbind();
 			offset += 4;
 		}
 
 		if (logo !is null) {
 			logo.bind();
-			glDrawArrays(GL_QUADS, offset, 4);
+			glDrawArrays(GL_TRIANGLE_STRIP, offset, 4);
 			logo.unbind();
 		}
 

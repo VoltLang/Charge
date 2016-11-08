@@ -93,5 +93,7 @@ void buildVertex(ref BitmapState s, DrawVertexBuilder b, int x, int y, ubyte c)
 	b.add(dstX1, dstY1, srcX1, srcY1);
 	b.add(dstX1, dstY2, srcX1, srcY2);
 	b.add(dstX2, dstY2, srcX2, srcY2);
+	b.add(dstX2, dstY2, srcX2, srcY2);
 	b.add(dstX2, dstY1, srcX2, srcY1);
+	b.add(dstX1, dstY1, srcX1, srcY1);
 }

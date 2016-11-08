@@ -47,7 +47,7 @@ public:
 		fbo.color.bind();
 		glBindSampler(0, aaSampler);
 
-		glDrawArrays(GL_QUADS, 0, aaVbo.num);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, aaVbo.num);
 
 		glBindSampler(0, 0);
 		fbo.color.unbind();
@@ -90,11 +90,13 @@ global this()
 
 void initAA()
 {
-	auto b = new DrawVertexBuilder(4);
+	auto b = new DrawVertexBuilder(6);
 	b.add(-1.f, -1.f, 0.f, 0.f);
 	b.add( 1.f, -1.f, 1.f, 0.f);
 	b.add( 1.f,  1.f, 1.f, 1.f);
+	b.add( 1.f,  1.f, 1.f, 1.f);
 	b.add(-1.f,  1.f, 0.f, 1.f);
+	b.add(-1.f, -1.f, 0.f, 0.f);
 	aaVbo = DrawBuffer.make("power/aaQuad", b);
 
 	// Setup sampler

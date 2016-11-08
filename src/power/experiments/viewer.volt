@@ -46,6 +46,7 @@ public:
 		camPitch = 0.f;
 		camPosition = math.Point3f.opCall(0.20f, 0.20f, 1.0f);
 		distance = 1.0;
+		mUseAA = true;
 
 		bitmap = GfxTexture2D.load(Pool.opCall(), "res/font.png");
 
@@ -154,7 +155,7 @@ public:
 		glBindVertexArray(textVbo.vao);
 		bitmap.bind();
 
-		glDrawArrays(GL_QUADS, 0, textVbo.num);
+		glDrawArrays(GL_TRIANGLES, 0, textVbo.num);
 
 		bitmap.unbind();
 		glBindVertexArray(0);
