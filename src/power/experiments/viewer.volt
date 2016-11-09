@@ -32,7 +32,6 @@ public:
 	bool camUp, camFore, camBack, camLeft, camRight;
 
 	/// Text rendering stuff.
-	GfxTexture2D bitmap;
 	GfxDrawBuffer textVbo;
 	GfxDrawVertexBuilder textBuilder;
 	GfxBitmapState textState;
@@ -48,10 +47,8 @@ public:
 		distance = 1.0;
 		mUseAA = false;
 
-		bitmap = GfxTexture2D.load(Pool.opCall(), "res/font.png");
-
-		textState.glyphWidth = cast(int)bitmap.width / 16;
-		textState.glyphHeight = cast(int)bitmap.height / 16;
+		textState.glyphWidth = cast(int)gfxBitmapTexture.width / 16;
+		textState.glyphHeight = cast(int)gfxBitmapTexture.height / 16;
 		textState.offX = 16;
 		textState.offY = 16;
 
@@ -153,11 +150,11 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBindVertexArray(textVbo.vao);
-		bitmap.bind();
+		gfxBitmapTexture.bind();
 
 		glDrawArrays(GL_TRIANGLES, 0, textVbo.num);
 
-		bitmap.unbind();
+		gfxBitmapTexture.unbind();
 		glBindVertexArray(0);
 		glBlendFunc(GL_ONE, GL_ZERO);
 		glDisable(GL_BLEND);

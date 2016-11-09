@@ -21,4 +21,5 @@ public import charge.gfx.target :
 public import charge.gfx.texture : 
 	GfxTexture = Texture, GfxTexture2D = Texture2D;
 public import charge.gfx.bitmapfont :
-	GfxBitmapState = BitmapState, gfxBuildVertices = buildVertices;
+	GfxBitmapState = BitmapState, gfxBuildVertices = buildVertices,
+	gfxBitmapTexture = bitmapTexture;
