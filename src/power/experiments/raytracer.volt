@@ -260,10 +260,10 @@ public:
 		glDisable(GL_DEPTH_TEST);
 
 		// Check for last frames query.
-		checkQuery();
+		checkQuery(t);
 	}
 
-	void checkQuery()
+	void checkQuery(GfxTarget t)
 	{
 		if (!queryInFlight) {
 			return;
@@ -281,6 +281,7 @@ public:
 
 		str := `Info:
 Elapsed time: %sms
+Resolution: %sx%s
 w a s d - move camera
 e - patch start level: %s
 r - patch size: %s^3
@@ -288,6 +289,7 @@ t - shader: %s`;
 
 		text := format(str,
 			timeElapsed / 1_000_000_000.0 * 1_000.0,
+			t.width, t.height,
 			mPatchStartLevel,
 			mPatchSize,
 			mShaderNames[mShaderIndex]);
