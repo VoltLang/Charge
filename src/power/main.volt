@@ -32,7 +32,13 @@ public:
 
 		checkVersion();
 
-		push(new RayTracer(this));
+		if (GL_VERSION_4_5) {
+			push(new RayTracer(this));
+		} else if (GL_VERSION_3_3) {
+			push(new AlignTest(this));
+		} else {
+			throw new Exception("Need at least GL 3.3");
+		}
 	}
 
 
@@ -42,21 +48,25 @@ public:
 	 *
 	 */
 
+	/// Absolute minimum required.
 	void checkVersion()
 	{
 		// For texture functions.
-		if (!GL_VERSION_4_5) {
-			throw new Exception("Need GL_ARB_texture_storage or OpenGL 4.2");
+		if (!GL_ARB_texture_storage && !GL_VERSION_4_5) {
+			throw new Exception("Need GL_ARB_texture_storage or OpenGL 4.5");
 		}
 
 		// For samplers functions.
-		if (!GL_VERSION_3_3) {
+		if (!GL_ARB_sampler_objects && !GL_VERSION_3_3) {
 			throw new Exception("Need GL_ARB_sampler_objects or OpenGL 3.3");
 		}
 
 		// For shaders.
-		if (!GL_ARB_ES2_compatibility || !GL_VERSION_4_5) {
-			throw new Exception("Need GLSL 4.5");
+		if (!GL_ARB_ES2_compatibility) {
+			throw new Exception("Need GL_ARB_ES2_compatibility");
+		}
+		if (!GL_ARB_explicit_attrib_location) {
+			throw new Exception("Need GL_ARB_explicit_attrib_location");
 		}
 	}
 }
