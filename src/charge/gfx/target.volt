@@ -147,12 +147,8 @@ public:
 	{
 		uint levels = 1;
 
-		Texture color = Texture2D.make(
-			name:name, width:width, height:height,
-			levels:levels, depth:false);
-		Texture depth = Texture2D.make(
-			name:name, width:width, height:height,
-			levels:levels, depth:true);
+		Texture color = Texture2D.makeRGBA8(name, width, height, 1);
+		Texture depth = Texture2D.makeDepth24(name, width, height, 1);
 
 		GLuint fbo;
 		glGenFramebuffers(1, &fbo);

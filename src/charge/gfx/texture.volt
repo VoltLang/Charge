@@ -65,8 +65,26 @@ protected:
 class Texture2D : Texture
 {
 public:
-	global Texture2D make(string name, uint width, uint height, uint levels,
-		bool depth = false)
+	global Texture2D makeRGBA8(string name, uint width, uint height,
+		uint levels)
+	{
+		return makeInternal(name, width, height, levels, GL_RGBA8);
+	}
+
+	global Texture2D makeDepth24(string name, uint width, uint height,
+		uint levels)
+	{
+		return makeInternal(name, width, height, levels, GL_DEPTH_COMPONENT24);
+	}
+
+	global Texture2D makeAlpha(string name, uint width, uint height,
+		uint levels)
+	{
+		return makeInternal(name, width, height, levels, GL_ALPHA);
+	}
+
+	global Texture2D makeInternal(string name, uint width, uint height,
+		uint levels, GLuint internal)
 	{
 		int x = cast(int)width;
 		int y = cast(int)height;
@@ -74,7 +92,6 @@ public:
 
 		GLuint id;
 		GLuint target = GL_TEXTURE_2D;
-		GLuint internal = depth ? GL_DEPTH_COMPONENT24 : GL_RGBA8;
 
 		glGenTextures(1, &id);
 		glBindTexture(target, id);
@@ -107,7 +124,7 @@ public:
 		}
 
 		uint levels = log2(max(cast(uint)x, cast(uint)y)) + 1;
-		auto tex = make(filename, cast(uint)x, cast(uint)y, levels);
+		auto tex = makeRGBA8(filename, cast(uint)x, cast(uint)y, levels);
 		GLuint id = tex.id;
 		GLuint target = tex.target;
 		GLuint format = GL_RGBA;
