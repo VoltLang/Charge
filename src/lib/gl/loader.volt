@@ -78,6 +78,8 @@ bool gladLoadGL(Loader load) {
 	load_GL_ARB_ES2_compatibility(load);
 	load_GL_ARB_ES3_1_compatibility(load);
 	load_GL_ARB_ES3_2_compatibility(load);
+	load_GL_ARB_sampler_objects(load);
+	load_GL_ARB_texture_storage(load);
 	return GL_MAJOR != 0 || GL_MINOR != 0;
 }
 
@@ -114,6 +116,9 @@ void find_extensionsGL() {
 	GL_ARB_ES3_1_compatibility = has_ext("GL_ARB_ES3_1_compatibility");
 	GL_ARB_ES3_2_compatibility = has_ext("GL_ARB_ES3_2_compatibility");
 	GL_ARB_ES3_compatibility = has_ext("GL_ARB_ES3_compatibility");
+	GL_ARB_explicit_attrib_location = has_ext("GL_ARB_explicit_attrib_location");
+	GL_ARB_sampler_objects = has_ext("GL_ARB_sampler_objects");
+	GL_ARB_texture_storage = has_ext("GL_ARB_texture_storage");
 	return;
 }
 
@@ -921,6 +926,31 @@ void load_GL_ARB_ES3_1_compatibility(Loader load) {
 void load_GL_ARB_ES3_2_compatibility(Loader load) {
 	if(!GL_ARB_ES3_2_compatibility) return;
 	glPrimitiveBoundingBoxARB = cast(typeof(glPrimitiveBoundingBoxARB))load("glPrimitiveBoundingBoxARB");
+	return;
+}
+void load_GL_ARB_sampler_objects(Loader load) {
+	if(!GL_ARB_sampler_objects) return;
+	glGenSamplers = cast(typeof(glGenSamplers))load("glGenSamplers");
+	glDeleteSamplers = cast(typeof(glDeleteSamplers))load("glDeleteSamplers");
+	glIsSampler = cast(typeof(glIsSampler))load("glIsSampler");
+	glBindSampler = cast(typeof(glBindSampler))load("glBindSampler");
+	glSamplerParameteri = cast(typeof(glSamplerParameteri))load("glSamplerParameteri");
+	glSamplerParameteriv = cast(typeof(glSamplerParameteriv))load("glSamplerParameteriv");
+	glSamplerParameterf = cast(typeof(glSamplerParameterf))load("glSamplerParameterf");
+	glSamplerParameterfv = cast(typeof(glSamplerParameterfv))load("glSamplerParameterfv");
+	glSamplerParameterIiv = cast(typeof(glSamplerParameterIiv))load("glSamplerParameterIiv");
+	glSamplerParameterIuiv = cast(typeof(glSamplerParameterIuiv))load("glSamplerParameterIuiv");
+	glGetSamplerParameteriv = cast(typeof(glGetSamplerParameteriv))load("glGetSamplerParameteriv");
+	glGetSamplerParameterIiv = cast(typeof(glGetSamplerParameterIiv))load("glGetSamplerParameterIiv");
+	glGetSamplerParameterfv = cast(typeof(glGetSamplerParameterfv))load("glGetSamplerParameterfv");
+	glGetSamplerParameterIuiv = cast(typeof(glGetSamplerParameterIuiv))load("glGetSamplerParameterIuiv");
+	return;
+}
+void load_GL_ARB_texture_storage(Loader load) {
+	if(!GL_ARB_texture_storage) return;
+	glTexStorage1D = cast(typeof(glTexStorage1D))load("glTexStorage1D");
+	glTexStorage2D = cast(typeof(glTexStorage2D))load("glTexStorage2D");
+	glTexStorage3D = cast(typeof(glTexStorage3D))load("glTexStorage3D");
 	return;
 }
 
