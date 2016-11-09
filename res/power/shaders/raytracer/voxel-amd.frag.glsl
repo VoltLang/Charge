@@ -62,7 +62,7 @@ void main(void)
 	tMin = max(0.0f, tMin);
 
 	// Loop until ray exits volume.
-	bool hit;
+	bool hit = false;
 	int itr = 0;
 	while (tMin < tMax && ++itr < MAX_ITERATIONS) {
 		// Restart at top of tree.
