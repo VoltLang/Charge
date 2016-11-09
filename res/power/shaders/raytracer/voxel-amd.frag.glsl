@@ -75,7 +75,7 @@ void main(void)
 		// Loop until a leaf or max subdivided node is found.
 		for (int i = tracePower; i > 0; i--) {
 
-			uint node = uint(texelFetchBuffer(octree, offset).r);
+			uint node = uint(texelFetch(octree, offset).r);
 
 			boxDim *= 0.5f;
 			vec3 pos = inPosition + rayDir * tMin;
@@ -96,7 +96,7 @@ void main(void)
 			int address = int(bitCount(toCount));
 			address += int(offset);
 
-			offset = texelFetchBuffer(octree, address).r;
+			offset = texelFetch(octree, address).r;
 		}
 
 		if (hit) {

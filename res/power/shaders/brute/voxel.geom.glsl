@@ -34,7 +34,7 @@ bool findStart(out ivec3 ipos, out uint offset, out vec4 color)
 	// Subdivid until empty node or found the node for this box.
 	for (int i = LOOP;;) {
 		// Get the node.
-		uint node = uint(texelFetchBuffer(octree, int(offset)).r);
+		uint node = uint(texelFetch(octree, int(offset)).r);
 
 		// Found color, return the voxol color.
 		if ((node & uint(0x80000000)) != uint(0)) {
