@@ -17,6 +17,9 @@ import charge.core;
 import charge.gfx.gfx;
 import charge.gfx.target;
 import charge.ctl.input;
+import charge.ctl.mouse;
+import charge.ctl.keyboard;
+import charge.ctl.joystick;
 import charge.core.common;
 import charge.util.properties;
 
@@ -110,7 +113,7 @@ public:
 			initNoGfx(p);
 		}
 
-		this.input = new Input(0);
+		this.input = new InputSDL(0);
 
 		for (size_t i; i < initFuncs.length; i++) {
 			initFuncs[i]();
@@ -529,5 +532,87 @@ private:
 	void* loadFunc(string c)
 	{
 		return SDL_GL_GetProcAddress(toStringz(c));
+	}
+}
+
+
+class InputSDL : Input
+{
+public:
+	this(size_t numJoysticks)
+	{
+		super();
+
+		keyboardArray ~= new KeyboardSDL();
+		mouseArray ~= new MouseSDL();
+
+		// Small hack to allow hotplug.
+		auto num = numJoysticks;
+		if (num < 8) {
+			num = 8;
+		}
+
+		joystickArray = new Joystick[](num);
+		foreach (i; 0 .. num) {
+			joystickArray[i] = new JoystickSDL(i);
+		}
+	}
+}
+
+class MouseSDL : Mouse
+{
+public:
+	this()
+	{
+
+	}
+
+	override void setRelativeMode(bool value)
+	{
+		SDL_SetRelativeMouseMode(value);
+	}
+
+	override bool getRelativeMode()
+	{
+		return cast(bool)SDL_GetRelativeMouseMode();
+	}
+}
+
+class KeyboardSDL : Keyboard
+{
+
+}
+
+class JoystickSDL : Joystick
+{
+private:
+	size_t mId;
+	SDL_Joystick* mStick;
+
+
+public:
+	this(size_t id)
+	{
+		mId = id;
+	}
+
+	@property override bool enabled(bool status)
+	{
+		if (status) {
+			if (mStick is null) {
+				mStick = SDL_JoystickOpen(cast(int)mId);
+			}
+		} else {
+			if (mStick !is null) {
+				SDL_JoystickClose(mStick);
+				mStick = null;
+			}
+		}
+		return enabled;
+	}
+
+	@property override bool enabled()
+	{
+		return mStick !is null;
 	}
 }

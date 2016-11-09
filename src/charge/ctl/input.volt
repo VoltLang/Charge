@@ -13,18 +13,22 @@ import charge.ctl.keyboard;
 import charge.ctl.joystick;
 
 
-class Input
+abstract class Input
 {
-private:
-	global Input instance;
+public:
 	Mouse[] mouseArray;
 	Keyboard[] keyboardArray;
 	Joystick[] joystickArray;
 
+
+private:
+	global Input mInstance;
+
+
 public:
 	global Input opCall()
 	{
-		return instance;
+		return mInstance;
 	}
 
 	final @property Mouse mouse()
@@ -57,32 +61,10 @@ public:
 		return new joystickArray[0 .. $];
 	}
 
-private:
-	this(size_t numJoysticks)
+
+protected:
+	this()
 	{
-		instance = this;
-
-		keyboardArray ~= new Keyboard();
-		mouseArray ~= new Mouse();
-
-		// Small hack to allow hotplug.
-		auto num = numJoysticks;
-		if (num < 8) {
-			num = 8;
-		}
-
-		joystickArray = new Joystick[](num);
-		foreach (i; 0 .. num) {
-			joystickArray[i] = new Joystick(i);
-		}
-	}
-
-	~this()
-	{
-/+
-		hotplug.destruct();
-		resize.destruct();
-		quit.destruct();
-+/
+		mInstance = this;
 	}
 }

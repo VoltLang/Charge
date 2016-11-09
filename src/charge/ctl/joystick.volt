@@ -5,12 +5,10 @@
  */
 module charge.ctl.joystick;
 
-import lib.sdl2.joystick;
-
 import charge.ctl.device;
 
 
-class Joystick : Device
+abstract class Joystick : Device
 {
 public:
 	i32[32] axisValues;
@@ -19,41 +17,16 @@ public:
 	void delegate(Joystick, i32) down;
 	void delegate(Joystick, i32) up;
 
-private:
-	size_t mId;
-	SDL_Joystick* mStick;
-
 
 public:
 	final bool enable() { return enabled = true; }
 	final void disable() { enabled = false; }
 
-	@property final bool enabled(bool status)
-	{
-		if (status) {
-			if (mStick is null) {
-				mStick = SDL_JoystickOpen(cast(int)mId);
-			}
-		} else {
-			if (mStick !is null) {
-				SDL_JoystickClose(mStick);
-				mStick = null;
-			}
-		}
-		return enabled;
-	}
+	@property abstract bool enabled(bool status);
+	@property abstract bool enabled();
 
-	@property final bool enabled()
-	{
-		return mStick !is null;
-	}
 
 protected:
-	this(size_t id)
-	{
-		mId = id;
-	}
-
 	void handleAxis(size_t which, i16 value)
 	{
 		if (which >= axisValues.length) {

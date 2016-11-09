@@ -5,12 +5,10 @@
  */
 module charge.ctl.mouse;
 
-import lib.sdl2.mouse;
-
 import charge.ctl.device;
 
 
-class Mouse : Device
+abstract class Mouse : Device
 {
 public:
 	u32 state; /**< Mask of button state, 1 == pressed */
@@ -22,13 +20,6 @@ public:
 	void delegate(Mouse, int) up;
 
 public:
-	void setRelativeMode(bool value)
-	{
-		SDL_SetRelativeMouseMode(value);
-	}
-
-	bool getRelativeMode()
-	{
-		return cast(bool)SDL_GetRelativeMouseMode();
-	}
+	abstract void setRelativeMode(bool value);
+	abstract bool getRelativeMode();
 }
