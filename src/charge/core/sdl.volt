@@ -110,7 +110,7 @@ public:
 			initNoGfx(p);
 		}
 
-		this.input = Input.opCall();
+		this.input = new Input(0);
 
 		for (size_t i; i < initFuncs.length; i++) {
 			initFuncs[i]();
@@ -323,7 +323,7 @@ version (Emscripten) {
 
 			case SDL_KEYDOWN:
 				auto k = input.keyboard;
-				k.mod = e.key.keysym.mod;
+				//k.mod = e.key.keysym.mod;
 
 				if (k.down is null) {
 					break;
@@ -333,7 +333,7 @@ version (Emscripten) {
 
 			case SDL_KEYUP:
 				auto k = input.keyboard;
-				k.mod = e.key.keysym.mod;
+				//k.mod = e.key.keysym.mod;
 
 				if (k.up is null) {
 					break;

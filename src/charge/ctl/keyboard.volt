@@ -7,37 +7,10 @@ module charge.ctl.keyboard;
 
 import charge.ctl.device;
 
-import lib.sdl2.keycode;
-
 
 class Keyboard : Device
 {
 public:
-	int mod;
-
-public:
 	void delegate(Keyboard, int, dchar, scope const(char)[]) down;
 	void delegate(Keyboard, int) up;
-
-
-public:
-	final bool ctrl()
-	{
-		return (mod & KMOD_CTRL) != 0;
-	}
-
-	final bool alt()
-	{
-		return (mod & KMOD_ALT) != 0;
-	}
-
-	final bool meta()
-	{
-		return (mod & KMOD_GUI) != 0;
-	}
-
-	final bool shift()
-	{
-		return (mod & KMOD_SHIFT) != 0;
-	}
 }

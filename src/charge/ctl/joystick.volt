@@ -13,14 +13,16 @@ import charge.ctl.device;
 class Joystick : Device
 {
 public:
-	void delegate(Joystick, int, int) axis;
-	void delegate(Joystick, int) down;
-	void delegate(Joystick, int) up;
+	i32[32] axisValues;
+
+	void delegate(Joystick, i32, i32) axis;
+	void delegate(Joystick, i32) down;
+	void delegate(Joystick, i32) up;
 
 private:
-	int id;
-	i16[32] axisValues;
-	SDL_Joystick* stick;
+	size_t mId;
+	SDL_Joystick* mStick;
+
 
 public:
 	final bool enable() { return enabled = true; }
@@ -29,13 +31,13 @@ public:
 	@property final bool enabled(bool status)
 	{
 		if (status) {
-			if (stick is null) {
-				stick = SDL_JoystickOpen(id);
+			if (mStick is null) {
+				mStick = SDL_JoystickOpen(cast(int)mId);
 			}
 		} else {
-			if (stick !is null) {
-				SDL_JoystickClose(stick);
-				stick = null;
+			if (mStick !is null) {
+				SDL_JoystickClose(mStick);
+				mStick = null;
 			}
 		}
 		return enabled;
@@ -43,16 +45,16 @@ public:
 
 	@property final bool enabled()
 	{
-		return stick !is null;
+		return mStick !is null;
 	}
 
-package:
-	this(int id)
+protected:
+	this(size_t id)
 	{
-		this.id = id;
+		mId = id;
 	}
 
-	void handleAxis(size_t which, short value)
+	void handleAxis(size_t which, i16 value)
 	{
 		if (which >= axisValues.length) {
 			return;

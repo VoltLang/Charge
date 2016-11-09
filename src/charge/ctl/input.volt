@@ -7,8 +7,6 @@ module charge.ctl.input;
 
 import watt.text.utf;
 
-import lib.sdl2;
-
 import charge.ctl.device;
 import charge.ctl.mouse;
 import charge.ctl.keyboard;
@@ -26,10 +24,6 @@ private:
 public:
 	global Input opCall()
 	{
-		if (instance is null) {
-			instance = new Input();
-		}
-
 		return instance;
 	}
 
@@ -64,19 +58,21 @@ public:
 	}
 
 private:
-	this()
+	this(size_t numJoysticks)
 	{
+		instance = this;
+
 		keyboardArray ~= new Keyboard();
 		mouseArray ~= new Mouse();
 
 		// Small hack to allow hotplug.
-		auto num = SDL_NumJoysticks();
+		auto num = numJoysticks;
 		if (num < 8) {
 			num = 8;
 		}
 
 		joystickArray = new Joystick[](num);
-		for (int i; i < num; i++) {
+		foreach (i; 0 .. num) {
 			joystickArray[i] = new Joystick(i);
 		}
 	}
