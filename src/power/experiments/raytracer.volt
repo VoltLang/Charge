@@ -343,7 +343,7 @@ t - shader: %s`;
 			vec -= cast(f32)((mPatchSize / 2) * (1 << lowerLevel));
 			mShader.float3("lowerMin".ptr, 1, vec.ptr);
 			vec += cast(f32)(mPatchSize * (1 << lowerLevel));
-			mShader.float3("lowerMax".ptr, 1, vec.ptr);	
+			mShader.float3("lowerMax".ptr, 1, vec.ptr);
 		}
 
 		vec.x = 1; vec.y = 1; vec.z = 1;
