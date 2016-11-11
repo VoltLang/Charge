@@ -5,8 +5,8 @@ layout (location = 0) in vec3[] inPosition;
 layout (binding = 0) uniform isamplerBuffer octree;
 layout (triangle_strip, max_vertices = 12) out;
 layout (location = 0) out vec3 outPosition;
-layout (location = 1) out vec3 outMinEdge;
-layout (location = 2) out vec3 outMaxEdge;
+layout (location = 1) out flat vec3 outMinEdge;
+layout (location = 2) out flat vec3 outMaxEdge;
 layout (location = 3) out flat int outOffset;
 
 uniform mat4 matrix;
