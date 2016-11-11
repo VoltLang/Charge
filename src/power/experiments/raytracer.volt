@@ -128,15 +128,11 @@ public:
 		void[] data;
 		loadDag("res/alley.dag", out data);
 
-		glGenBuffers(1, &octBuffer);
-		glBindBuffer(GL_TEXTURE_BUFFER, octBuffer);
-		glBufferData(GL_TEXTURE_BUFFER, cast(GLsizeiptr)data.length, data.ptr, GL_STATIC_DRAW);
-		glBindBuffer(GL_TEXTURE_BUFFER, 0);
+		glCreateBuffers(1, &octBuffer);
+		glNamedBufferData(octBuffer, cast(GLsizeiptr)data.length, data.ptr, GL_STATIC_DRAW);
 
-		glGenTextures(1, &octTexture);
-		glBindTexture(GL_TEXTURE_BUFFER, octTexture);
-		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, octBuffer);
-		glBindTexture(GL_TEXTURE_BUFFER, 0);
+		glCreateTextures(GL_TEXTURE_BUFFER, 1, &octTexture);
+		glTextureBuffer(octTexture, GL_R32UI, octBuffer);
 
 		numMorton := calcNumMorton(mPatchMaxSize);
 		b := new DagBuilder(cast(size_t)numMorton);
