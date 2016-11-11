@@ -5,28 +5,33 @@
  */
 module charge.gfx.shader;
 
-import core.stdc.stdio;
+import watt.io;
 import lib.gl;
 
 
 class Shader
 {
 public:
+	string name;
 	GLuint id;
 
+
 public:
-	this(string vert, string frag, string[] attr, string[] tex)
+	this(string name, string vert, string frag, string[] attr, string[] tex)
 	{
-		this.id = makeShader(vert, frag, attr, tex);
+		this.name = name;
+		this.id = makeShaderVF(name, vert, frag, attr, tex);
 	}
 
-	this(string vert, string geom, string frag, string[] attr, string[] tex)
+	this(string name, string vert, string geom, string frag, string[] attr, string[] tex)
 	{
-		this.id = makeShader(vert, geom, frag, attr, tex);
+		this.name = name;
+		this.id = makeShaderVGF(name, vert, geom, frag, attr, tex);
 	}
 
-	this(GLuint id)
+	this(string name, GLuint id)
 	{
+		this.name = name;
 		this.id = id;
 	}
 
@@ -179,10 +184,10 @@ final:
 	}
 }
 
-GLuint makeShader(string vert, string frag, string[] attr, string[] texs)
+GLuint makeShaderVF(string name, string vert, string frag, string[] attr, string[] texs)
 {
 	// Compile the shaders
-	GLuint shader = createAndCompileShader(vert, frag);
+	GLuint shader = createAndCompileShaderVF(name, vert, frag);
 
 	// Setup vertex attributes, needs to done before linking.
 	for (size_t i; i < attr.length; i++) {
@@ -197,7 +202,7 @@ GLuint makeShader(string vert, string frag, string[] attr, string[] texs)
 	glLinkProgram(shader);
 
 	// Check status and print any debug message.
-	if (!printDebug(shader, true, "program (vert/frag)")) {
+	if (!printDebug(name, shader, true, "program (vert/frag)")) {
 		glDeleteProgram(shader);
 		return 0;
 	}
@@ -216,10 +221,10 @@ GLuint makeShader(string vert, string frag, string[] attr, string[] texs)
 	return shader;
 }
 
-GLuint makeShader(string vert, string geom, string frag, string[] attr, string[] texs)
+GLuint makeShaderVGF(string name, string vert, string geom, string frag, string[] attr, string[] texs)
 {
 	// Compile the shaders
-	GLuint shader = createAndCompileShader(vert, geom, frag);
+	GLuint shader = createAndCompileShaderVGF(name, vert, geom, frag);
 
 	// Setup vertex attributes, needs to done before linking.
 	for (size_t i; i < attr.length; i++) {
@@ -234,7 +239,7 @@ GLuint makeShader(string vert, string geom, string frag, string[] attr, string[]
 	glLinkProgram(shader);
 
 	// Check status and print any debug message.
-	if (!printDebug(shader, true, "program (vert/geom/frag)")) {
+	if (!printDebug(name, shader, true, "program (vert/geom/frag)")) {
 		glDeleteProgram(shader);
 		return 0;
 	}
@@ -253,7 +258,7 @@ GLuint makeShader(string vert, string geom, string frag, string[] attr, string[]
 	return shader;
 }
 
-static GLuint createAndCompileShader(string vert, string frag)
+static GLuint createAndCompileShaderVF(string name, string vert, string frag)
 {
 	// Create the handels
 	uint vertShader = glCreateShader(GL_VERTEX_SHADER);
@@ -265,10 +270,10 @@ static GLuint createAndCompileShader(string vert, string frag)
 	glAttachShader(programShader, fragShader);
 
 	// Load and compile the Vertex Shader
-	compileShader(vertShader, vert, "vert");
+	compileShader(name, vertShader, vert, "vert");
 
 	// Load and compile the Fragment Shader
-	compileShader(fragShader, frag, "frag");
+	compileShader(name, fragShader, frag, "frag");
 
 	// The shader objects are not needed any more,
 	// the programShader is the complete shader to be used.
@@ -278,7 +283,7 @@ static GLuint createAndCompileShader(string vert, string frag)
 	return programShader;
 }
 
-static GLuint createAndCompileShader(string vert, string geom, string frag)
+static GLuint createAndCompileShaderVGF(string name, string vert, string geom, string frag)
 {
 	// Create the handels
 	uint vertShader = glCreateShader(GL_VERTEX_SHADER);
@@ -292,13 +297,13 @@ static GLuint createAndCompileShader(string vert, string geom, string frag)
 	glAttachShader(programShader, fragShader);
 
 	// Load and compile the Vertex Shader
-	compileShader(vertShader, vert, "vert");
+	compileShader(name, vertShader, vert, "vert");
 
 	// Load and compile the Fragment Shader
-	compileShader(geomShader, geom, "geom");
+	compileShader(name, geomShader, geom, "geom");
 
 	// Load and compile the Fragment Shader
-	compileShader(fragShader, frag, "frag");
+	compileShader(name, fragShader, frag, "frag");
 
 	// The shader objects are not needed any more,
 	// the programShader is the complete shader to be used.
@@ -309,7 +314,7 @@ static GLuint createAndCompileShader(string vert, string geom, string frag)
 	return programShader;
 }
 
-void compileShader(GLuint shader, string source, string type)
+void compileShader(string name, GLuint shader, string source, string type)
 {
 	const(char)* ptr;
 	int length;
@@ -320,10 +325,10 @@ void compileShader(GLuint shader, string source, string type)
 	glCompileShader(shader);
 
 	// Print any debug message
-	printDebug(shader, false, type);
+	printDebug(name, shader, false, type);
 }
 
-bool printDebug(GLuint shader, bool program, string type)
+bool printDebug(string name, GLuint shader, bool program, string type)
 {
 	// Instead of pointers, realy bothersome.
 	GLint status;
@@ -357,27 +362,27 @@ bool printDebug(GLuint shader, bool program, string type)
 	case 1: //GL_TRUE:
 		// Only print warnings from the linking stage.
 		if (length != 0 && program) {
-			printf("%s status: ok!\n%s".ptr, type.ptr, buffer.ptr);
+			writef("%s \"%s\" status ok!\n%s", type, name, buffer);
 		} else if (program) {
-			printf("%s status: ok!\n".ptr, type.ptr);
+			writefln("%s \"%s\" status ok!", type, name);
 		}
 
 		return true;
 
 	case 0: //GL_FALSE:
 		if (length != 0) {
-			printf("%s status: bad!\n%s".ptr, type.ptr, buffer.ptr);
-		} else {
-			printf("%s status: bad!\n".ptr, type.ptr);
+			writef("%s \"%s\" status ok!\n%s", type, name, buffer);
+		} else if (program) {
+			writefln("%s \"%s\" status ok!", type, name);
 		}
 
 		return false;
 
 	default:
 		if (length != 0) {
-			printf("%s status: %i\n%s".ptr, type.ptr, status, buffer.ptr);
-		} else {
-			printf("%s status: %i\n".ptr, type.ptr, status);
+			writef("%s \"%s\" status %s\n%s", type, name, status, buffer);
+		} else if (program) {
+			writefln("%s \"%s\" status %s", type, name, status);
 		}
 
 		return false;

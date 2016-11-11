@@ -145,7 +145,7 @@ global this()
 
 void initDraw()
 {
-	drawShader = new Shader(vertexShaderES,
+	drawShader = new Shader("charge.gfx.draw", vertexShaderES,
 	                    fragmentShaderES,
 	                    ["position", "uv", "color"],
 	                    ["tex"]);

@@ -115,9 +115,9 @@ public:
 		frag1 := cast(string)read("res/power/shaders/raytracer/voxel-amd.frag.glsl");
 		frag2 := cast(string)read("res/power/shaders/raytracer/voxel-org.frag.glsl");
 		frag3 := cast(string)read("res/power/shaders/raytracer/voxel-notrace.frag.glsl");
-		mShaders[0] = new GfxShader(vert, geom, frag1, null, null);
-		mShaders[1] = new GfxShader(vert, geom, frag2, null, null);
-		mShaders[2] = new GfxShader(vert, geom, frag3, null, null);
+		mShaders[0] = new GfxShader("voxel-amd", vert, geom, frag1, null, null);
+		mShaders[1] = new GfxShader("voxel-nvidia", vert, geom, frag2, null, null);
+		mShaders[2] = new GfxShader("voxel-notrace", vert, geom, frag3, null, null);
 		mShaderNames[0] = "AMD-OPTZ";
 		mShaderNames[1] = "original";
 		mShaderNames[2] = "no trace";

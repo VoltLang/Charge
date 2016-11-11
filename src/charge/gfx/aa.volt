@@ -104,7 +104,7 @@ void initAA()
 	glSamplerParameteri(aaSampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glSamplerParameteri(aaSampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	aaShader = new Shader(aaVertex130, aaFragment130,
+	aaShader = new Shader("charge.gfx.aa", aaVertex130, aaFragment130,
 	                      ["position", "uv", "color"], ["tex"]);
 }
 

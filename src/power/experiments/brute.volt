@@ -59,12 +59,12 @@ public:
 		vert := cast(string)read("res/power/shaders/brute/voxel.vert.glsl");
 		geom := cast(string)read("res/power/shaders/brute/voxel.geom.glsl");
 		frag := cast(string)read("res/power/shaders/brute/voxel.frag.glsl");
-		voxelShader = new GfxShader(vert, geom, frag, null, null);
+		voxelShader = new GfxShader("brute-voxel", vert, geom, frag, null, null);
 
 		vert = cast(string)read("res/power/shaders/brute/feedback.vert.glsl");
 		geom = cast(string)read("res/power/shaders/brute/feedback.geom.glsl");
 		frag = cast(string)read("res/power/shaders/brute/feedback.frag.glsl");
-		feedbackShader = new GfxShader(vert, geom, frag, null, null);
+		feedbackShader = new GfxShader("brute-feedback", vert, geom, frag, null, null);
 
 		glGenQueries(1, &query);
 		glGenQueries(1, &fbQuery);

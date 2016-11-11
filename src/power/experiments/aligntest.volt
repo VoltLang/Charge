@@ -158,7 +158,7 @@ global this()
 
 void initDraw()
 {
-	testShader = new GfxShader(vertexShader120,
+	testShader = new GfxShader("aligntest", vertexShader120,
 	                    fragmentShader120,
 	                    ["position", "uv", "color"],
 	                    ["tex"]);
