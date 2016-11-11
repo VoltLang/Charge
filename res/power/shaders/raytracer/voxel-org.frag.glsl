@@ -92,8 +92,7 @@ bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 
 			if (i <= 1) {
 				float traceSize = float(1 << splitPower);
-				pos -= inMinEdge;
-				finalColor = vec4(mod(pos * traceSize, 1.0), 1.0);
+				finalColor = vec4((pos - inMinEdge) * traceSize, 1.0);
 				return true;
 			}
 

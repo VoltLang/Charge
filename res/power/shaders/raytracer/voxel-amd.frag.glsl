@@ -114,8 +114,7 @@ void main(void)
 	if (hit) {
 		float traceSize = float(1 << splitPower);
 		vec3 pos = inPosition + rayDir * tMin;
-		pos -= inMinEdge;
-		outColor = vec4(mod(pos * traceSize, 1.0), 1.0);
+		outColor = vec4((pos - inMinEdge) * traceSize, 1.0);
 	} else {
 		discard;
 	}
