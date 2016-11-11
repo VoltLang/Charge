@@ -11,6 +11,7 @@ import charge.gfx.buffer;
 import charge.gfx.texture;
 import charge.sys.resource;
 import charge.math.color;
+import charge.math.matrix;
 
 
 struct AA
@@ -34,6 +35,9 @@ public:
 
 	fn unbindAndDraw(t: Target)
 	{
+		Matrix4x4f mat;
+		mat.setToIdentity();
+
 		fbo.unbind();
 		t.bind();
 
@@ -41,7 +45,8 @@ public:
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		aaShader.bind();
+		drawShader.bind();
+		drawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
 
 		glBindVertexArray(aaVbo.vao);
 		fbo.color.bind();
@@ -52,6 +57,8 @@ public:
 		glBindSampler(0, 0);
 		fbo.color.unbind();
 		glBindVertexArray(0);
+
+		drawShader.unbind();
 	}
 
 	fn setupFramebuffer(t: Target)
@@ -69,9 +76,6 @@ public:
 
 /// Quad vbo.
 global DrawBuffer aaVbo;
-
-/// Shader to be used to blit the texture.
-global Shader aaShader;
 
 /// Sampler to use with the shader.
 global GLuint aaSampler;
@@ -103,48 +107,10 @@ void initAA()
 	glGenSamplers(1, &aaSampler);
 	glSamplerParameteri(aaSampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glSamplerParameteri(aaSampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	aaShader = new Shader("charge.gfx.aa", aaVertex130, aaFragment130,
-	                      ["position", "uv", "color"], ["tex"]);
 }
 
 void closeAA()
 {
 	if (aaSampler) { glDeleteSamplers(1, &aaSampler); aaSampler = 0; }
 	if (aaVbo !is null) { aaVbo.decRef(); aaVbo = null; }
-
-	aaShader.breakApart();
-	aaShader = null;
 }
-
-enum string aaVertex130 = `
-#version 130
-
-attribute vec2 position;
-
-varying vec2 uvFS;
-
-
-void main(void)
-{
-	uvFS = (position / 2 + 0.5);
-	gl_Position = vec4(position, 0.0, 1.0);
-}
-`;
-
-enum string aaFragment130 = `
-#version 130
-
-uniform sampler2D color;
-
-varying vec2 uvFS;
-
-
-void main(void)
-{
-	// Get color.
-	vec4 c = texture(color, uvFS);
-
-	gl_FragColor = vec4(c.xyz, 1.0);
-}
-`;
