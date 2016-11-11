@@ -74,8 +74,8 @@ public:
 	GLuint query;
 	bool queryInFlight;
 
-	GfxShader[3] mShaders;
-	string[3] mShaderNames;
+	GfxShader[4] mShaders;
+	string[4] mShaderNames;
 	u32 mShaderIndex;
 	GfxShader mShader;
 	i32 mPatchSize;
@@ -113,14 +113,17 @@ public:
 		vert := cast(string)read("res/power/shaders/raytracer/voxel.vert.glsl");
 		geom := cast(string)read("res/power/shaders/raytracer/voxel.geom.glsl");
 		frag1 := cast(string)read("res/power/shaders/raytracer/voxel-amd.frag.glsl");
-		frag2 := cast(string)read("res/power/shaders/raytracer/voxel-org.frag.glsl");
-		frag3 := cast(string)read("res/power/shaders/raytracer/voxel-notrace.frag.glsl");
+		frag2 := cast(string)read("res/power/shaders/raytracer/voxel-nvidia.frag.glsl");
+		frag3 := cast(string)read("res/power/shaders/raytracer/voxel-org.frag.glsl");
+		frag4 := cast(string)read("res/power/shaders/raytracer/voxel-notrace.frag.glsl");
 		mShaders[0] = new GfxShader("voxel-amd", vert, geom, frag1, null, null);
 		mShaders[1] = new GfxShader("voxel-nvidia", vert, geom, frag2, null, null);
-		mShaders[2] = new GfxShader("voxel-notrace", vert, geom, frag3, null, null);
+		mShaders[2] = new GfxShader("voxel-org", vert, geom, frag3, null, null);
+		mShaders[3] = new GfxShader("voxel-notrace", vert, geom, frag4, null, null);
 		mShaderNames[0] = "AMD-OPTZ";
-		mShaderNames[1] = "original";
-		mShaderNames[2] = "no trace";
+		mShaderNames[1] = "NV-OPTZ";
+		mShaderNames[2] = "original";
+		mShaderNames[3] = "no trace";
 		mShader = mShaders[0];
 
 		glGenQueries(1, &query);
