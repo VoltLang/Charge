@@ -27,21 +27,13 @@ void rayAABBTest(vec3 rayDir, vec3 aabbMin, vec3 aabbMax,
 	tMax = min(min(99999.0, tmax.x), min(tmax.y, tmax.z));
 }
 
-struct State
+int calcAddress(uint select, uint node, int offset)
 {
-	// 5 SGPR
-	float tMin, tMax;
-	// Last retrived node data.
-	uint node;
-	// Offset from start octTexture
-	int offset;
-	// Flow control
-	bool hit;
-
-	// 6 VGPR
-	vec3 rayDir;
-	vec3 boxMin;
-};
+	int bits = int(select + 1);
+	uint toCount = bitfieldExtract(node, 0, bits);
+	int address = int(bitCount(toCount));
+	return address + int(offset);
+}
 
 void main(void)
 {
@@ -91,11 +83,7 @@ void main(void)
 				break;
 			}
 
-			int bits = int(select + 1);
-			uint toCount = bitfieldExtract(node, 0, bits);
-			int address = int(bitCount(toCount));
-			address += int(offset);
-
+			int address = calcAddress(select, node, offset);
 			offset = texelFetch(octree, address).r;
 		}
 

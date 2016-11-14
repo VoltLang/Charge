@@ -27,6 +27,14 @@ void rayAABBTest(vec3 rayDir, vec3 aabbMin, vec3 aabbMax,
 	tMax = min(min(99999.0, tmax.x), min(tmax.y, tmax.z));
 }
 
+int calcAddress(uint select, uint node, int offset)
+{
+	int bits = int(select + 1);
+	uint toCount = bitfieldExtract(node, 0, bits);
+	int address = int(bitCount(toCount));
+	return address + int(offset);
+}
+
 void main(void)
 {
 	vec3 rayDir = normalize(inPosition - cameraPos);
@@ -75,11 +83,7 @@ void main(void)
 				break;
 			}
 
-			int bits = int(select + 1);
-			uint toCount = bitfieldExtract(node, 0, bits);
-			int address = int(bitCount(toCount));
-			address += int(offset);
-
+			int address = calcAddress(select, node, offset);
 			offset = texelFetch(octree, address).r;
 		}
 
