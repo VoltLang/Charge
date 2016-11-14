@@ -64,8 +64,8 @@ void main(void)
 		vec3 boxMin = inMinEdge;
 		float boxDim = inMaxEdge.x - inMinEdge.x;
 
-		// Loop until a leaf or max subdivided node is found.
-		for (int i = tracePower; i > 0; i--) {
+		do {
+//----------------------------------------------------------------------------//
 
 			uint node = uint(texelFetch(octree, offset).r);
 
@@ -78,14 +78,94 @@ void main(void)
 				break;
 			}
 
-			if (i <= 1) {
-				hit = true;
+			offset = texelFetch(octree, calcAddress(select, node, offset)).r;
+
+//----------------------------------------------------------------------------//
+
+			node = uint(texelFetch(octree, offset).r);
+
+			boxDim *= 0.5f;
+			s = step(boxMin + boxDim, pos);
+			boxMin = boxMin + boxDim * s;
+			select = uint(s.x * 4 + s.y * 1 + s.z * 2);
+			if ((node & (uint(1) << select)) == uint(0)) {
 				break;
 			}
 
-			int address = calcAddress(select, node, offset);
-			offset = texelFetch(octree, address).r;
-		}
+			offset = texelFetch(octree, calcAddress(select, node, offset)).r;
+
+//----------------------------------------------------------------------------//
+
+			node = uint(texelFetch(octree, offset).r);
+
+			boxDim *= 0.5f;
+			s = step(boxMin + boxDim, pos);
+			boxMin = boxMin + boxDim * s;
+			select = uint(s.x * 4 + s.y * 1 + s.z * 2);
+			if ((node & (uint(1) << select)) == uint(0)) {
+				break;
+			}
+
+			offset = texelFetch(octree, calcAddress(select, node, offset)).r;
+
+//----------------------------------------------------------------------------//
+
+			node = uint(texelFetch(octree, offset).r);
+
+			boxDim *= 0.5f;
+			s = step(boxMin + boxDim, pos);
+			boxMin = boxMin + boxDim * s;
+			select = uint(s.x * 4 + s.y * 1 + s.z * 2);
+			if ((node & (uint(1) << select)) == uint(0)) {
+				break;
+			}
+
+			offset = texelFetch(octree, calcAddress(select, node, offset)).r;
+
+//----------------------------------------------------------------------------//
+
+			node = uint(texelFetch(octree, offset).r);
+
+			boxDim *= 0.5f;
+			s = step(boxMin + boxDim, pos);
+			boxMin = boxMin + boxDim * s;
+			select = uint(s.x * 4 + s.y * 1 + s.z * 2);
+			if ((node & (uint(1) << select)) == uint(0)) {
+				break;
+			}
+
+			offset = texelFetch(octree, calcAddress(select, node, offset)).r;
+
+//----------------------------------------------------------------------------//
+
+			node = uint(texelFetch(octree, offset).r);
+
+			boxDim *= 0.5f;
+			s = step(boxMin + boxDim, pos);
+			boxMin = boxMin + boxDim * s;
+			select = uint(s.x * 4 + s.y * 1 + s.z * 2);
+			if ((node & (uint(1) << select)) == uint(0)) {
+				break;
+			}
+
+			offset = texelFetch(octree, calcAddress(select, node, offset)).r;
+
+//----------------------------------------------------------------------------//
+
+			node = uint(texelFetch(octree, offset).r);
+
+			boxDim *= 0.5f;
+			s = step(boxMin + boxDim, pos);
+			boxMin = boxMin + boxDim * s;
+			select = uint(s.x * 4 + s.y * 1 + s.z * 2);
+			if ((node & (uint(1) << select)) == uint(0)) {
+				break;
+			}
+
+			hit = true;
+			break;
+
+		} while (false);
 
 		if (hit) {
 			break;
