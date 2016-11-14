@@ -284,7 +284,8 @@ Resolution: %sx%s
 w a s d - move camera
 e - patch start level: %s
 r - patch size: %s^3
-t - shader: %s`;
+t - shader: %s
+p - reset position`;
 
 		text := format(str,
 			timeElapsed / 1_000_000_000.0 * 1_000.0,
