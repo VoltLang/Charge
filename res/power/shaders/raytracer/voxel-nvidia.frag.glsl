@@ -13,12 +13,12 @@ uniform int tracePower;
 uniform int splitPower;
 
 
-void rayAABBTest(vec3 rayDirInv, vec3 aabbMin, vec3 aabbMax,
+void rayAABBTest(vec3 rayDir, vec3 aabbMin, vec3 aabbMax,
 		out float tMin, out float tMax)
 {
 	// Project ray through aabb
-	vec3 t1 = (aabbMin - inPosition) * rayDirInv;
-	vec3 t2 = (aabbMax - inPosition) * rayDirInv;
+	vec3 t1 = (aabbMin - inPosition) / rayDir;
+	vec3 t2 = (aabbMax - inPosition) / rayDir;
 	
 	vec3 tmin = min(t1, t2);
 	vec3 tmax = max(t1, t2);
@@ -27,39 +27,9 @@ void rayAABBTest(vec3 rayDirInv, vec3 aabbMin, vec3 aabbMax,
 	tMax = min(min(99999.0, tmax.x), min(tmax.y, tmax.z));
 }
 
-uint saveNode[10];
-int saveNodeAddr[10];
-int saveOffset[10];
-int saveOffsetAddr[10];
-
-uint getNode(int i, int addr)
-{
-	if (saveNodeAddr[i] == addr) {
-		return saveNode[i];
-	}
-
-	uint node = uint(texelFetch(octree, addr).r);
-	saveNodeAddr[i] = addr;
-	saveNode[i] = node;
-	return node;
-}
-
-int getOffset(int i, int addr)
-{
-	if (saveOffsetAddr[i] == addr) {
-		return saveOffset[i];
-	}
-
-	int offset = texelFetch(octree, addr).r;
-	saveOffsetAddr[i] = addr;
-	saveOffset[i] = offset;
-	return offset;
-}
-
 void main(void)
 {
 	vec3 rayDir = normalize(inPosition - cameraPos);
-	vec3 rayDirInv = 1 / rayDir;
 
 	// Check for ray components being parallel to axes (i.e. values of 0).
 	const float epsilon = 0.000001;	// Platform dependent value!
@@ -69,16 +39,11 @@ void main(void)
 
 	// Only process ray if it intersects voxel volume.
 	float tMin, tMax;
-	rayAABBTest(rayDirInv, inMinEdge, inMaxEdge, tMin, tMax);
+	rayAABBTest(rayDir, inMinEdge, inMaxEdge, tMin, tMax);
 
 	// Force initial ray position to start at the
 	// camera origin if it is in the voxel box.
 	tMin = max(0.0f, tMin);
-
-	for (int k; k < 10; k++) {
-		saveOffsetAddr[k] = -1;
-		saveNodeAddr[k] = -1;
-	}
 
 	// Loop until ray exits volume.
 	bool hit = false;
@@ -93,10 +58,11 @@ void main(void)
 
 		// Loop until a leaf or max subdivided node is found.
 		for (int i = tracePower; i > 0; i--) {
-			uint node = getNode(i, offset);
+
+			uint node = uint(texelFetch(octree, offset).r);
 
 			boxDim *= 0.5f;
-			vec3 pos = inPosition + tMin * rayDir;
+			vec3 pos = inPosition + rayDir * tMin;
 			vec3 s = step(boxMin + boxDim, pos);
 			boxMin = boxMin + boxDim * s;
 			uint select = uint(s.x * 4 + s.y * 1 + s.z * 2);
@@ -105,10 +71,8 @@ void main(void)
 			}
 
 			if (i <= 1) {
-				float traceSize = float(1 << splitPower);
-				pos -= inMinEdge;
-				outColor = vec4(mod(pos * traceSize, 1.0), 1.0);
-				return;
+				hit = true;
+				break;
 			}
 
 			int bits = int(select + 1);
@@ -116,7 +80,7 @@ void main(void)
 			int address = int(bitCount(toCount));
 			address += int(offset);
 
-			offset = getOffset(i, address);
+			offset = texelFetch(octree, address).r;
 		}
 
 		if (hit) {
@@ -124,12 +88,18 @@ void main(void)
 		}
 
 		// Update ray position to exit current node
-		vec3 pos = inPosition + tMin * rayDir;
-		vec3 t0 = (boxMin - pos) * rayDirInv;
-		vec3 t1 = (boxMin + boxDim - pos) * rayDirInv;
+		vec3 pos = inPosition + rayDir * tMin;
+		vec3 t0 = (boxMin - pos) / rayDir;
+		vec3 t1 = (boxMin + boxDim - pos) / rayDir;
 		vec3 tNext = max(t0, t1);
 		tMin += min(tNext.x, min(tNext.y, tNext.z)) + epsilon;
 	}
 
-	discard;
+	if (hit) {
+		float traceSize = float(1 << splitPower);
+		vec3 pos = inPosition + rayDir * tMin;
+		outColor = vec4((pos - inMinEdge) * traceSize, 1.0);
+	} else {
+		discard;
+	}
 }
