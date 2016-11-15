@@ -11,15 +11,15 @@ import charge.ctl.device;
 abstract class Mouse : Device
 {
 public:
-	u32 state; /**< Mask of button state, 1 == pressed */
-	int x;
-	int y;
+	state: u32; /**< Mask of button state, 1 == pressed */
+	x: int;
+	y: int;
 
-	void delegate(Mouse, int, int) move;
-	void delegate(Mouse, int) down;
-	void delegate(Mouse, int) up;
+	move: dg(Mouse, int, int);
+	down: dg(Mouse, int);
+	up: dg(Mouse, int);
 
 public:
-	abstract void setRelativeMode(bool value);
-	abstract bool getRelativeMode();
+	abstract fn setRelativeMode(value: bool);
+	abstract fn getRelativeMode() bool;
 }

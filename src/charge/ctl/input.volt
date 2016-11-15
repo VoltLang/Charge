@@ -16,47 +16,47 @@ import charge.ctl.joystick;
 abstract class Input
 {
 public:
-	Mouse[] mouseArray;
-	Keyboard[] keyboardArray;
-	Joystick[] joystickArray;
+	mouseArray: Mouse[];
+	keyboardArray: Keyboard[];
+	joystickArray: Joystick[];
 
 
 private:
-	global Input mInstance;
+	global mInstance: Input;
 
 
 public:
-	global Input opCall()
+	global fn opCall() Input
 	{
 		return mInstance;
 	}
 
-	final @property Mouse mouse()
+	final @property fn mouse() Mouse
 	{
 		return mouseArray[0];
 	}
 
-	final @property Keyboard keyboard()
+	final @property fn keyboard() Keyboard
 	{
 		return keyboardArray[0];
 	}
 
-	final @property Joystick joystick()
+	final @property fn joystick() Joystick
 	{
 		return joystickArray[0];
 	}
 
-	Mouse[] mice()
+	fn mice() Mouse[]
 	{
 		return new mouseArray[0 .. $];
 	}
 
-	Keyboard[] keyboards()
+	fn keyboards() Keyboard[]
 	{
 		return new keyboardArray[0 .. $];
 	}
 
-	Joystick[] joysticks()
+	fn joysticks() Joystick[]
 	{
 		return new joystickArray[0 .. $];
 	}

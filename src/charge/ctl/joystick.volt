@@ -11,23 +11,23 @@ import charge.ctl.device;
 abstract class Joystick : Device
 {
 public:
-	i32[32] axisValues;
+	axisValues: i32[32];
 
-	void delegate(Joystick, i32, i32) axis;
-	void delegate(Joystick, i32) down;
-	void delegate(Joystick, i32) up;
+	axis: dg(Joystick, i32, i32);
+	down: dg(Joystick, i32);
+	up: dg(Joystick, i32);
 
 
 public:
-	final bool enable() { return enabled = true; }
-	final void disable() { enabled = false; }
+	final fn enable() bool { return enabled = true; }
+	final fn disable() { enabled = false; }
 
-	@property abstract bool enabled(bool status);
-	@property abstract bool enabled();
+	@property abstract fn enabled(status: bool) bool;
+	@property abstract fn enabled() bool;
 
 
 protected:
-	void handleAxis(size_t which, i16 value)
+	fn handleAxis(which: size_t, value: i16)
 	{
 		if (which >= axisValues.length) {
 			return;

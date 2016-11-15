@@ -11,6 +11,6 @@ import charge.ctl.device;
 class Keyboard : Device
 {
 public:
-	void delegate(Keyboard, int, dchar, scope const(char)[]) down;
-	void delegate(Keyboard, int) up;
+	down: dg(Keyboard, int, dchar, scope const(char)[]);
+	up: dg(Keyboard, int);
 }
