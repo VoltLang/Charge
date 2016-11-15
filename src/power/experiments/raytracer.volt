@@ -17,8 +17,9 @@ import charge.sys.resource;
 
 import math = charge.math;
 
-import power.voxel.boxel;
 import power.voxel.dag;
+import power.voxel.boxel;
+import power.voxel.instance;
 import power.experiments.viewer;
 
 void loadDag(string filename, out void[] data)
@@ -213,6 +214,11 @@ fn calcAlign(pos: i32, level: i32) i32
 fn calcNumMorton(dim: i32) i32
 {
 	return dim * dim * dim;
+}
+
+class AdvancedSVO
+{
+	mVbo: InstanceBuffer;
 }
 
 class SimpleSVO
