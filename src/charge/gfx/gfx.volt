@@ -8,4 +8,4 @@ module charge.gfx.gfx;
 /**
  * Has gfx been loaded.
  */
-global bool gfxLoaded;
+global gfxLoaded: bool;

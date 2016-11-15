@@ -7,14 +7,14 @@ static import watt.io.std;
 
 public import lib.gl;
 
-void glCheckError(const(char)[] file = __FILE__, int line = __LINE__)
+fn glCheckError(file: const(char)[] = __FILE__, line: int = __LINE__)
 {
-	auto err = glGetError();
+	err := glGetError();
 	if (!err) {
 		return;
 	}
 
-	string code;
+	code: string;
 	switch (err) {
 	case GL_INVALID_ENUM: code = "GL_INVALID_ENUM"; break;
 	case GL_INVALID_OPERATION: code = "GL_INVALID_OPERATION"; break;
@@ -25,14 +25,14 @@ void glCheckError(const(char)[] file = __FILE__, int line = __LINE__)
 	watt.io.std.writefln("%s:%s error: %s", file, line, code);
 }
 
-void glCheckFramebufferError(const(char)[] file = __FILE__, int line = __LINE__)
+fn glCheckFramebufferError(file: const(char)[] = __FILE__, line: int = __LINE__)
 {
-	auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	status := glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status == GL_FRAMEBUFFER_COMPLETE) {
 		return;
 	}
 
-	string code;
+	code: string;
 	switch (status) {
 	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
 		code = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"; break;
@@ -53,14 +53,14 @@ void glCheckFramebufferError(const(char)[] file = __FILE__, int line = __LINE__)
 	watt.io.std.writefln("%s:%s error: %s", file, line, code);
 }
 
-uint max(uint x, uint y)
+fn max(x: u32, y: u32) u32
 {
 	return x > y ? x : y;
 }
 
-uint log2(uint x)
+fn log2(x: u32) u32
 {
-	uint ans = 0 ;
+	ans: u32 = 0;
 	while (x = x >> 1) {
 		ans++;
 	}

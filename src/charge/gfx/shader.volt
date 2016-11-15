@@ -12,24 +12,24 @@ import lib.gl;
 class Shader
 {
 public:
-	string name;
-	GLuint id;
+	name: string;
+	id: GLuint;
 
 
 public:
-	this(string name, string vert, string frag, string[] attr, string[] tex)
+	this(name: string, vert: string, frag: string, attr: string[], tex: string[])
 	{
 		this.name = name;
 		this.id = makeShaderVF(name, vert, frag, attr, tex);
 	}
 
-	this(string name, string vert, string geom, string frag, string[] attr, string[] tex)
+	this(name: string, vert: string, geom: string, frag: string, attr: string[], tex: string[])
 	{
 		this.name = name;
 		this.id = makeShaderVGF(name, vert, geom, frag, attr, tex);
 	}
 
-	this(string name, GLuint id)
+	this(name: string, id: GLuint)
 	{
 		this.name = name;
 		this.id = id;
@@ -44,7 +44,7 @@ public:
 	}
 
 final:
-	void breakApart()
+	fn breakApart()
 	{
 		if (id != 0) {
 			glDeleteProgram(id);
@@ -52,12 +52,12 @@ final:
 		id = 0;
 	}
 
-	void bind()
+	fn bind()
 	{
 		glUseProgram(id);
 	}
 
-	void unbind()
+	fn unbind()
 	{
 		glUseProgram(0);
 	}
@@ -66,13 +66,13 @@ final:
 	 * float4
 	 */
 
-	void float4(const(char)* name, int count, float *value)
+	fn float4(name: const(char)*, count: int, value: f32*)
 	{
-		int loc = glGetUniformLocation(id, name);
+		loc := glGetUniformLocation(id, name);
 		glUniform4fv(loc, count, value);
 	}
 
-	void float4(const(char)* name, float* value)
+	fn float4(name: const(char)*, value: f32*)
 	{
 		float4(name, 1, value);
 	}
@@ -81,13 +81,13 @@ final:
 	 * float3
 	 */
 
-	void float3(const(char)* name, int count, float* value)
+	fn float3(name: const(char)*, count: int, value: f32*)
 	{
-		int loc = glGetUniformLocation(id, name);
+		loc := glGetUniformLocation(id, name);
 		glUniform3fv(loc, count, value);
 	}
 
-	void float3(const(char)* name, float* value)
+	fn float3(name: const(char)*, value: f32*)
 	{
 		float3(name, 1, value);
 	}
@@ -96,13 +96,13 @@ final:
 	 * float2
 	 */
 
-	void float2(const(char)* name, int count, float* value)
+	fn float2(name: const(char)*, count: int, value: f32*)
 	{
-		int loc = glGetUniformLocation(id, name);
+		loc := glGetUniformLocation(id, name);
 		glUniform2fv(loc, count, value);
 	}
 
-	void float2(const(char)* name, float* value)
+	fn float2(name: const(char)*, value: f32*)
 	{
 		float2(name, 1, value);
 	}
@@ -111,15 +111,15 @@ final:
 	 * float1
 	 */
 
-	void float1(const(char)* name, int count, float* value)
+	fn float1(name: const(char)*, count: int, value: f32*)
 	{
-		int loc = glGetUniformLocation(id, name);
+		loc := glGetUniformLocation(id, name);
 		glUniform1fv(loc, count, value);
 	}
 
-	void float1(const(char)* name, float value)
+	fn float1(name: const(char)*, value: f32)
 	{
-		int loc = glGetUniformLocation(id, name);
+		loc := glGetUniformLocation(id, name);
 		glUniform1f(loc, value);
 	}
 
@@ -127,9 +127,9 @@ final:
 	 * int4
 	 */
 
-	void int4(const(char)* name, i32* value)
+	fn int4(name: const(char)*, value: i32*)
 	{
-		int loc = glGetUniformLocation(id, name);
+		loc := glGetUniformLocation(id, name);
 		glUniform4iv(loc, 1, value);
 	}
 
@@ -137,9 +137,9 @@ final:
 	 * int3
 	 */
 
-	void int3(const(char)* name, i32* value)
+	fn int3(name: const(char)*, value: i32*)
 	{
-		int loc = glGetUniformLocation(id, name);
+		loc := glGetUniformLocation(id, name);
 		glUniform3iv(loc, 1, value);
 	}
 
@@ -147,9 +147,9 @@ final:
 	 * int2
 	 */
 
-	void int2(const(char)* name, i32* value)
+	fn int2(name: const(char)*, value: i32*)
 	{
-		int loc = glGetUniformLocation(id, name);
+		loc := glGetUniformLocation(id, name);
 		glUniform2iv(loc, 1, value);
 	}
 
@@ -157,9 +157,9 @@ final:
 	 * int1
 	 */
 
-	void int1(const(char)* name, i32 value)
+	fn int1(name: const(char)*, value: i32)
 	{
-		int loc = glGetUniformLocation(id, name);
+		loc := glGetUniformLocation(id, name);
 		glUniform1i(loc, value);
 	}
 
@@ -167,9 +167,9 @@ final:
 	 * Matrix
 	 */
 
-	void matrix4(const(char)* name, int count, bool transpose, float* value)
+	fn matrix4(name: const(char)*, count: int, transpose: bool, value: f32*)
 	{
-		int loc = glGetUniformLocation(id, name);
+		loc := glGetUniformLocation(id, name);
 		glUniformMatrix4fv(loc, count, transpose, value);
 	}
 
@@ -177,25 +177,24 @@ final:
 	 * Sampler
 	 */
 
-	void sampler(const(char)* name, int value)
+	fn sampler(name: const(char)*, value: i32)
 	{
-		int loc = glGetUniformLocation(id, name);
+		loc := glGetUniformLocation(id, name);
 		glUniform1i(loc, value);
 	}
 }
 
-GLuint makeShaderVF(string name, string vert, string frag, string[] attr, string[] texs)
+fn makeShaderVF(name: string, vert: string, frag: string, attr: string[], texs: string[]) GLuint
 {
 	// Compile the shaders
-	GLuint shader = createAndCompileShaderVF(name, vert, frag);
+	shader := createAndCompileShaderVF(name, vert, frag);
 
 	// Setup vertex attributes, needs to done before linking.
-	for (size_t i; i < attr.length; i++) {
-		if (attr[i] is null) {
+	foreach (i, att; attr) {
+		if (att is null) {
 			continue;
 		}
-
-		glBindAttribLocation(shader, cast(uint)i, attr[i].ptr);
+		glBindAttribLocation(shader, cast(uint)i, att.ptr);
 	}
 
 	// Linking the Shader Program
@@ -209,11 +208,11 @@ GLuint makeShaderVF(string name, string vert, string frag, string[] attr, string
 
 	// Setup the texture units.
 	glUseProgram(shader);
-	for (size_t i; i < texs.length; i++) {
-		if (texs[i] is null)
+	foreach (i, tex; texs) {
+		if (tex is null)
 			continue;
 
-		int loc = glGetUniformLocation(shader, texs[i].ptr);
+		loc := glGetUniformLocation(shader, tex.ptr);
 		glUniform1i(loc, cast(int)i);
 	}
 	glUseProgram(0);
@@ -221,18 +220,17 @@ GLuint makeShaderVF(string name, string vert, string frag, string[] attr, string
 	return shader;
 }
 
-GLuint makeShaderVGF(string name, string vert, string geom, string frag, string[] attr, string[] texs)
+fn makeShaderVGF(name: string, vert: string, geom: string, frag: string, attr: string[], texs: string[]) GLuint
 {
 	// Compile the shaders
-	GLuint shader = createAndCompileShaderVGF(name, vert, geom, frag);
+	shader := createAndCompileShaderVGF(name, vert, geom, frag);
 
 	// Setup vertex attributes, needs to done before linking.
-	for (size_t i; i < attr.length; i++) {
-		if (attr[i] is null) {
+	foreach (i, att; attr) {
+		if (att is null) {
 			continue;
 		}
-
-		glBindAttribLocation(shader, cast(uint)i, attr[i].ptr);
+		glBindAttribLocation(shader, cast(uint)i, att.ptr);
 	}
 
 	// Linking the Shader Program
@@ -246,11 +244,11 @@ GLuint makeShaderVGF(string name, string vert, string geom, string frag, string[
 
 	// Setup the texture units.
 	glUseProgram(shader);
-	for (size_t i; i < texs.length; i++) {
-		if (texs[i] is null)
+	foreach (i, tex; texs) {
+		if (tex is null)
 			continue;
 
-		int loc = glGetUniformLocation(shader, texs[i].ptr);
+		loc := glGetUniformLocation(shader, tex.ptr);
 		glUniform1i(loc, cast(int)i);
 	}
 	glUseProgram(0);
@@ -258,12 +256,12 @@ GLuint makeShaderVGF(string name, string vert, string geom, string frag, string[
 	return shader;
 }
 
-static GLuint createAndCompileShaderVF(string name, string vert, string frag)
+fn createAndCompileShaderVF(name: string, vert: string, frag: string) GLuint
 {
 	// Create the handels
-	uint vertShader = glCreateShader(GL_VERTEX_SHADER);
-	uint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	uint programShader = glCreateProgram();
+	vertShader := glCreateShader(GL_VERTEX_SHADER);
+	fragShader := glCreateShader(GL_FRAGMENT_SHADER);
+	programShader := glCreateProgram();
 
 	// Attach the shaders to a program handel.
 	glAttachShader(programShader, vertShader);
@@ -283,13 +281,13 @@ static GLuint createAndCompileShaderVF(string name, string vert, string frag)
 	return programShader;
 }
 
-static GLuint createAndCompileShaderVGF(string name, string vert, string geom, string frag)
+fn createAndCompileShaderVGF(name: string, vert: string, geom: string, frag: string) GLuint
 {
 	// Create the handels
-	uint vertShader = glCreateShader(GL_VERTEX_SHADER);
-	uint geomShader = glCreateShader(GL_GEOMETRY_SHADER);
-	uint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	uint programShader = glCreateProgram();
+	vertShader := glCreateShader(GL_VERTEX_SHADER);
+	geomShader := glCreateShader(GL_GEOMETRY_SHADER);
+	fragShader := glCreateShader(GL_FRAGMENT_SHADER);
+	programShader := glCreateProgram();
 
 	// Attach the shaders to a program handel.
 	glAttachShader(programShader, vertShader);
@@ -314,10 +312,10 @@ static GLuint createAndCompileShaderVGF(string name, string vert, string geom, s
 	return programShader;
 }
 
-void compileShader(string name, GLuint shader, string source, string type)
+fn compileShader(name: string, shader: GLuint, source: string, type: string)
 {
-	const(char)* ptr;
-	int length;
+	ptr: const(char)*;
+	length: int;
 
 	ptr = source.ptr;
 	length = cast(int)source.length - 1;
@@ -328,11 +326,11 @@ void compileShader(string name, GLuint shader, string source, string type)
 	printDebug(name, shader, false, type);
 }
 
-bool printDebug(string name, GLuint shader, bool program, string type)
+fn printDebug(name: string, shader: GLuint, program: bool, type: string) bool
 {
 	// Instead of pointers, realy bothersome.
-	GLint status;
-	GLint length;
+	status: GLint;
+	length: GLint;
 
 	// Get information about the log on this object.
 	if (program) {
@@ -343,7 +341,7 @@ bool printDebug(string name, GLuint shader, bool program, string type)
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 	}
 
-	char[] buffer;
+	buffer: char[];
 	if (length > 2) {
 		// Yes length+1 and just length.
 		buffer = new char[](length + 1);

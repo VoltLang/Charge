@@ -11,15 +11,15 @@ import charge.gfx.texture;
 /**
  * Texture that can be used for fonts.
  */
-global Texture2D bitmapTexture;
+global bitmapTexture: Texture2D;
 
 
 struct BitmapState
 {
-	int offX;
-	int offY;
-	int glyphWidth;
-	int glyphHeight;
+	offX: int;
+	offY: int;
+	glyphWidth: int;
+	glyphHeight: int;
 }
 
 enum tabSize = 4;
@@ -28,14 +28,14 @@ enum tabSize = 4;
 /**
  * Computes the size of the bounding box for the given text.
  */
-void buildSize(ref BitmapState s, scope const(ubyte)[] text,
-               out uint width, out uint height)
+fn buildSize(ref s: BitmapState, text: scope const(ubyte)[],
+               out width: uint, out height: uint)
 {
 	if (text is null) {
 		return;
 	}
 
-	int max, x, y;
+	max, x, y: int;
 	foreach (c; text) {
 		switch (c) {
 		case '\t':
@@ -62,10 +62,10 @@ void buildSize(ref BitmapState s, scope const(ubyte)[] text,
  * Builds the vertices in builder of the given text.
  * Uses quads, so for vertices per glyph.
  */
-void buildVertices(ref BitmapState s, DrawVertexBuilder b,
-                   scope const(ubyte)[] text)
+fn buildVertices(ref s: BitmapState, b: DrawVertexBuilder,
+                 text: scope const(ubyte)[])
 {
-	int x, y;
+	x, y: int;
 	foreach (c; text) {
 		switch (c) {
 		case '\t':
@@ -78,8 +78,8 @@ void buildVertices(ref BitmapState s, DrawVertexBuilder b,
 			x = 0;
 			break;
 		default:
-			int X = s.offX + x * s.glyphWidth;
-			int Y = s.offY + y * s.glyphHeight;
+			X := s.offX + x * s.glyphWidth;
+			Y := s.offY + y * s.glyphHeight;
 			buildVertex(ref s, b, X, Y, c);
 			x++;
 			break;
@@ -87,17 +87,17 @@ void buildVertices(ref BitmapState s, DrawVertexBuilder b,
 	}
 }
 
-void buildVertex(ref BitmapState s, DrawVertexBuilder b, int x, int y, ubyte c)
+fn buildVertex(ref s: BitmapState, b: DrawVertexBuilder, x: int, y: int, c: ubyte)
 {
-	float dstX1 = cast(float)x;
-	float dstY1 = cast(float)y;
-	float dstX2 = cast(float)(x + s.glyphWidth);
-	float dstY2 = cast(float)(y + s.glyphHeight);
+	dstX1 := cast(f32)x;
+	dstY1 := cast(f32)y;
+	dstX2 := cast(f32)(x + s.glyphWidth);
+	dstY2 := cast(f32)(y + s.glyphHeight);
 
-	float srcX1 = (1.0f / 16.0f) * (c % 16);
-	float srcY1 = (1.0f / 16.0f) * (c / 16);
-	float srcX2 = (1.0f / 16.0f) + srcX1;
-	float srcY2 = (1.0f / 16.0f) + srcY1;
+	srcX1 := (1.0f / 16.0f) * (c % 16);
+	srcY1 := (1.0f / 16.0f) * (c / 16);
+	srcX2 := (1.0f / 16.0f) + srcX1;
+	srcY2 := (1.0f / 16.0f) + srcY1;
 
 	b.add(dstX1, dstY1, srcX1, srcY1);
 	b.add(dstX1, dstY2, srcX1, srcY2);
@@ -121,9 +121,9 @@ global this()
 
 import watt.io;
 
-void initBitmap()
+fn initBitmap()
 {
-	u32[20480] stack;
+	stack: u32[20480];
 	foreach (y; 0 .. Height) {
 		pos := y * Width;
 		foreach (x; 0 .. Width) {
@@ -136,9 +136,9 @@ void initBitmap()
 	}
 
 	bitmapTexture = Texture2D.makeRGBA8("bitmapTexture", Width, Height, 1);
-	GLuint id = bitmapTexture.id;
-	GLuint target = bitmapTexture.target;
-	GLuint format = GL_RGBA;
+	id: GLuint = bitmapTexture.id;
+	target: GLuint = bitmapTexture.target;
+	format: GLuint = GL_RGBA;
 
 	glCheckError();
 	glBindTexture(target, bitmapTexture.id);
@@ -156,7 +156,7 @@ void initBitmap()
 	glCheckError();
 }
 
-void closeBitmap()
+fn closeBitmap()
 {
 	if (bitmapTexture !is null) {
 		bitmapTexture.decRef();

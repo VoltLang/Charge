@@ -11,12 +11,12 @@ class Buffer : Resource
 {
 public:
 	enum string uri = "buf://";
-	GLuint vao;
-	GLuint buf;
+	vao: GLuint;
+	buf: GLuint;
 
 
 protected:
-	void deleteBuffers()
+	fn deleteBuffers()
 	{
 		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
 		if (vao) { glDeleteVertexArrays(1, &vao); vao = 0; }	
@@ -24,7 +24,7 @@ protected:
 
 
 private:
-	this(GLuint vao, GLuint buf)
+	this(vao: GLuint, buf: GLuint)
 	{
 		this.vao = vao;
 		this.buf = buf;
@@ -40,20 +40,20 @@ private:
 class Builder
 {
 private:
-	void* mPtr;
-	size_t mPos;
-	size_t mSize;
+	mPtr: void*;
+	mPos: size_t;
+	mSize: size_t;
 
 public:
-	final @property void* ptr() { return mPtr; }
-	final @property size_t length() { return mPos; }
+	final @property fn ptr() void* { return mPtr; }
+	final @property fn length() size_t { return mPos; }
 
 	~this()
 	{
 		close();
 	}
 
-	final void close()
+	final fn close()
 	{
 		if (mPtr !is null) {
 			cFree(mPtr);
@@ -63,7 +63,7 @@ public:
 		mSize = 0;
 	}
 
-	final void add(void* input, size_t size)
+	final fn add(input: void*, size: size_t)
 	{
 		if (mPos + size >= mSize) {
 			mSize += mPos + size;
@@ -74,7 +74,7 @@ public:
 	}
 
 private:
-	void resetStore(size_t size)
+	fn resetStore(size: size_t)
 	{
 		if (mSize < size) {
 			cFree(mPtr);

@@ -20,28 +20,28 @@ abstract class Target : Resource
 public:
 	enum string uri = "target://";
 
-	GLuint fbo;
-	GLuint target;
+	fbo: GLuint;
+	target: GLuint;
 
-	uint width;
-	uint height;
+	width: uint;
+	height: uint;
 
 
 public:
-	final void bind()
+	final fn bind()
 	{
 		glBindFramebuffer(target, fbo);
 		glViewport(0, 0, cast(int)width, cast(int)height);
 	}
 
-	final void unbind()
+	final fn unbind()
 	{
 		glBindFramebuffer(target, 0);
 	}
 
-	abstract void setMatrixToOrtho(ref Matrix4x4f mat);
-	abstract void setMatrixToOrtho(ref Matrix4x4f mat, float width, float height);
-	abstract void setMatrixToProjection(ref Matrix4x4f mat, f32 fov, f32 near, f32 far);
+	abstract fn setMatrixToOrtho(ref mat: Matrix4x4f);
+	abstract fn setMatrixToOrtho(ref mat: Matrix4x4f, width: f32, height: f32);
+	abstract fn setMatrixToProjection(ref mat: Matrix4x4f, fov: f32, near: f32, far: f32);
 
 
 protected:
@@ -67,35 +67,35 @@ protected:
 final class DefaultTarget : Target
 {
 private:
-	global DefaultTarget mInstance;
+	global mInstance: DefaultTarget;
 
 
 public:
-	override final void setMatrixToOrtho(ref Matrix4x4f mat)
+	override final fn setMatrixToOrtho(ref mat: Matrix4x4f)
 	{
-		setMatrixToOrtho(ref mat, cast(float)width, cast(float)height);
+		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
 	}
 
-	override final void setMatrixToOrtho(ref Matrix4x4f mat, float width, float height)
+	override final fn setMatrixToOrtho(ref mat: Matrix4x4f, width: f32, height: f32)
 	{
 		mat.setToOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
 	}
 
-	override final void setMatrixToProjection(ref Matrix4x4f mat, f32 fov, f32 near, f32 far)
+	override final fn setMatrixToProjection(ref mat: Matrix4x4f, fov: f32, near: f32, far: f32)
 	{
 		mat.setToPerspective(fov, cast(f32)width / cast(f32)height, near, far);
 	}
 
-	global DefaultTarget opCall()
+	global fn opCall() DefaultTarget
 	{
 		if (mInstance !is null) {
 			return mInstance;
 		}
 
-		string filename = "%default";
+		filename := "%default";
 
-		void* dummy;
-		auto t = cast(DefaultTarget)Resource.alloc(typeid(DefaultTarget),
+		dummy: void*;
+		t := cast(DefaultTarget)Resource.alloc(typeid(DefaultTarget),
 		                                           uri, filename,
 		                                           0, out dummy);
 		t.__ctor(0, 0);
@@ -104,7 +104,7 @@ public:
 		return t;
 	}
 
-	global void close()
+	global fn close()
 	{
 		if (mInstance !is null) {
 			mInstance.decRef();
@@ -123,34 +123,34 @@ private:
 class Framebuffer : Target
 {
 public:
-	Texture color;
-	Texture depth;
+	color: Texture;
+	depth: Texture;
 
 
 public:
-	override final void setMatrixToOrtho(ref Matrix4x4f mat)
+	override final fn setMatrixToOrtho(ref mat: Matrix4x4f)
 	{
-		setMatrixToOrtho(ref mat, cast(float)width, cast(float)height);
+		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
 	}
 
-	override final void setMatrixToOrtho(ref Matrix4x4f mat, float width, float height)
+	override final fn setMatrixToOrtho(ref mat: Matrix4x4f, width: f32, height: f32)
 	{
 		mat.setToOrtho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
 	}
 
-	override final void setMatrixToProjection(ref Matrix4x4f mat, f32 fov, f32 near, f32 far)
+	override final fn setMatrixToProjection(ref mat: Matrix4x4f, fov: f32, near: f32, far: f32)
 	{
 		mat.setToPerspective(fov, cast(f32)width / cast(f32)height, near, far);
 	}
 
-	global Framebuffer make(string name, uint width, uint height)
+	global fn make(name: string, width: uint, height: uint) Framebuffer
 	{
-		uint levels = 1;
+		levels: uint = 1;
 
-		Texture color = Texture2D.makeRGBA8(name, width, height, 1);
-		Texture depth = Texture2D.makeDepth24(name, width, height, 1);
+		color := Texture2D.makeRGBA8(name, width, height, 1);
+		depth := Texture2D.makeDepth24(name, width, height, 1);
 
-		GLuint fbo;
+		fbo: GLuint;
 		glGenFramebuffers(1, &fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glFramebufferTexture2D(
@@ -163,10 +163,10 @@ public:
 		glCheckFramebufferError();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		void* dummy;
-		auto t = cast(Framebuffer)Resource.alloc(typeid(Framebuffer),
-		                                         uri, name,
-		                                         0, out dummy);
+		dummy: void*;
+		t := cast(Framebuffer)Resource.alloc(typeid(Framebuffer),
+		                                     uri, name,
+		                                     0, out dummy);
 		t.__ctor(fbo, color, depth, width, height);
 
 		return t;

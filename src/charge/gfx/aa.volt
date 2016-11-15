@@ -17,7 +17,7 @@ import charge.math.matrix;
 struct AA
 {
 public:
-	Framebuffer fbo;
+	fbo: Framebuffer;
 
 
 public:
@@ -35,7 +35,7 @@ public:
 
 	fn unbindAndDraw(t: Target)
 	{
-		Matrix4x4f mat;
+		mat: Matrix4x4f;
 		mat.setToIdentity();
 
 		fbo.unbind();
@@ -75,10 +75,10 @@ public:
 }
 
 /// Quad vbo.
-global DrawBuffer aaVbo;
+global aaVbo: DrawBuffer;
 
 /// Sampler to use with the shader.
-global GLuint aaSampler;
+global aaSampler: GLuint;
 
 
 /*
@@ -92,9 +92,9 @@ global this()
 	Core.addInitAndCloseRunners(initAA, closeAA);
 }
 
-void initAA()
+fn initAA()
 {
-	auto b = new DrawVertexBuilder(6);
+	b := new DrawVertexBuilder(6);
 	b.add(-1.f, -1.f, 0.f, 0.f);
 	b.add( 1.f, -1.f, 1.f, 0.f);
 	b.add( 1.f,  1.f, 1.f, 1.f);
@@ -109,7 +109,7 @@ void initAA()
 	glSamplerParameteri(aaSampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-void closeAA()
+fn closeAA()
 {
 	if (aaSampler) { glDeleteSamplers(1, &aaSampler); aaSampler = 0; }
 	if (aaVbo !is null) { aaVbo.decRef(); aaVbo = null; }

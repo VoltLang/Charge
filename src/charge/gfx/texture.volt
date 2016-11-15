@@ -22,21 +22,21 @@ class Texture : Resource
 public:
 	enum string uri = "tex://";
 
-	GLuint id;
-	GLuint target;
+	id: GLuint;
+	target: GLuint;
 
-	uint width;
-	uint height;
-	uint depth;
+	width: uint;
+	height: uint;
+	depth: uint;
 
 
 public:
-	final void bind()
+	final fn bind()
 	{
 		glBindTexture(target, id);
 	}
 
-	final void unbind()
+	final fn unbind()
 	{
 		glBindTexture(target, 0);
 	}
@@ -66,33 +66,33 @@ protected:
 class Texture2D : Texture
 {
 public:
-	global Texture2D makeRGBA8(string name, uint width, uint height,
-		uint levels)
+	global fn makeRGBA8(name: string, width: uint, height: uint,
+		levels: uint) Texture2D
 	{
 		return makeInternal(name, width, height, levels, GL_RGBA8);
 	}
 
-	global Texture2D makeDepth24(string name, uint width, uint height,
-		uint levels)
+	global fn makeDepth24(name: string, width: uint, height: uint,
+		levels: uint) Texture2D
 	{
 		return makeInternal(name, width, height, levels, GL_DEPTH_COMPONENT24);
 	}
 
-	global Texture2D makeAlpha(string name, uint width, uint height,
-		uint levels)
+	global fn makeAlpha(name: string, width: uint, height: uint,
+		levels: uint) Texture2D
 	{
 		return makeInternal(name, width, height, levels, GL_ALPHA);
 	}
 
-	global Texture2D makeInternal(string name, uint width, uint height,
-		uint levels, GLuint internal)
+	global fn makeInternal(name: string, width: uint, height: uint,
+		levels: uint, internal: GLuint) Texture2D
 	{
-		int x = cast(int)width;
-		int y = cast(int)height;
-		int lvls = cast(int)levels;
+		x := cast(int)width;
+		y := cast(int)height;
+		lvls := cast(int)levels;
 
-		GLuint id;
-		GLuint target = GL_TEXTURE_2D;
+		id: GLuint;
+		target: GLuint = GL_TEXTURE_2D;
 
 		glGenTextures(1, &id);
 		glBindTexture(target, id);
@@ -100,8 +100,8 @@ public:
 		glBindTexture(target, 0);
 		glCheckError();
 
-		void* dummy;
-		auto tex = cast(Texture2D)Resource.alloc(typeid(Texture2D),
+		dummy: void*;
+		tex := cast(Texture2D)Resource.alloc(typeid(Texture2D),
 		                                         uri, name,
 		                                         0, out dummy);
 		tex.__ctor(id, target, cast(uint) x, cast(uint) y, 1);
@@ -109,13 +109,13 @@ public:
 		return tex;
 	}
 
-	global Texture2D load(Pool p, string filename)
+	global fn load(p: Pool, filename: string) Texture2D
 	{
-		File file = File.load(filename);
-		void[] data = file.data;
-		int x, y, comp;
+		file := File.load(filename);
+		data := file.data;
+		x, y, comp: i32;
 
-		auto ptr = stbi_load_from_memory(data, out x, out y, out comp, STBI_rgb_alpha);
+		ptr := stbi_load_from_memory(data, out x, out y, out comp, STBI_rgb_alpha);
 
 		// Free and null everything.
 		file.decRef(); file = null; data = null;
@@ -125,11 +125,11 @@ public:
 			throw new Exception(filename);
 		}
 
-		uint levels = log2(max(cast(uint)x, cast(uint)y)) + 1;
-		auto tex = makeRGBA8(filename, cast(uint)x, cast(uint)y, levels);
-		GLuint id = tex.id;
-		GLuint target = tex.target;
-		GLuint format = GL_RGBA;
+		levels := log2(max(cast(uint)x, cast(uint)y)) + 1;
+		tex := makeRGBA8(filename, cast(uint)x, cast(uint)y, levels);
+		id := tex.id;
+		target := tex.target;
+		format := GL_RGBA;
 
 		glCheckError();
 		glBindTexture(target, id);

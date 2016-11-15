@@ -16,13 +16,13 @@ import charge.math.color;
 class DrawBuffer : Buffer
 {
 public:
-	GLsizei num;
+	num: GLsizei;
 
 
 public:
-	global DrawBuffer make(string name, DrawVertexBuilder vb)
+	global fn make(name: string, vb: DrawVertexBuilder) DrawBuffer
 	{
-		void* dummy;
+		dummy: void*;
 		buffer := cast(DrawBuffer)Resource.alloc(
 			typeid(DrawBuffer), uri, name, 0, out dummy);
 		buffer.__ctor(0, 0);
@@ -30,7 +30,7 @@ public:
 		return buffer;
 	}
 
-	void update(DrawVertexBuilder vb)
+	fn update(vb: DrawVertexBuilder)
 	{
 		deleteBuffers();
 		vb.bake(out vao, out buf, out num);
@@ -49,7 +49,7 @@ protected:
  *
  * It has one shader uniform called 'matrix' that is the.
  */
-global Shader drawShader;
+global drawShader: Shader;
 
 
 /**
@@ -57,9 +57,9 @@ global Shader drawShader;
  */
 struct DrawVertex
 {
-	float x, y;
-	float u, v;
-	Color4b color;
+	x, y: f32;
+	u, v: f32;
+	color: Color4b;
 }
 
 
@@ -70,14 +70,14 @@ class DrawVertexBuilder : Builder
 		reset(num);
 	}
 
-	final void reset(size_t num = 0)
+	final fn reset(num: size_t = 0)
 	{
 		resetStore(num * typeid(DrawVertex).size);
 	}
 
-	final void add(float x, float y, float u, float v)
+	final fn add(x: f32, y: f32, u: f32, v: f32)
 	{
-		DrawVertex vert;
+		vert: DrawVertex;
 		vert.x = x;
 		vert.y = y;
 		vert.u = u;
@@ -86,9 +86,9 @@ class DrawVertexBuilder : Builder
 		add(&vert, 1);
 	}
 
-	final void add(float x, float y, float u, float v, Color4b color)
+	final fn add(x: f32, y: f32, u: f32, v: f32, color: Color4b)
 	{
-		DrawVertex vert;
+		vert: DrawVertex;
 		vert.x = x;
 		vert.y = y;
 		vert.u = u;
@@ -97,14 +97,14 @@ class DrawVertexBuilder : Builder
 		add(&vert, 1);
 	}
 
-	final void add(DrawVertex* vert, size_t num)
+	final fn add(vert: DrawVertex*, num: size_t)
 	{
 		add(cast(void*)vert, num * typeid(DrawVertex).size);
 	}
 
 	alias add = Builder.add;
 
-	final void bake(out GLuint vao, out GLuint buf, out GLsizei num)
+	final fn bake(out vao: GLuint, out buf: GLuint, out num: GLsizei)
 	{
 		// Setup vertex buffer and upload the data.
 		glGenBuffers(1, &buf);
@@ -116,7 +116,7 @@ class DrawVertexBuilder : Builder
 
 		glBufferData(GL_ARRAY_BUFFER, cast(GLsizeiptr)length, ptr, GL_STATIC_DRAW);
 
-		auto stride = cast(GLsizei)typeid(DrawVertex).size;
+		stride := cast(GLsizei)typeid(DrawVertex).size;
 		glVertexAttribPointer(0, 2, GL_FLOAT, 0, stride, null);
 		glVertexAttribPointer(1, 2, GL_FLOAT, 0, stride, cast(void*)(4 * 2));
 		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, 1, stride, cast(void*)(4 * 4));
@@ -143,7 +143,7 @@ global this()
 	Core.addInitAndCloseRunners(initDraw, closeDraw);
 }
 
-void initDraw()
+fn initDraw()
 {
 	drawShader = new Shader("charge.gfx.draw", vertexShaderES,
 	                    fragmentShaderES,
@@ -151,7 +151,7 @@ void initDraw()
 	                    ["tex"]);
 }
 
-void closeDraw()
+fn closeDraw()
 {
 	drawShader.breakApart();
 	drawShader = null;
