@@ -8,6 +8,7 @@ module charge.sys.file;
 import core.exception;
 import core.stdc.stdio;
 
+import watt.conv;
 import watt.text.format;
 
 import charge.sys.memory;
@@ -65,9 +66,9 @@ public:
 protected:
 	global void loadFile(string filename, out FILE* fp, out size_t size)
 	{
-		auto cstr = filename ~ "\0";
+		cstr := filename.toStringz();
 
-		fp = fopen(cstr.ptr, "rb");
+		fp = fopen(cstr, "rb");
 		if (fp is null) {
 			throw new Exception(format("Couldn't open file '%s' for reading.", filename));
 		}

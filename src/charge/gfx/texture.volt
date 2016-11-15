@@ -6,6 +6,7 @@
 module charge.gfx.texture;
 
 import core.exception;
+import watt.text.format;
 import lib.stb.image;
 
 import charge.sys.file;
@@ -120,7 +121,8 @@ public:
 		file.decRef(); file = null; data = null;
 
 		if (ptr is null) {
-			throw new Exception("could not load '" ~ filename ~ "'");
+			str := .format("could not load '%s'", filename);
+			throw new Exception(filename);
 		}
 
 		uint levels = log2(max(cast(uint)x, cast(uint)y)) + 1;
