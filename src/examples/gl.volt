@@ -15,13 +15,13 @@ import charge.sys.resource;
 class Game : GameSceneManagerApp
 {
 public:
-	this(string[] args)
+	this(args: string[])
 	{
 		// First init core.
-		auto opts = new CoreOptions();
+		opts := new CoreOptions();
 		super(opts);
 
-		auto s = new Scene(this, opts.width, opts.height);
+		s := new Scene(this, opts.width, opts.height);
 		push(s);
 	}
 }
@@ -30,11 +30,11 @@ public:
 class Scene : GameSimpleScene
 {
 public:
-	CtlInput input;
-	GfxTexture tex;
-	GfxDrawBuffer buf;
-	uint width;
-	uint height;
+	input: CtlInput;
+	tex: GfxTexture;
+	buf: GfxDrawBuffer;
+	width: uint;
+	height: uint;
 
 public:
 	this(Game g, uint width, uint height)
@@ -59,7 +59,7 @@ public:
 	 *
 	 */
 
-	void checkVersion()
+	fn checkVersion()
 	{
 		// For texture functions.
 		if (!GL_VERSION_4_5) {
@@ -73,24 +73,24 @@ public:
 		}
 	}
 
-	void initBuffers()
+	fn initBuffers()
 	{
-		uint texWidth = tex.width;
-		uint texHeight = tex.height;
+		texWidth := tex.width;
+		texHeight := tex.height;
 		while (texWidth > width || texHeight > height) {
 			texWidth /= 2;
 			texHeight /= 2;
 		}
 
-		uint x = width / 2 - texWidth / 2;
-		uint y = height / 2 - texHeight / 2;
+		x := width / 2 - texWidth / 2;
+		y := height / 2 - texHeight / 2;
 
-		float fX = cast(float)x;
-		float fY = cast(float)y;
-		float fXW = cast(float)(x + texWidth);
-		float fYH = cast(float)(y + texHeight);
+		fX := cast(float)x;
+		fY := cast(float)y;
+		fXW := cast(float)(x + texWidth);
+		fYH := cast(float)(y + texHeight);
 
-		auto b = new GfxDrawVertexBuilder(6);
+		b := new GfxDrawVertexBuilder(6);
 		b.add(fX,  fY,  0.0f, 0.0f);
 		b.add(fXW, fY,  1.0f, 0.0f);
 		b.add(fXW, fYH, 1.0f, 1.0f);
@@ -108,15 +108,15 @@ public:
 	 *
 	 */
 
-	override void close()
+	override fn close()
 	{
 		if (tex !is null) { tex.decRef(); tex = null; }
 		if (buf !is null) { buf.decRef(); buf = null; }
 	}
 
-	override void render(GfxTarget t)
+	override fn render(t: GfxTarget)
 	{
-		Matrix4x4f mat;
+		mat: Matrix4x4f;
 		t.setMatrixToOrtho(ref mat);
 		gfxDrawShader.bind();
 		gfxDrawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
@@ -139,7 +139,7 @@ public:
 		glDisable(GL_BLEND);
 	}
 
-	override void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m)
+	override fn keyDown(CtlKeyboard, int, dchar, scope const(char)[])
 	{
 		mManager.closeMe(this);
 	}
