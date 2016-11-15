@@ -51,11 +51,19 @@ class AlignTest : GameSimpleScene
 public:
 	i32 x, y, offsetX, offsetY, size;
 	GfxDrawBuffer buf;
+	GfxShader testShader;
+
 
 public:
 	this(GameSceneManager g)
 	{
 		super(g, Type.Game);
+
+		testShader = new GfxShader("aligntest", vertexShader120,
+		                    fragmentShader120,
+		                    ["position", "uv", "color"],
+		                    ["tex"]);
+
 		size = 16;
 		offsetX = 0;
 		offsetY = 0;
@@ -93,7 +101,8 @@ public:
 
 	override void close()
 	{
-
+		testShader.breakApart();
+		testShader = null;
 	}
 
 	override void mouseMove(CtlMouse m, int, int)
@@ -147,27 +156,6 @@ public:
 		glDrawArrays(GL_TRIANGLES, 0, buf.num);
 		glBindVertexArray(0);
 	}
-}
-
-global GfxShader testShader;
-
-global this()
-{
-	Core.addInitAndCloseRunners(initDraw, closeDraw);
-}
-
-void initDraw()
-{
-	testShader = new GfxShader("aligntest", vertexShader120,
-	                    fragmentShader120,
-	                    ["position", "uv", "color"],
-	                    ["tex"]);
-}
-
-void closeDraw()
-{
-	testShader.breakApart();
-	testShader = null;
 }
 
 enum string vertexShader120 = `
