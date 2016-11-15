@@ -19,27 +19,27 @@ enum {
 
 struct stbi_io_callbacks
 {
-	int function(void* user, stbi_uc* data, int size) read;
-	void function(void* user, int n) skip;
-	int function(void* user) oef;
+	read: fn(user: void*, data: stbi_uc*, size: int) int;
+	skip: fn(user: void*, n: int) void;
+	oef: fn(user: void*) int;
 }
 
-int stbi_info_from_memory(void[] data, out int x, out int y, out int comp)
+fn stbi_info_from_memory(data: void[], out x: int, out y: int, out comp: int) int
 {
 	return stbi_info_from_memory(cast(stbi_uc*)data.ptr, cast(int)data.length, &x, &y, &comp);
 }
 
-stbi_uc* stbi_load_from_memory(void[] data, out int x, out int y, out int comp, int req_comp)
+fn stbi_load_from_memory(data: void[], out x: int, out y: int, out comp: int, req_comp: int) stbi_uc*
 {
 	return stbi_load_from_memory(cast(stbi_uc*)data.ptr, cast(int)data.length, &x, &y, &comp, req_comp);
 }
 
 extern(C) {
-	const(char)* stbi_failure_reason();
-	void stbi_set_flip_vertically_on_load(int flag_true_if_should_flip);
-	int stbi_info_from_memory(const(stbi_uc)* buffer, int len, int* x, int* y, int* comp);
-	int stbi_info_from_callbacks(const(stbi_io_callbacks)* c, void* user, int* x, int* y, int* comp);
-	stbi_uc* stbi_load_from_memory(const(stbi_uc)* buffer, int len, int* x, int* y, int* comp, int req_comp);
-	stbi_uc* stbi_load_from_callbacks(const(stbi_io_callbacks)* clbk, void* user, int* x, int* y, int* comp, int req_comp);
-	void stbi_image_free(void* retval_from_stbi_load);
+	fn stbi_failure_reason() const(char)*;
+	fn stbi_set_flip_vertically_on_load(flag_true_if_should_flip: int);
+	fn stbi_info_from_memory(buffer: const(stbi_uc)*, len: int, x: int*, y: int*, comp: int*) int;
+	fn stbi_info_from_callbacks(c: const(stbi_io_callbacks)*, user: void*, x: int*, y: int*, comp: int*) int;
+	fn stbi_load_from_memory(buffer: const(stbi_uc)*, len: int, x: int*, y: int*, comp: int*, req_comp: int) stbi_uc*;
+	fn stbi_load_from_callbacks(clbk: const(stbi_io_callbacks)*, user: void*, x: int*, y: int*, comp: int*, req_comp: int) stbi_uc*;
+	fn stbi_image_free(retval_from_stbi_load: void*);
 }
