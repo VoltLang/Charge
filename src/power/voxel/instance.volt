@@ -8,7 +8,7 @@ import charge.gfx;
 
 struct InstanceData
 {
-	uint position, offset;
+	position, offset: uint;
 }
 
 /**
@@ -17,20 +17,20 @@ struct InstanceData
 class InstanceBuffer : GfxBuffer
 {
 public:
-	GLsizei num;
+	num: GLsizei;
 
 public:
-	global InstanceBuffer make(string name, GLsizei num, size_t instances)
+	global fn make(name: string, num: GLsizei, instances: size_t) InstanceBuffer
 	{
-		void* dummy;
-		auto buffer = cast(InstanceBuffer)Resource.alloc(
+		dummy: void*;
+		buffer := cast(InstanceBuffer)Resource.alloc(
 			typeid(InstanceBuffer), uri, name, 0, out dummy);
 		buffer.__ctor(num, instances);
 		return buffer;
 	}
 
 protected:
-	this(GLsizei num, size_t instances)
+	this(num: GLsizei, instances: size_t)
 	{
 		super(0, 0);
 		this.num = num;

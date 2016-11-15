@@ -21,10 +21,10 @@ import power.experiments.raytracer;
 class Game : GameSceneManagerApp
 {
 public:
-	this(string[] args)
+	this(args: string[])
 	{
 		// First init core.
-		auto opts = new CoreOptions();
+		opts := new CoreOptions();
 		opts.title = "Charged Power";
 		opts.width = 1920;
 		opts.height = 1080;
@@ -49,7 +49,7 @@ public:
 	 */
 
 	/// Absolute minimum required.
-	void checkVersion()
+	fn checkVersion()
 	{
 		// For texture functions.
 		if (!GL_ARB_texture_storage && !GL_VERSION_4_5) {

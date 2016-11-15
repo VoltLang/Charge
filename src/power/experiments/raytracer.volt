@@ -22,7 +22,7 @@ import power.voxel.boxel;
 import power.voxel.instance;
 import power.experiments.viewer;
 
-void loadDag(string filename, out void[] data)
+fn loadDag(filename: string, out data: void[])
 {
 	// Setup raytracing code.
 	data = read(filename);
@@ -64,17 +64,17 @@ class RayTracer : Viewer
 {
 public:
 
-	SimpleSVO ssvo;
-	GLuint query;
-	bool queryInFlight;
+	ssvo: SimpleSVO;
+	query: GLuint;
+	queryInFlight: bool;
 
 
 	/**
 	 * For ray tracing.
 	 * @{
 	 */
-	GLuint octBuffer;
-	GLuint octTexture;
+	octBuffer: GLuint;
+	octTexture: GLuint;
 	/**
 	 * @}
 	 */
@@ -88,7 +88,7 @@ public:
 
 		glGenQueries(1, &query);
 
-		void[] data;
+		data: void[];
 		loadDag("res/alley.dag", out data);
 
 		glCreateBuffers(1, &octBuffer);
@@ -107,7 +107,7 @@ public:
 	 *
 	 */
 
-	override void close()
+	override fn close()
 	{
 		super.close();
 
@@ -115,7 +115,7 @@ public:
 		if (octBuffer) { glDeleteBuffers(1, &octBuffer); octBuffer = 0; }
 	}
 
-	override void keyDown(CtlKeyboard device, int keycode, dchar c, scope const(char)[] m)
+	override fn keyDown(device: CtlKeyboard, keycode: int, c: dchar, m: scope const(char)[])
 	{
 		switch (keycode) {
 		case 'e': ssvo.triggerPatchStart(); break;
@@ -132,7 +132,7 @@ public:
 	 *
 	 */
 
-	override void renderScene(GfxTarget t)
+	override fn renderScene(t: GfxTarget)
 	{
 		// Clear the screen.
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -140,10 +140,10 @@ public:
 		glEnable(GL_DEPTH_TEST);
 		glUseProgram(0);
 
-		math.Matrix4x4f view;
+		view: math.Matrix4x4f;
 		view.setToLookFrom(ref camPosition, ref camRotation);
 
-		math.Matrix4x4f proj;
+		proj: math.Matrix4x4f;
 		t.setMatrixToProjection(ref proj, 45.f, 0.0001f, 256.f);
 		proj.setToMultiply(ref view);
 		proj.transpose();
@@ -168,7 +168,7 @@ public:
 		glDisable(GL_DEPTH_TEST);
 	}
 
-	void checkQuery(GfxTarget t)
+	fn checkQuery(t: GfxTarget)
 	{
 		if (!queryInFlight) {
 			return;
@@ -224,21 +224,21 @@ class AdvancedSVO
 class SimpleSVO
 {
 public:
-	DagBuffer mVbo;
+	mVbo: DagBuffer;
 
-	GfxShader[4] mShaders;
-	string[4] mShaderNames;
-	u32 mShaderIndex;
-	GfxShader mShader;
-	i32 mPatchSize;
-	i32 mPatchMinSize;
-	i32 mPatchMaxSize;
-	i32 mPatchStartLevel;
-	i32 mPatchStopLevel;
-	i32 mVoxelPower;
-	i32 mVoxelPerUnit;
+	mShaders: GfxShader[4];
+	mShaderNames: string[4];
+	mShaderIndex: u32;
+	mShader: GfxShader;
+	mPatchSize: i32;
+	mPatchMinSize: i32;
+	mPatchMaxSize: i32;
+	mPatchStartLevel: i32;
+	mPatchStopLevel: i32;
+	mVoxelPower: i32;
+	mVoxelPerUnit: i32;
 
-	GLuint mOctTexture;
+	mOctTexture: GLuint;
 
 
 public:
@@ -272,7 +272,7 @@ public:
 		numMorton := calcNumMorton(mPatchMaxSize);
 		b := new DagBuilder(cast(size_t)numMorton);
 		foreach (i; 0 .. numMorton) {
-			u32[3] vals;
+			vals: u32[3];
 			math.decode3(cast(u64)i, out vals);
 
 			x := cast(i32)vals[0];

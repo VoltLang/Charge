@@ -13,21 +13,21 @@ import math = charge.math;
 class BoxelBuffer : GfxBuffer
 {
 public:
-	GLsizei num;
+	num: GLsizei;
 
 
 public:
-	global BoxelBuffer make(string name,(BoxelBuilder vb)
+	global fn make(name: string, vb: BoxelBuilder) BoxelBuffer
 	{
-		void* dummy;
-		auto buffer = cast(BoxelBuffer)Resource.alloc(
+		dummy: void*;
+		buffer := cast(BoxelBuffer)Resource.alloc(
 			typeid(BoxelBuffer), uri, name, 0, out dummy);
 		buffer.__ctor(0, 0);
 		buffer.update(vb);
 		return buffer;
 	}
 
-	void update(BoxelBuilder vb)
+	fn update(vb: BoxelBuilder)
 	{
 		deleteBuffers();
 		vb.bake(out vao, out buf, out num);
@@ -35,7 +35,7 @@ public:
 
 
 protected:
-	this(GLuint vao, GLuint buf)
+	this(vao: GLuint, buf: GLuint)
 	{
 		super(vao, buf);
 	}
@@ -43,12 +43,12 @@ protected:
 
 struct Vertex
 {
-	float x, y, z;
-	math.Color4b color;
+	x, y, z: float;
+	color: math.Color4b;
 
-	Vertex opCall(f32 x, f32 y, f32 z, math.Color4b color)
+	fn opCall(x: f32, y: f32, z: f32, color: math.Color4b) Vertex
 	{
-		Vertex vert;
+		vert: Vertex;
 		vert.x = x;
 		vert.y = y;
 		vert.z = z;
@@ -59,19 +59,19 @@ struct Vertex
 
 class BoxelBuilder : GfxBuilder
 {
-	this(size_t num)
+	this(num: size_t)
 	{
 		reset(num);
 	}
 
-	final void reset(size_t num = 0)
+	final fn reset(num: size_t = 0)
 	{
 		resetStore(12 * num * typeid(Vertex).size);
 	}
 
-	final void addCube(f32 x, f32 y, f32 z, math.Color4b color)
+	final fn addCube(x: f32, y: f32, z: f32, color: math.Color4b)
 	{
-		Vertex[24] vert;
+		vert: Vertex[24];
 		color.a = 0;
 		vert[ 0] = Vertex.opCall(  x, 1+y,   z, color);
 		vert[ 1] = Vertex.opCall(  x,   y,   z, color);
@@ -111,14 +111,14 @@ class BoxelBuilder : GfxBuilder
 		add(vert.ptr, 24);
 	}
 
-	final void add(Vertex* vert, size_t num)
+	final fn add(vert: Vertex*, num: size_t)
 	{
 		add(cast(void*)vert, num * typeid(Vertex).size);
 	}
 
 	alias add = GfxBuilder.add;
 
-	final void bake(out GLuint vao, out GLuint buf, out GLsizei num)
+	final fn bake(out vao: GLuint, out buf: GLuint, out num: GLsizei)
 	{
 		// Setup vertex buffer and upload the data.
 		glGenBuffers(1, &buf);

@@ -14,21 +14,21 @@ import math = charge.math;
 class DagBuffer : GfxBuffer
 {
 public:
-	GLsizei num;
+	num: GLsizei;
 
 
 public:
-	global DagBuffer make(string name, DagBuilder vb)
+	global fn make(name: string, vb: DagBuilder) DagBuffer
 	{
-		void* dummy;
-		auto buffer = cast(DagBuffer)Resource.alloc(
+		dummy: void*;
+		buffer := cast(DagBuffer)Resource.alloc(
 			typeid(DagBuffer), uri, name, 0, out dummy);
 		buffer.__ctor(0, 0);
 		buffer.update(vb);
 		return buffer;
 	}
 
-	void update(DagBuilder vb)
+	fn update(vb: DagBuilder)
 	{
 		deleteBuffers();
 		vb.bake(out vao, out buf, out num);
@@ -36,7 +36,7 @@ public:
 
 
 protected:
-	this(GLuint vao, GLuint buf)
+	this(vao: GLuint, buf: GLuint)
 	{
 		super(vao, buf);
 	}
@@ -44,25 +44,26 @@ protected:
 
 struct Vertex
 {
-	byte x, y, z, w;
+	x, y, z, w: i8;
 }
 
 
 class DagBuilder : GfxBuilder
 {
-	this(size_t num)
+public:
+	this(num: size_t)
 	{
 		reset(num);
 	}
 
-	final void reset(size_t num = 0)
+	final fn reset(num: size_t = 0)
 	{
 		resetStore(num * typeid(Vertex).size);
 	}
 
-	final void add(i8 x, i8 y, i8 z, i8 w)
+	final fn add(x: i8, y: i8, z: i8, w: i8)
 	{
-		Vertex vert;
+		vert: Vertex;
 		vert.x = x;
 		vert.y = y;
 		vert.z = z;
@@ -71,14 +72,14 @@ class DagBuilder : GfxBuilder
 		add(&vert, 1);
 	}
 
-	final void add(Vertex* vert, size_t num)
+	final fn add(vert: Vertex*, num: size_t)
 	{
 		add(cast(void*)vert, num * typeid(Vertex).size);
 	}
 
 	alias add = GfxBuilder.add;
 
-	final void bake(out GLuint vao, out GLuint buf, out GLsizei num)
+	final fn bake(out vao: GLuint, out buf: GLuint, out num: GLsizei)
 	{
 		// Setup vertex buffer and upload the data.
 		glGenBuffers(1, &buf);

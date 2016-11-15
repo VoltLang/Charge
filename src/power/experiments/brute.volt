@@ -25,33 +25,33 @@ import power.experiments.viewer;
 class Brute : Viewer
 {
 public:
-	DagBuffer first;
-	DagBuffer second;
-	DagBuffer third;
-	IndirectBuffer ibo;
-	GfxShader voxelShader;
+	first: DagBuffer;
+	second: DagBuffer;
+	third: DagBuffer;
+	ibo: IndirectBuffer;
+	voxelShader: GfxShader;
 
-	GLuint feedback;
-	GfxShader feedbackShader;
+	feedback: GLuint;
+	feedbackShader: GfxShader;
 
-	GLuint query;
-	GLuint fbQuery;
-	bool queryInFlight;
+	query: GLuint;
+	fbQuery: GLuint;
+	queryInFlight: bool;
 
 
 	/**
 	 * For ray tracing.
 	 * @{
 	 */
-	GLuint octBuffer;
-	GLuint octTexture;
+	octBuffer: GLuint;
+	octTexture: GLuint;
 	/**
 	 * @}
 	 */
 
 
 public:
-	this(GameSceneManager g)
+	this(g: GameSceneManager)
 	{
 		super(g);
 		distance = 1.0;
@@ -99,7 +99,7 @@ public:
 	 *
 	 */
 
-	override void close()
+	override fn close()
 	{
 		super.close();
 
@@ -118,7 +118,7 @@ public:
 	 *
 	 */
 
-	override void renderScene(GfxTarget t)
+	override fn renderScene(t: GfxTarget)
 	{
 		// Clear the screen.
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
@@ -127,10 +127,10 @@ public:
 		glUseProgram(0);
 
 
-		math.Matrix4x4f view;
+		view: math.Matrix4x4f;
 		view.setToLookFrom(ref camPosition, ref camRotation);
 
-		math.Matrix4x4f proj;
+		proj: math.Matrix4x4f;
 		t.setMatrixToProjection(ref proj, 45.f, 0.1f, 256.f);
 		proj.setToMultiply(ref view);
 
@@ -221,7 +221,7 @@ public:
 		checkQuery();
 	}
 
-	void checkQuery()
+	fn checkQuery()
 	{
 		if (!queryInFlight) {
 			return;
@@ -247,10 +247,10 @@ public:
 
 struct IndirectData
 {
-	GLuint count;
-	GLuint instanceCount;
-	GLuint first;
-	GLuint baseInstance;
+	count: GLuint;
+	instanceCount: GLuint;
+	first: GLuint;
+	baseInstance: GLuint;
 }
 
 /**
@@ -259,15 +259,15 @@ struct IndirectData
 class IndirectBuffer : Resource
 {
 public:
-	GLuint buf;
-	GLsizei num;
+	buf: GLuint;
+	num: GLsizei;
 
 
 public:
-	global IndirectBuffer make(string name, GLsizei num, GLuint count)
+	global fn make(name: string, num: GLsizei, count: GLuint) IndirectBuffer
 	{
-		void* dummy;
-		auto buffer = cast(IndirectBuffer)Resource.alloc(
+		dummy: void*;
+		buffer := cast(IndirectBuffer)Resource.alloc(
 			typeid(IndirectBuffer), GfxBuffer.uri, name, 0, out dummy);
 		buffer.__ctor(num, count);
 		return buffer;
@@ -275,12 +275,12 @@ public:
 
 
 protected:
-	this(GLsizei num, GLuint count)
+	this(num: GLsizei, count: GLuint)
 	{
 		super();
 		this.num = num;
 
-		IndirectData data;
+		data: IndirectData;
 		data.count = count;
 		data.instanceCount = 1;
 
@@ -306,7 +306,7 @@ protected:
 
 struct InstanceData
 {
-	uint position, offset;
+	position, offset: u32;
 }
 
 /**
@@ -315,20 +315,20 @@ struct InstanceData
 class DagBuffer : GfxBuffer
 {
 public:
-	GLsizei num;
+	num: GLsizei;
 
 public:
-	global DagBuffer make(string name, GLsizei num, size_t instances)
+	global fn make(name: string, num: GLsizei, instances: size_t) DagBuffer
 	{
-		void* dummy;
-		auto buffer = cast(DagBuffer)Resource.alloc(
+		dummy: void*;
+		buffer := cast(DagBuffer)Resource.alloc(
 			typeid(DagBuffer), uri, name, 0, out dummy);
 		buffer.__ctor(num, instances);
 		return buffer;
 	}
 
 protected:
-	this(GLsizei num, size_t instances)
+	this(num: GLsizei, instances: size_t)
 	{
 		super(0, 0);
 		this.num = num;

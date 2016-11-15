@@ -20,25 +20,25 @@ class Viewer : GameSimpleScene
 {
 public:
 	// AA
-	bool mUseAA;
-	GfxAA aa;
+	mUseAA: bool;
+	aa: GfxAA;
 
 	// Rotation stuff.
-	bool isDragging;
-	float camHeading, camPitch, distance;
+	isDragging: bool;
+	camHeading, camPitch, distance: f32;
 	camRotation: math.Quatf;
 	camPosition: math.Point3f;
 
-	bool camUp, camFore, camBack, camLeft, camRight;
+	camUp, camFore, camBack, camLeft, camRight: bool;
 
 	/// Text rendering stuff.
-	GfxDrawBuffer textVbo;
-	GfxDrawVertexBuilder textBuilder;
-	GfxBitmapState textState;
+	textVbo: GfxDrawBuffer;
+	textBuilder: GfxDrawVertexBuilder;
+	textState: GfxBitmapState;
 
 
 public:
-	this(GameSceneManager g)
+	this(g: GameSceneManager)
 	{
 		super(g, Type.Game);
 		resetPosition();
@@ -58,19 +58,19 @@ public:
 		updateText("Info:");
 	}
 
-	void renderScene(GfxTarget t)
+	fn renderScene(t: GfxTarget)
 	{
 
 	}
 
-	void updateText(string text)
+	fn updateText(text: string)
 	{
 		textBuilder.reset(text.length * 4u);
 		gfxBuildVertices(ref textState, textBuilder, cast(ubyte[])text);
 		textVbo.update(textBuilder);
 	}
 
-	void printInfo()
+	fn printInfo()
 	{
 		io.writefln("\t\tcamHeading = %sf;", cast(f64)camHeading);
 		io.writefln("\t\tcamPitch = %sf;", cast(f64)camPitch);
@@ -85,7 +85,7 @@ public:
 		io.writefln("%3s %3s %3s", x, y, z);
 	}
 
-	void resetPosition()
+	fn resetPosition()
 	{
 		camHeading = 0.f;
 		camPitch = 0.f;
@@ -99,25 +99,25 @@ public:
 	 *
 	 */
 
-	override void close()
+	override fn close()
 	{
 		aa.breakApart();
 		if (textVbo !is null) { textVbo.decRef(); textVbo = null; }
 	}
 
-	override void logic()
+	override fn logic()
 	{
 		camRotation = math.Quatf.opCall(camHeading, camPitch, 0.0f);
-		math.Vector3f sum;
+		sum: math.Vector3f;
 
 		if (camFore != camBack) {
-			math.Vector3f v;
+			v: math.Vector3f;
 			v.z = camBack ? 1.0f : -1.0f;
 			sum += camRotation * v;
 		}
 
 		if (camLeft != camRight) {
-			math.Vector3f v;
+			v: math.Vector3f;
 			v.x = camRight ? 1.0f : -1.0f;
 			sum += camRotation * v;
 		}
@@ -135,7 +135,7 @@ public:
 		camPosition += sum;
 	}
 
-	override void render(GfxTarget t)
+	override fn render(t: GfxTarget)
 	{
 		if (mUseAA) {
 			aa.bind(t);
@@ -146,7 +146,7 @@ public:
 		}
 
 		// Draw text
-		math.Matrix4x4f mat;
+		mat: math.Matrix4x4f;
 		t.setMatrixToOrtho(ref mat);
 
 		gfxDrawShader.bind();
@@ -165,7 +165,7 @@ public:
 		glDisable(GL_BLEND);
 	}
 
-	override void dropControl()
+	override fn dropControl()
 	{
 		super.dropControl();
 		camUp = false;
@@ -175,7 +175,7 @@ public:
 		camRight = false;
 	}
 
-	override void keyDown(CtlKeyboard, int keycode, dchar, scope const(char)[] m)
+	override fn keyDown(CtlKeyboard, keycode: int, dchar, scope const(char)[])
 	{
 		switch (keycode) {
 		case 27: mManager.closeMe(this); break;
@@ -190,7 +190,7 @@ public:
 		}
 	}
 
-	override void keyUp(CtlKeyboard, int keycode)
+	override fn keyUp(CtlKeyboard, keycode: int)
 	{
 		switch (keycode) {
 		case 32: camUp = false; break;
@@ -202,7 +202,7 @@ public:
 		}
 	}
 
-	override void mouseMove(CtlMouse m, int x, int y)
+	override fn mouseMove(m: CtlMouse, x: int, y: int)
 	{
 		if (isDragging) {
 			camHeading += x * -0.003f;
@@ -213,7 +213,7 @@ public:
 		if (camPitch >  PIf) camPitch =  PIf;
 	}
 
-	override void mouseDown(CtlMouse m, int button)
+	override fn mouseDown(m: CtlMouse, button: int)
 	{
 		switch (button) {
 		case 1:
@@ -233,7 +233,7 @@ public:
 		}
 	}
 
-	override void mouseUp(CtlMouse m, int button)
+	override fn mouseUp(m: CtlMouse, button: int)
 	{
 		if (button == 1) {
 			isDragging = false;

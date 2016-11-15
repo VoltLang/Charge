@@ -49,13 +49,13 @@ fn getColor(c: u32) math.Color4b
 class AlignTest : GameSimpleScene
 {
 public:
-	i32 x, y, offsetX, offsetY, size;
-	GfxDrawBuffer buf;
-	GfxShader testShader;
+	x, y, offsetX, offsetY, size: i32;
+	buf: GfxDrawBuffer;
+	testShader: GfxShader;
 
 
 public:
-	this(GameSceneManager g)
+	this(g: GameSceneManager)
 	{
 		super(g, Type.Game);
 
@@ -99,19 +99,19 @@ public:
 	 *
 	 */
 
-	override void close()
+	override fn close()
 	{
 		testShader.breakApart();
 		testShader = null;
 	}
 
-	override void mouseMove(CtlMouse m, int, int)
+	override fn mouseMove(m: CtlMouse, int, int)
 	{
 		x = m.x / size - offsetX;
 		y = m.y / size - offsetY;
 	}
 
-	override void keyDown(CtlKeyboard, int keycode, dchar, scope const(char)[] m)
+	override fn keyDown(CtlKeyboard, keycode: int, dchar, scope const(char)[])
 	{
 		switch (keycode) {
 		case 27: mManager.closeMe(this); break;
@@ -119,9 +119,9 @@ public:
 		}
 	}
 
-	override void render(GfxTarget t)
+	override fn render(t: GfxTarget)
 	{
-		math.Matrix4x4f mat;
+		mat: math.Matrix4x4f;
 		t.setMatrixToOrtho(ref mat);
 		testShader.bind();
 		testShader.matrix4("matrix", 1, true, mat.u.a.ptr);
