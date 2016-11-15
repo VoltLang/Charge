@@ -28,8 +28,8 @@ import lib.gl;
 import lib.gl.loader;
 
 version (Emscripten) {
-	extern(C) void emscripten_set_main_loop(void function(), int fps, int infloop);
-	extern(C) void emscripten_cancel_main_loop();
+	extern(C) fn emscripten_set_main_loop(fn(), fps: int, infloop: int);
+	extern(C) fn emscripten_cancel_main_loop();
 }
 
 
@@ -39,12 +39,12 @@ version (Emscripten) {
  *
  */
 
-extern(C) Core chargeCore(CoreOptions opts)
+extern(C) fn chargeCore(opts: CoreOptions) Core
 {
 	return new CoreSDL(opts);
 }
 
-extern(C) void chargeQuit()
+extern(C) fn chargeQuit()
 {
 	// If SDL haven't been loaded yet.
 	version (!StaticSDL) {
@@ -53,7 +53,7 @@ extern(C) void chargeQuit()
 		}
 	}
 
-	SDL_Event event;
+	event: SDL_Event;
 	event.type = SDL_QUIT;
 	SDL_PushEvent(&event);
 }
@@ -61,26 +61,26 @@ extern(C) void chargeQuit()
 class CoreSDL : CommonCore
 {
 private:
-	CoreOptions opts;
+	opts: CoreOptions;
 
-	Input input;
+	input: Input;
 
-	string title;
-	int screenshotNum;
-	bool fullscreen; //< Should we be fullscreen
-	bool fullscreenAutoSize; //< Only used at start
+	title: string;
+	screenshotNum: int;
+	fullscreen: bool; //< Should we be fullscreen
+	fullscreenAutoSize: bool; //< Only used at start
 
-	bool noVideo;
+	noVideo: bool;
 
 	/* surface for window */
-	SDL_Window* window;
-	SDL_GLContext glcontext;
+	window: SDL_Window*;
+	glcontext: SDL_GLContext;
 
 	/* run time libraries */
-	Library glu;
-	Library sdl;
+	glu: Library;
+	sdl: Library;
 
-	bool running;
+	running: bool;
 
 	/* name of libraries to load */
 	version (Windows) {
@@ -99,7 +99,7 @@ private:
 	enum gfxFlags = coreFlag.GFX | coreFlag.AUTO;
 
 public:
-	this(CoreOptions opts)
+	this(opts: CoreOptions)
 	{
 		this.opts = opts;
 		this.running = true;
@@ -108,26 +108,27 @@ public:
 		loadLibraries();
 
 		if (opts.flags & gfxFlags) {
-			initGfx(p);
+			initGfx();
 		} else {
-			initNoGfx(p);
+			initNoGfx();
 		}
 
 		this.input = new InputSDL(0);
 
-		for (size_t i; i < initFuncs.length; i++) {
-			initFuncs[i]();
+		foreach (initFunc; initFuncs) {
+			initFunc();
 		}
 	}
 
-	void close()
+	fn close()
 	{
 		if (closeDg !is null) {
 			closeDg();
 		}
 
-		for (size_t i; i < closeFuncs.length; i++)
-			closeFuncs[i]();
+		foreach (closeFunc; closeFuncs) {
+			closeFunc();
+		}
 
 		saveSettings();
 
@@ -146,32 +147,32 @@ public:
 		}
 	}
 
-	override void panic(string msg)
+	override fn panic(msg: string)
 	{
 		printf("panic\n".ptr);
 		exit(-1);
 	}
 
-	override string getClipboardText()
+	override fn getClipboardText() string
 	{
 		if (gfxLoaded)
 			throw new Exception("Gfx not initd!");
 		return null;
 	}
 
-	override void screenShot()
+	override fn screenShot()
 	{
 		if (gfxLoaded) {
 			throw new Exception("Gfx not initd!");
 		}
 	}
 
-	override void resize(uint w, uint h)
+	override fn resize(w: uint, h: uint)
 	{
 		this.resize(w, h, fullscreen);
 	}
 
-	override void resize(uint w, uint h, bool fullscreen)
+	override fn resize(w: uint, h: uint, fullscreen: bool)
 	{
 		if (!resizeSupported) {
 			return;
@@ -182,13 +183,13 @@ public:
 		}
 	}
 
-	override void size(out uint w, out uint h, out bool fullscreen)
+	override fn size(out w: uint, out h: uint, out fullscreen: bool)
 	{
 		if (!gfxLoaded) {
 			throw new Exception("Gfx not initd!");
 		}
 
-		auto t = DefaultTarget.opCall();
+		t := DefaultTarget.opCall();
 		w = t.width;
 		h = t.height;
 		fullscreen = this.fullscreen;
@@ -204,10 +205,10 @@ public:
 
 version (Emscripten) {
 
-	extern(C) global void loopCb()
+	extern(C) global fn loopCb()
 	{
-		SDL_Event event;
-		bool quitSet;
+		event: SDL_Event;
+		quitSet: bool;
 
 		while (SDL_PollEvent(&event)) {
 			if (cast(int)event.type == SDL_QUIT) {
@@ -231,7 +232,7 @@ version (Emscripten) {
 		}
 	}
 
-	override int loop()
+	override fn loop() int
 	{
 		emscripten_set_main_loop(loopCb, 0, 0);
 		return -1;
@@ -239,16 +240,16 @@ version (Emscripten) {
 
 } else {
 
-	override int loop()
+	override fn loop() int
 	{
-		long now = SDL_GetTicks();
-		long step = 10;
-		long where = now;
-		long last = now;
+		now: long = SDL_GetTicks();
+		step: long = 10;
+		where: long = now;
+		last: long = now;
 
-		int keypress = 0;
+		keypress: int = 0;
 
-		bool changed; //< Tracks if should render
+		changed: bool; //< Tracks if should render
 		while (running) {
 			now = SDL_GetTicks();
 
@@ -268,7 +269,7 @@ version (Emscripten) {
 				changed = true;
 			}
 
-			long diff = (step + where) - now;
+			diff := (step + where) - now;
 			idleDg(diff);
 
 			// Do the sleep now if there is time left.
@@ -283,9 +284,9 @@ version (Emscripten) {
 		return 0;
 	}
 
-	void doInput()
+	fn doInput()
 	{
-		SDL_Event e;
+		e: SDL_Event;
 
 		SDL_JoystickUpdate();
 
@@ -304,7 +305,7 @@ version (Emscripten) {
 */
 
 			case SDL_JOYBUTTONDOWN:
-				auto j = input.joystickArray[e.jbutton.which];
+				j := input.joystickArray[e.jbutton.which];
 				if (j.down is null) {
 					break;
 				}
@@ -312,7 +313,7 @@ version (Emscripten) {
 				break;
 
 			case SDL_JOYBUTTONUP:
-				auto j = input.joystickArray[e.jbutton.which];
+				j := input.joystickArray[e.jbutton.which];
 				if (j.up is null) {
 					break;
 				}
@@ -320,12 +321,12 @@ version (Emscripten) {
 				break;
 
 			case SDL_JOYAXISMOTION:
-				auto j = input.joystickArray[e.jbutton.which];
+				j := input.joystickArray[e.jbutton.which];
 				j.handleAxis(e.jaxis.axis, e.jaxis.value);
 				break;
 
 			case SDL_KEYDOWN:
-				auto k = input.keyboard;
+				k := input.keyboard;
 				//k.mod = e.key.keysym.mod;
 
 				if (k.down is null) {
@@ -335,7 +336,7 @@ version (Emscripten) {
 				break;
 
 			case SDL_KEYUP:
-				auto k = input.keyboard;
+				k := input.keyboard;
 				//k.mod = e.key.keysym.mod;
 
 				if (k.up is null) {
@@ -345,7 +346,7 @@ version (Emscripten) {
 				break;
 
 			case SDL_MOUSEMOTION:
-				auto m = input.mouse;
+				m := input.mouse;
 				m.state = e.motion.state;
 				m.x = e.motion.x;
 				m.y = e.motion.y;
@@ -357,7 +358,7 @@ version (Emscripten) {
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
-				auto m = input.mouse;
+				m := input.mouse;
 				m.state |= cast(u32)(1 << e.button.button);
 				m.x = e.button.x;
 				m.y = e.button.y;
@@ -369,7 +370,7 @@ version (Emscripten) {
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				auto m = input.mouse;
+				m := input.mouse;
 				m.state = cast(u32)~(1 << e.button.button) & m.state;
 				m.x = e.button.x;
 				m.y = e.button.y;
@@ -394,7 +395,7 @@ private:
 	 *
 	 */
 
-	void loadLibraries()
+	fn loadLibraries()
 	{
 /*
 		version (!StaticSDL) {
@@ -424,13 +425,13 @@ private:
 	 */
 
 
-	void initNoGfx(Properties p)
+	fn initNoGfx()
 	{
 		noVideo = true;
 		SDL_Init(SDL_INIT_JOYSTICK);
 	}
 
-	void closeNoGfx()
+	fn closeNoGfx()
 	{
 		if (!noVideo) {
 			return;
@@ -440,22 +441,22 @@ private:
 		noVideo = false;
 	}
 
-	void initGfx(Properties p)
+	fn initGfx()
 	{
 		SDL_Init(cast(uint)(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK));
 
-		uint width = opts.width;
-		uint height = opts.height;
+		width := opts.width;
+		height := opts.height;
 		fullscreen = false;//p.getBool("fullscreen", defaultFullscreen);
 		fullscreenAutoSize = true;//p.getBool("fullscreenAutoSize", defaultFullscreenAutoSize);
-		bool windowDecorations = opts.windowDecorations;
-		auto title = (opts.title ~ "\0").ptr;
+		windowDecorations := opts.windowDecorations;
+		title := opts.title.toStringz();
 
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-		uint bits = SDL_WINDOW_OPENGL;
+		bits: uint = SDL_WINDOW_OPENGL;
 		if (resizeSupported) {
  			bits |= SDL_WINDOW_RESIZABLE;
 		}
@@ -489,8 +490,8 @@ private:
 		}
 
 		// Readback size
-		int w, h;
-		auto t = DefaultTarget.opCall();
+		w, h: int;
+		t := DefaultTarget.opCall();
 		SDL_GetWindowSize(window, &w, &h);
 		t.width = cast(uint)w;
 		t.height = cast(uint)h;
@@ -509,7 +510,7 @@ private:
 +/
 	}
 
-	SDL_GLContext createCoreGL(int major, int minor)
+	fn createCoreGL(major: int, minor: int) SDL_GLContext
 	{
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, major);
@@ -517,7 +518,7 @@ private:
 		return SDL_GL_CreateContext(window);
 	}
 
-	void closeGfx()
+	fn closeGfx()
 	{
 		if (!gfxLoaded) {
 			return;
@@ -529,7 +530,7 @@ private:
 		gfxLoaded = false;
 	}
 
-	void* loadFunc(string c)
+	fn loadFunc(c: string) void*
 	{
 		return SDL_GL_GetProcAddress(toStringz(c));
 	}
@@ -547,7 +548,7 @@ public:
 		mouseArray ~= new MouseSDL();
 
 		// Small hack to allow hotplug.
-		auto num = numJoysticks;
+		num := numJoysticks;
 		if (num < 8) {
 			num = 8;
 		}
@@ -567,12 +568,12 @@ public:
 
 	}
 
-	override void setRelativeMode(bool value)
+	override fn setRelativeMode(value: bool)
 	{
 		SDL_SetRelativeMouseMode(value);
 	}
 
-	override bool getRelativeMode()
+	override fn getRelativeMode() bool
 	{
 		return cast(bool)SDL_GetRelativeMouseMode();
 	}
@@ -586,8 +587,8 @@ class KeyboardSDL : Keyboard
 class JoystickSDL : Joystick
 {
 private:
-	size_t mId;
-	SDL_Joystick* mStick;
+	mId: size_t;
+	mStick: SDL_Joystick*;
 
 
 public:
@@ -596,7 +597,7 @@ public:
 		mId = id;
 	}
 
-	@property override bool enabled(bool status)
+	@property override fn enabled(status: bool) bool
 	{
 		if (status) {
 			if (mStick is null) {
@@ -611,7 +612,7 @@ public:
 		return enabled;
 	}
 
-	@property override bool enabled()
+	@property override fn enabled() bool
 	{
 		return mStick !is null;
 	}

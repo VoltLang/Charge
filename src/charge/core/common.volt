@@ -18,7 +18,7 @@ protected:
 	static Logger l;
 +/
 
-	Properties p;
+	p: Properties;
 
 /+
 	/* run time libraries */
@@ -54,13 +54,13 @@ protected:
 	enum phyFlags = coreFlag.PHY | coreFlag.AUTO;
 	enum sfxFlags = coreFlag.SFX | coreFlag.AUTO;
 
-	void delegate() logicDg;
-	void delegate() closeDg;
-	void delegate() renderDg;
-	void delegate(long) idleDg;
+	logicDg: dg();
+	closeDg: dg();
+	renderDg: dg();
+	idleDg: dg(long);
 
 public:
-	override void setIdle(void delegate(long) dgt) {
+	override fn setIdle(dgt: dg(long)) {
 		if (dgt is null) {
 			idleDg = defaultIdle;
 		} else {
@@ -68,7 +68,7 @@ public:
 		}
 	}
 
-	override void setRender(void delegate() dgt) {
+	override fn setRender(dgt: dg()) {
 		if (dgt is null) {
 			renderDg = defaultDg;
 		} else {
@@ -76,7 +76,7 @@ public:
 		}
 	}
 
-	override void setLogic(void delegate() dgt) {
+	override fn setLogic(dgt: dg()) {
 		if (dgt is null) {
 			logicDg = defaultDg;
 		} else {
@@ -84,7 +84,7 @@ public:
 		}
 	}
 
-	override void setClose(void delegate() dgt) {
+	override fn setClose(dgt: dg()) {
 		if (dgt is null) {
 			closeDg = defaultDg;
 		} else {
@@ -125,9 +125,9 @@ protected:
 		}
 	}
 
-	override void initSubSystem(coreFlag flag)
+	override fn initSubSystem(flag: coreFlag)
 	{
-		auto not = coreFlag.PHY | coreFlag.SFX;
+		not := coreFlag.PHY | coreFlag.SFX;
 
 		if (flag & ~not) {
 			throw new Exception("Flag not supported");
@@ -176,7 +176,7 @@ protected:
 +/
 	}
 
-	void notLoaded(coreFlag mask, string name)
+	fn notLoaded(mask: coreFlag, name: string)
 	{
 /+
 		if (flags & mask) {
@@ -187,12 +187,6 @@ protected:
 +/
 	}
 
-	Properties properties()
-	{
-		return p;
-	}
-
-
 	/*
 	 *
 	 * Default delegate methods.
@@ -200,12 +194,12 @@ protected:
 	 */
 
 
-	void defaultIdle(long)
+	fn defaultIdle(long)
 	{
 		// This method intentionally left empty.
 	}
 
-	void defaultDg()
+	fn defaultDg()
 	{
 		// This method intentionally left empty.
 	}
@@ -218,7 +212,7 @@ protected:
 	 */
 
 
-	void loadPhy()
+	fn loadPhy()
 	{
 /+
 		if (odeLoaded) {
@@ -239,7 +233,7 @@ protected:
 +/
 	}
 
-	void loadSfx()
+	fn loadSfx()
 	{
 /+
 		if (openalLoaded) {
@@ -263,7 +257,7 @@ protected:
 +/
 	}
 
-	void initSettings()
+	fn initSettings()
 	{
 /+
 		settingsFile = chargeConfigFolder ~ "/settings.ini";
@@ -285,7 +279,7 @@ protected:
 +/
 	}
 
-	void saveSettings()
+	fn saveSettings()
 	{
 /+
 		auto ret = p.save(settingsFile);
@@ -303,7 +297,7 @@ protected:
 	 *
 	 */
 
-	void initPhy(Properties p)
+	fn initPhy()
 	{
 /+
 		if (!odeLoaded) {
@@ -317,7 +311,7 @@ protected:
 +/
 	}
 
-	void closePhy()
+	fn closePhy()
 	{
 /+
 		if (!phyLoaded) {
@@ -330,7 +324,7 @@ protected:
 +/
 	}
 
-	void initSfx(Properties p)
+	fn initSfx()
 	{
 /+
 		if (!openalLoaded) {
@@ -348,7 +342,7 @@ protected:
 +/
 	}
 
-	void closeSfx()
+	fn closeSfx()
 	{
 /+
 		if (!openalLoaded) {

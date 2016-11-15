@@ -22,13 +22,13 @@ enum coreFlag
 /**
  * Get a new core created with the given flags.
  */
-extern(C) Core chargeCore(CoreOptions opts);
+extern(C) fn chargeCore(opts: CoreOptions) Core;
 
 /**
  * Signal a quit a condition, this function mearly pushes
  * a quit event on the event queue and then returns.
  */
-extern(C) void chargeQuit();
+extern(C) fn chargeQuit();
 
 /**
  * Options at initialization.
@@ -36,11 +36,11 @@ extern(C) void chargeQuit();
 class CoreOptions
 {
 public:
-	uint width;
-	uint height;
-	string title;
-	coreFlag flags;
-	bool windowDecorations;
+	width: uint;
+	height: uint;
+	title: string;
+	flags: coreFlag;
+	windowDecorations: bool;
 
 public:
 	this()
@@ -67,26 +67,26 @@ public:
 	enum bool defaultForceResizeEnable = false;
 	enum bool defaultWindowDecorations = true;
 
-	coreFlag flags;
-	bool resizeSupported;
+	flags: coreFlag;
+	resizeSupported: bool;
 
 protected:
-	static void function()[] initFuncs;
-	static void function()[] closeFuncs;
+	static initFuncs: fn()[] ;
+	static closeFuncs: fn()[] ;
 
 
 private:
-	global Core instance;
+	global instance: Core;
 
 public:
 	/**
 	 * Sets callback functions.
 	 * @{
 	 */
-	abstract void setRender(void delegate() dgt);
-	abstract void setLogic(void delegate() dgt);
-	abstract void setClose(void delegate() dgt);
-	abstract void setIdle(void delegate(long) dgt);
+	abstract fn setRender(dgt: dg());
+	abstract fn setLogic(dgt: dg());
+	abstract fn setClose(dgt: dg());
+	abstract fn setIdle(dgt: dg(long));
 	/**
 	 * @}
 	 */
@@ -95,7 +95,7 @@ public:
 	 * Main loop functions, you should expect that this function returns.
 	 * Best usage is if you in your main function do this "return c.loop();".
 	 */
-	abstract int loop();
+	abstract fn loop() int;
 
 	/**
 	 * Initialize a subsystem. Only a single subsystem can be initialized
@@ -105,13 +105,13 @@ public:
 	 * initialized after a general initialization, generally speaking
 	 * SFX and PHY should always work.
 	 */
-	abstract void initSubSystem(coreFlag flags);
+	abstract fn initSubSystem(flags: coreFlag);
 
 	/**
 	 * These functions are run just after Core is initialize and
 	 * right before Core is closed.
 	 */
-	global void addInitAndCloseRunners(void function() init, void function() close)
+	global fn addInitAndCloseRunners(init: fn(), close: fn())
 	{
 		if (init !is null) {
 			initFuncs ~= init;
@@ -126,7 +126,7 @@ public:
 	 * Display a panic message, usually a dialogue box, then
 	 * calls exit(-1), so this function does not return.
 	 */
-	abstract void panic(string message);
+	abstract fn panic(message: string);
 
 
 	/*
@@ -139,13 +139,13 @@ public:
 	/**
 	 * Returns text from the clipboard, should any be in it.
 	 */
-	abstract string getClipboardText();
+	abstract fn getClipboardText() string;
 
-	abstract void resize(uint w, uint h);
-	abstract void resize(uint w, uint h, bool fullscreen);
-	abstract void size(out uint w, out uint h, out bool fullscreen);
+	abstract fn resize(w: uint, h: uint);
+	abstract fn resize(w: uint, h: uint, fullscreen: bool);
+	abstract fn size(out w: uint, out h: uint, out fullscreen: bool);
 
-	abstract void screenShot();
+	abstract fn screenShot();
 
 
 protected:
