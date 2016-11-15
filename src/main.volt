@@ -6,10 +6,10 @@ static import examples.gl;
 static import power.main;
 
 
-int main(string[] args)
+fn main(args: string[]) int
 {
-	//auto g = new examples.gl.Game(args);
-	auto g = new power.main.Game(args);
+	//g := new examples.gl.Game(args);
+	g := new power.main.Game(args);
 
 	return g.c.loop();
 }
