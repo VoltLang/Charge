@@ -18,10 +18,10 @@ import charge.sys.memory;
 abstract class Resource
 {
 public:
-	string url;
+	url: string;
 
 private:
-	int mRefcount;
+	mRefcount: int;
 
 protected:
 	this()
@@ -32,17 +32,17 @@ protected:
 		Pool.mInstance.resource(this);
 	}
 
-	global void* alloc(TypeInfo ti,
-	                   scope const(char)[] uri,
-	                   scope const(char)[] name,
-	                   size_t extraSize,
-	                   out void* extraPtr)
+	global fn alloc(ti: TypeInfo,
+	                uri: scope const(char)[],
+	                name: scope const(char)[],
+	                extraSize: size_t,
+	                out extraPtr: void*) void*
 	{
-		size_t sz = ti.classSize + uri.length + name.length + extraSize;
-		void* ptr = cMalloc(sz);
+		sz: size_t = ti.classSize + uri.length + name.length + extraSize;
+		ptr: void* = cMalloc(sz);
 
-		size_t start = 0;
-		size_t end = ti.classSize;
+		start: size_t = 0;
+		end: size_t = ti.classSize;
 		ptr[start .. end] = ti.classInit[start .. end];
 
 		start = end;
@@ -57,14 +57,14 @@ protected:
 			extraPtr = ptr + end;
 		}
 
-		auto r = cast(Resource)ptr;
+		r := cast(Resource)ptr;
 		r.url = cast(string)ptr[ti.classSize .. end];
 
 		return ptr;
 	}
 
 private:
-	final void incRef()
+	final fn incRef()
 	{
 		if (mRefcount++ == 0) {
 			assert(false);
@@ -73,7 +73,7 @@ private:
 		assert(mRefcount > 0);
 	}
 
-	final void decRef()
+	final fn decRef()
 	{
 		assert(mRefcount > 0);
 
@@ -93,13 +93,13 @@ private:
 class Pool
 {
 public:
-	bool suppress404;
+	suppress404: bool;
 
 
 private:
-	Resource[] mMarked;
+	mMarked: Resource[];
 
-	global Pool mInstance;
+	global mInstance: Pool;
 
 
 public:
@@ -107,7 +107,7 @@ public:
 	{
 	}
 
-	global Pool opCall()
+	global fn opCall() Pool
 	{
 		if (mInstance is null) {
 			mInstance = new Pool();
@@ -115,7 +115,7 @@ public:
 		return mInstance;
 	}
 
-	void collect()
+	fn collect()
 	{
 		foreach (r; mMarked) {
 			r.__dtor();
@@ -124,19 +124,19 @@ public:
 		mMarked = null;
 	}
 
-	void clean()
+	fn clean()
 	{
 		collect();
 	}
 
 
 private:
-	final void mark(Resource r)
+	final fn mark(r: Resource)
 	{
 		mMarked ~= r;
 	}
 
-	final void resource(Resource r)
+	final fn resource(r: Resource)
 	{
 	}
 }

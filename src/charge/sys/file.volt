@@ -27,28 +27,28 @@ class File : Resource
 public:
 	enum string uri = "file://";
 
-	size_t size;
-	void* ptr;
+	size: size_t;
+	ptr: void*;
 
 
 public:
-	@property void[] data()
+	@property fn data() void[]
 	{
 		return ptr[0 .. size];
 	}
 
-	global File load(string filename)
+	global fn load(filename: string) File
 	{
-		void* ptr;
-		FILE* fp;
-		size_t size;
+		ptr: void*;
+		fp: FILE*;
+		size: size_t;
 
 
 		loadFile(filename, out fp, out size);
 
-		void* raw = Resource.alloc(typeid(File), uri, filename, size, out ptr);
+		raw := Resource.alloc(typeid(File), uri, filename, size, out ptr);
 		
-		size_t bytesRead = fread(ptr, 1, size, fp);
+		bytesRead := fread(ptr, 1, size, fp);
 		if (bytesRead != size) {
 			cFree(raw);
 			fclose(fp);
@@ -56,7 +56,7 @@ public:
 		}
 		fclose(fp);
 
-		auto file = cast(File)raw;
+		file := cast(File)raw;
 		file.__ctor(ptr, size);
 		
 		return file;
@@ -64,7 +64,7 @@ public:
 
 
 protected:
-	global void loadFile(string filename, out FILE* fp, out size_t size)
+	global fn loadFile(filename: string, out fp: FILE*, out size: size_t)
 	{
 		cstr := filename.toStringz();
 
@@ -90,16 +90,16 @@ protected:
 		}
 	}
 
-	global void read(FILE* fp, void* ptr, size_t size)
+	global fn read(fp: FILE*, ptr: void*, size: size_t)
 	{
-		size_t bytesRead = fread(ptr, 1, size, fp);
+		bytesRead := fread(ptr, 1, size, fp);
 		if (bytesRead != size) {
 			fclose(fp);
 			throw new Exception("read failure.");
 		}
 	}
 
-	this(void* ptr, size_t size)
+	this(ptr: void*, size: size_t)
 	{
 		this.ptr = ptr;
 		this.size = size;

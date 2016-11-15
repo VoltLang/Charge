@@ -8,19 +8,19 @@ module charge.sys.memory;
 debug {
 
 	extern(C) {
-		size_t cMemoryUsage();
+		fn cMemoryUsage() size_t;
 
-		void* cMalloc(size_t size,
-		              const(char)* file = __FILE__,
-		              uint line = __LINE__);
+		fn cMalloc(size: size_t,
+		           file: const(char)* = __FILE__,
+		           line: uint = __LINE__)  void*;
 
-		void* cRealloc(void *ptr, size_t size,
-		               const(char)* file = __FILE__,
-		               uint line = __LINE__);
+		fn cRealloc(ptr: void*, size: size_t,
+		            file: const(char)* = __FILE__,
+		            line: uint = __LINE__)  void*;
 
-		void cFree(void *ptr,
-		           const(char)* file = __FILE__,
-		           uint line = __LINE__);
+		fn cFree(ptr: void*,
+		         file: const(char)* = __FILE__,
+		         line: uint = __LINE__)  void;
 	}
 
 } else {
