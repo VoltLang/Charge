@@ -13,16 +13,16 @@ import watt.io;
 class Background : Scene
 {
 public:
-	GfxTexture tile;
-	GfxTexture logo;
-	GLuint buf;
-	GLuint vao;
-	GLsizei num;
-	uint width;
-	uint height;
+	tile: GfxTexture;
+	logo: GfxTexture;
+	buf: GLuint;
+	vao: GLuint;
+	num: GLsizei;
+	width: uint;
+	height: uint;
 
 public:
-	this(SceneManager sm, string tileName, string logoName)
+	this(sm: SceneManager, tileName: string, logoName: string)
 	{
 		super(sm, Type.Background);
 
@@ -41,7 +41,7 @@ public:
 	 *
 	 */
 
-	void initBuffers(GfxTarget t)
+	fn initBuffers(t: GfxTarget)
 	{
 		if (tile is null && logo is null) {
 			return;
@@ -54,25 +54,25 @@ public:
 		width = t.width;
 		height = t.height;
 
-		auto b = new GfxDrawVertexBuilder(8);
+		b := new GfxDrawVertexBuilder(8);
 
 		// Tile vertecies
 		if (tile !is null) {
-			uint factor;
-			uint tileWidth;
-			uint tileHeight;
+			factor: uint;
+			tileWidth: uint;
+			tileHeight: uint;
 			while (tileWidth < width || tileHeight < height) {
 				factor += 2;
 				tileWidth = tile.width * factor;
 				tileHeight = tile.height * factor;
 			}
 
-			float tX1 = cast(float)(width / 2) - cast(float)(tileWidth / 2);
-			float tY1 = cast(float)(height / 2) - cast(float)(tileHeight / 2);
+			tX1 := cast(f32)(width / 2) - cast(f32)(tileWidth / 2);
+			tY1 := cast(f32)(height / 2) - cast(f32)(tileHeight / 2);
 
-			float tX2 = tX1 + cast(float)tileWidth;
-			float tY2 = tY1 + cast(float)tileHeight;
-			float f = cast(float)factor;
+			tX2 := tX1 + cast(f32)tileWidth;
+			tY2 := tY1 + cast(f32)tileHeight;
+			f := cast(f32)factor;
 
 			b.add(tX1, tY1, 0.0f, 0.0f);
 			b.add(tX2, tY1,    f, 0.0f);
@@ -82,17 +82,17 @@ public:
 
 		// Logo vertecies
 		if (logo !is null) {
-			uint logoWidth = logo.width;
-			uint logoHeight = logo.height;
+			logoWidth := logo.width;
+			logoHeight := logo.height;
 			while (logoWidth > width || logoHeight > height) {
 				logoWidth /= 2;
 				logoHeight /= 2;
 			}
 
-			float lX1 = cast(float)(width / 2 - logoWidth / 2);
-			float lY1 = cast(float)(height / 2 - logoHeight / 2);
-			float lX2 = lX1 + cast(float)logoWidth;
-			float lY2 = lY1 + cast(float)logoHeight;
+			lX1 := cast(f32)(width / 2 - logoWidth / 2);
+			lY1 := cast(f32)(height / 2 - logoHeight / 2);
+			lX2 := lX1 + cast(f32)logoWidth;
+			lY2 := lY1 + cast(f32)logoHeight;
 
 			b.add(lX1, lY1, 0.0f, 0.0f);
 			b.add(lX2, lY1, 1.0f, 0.0f);
@@ -113,7 +113,7 @@ public:
 	 *
 	 */
 
-	override void close()
+	override fn close()
 	{
 		if (tile !is null) { tile.decRef(); tile = null; }
 		if (logo !is null) { logo.decRef(); logo = null; }
@@ -121,12 +121,12 @@ public:
 		if (vao) { glDeleteVertexArrays(1, &vao); vao = 0; }
 	}
 
-	override void logic()
+	override fn logic()
 	{
 
 	}
 
-	override void render(GfxTarget t)
+	override fn render(t: GfxTarget)
 	{
 		initBuffers(t);
 
@@ -138,7 +138,7 @@ public:
 			return;
 		}
 
-		Matrix4x4f mat;
+		mat: Matrix4x4f;
 		t.setMatrixToOrtho(ref mat);
 		gfxDrawShader.bind();
 		gfxDrawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
@@ -150,7 +150,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		GLint offset;
+		offset: GLint;
 		if (tile !is null) {
 			tile.bind();
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -169,8 +169,8 @@ public:
 		glDisable(GL_BLEND);
 	}
 
-	override void assumeControl() {}
-	override void dropControl() {}
+	override fn assumeControl() {}
+	override fn dropControl() {}
 }
 
 enum string vertexShaderES = `

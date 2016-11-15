@@ -16,7 +16,7 @@ import charge.game.scene.scene;
 abstract class SimpleScene : Scene
 {
 protected:
-	CtlInput mInput;
+	mInput: CtlInput;
 
 
 public:
@@ -26,18 +26,18 @@ public:
 		mInput = CtlInput.opCall();
 	}
 
-	override void close() {}
-	override void logic() {}
-	override void render(GfxTarget t) {}
+	override fn close() {}
+	override fn logic() {}
+	override fn render(GfxTarget) {}
 
-	void keyDown(CtlKeyboard, int, dchar, scope const(char)[] m) {}
-	void keyUp(CtlKeyboard, int) {}
+	fn keyDown(CtlKeyboard, int, dchar, scope const(char)[]) {}
+	fn keyUp(CtlKeyboard, int) {}
 
-	void mouseMove(CtlMouse, int, int) {}
-	void mouseDown(CtlMouse, int) {}
-	void mouseUp(CtlMouse, int) {}
+	fn mouseMove(CtlMouse, int, int) {}
+	fn mouseDown(CtlMouse, int) {}
+	fn mouseUp(CtlMouse, int) {}
 
-	override void assumeControl()
+	override fn assumeControl()
 	{
 		mInput.keyboard.down = keyDown;
 		mInput.keyboard.up = keyUp;
@@ -46,7 +46,7 @@ public:
 		mInput.mouse.up = mouseUp;
 	}
 
-	override void dropControl()
+	override fn dropControl()
 	{
 		if (mInput.keyboard.down is keyDown) {
 			mInput.keyboard.down = null;

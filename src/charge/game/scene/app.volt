@@ -19,15 +19,15 @@ import charge.game.scene.scene;
 abstract class SceneManagerApp : App, SceneManager
 {
 private:
-	Scene[] vec;
-	Scene[] del;
-	Scene currentInput;
+	vec: Scene[];
+	del: Scene[];
+	currentInput: Scene;
 
-	bool dirty; //< Do we need to manage scenes.
-	bool built; //< Have we built this logic pass.
+	dirty: bool; //< Do we need to manage scenes.
+	built: bool; //< Have we built this logic pass.
 
-	alias BuilderDg = bool delegate();
-	BuilderDg[] builders;
+	alias BuilderDg = dg() bool;
+	builders: BuilderDg[];
 
 public:
 	this(CoreOptions opts = null)
@@ -50,7 +50,7 @@ public:
 	 *
 	 */
 
-	override void close()
+	override fn close()
 	{
 		closeAll();
 		while (vec.length || del.length) {
@@ -61,9 +61,9 @@ public:
 		super.close();
 	}
 
-	override void render(GfxTarget t)
+	override fn render(t: GfxTarget)
 	{
-		size_t i = vec.length;
+		i := vec.length;
 		foreach_reverse(r; vec) {
 			i--;
 			if (r.flags & Scene.Flag.Blocker) {
@@ -76,7 +76,7 @@ public:
 		}
 	}
 
-	override void logic()
+	override fn logic()
 	{
 		// This make sure we at least call
 		// the builders once per frame.
@@ -93,7 +93,7 @@ public:
 		}
 	}
 
-	override void idle(long time)
+	override fn idle(time: long)
 	{
 		// If we have built at least once this frame and have
 		// very little time left don't build again. But we
@@ -131,7 +131,7 @@ public:
 	 *
 	 */
 
-	override void push(Scene r)
+	override fn push(r: Scene)
 	{
 		assert(r !is null);
 
@@ -144,20 +144,22 @@ public:
 			return;
 		}
 
-		int i = cast(int)vec.length;
+		i := cast(int)vec.length;
 		for(--i; (i >= 0) && (vec[i].flags & Scene.Flag.AlwaysOnTop); i--) { }
 		// should be placed after the first non AlwaysOnTop scene.
 		i++;
 
 		// Might be moved, but also covers the case where it is empty.
 		vec ~= r;
-		for (Scene o, n = r; cast(size_t)i < vec.length; i++, n = o) {
+		o: Scene;
+		n := r;
+		for (; cast(size_t)i < vec.length; i++, n = o) {
 			o = vec[i];
 			vec[i] = n;
 		}
 	}
 
-	override void closeMe(Scene r)
+	override fn closeMe(r: Scene)
 	{
 		if (r is null) {
 			return;
@@ -176,18 +178,18 @@ public:
 	}
 
 private:
-	void closeAll()
+	fn closeAll()
 	{
-		auto d = vec;
+		d := vec;
 		foreach (r; d) {
 			closeMe(r);
 		}
 		dirty = true;
 	}
 
-	override void remove(Scene r)
+	override fn remove(r: Scene)
 	{
-		size_t n;
+		n: size_t;
 		foreach (ref s; vec) {
 			if (r is s) {
 				break;
@@ -205,14 +207,14 @@ private:
 		dirty = true;
 	}
 
-	final void manageScenes()
+	final fn manageScenes()
 	{
 		if (!dirty) {
 			return;
 		}
 		dirty = false;
 
-		Scene newScene;
+		newScene: Scene;
 
 		foreach_reverse (r; vec) {
 			assert(r !is null);
@@ -240,7 +242,7 @@ private:
 			}
 		}
 
-		auto tmp = del;
+		tmp := del;
 		foreach(r; tmp) {
 			r.close();
 		}

@@ -16,21 +16,21 @@ import charge.gfx.target;
 abstract class App
 {
 public:
-	Core c;
-	Input input;
+	c: Core;
+	input: Input;
 
 protected:
 /+
-	TimeTracker networkTime;
-	TimeTracker renderTime;
-	TimeTracker logicTime;
-	TimeTracker inputTime;
-	TimeTracker buildTime;
-	TimeTracker idleTime;
+	networkTime: TimeTracker;
+	renderTime: TimeTracker;
+	logicTime: TimeTracker;
+	inputTime: TimeTracker;
+	buildTime: TimeTracker;
+	idleTime: TimeTracker;
 +/
 
 private:
-	bool closed;
+	closed: bool;
 
 public:
 	this(CoreOptions opts = null)
@@ -61,13 +61,13 @@ public:
 		assert(closed);
 	}
 
-	void close()
+	fn close()
 	{
 		closed = true;
 	}
 
-	abstract void render(Target t);
-	abstract void logic();
+	abstract fn render(t: Target);
+	abstract fn logic();
 
 	/**
 	 * Idle is a bit missleading name, this function is always called after
@@ -76,11 +76,11 @@ public:
 	 * negative value if we are behind (often happens when rendering
 	 * takes to long to complete).
 	 */
-	abstract void idle(long time);
+	abstract fn idle(time: long);
 
 
 private final:
-	void doLogic()
+	fn doLogic()
 	{
 /+
 		logicTime.start();
@@ -89,19 +89,19 @@ private final:
 		logic();
 	}
 
-	void doRender()
+	fn doRender()
 	{
 /+
 		renderTime.start();
 		scope(exit) renderTime.stop();
 +/
-		auto t = DefaultTarget.opCall();
+		t := DefaultTarget.opCall();
 		t.bind();
 		render(t);
 		// Core swaps default target.
 	}
 
-	void doIdle(long diff)
+	fn doIdle(diff: long)
 	{
 /+
 		idleTime.start();

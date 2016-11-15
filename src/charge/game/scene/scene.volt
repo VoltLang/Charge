@@ -28,10 +28,10 @@ public:
 		Overlay = Flag.AlwaysOnTop | Flag.Transparent,
 	}
 
-	Flag flags;
+	flags: Flag;
 
 protected:
-	SceneManager mManager;
+	mManager: SceneManager;
 
 public:
 	this(SceneManager sm, Type type)
@@ -43,29 +43,29 @@ public:
 	/**
 	 * Step the game logic one step.
 	 */
-	abstract void logic();
+	abstract fn logic();
 
 	/**
 	 * Render view of this scene into target.
 	 */
-	abstract void render(Target t);
+	abstract fn render(Target);
 
 	/**
 	 * Install all input listeners.
 	 */
-	abstract void assumeControl();
+	abstract fn assumeControl();
 
 	/**
 	 * Uninstall all input listeners.
 	 */
-	abstract void dropControl();
+	abstract fn dropControl();
 
 	/**
 	 * Shutdown this scene, this is called by the SceneManager.
 	 *
 	 * And should not be called by other code.
 	 */
-	abstract void close();
+	abstract fn close();
 }
 
 /**
@@ -77,27 +77,27 @@ public:
 	/**
 	 * Push this scene to top of the stack.
 	 */
-	void push(Scene r);
+	fn push(Scene);
 
 	/**
 	 * Remove this scene from the stack.
 	 */
-	void remove(Scene r);
+	fn remove(Scene);
 
 	/**
 	 * The given scene wants to be deleted.
 	 */
-	void closeMe(Scene r);
+	fn closeMe(Scene);
 
 /+
 	/**
 	 * Add a callback to be run on idle time.
 	 */
-	void addBuilder(bool delegate() dg);
+	fn addBuilder(dgt dg() bool);
 
 	/**
 	 * Remove a builder callback.
 	 */
-	void removeBuilder(bool delegate() dg);
+	fn removeBuilder(dgt dg() bool);
 +/
 }
