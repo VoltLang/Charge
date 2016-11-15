@@ -14,14 +14,14 @@ struct Matrix4x4f
 {
 public:
 	union Union {
-		float[4][4] m;
-		float[16] a;
+		m: float[4][4];
+		a: float[16];
 	}
-	Union u;
+	u: Union;
 
 public:
 
-	void setToIdentity()
+	fn setToIdentity()
 	{
 		u.m[0][0] = 1.0f;
 		foreach(ref v; u.a[1 .. $]) {
@@ -32,23 +32,23 @@ public:
 		u.m[3][3] = 1.0f;
 	}
 
-	void setToOrtho(float left, float right,
-	                float bottom, float top,
-	                float nearval, float farval)
+	fn setToOrtho(left: f32, right: f32,
+	                bottom: f32, top: f32,
+	                nearval: f32, farval: f32)
 	{
-		float xAdd = right + left;
+		xAdd := right + left;
 		u.a[ 0] = 2.0f / (right - left);
 		u.a[ 1] = 0.0f;
 		u.a[ 2] = 0.0f;
 		u.a[ 3] = xAdd == 0.0f ? 0.0f : -xAdd / (right - left);
 
-		float yAdd = top + bottom;
+		yAdd := top + bottom;
 		u.a[ 4] = 0.0f;
 		u.a[ 5] = 2.0f / (top - bottom);
 		u.a[ 6] = 0.0f;
 		u.a[ 7] = yAdd == 0.0f ? 0.0f : -yAdd / (top - bottom);
 
-		float zAdd = farval + nearval;
+		zAdd := farval + nearval;
 		u.a[ 8] = 0.0f;
 		u.a[ 9] = 0.0f;
 		u.a[10] = -2.0f / (farval - nearval);
@@ -65,10 +65,10 @@ public:
 	 *
 	 * Similar to gluLookAt.
 	 */
-	void setToLookFrom(ref Point3f eye, ref Quatf rot)
+	fn setToLookFrom(ref eye: Point3f, ref rot: Quatf)
 	{
-		Point3f p;
-		Quatf q;
+		p: Point3f;
+		q: Quatf;
 
 		q.x = -rot.x;
 		q.y = -rot.y;
@@ -103,10 +103,10 @@ public:
 	/**
 	 * Sets the matrix to the same as gluPerspective does.
 	 */
-	void setToPerspective(float fovy, float aspect, float near, float far)
+	fn setToPerspective(fovy: f32, aspect: f32, near: f32, far: f32)
 	{
-		float sine, cotangent, delta;
-		float radians = (fovy / 2.f) * (PIf / 180.f);
+		sine, cotangent, delta: f32;
+		radians := (fovy / 2.f) * (PIf / 180.f);
 
 		delta = far - near;
 		sine = sin(radians);
@@ -138,9 +138,9 @@ public:
 		u.m[3][3] = 0.f;
 	}
 
-	Point3f opMul(Point3f point)
+	fn opMul(point: Point3f) Point3f
 	{
-		Point3f result;
+		result: Point3f;
 		result.x = point.x * u.m[0][0] + point.y * u.m[0][1] + point.z * u.m[0][2] + u.m[0][3];
 		result.y = point.x * u.m[1][0] + point.y * u.m[1][1] + point.z * u.m[1][2] + u.m[1][3];
 		result.z = point.x * u.m[2][0] + point.y * u.m[2][1] + point.z * u.m[2][2] + u.m[2][3];
@@ -148,13 +148,13 @@ public:
 		return result;
 	}
 
-	Point3f opDiv(Point3f point)
+	fn opDiv(point: Point3f) Point3f
 	{
-		Point3f result;
+		result: Point3f;
 		result.x = point.x * u.m[0][0] + point.y * u.m[0][1] + point.z * u.m[0][2] + u.m[0][3];
 		result.y = point.x * u.m[1][0] + point.y * u.m[1][1] + point.z * u.m[1][2] + u.m[1][3];
 		result.z = point.x * u.m[2][0] + point.y * u.m[2][1] + point.z * u.m[2][2] + u.m[2][3];
-		float  w = point.x * u.m[3][0] + point.y * u.m[3][1] + point.z * u.m[3][2] + u.m[3][3];
+		w:   f32 = point.x * u.m[3][0] + point.y * u.m[3][1] + point.z * u.m[3][2] + u.m[3][3];
 
 		result.x /= w;
 		result.y /= w;
@@ -163,10 +163,13 @@ public:
 		return result;
 	}
 
-	void setToMultiply(ref Matrix4x4f b)
+	fn setToMultiply(ref b: Matrix4x4f)
 	{
-		for(int i; i < 4; i++) {
-			float a0 = u.m[i][0], a1 = u.m[i][1], a2 = u.m[i][2], a3 = u.m[i][3];
+		foreach (i; 0 .. 4) {
+			a0 := u.m[i][0];
+			a1 := u.m[i][1];
+			a2 := u.m[i][2];
+			a3 := u.m[i][3];
 			u.m[i][0] = a0 * b.u.m[0][0] + a1 * b.u.m[1][0] + a2 * b.u.m[2][0] + a3 * b.u.m[3][0];
 			u.m[i][1] = a0 * b.u.m[0][1] + a1 * b.u.m[1][1] + a2 * b.u.m[2][1] + a3 * b.u.m[3][1];
 			u.m[i][2] = a0 * b.u.m[0][2] + a1 * b.u.m[1][2] + a2 * b.u.m[2][2] + a3 * b.u.m[3][2];
@@ -174,9 +177,9 @@ public:
 		}
 	}
 
-	void transpose()
+	fn transpose()
 	{
-		Matrix4x4f temp;
+		temp: Matrix4x4f;
 
 		temp.u.a[ 0] = u.a[ 0];
 		temp.u.a[ 1] = u.a[ 4];
@@ -198,5 +201,5 @@ public:
 		this = temp;
 	}
 
-	@property float* ptr() { return u.a.ptr; }
+	@property fn ptr() float* { return u.a.ptr; }
 }

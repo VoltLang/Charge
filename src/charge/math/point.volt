@@ -17,40 +17,41 @@ import charge.math.vector;
 struct Point3f
 {
 public:
-	float x, y, z;
+	x, y, z: f32;
+
 
 public:
-	static Point3f opCall()
+	static fn opCall() Point3f
 	{
-		Point3f p = { 0.0f, 0.0f, 0.0f };
+		p: Point3f = { 0.0f, 0.0f, 0.0f };
 		return p;
 	}
 
-	static Point3f opCall(float x, float y, float z)
+	static fn opCall(x: f32, y: f32, z: f32) Point3f
 	{
-		Point3f p = { x, y, z };
+		p: Point3f = { x, y, z };
 		return p;
 	}
 
-	static Point3f opCall(Vector3f vec)
+	static fn opCall(vec: Vector3f) Point3f
 	{
-		Point3f p = { vec.x, vec.y, vec.z };
+		p: Point3f = { vec.x, vec.y, vec.z };
 		return p;
 	}
 
-	static Point3f opCall(float[3] vec)
+	static fn opCall(vec: f32[3]) Point3f
 	{
-		Point3f p = { vec[0], vec[1], vec[2] };
+		p: Point3f = { vec[0], vec[1], vec[2] };
 		return p;
 	}
 
-	static Point3f opCall(float[4] vec)
+	static fn opCall(vec: f32[4]) Point3f
 	{
-		Point3f p = { vec[0], vec[1], vec[2] };
+		p: Point3f = { vec[0], vec[1], vec[2] };
 		return p;
 	}
 
-	@property float* ptr()
+	@property fn ptr() float*
 	{
 		return &x;
 	}
@@ -62,12 +63,12 @@ public:
 	}
 +/
 
-	Point3f opAdd(Vector3f vec)
+	fn opAdd(vec: Vector3f) Point3f
 	{
 		return Point3f.opCall(x + vec.x, y + vec.y, z + vec.z);
 	}
 
-	Point3f opAddAssign(Vector3f v)
+	fn opAddAssign(v: Vector3f) Point3f
 	{
 		x += v.x;
 		y += v.y;
@@ -75,22 +76,22 @@ public:
 		return this;
 	}
 
-	Vector3f opSub(Point3f p)
+	fn opSub(p: Point3f) Vector3f
 	{
 		return Vector3f.opCall(x - p.x, y - p.y, z - p.z);
 	}
 
-	Point3f opSub(Vector3f v)
+	fn opSub(v: Vector3f) Point3f
 	{
 		return Point3f.opCall(x - v.x, y - v.y, z - v.z);
 	}
 
-	Point3f opNeg()
+	fn opNeg() Point3f
 	{
 		return Point3f.opCall(-x, -y, -z);
 	}
 
-	Point3f opSubAssign(Vector3f v)
+	fn opSubAssign(v: Vector3f) Point3f
 	{
 		x -= v.x;
 		y -= v.y;
@@ -107,12 +108,12 @@ public:
 	}
 +/
 
-	Vector3f vec()
+	fn vec() Vector3f
 	{
 		return Vector3f.opCall(this);
 	}
 
-	string toString()
+	fn toString() string
 	{
 		return format("(%s, %s, %s)", x, y, z);
 	}

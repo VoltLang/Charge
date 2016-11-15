@@ -14,19 +14,19 @@ import charge.math.vector;
 struct Quatf
 {
 public:
-	float w, x, y, z;
+	w, x, y, z: f32;
 
 
 public:
-	global Quatf opCall()
+	global fn opCall() Quatf
 	{
-		Quatf q = { 1.f, 0.f, 0.f, 0.f };
+		q: Quatf = { 1.f, 0.f, 0.f, 0.f };
 		return q;
 	}
 
-	global Quatf opCall(float w, float x, float y, float z)
+	global fn opCall(w: f32, x: f32, y: f32, z: f32) Quatf
 	{
-		Quatf q = { w, x, y, z };
+		q: Quatf = { w, x, y, z };
 		return q;
 	}
 
@@ -40,17 +40,17 @@ public:
 	 * @arg roll, TB: roll, Euler: rotation around the Z axis.
 	 * @see http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 	 */
-	global Quatf opCall(float heading, float pitch, float roll)
+	global fn opCall(heading: f32, pitch: f32, roll: f32) Quatf
 	{
-		float sinPitch = sin(heading * 0.5f);
-		float cosPitch = cos(heading * 0.5f);
-		float sinYaw = sin(roll * 0.5f);
-		float cosYaw = cos(roll * 0.5f);
-		float sinRoll = sin(pitch * 0.5f);
-		float cosRoll = cos(pitch * 0.5f);
-		float cosPitchCosYaw = cosPitch * cosYaw;
-		float sinPitchSinYaw = sinPitch * sinYaw;
-		Quatf q;
+		sinPitch := sin(heading * 0.5f);
+		cosPitch := cos(heading * 0.5f);
+		sinYaw := sin(roll * 0.5f);
+		cosYaw := cos(roll * 0.5f);
+		sinRoll := sin(pitch * 0.5f);
+		cosRoll := cos(pitch * 0.5f);
+		cosPitchCosYaw := cosPitch * cosYaw;
+		sinPitchSinYaw := sinPitch * sinYaw;
+		q: Quatf;
 		q.x = sinRoll * cosPitchCosYaw     - cosRoll * sinPitchSinYaw;
 		q.y = cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw;
 		q.z = cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw;
@@ -63,9 +63,9 @@ public:
 	/**
 	 * Return a new quat which is this rotation rotated by the given rotation.
 	 */
-	Quatf opMul(Quatf quat)
+	fn opMul(quat: Quatf) Quatf
 	{
-		Quatf result;
+		result: Quatf;
 
 		result.w = w*quat.w - x*quat.x - y*quat.y - z*quat.z;
 		result.x = w*quat.x + x*quat.w + y*quat.z - z*quat.y;
@@ -78,14 +78,14 @@ public:
 	/**
 	 * Return a copy of the given vector but rotated by this rotation.
 	 */
-	Vector3f opMul(Vector3f vec)
+	fn opMul(vec: Vector3f) Vector3f
 	{
-		Quatf q = {vec.x * x + vec.y * y + vec.z * z,
+		q: Quatf = {vec.x * x + vec.y * y + vec.z * z,
 		           vec.x * w + vec.z * y - vec.y * z,
 		           vec.y * w + vec.x * z - vec.z * x,
 		           vec.z * w + vec.y * x - vec.x * y};
 
-		Vector3f v = {w * q.x + x * q.w + y * q.z - z * q.y,
+		v: Vector3f = {w * q.x + x * q.w + y * q.z - z * q.y,
 		              w * q.y + y * q.w + z * q.x - x * q.z,
 		              w * q.z + z * q.w + x * q.y - y * q.x};
 
@@ -96,9 +96,9 @@ public:
 	 * Normalize the rotation, often not needed when using only the
 	 * inbuilt functions.
 	 */
-	void normalize()
+	fn normalize()
 	{
-		float len = length;
+		len: float = length;
 		if (len == 0.0) {
 			return;
 		}
@@ -109,7 +109,7 @@ public:
 		z /= len;
 	}
 
-	const @property float length()
+	const @property fn length() f32
 	{
 		return sqrt(w*w + x*x + y*y + z*z);
 	}

@@ -19,96 +19,96 @@ import charge.math.point;
 struct Vector3f
 {
 public:
-	float x, y, z;
+	x, y, z: f32;
 
-	global const Vector3f Up =      { 0.0f, 1.0f,  0.0f};
+	global Up: Vector3f =      { 0.0f, 1.0f,  0.0f};
 //	global const Vector3f Heading = { 0.0f, 0.0f, -1.0f};
 //	global const Vector3f Left =    {-1.0f, 0.0f,  0.0f};
 
 
 public:
-	global Vector3f opCall(float x, float y, float z)
+	global fn opCall(x: f32, y: f32, z: f32) Vector3f
 	{
-		Vector3f v = { x, y, z };
+		v: Vector3f = { x, y, z };
 		return v;
 	}
 
-	global Vector3f opCall(Point3f pos)
+	global fn opCall(pos: Point3f) Vector3f
 	{
-		Vector3f v = { pos.x, pos.y, pos.z };
+		v: Vector3f = { pos.x, pos.y, pos.z };
 		return v;
 	}
 
-	global Vector3f opCall(ref float[3] vec)
+	global fn opCall(ref vec: float[3]) Vector3f
 	{
-		Vector3f v = { vec[0], vec[1], vec[2] };
+		v: Vector3f = { vec[0], vec[1], vec[2] };
 		return v;
 	}
 
-	global Vector3f opCall(ref float[4] vec)
+	global fn opCall(ref vec: float[4]) Vector3f
 	{
-		Vector3f v = { vec[0], vec[1], vec[2] };
+		v: Vector3f = { vec[0], vec[1], vec[2] };
 		return v;
 	}
 
-	@property float* ptr()
+	@property fn ptr() float*
 	{
 		return &x;
 	}
 
 
-	Point3f opAdd(ref Point3f vec)
+	fn opAdd(ref pos: Point3f) Point3f
 	{
-		return Point3f.opCall(vec.x + x, vec.y + y, vec.z + z);
+		return Point3f.opCall(pos.x + x, pos.y + y, pos.z + z);
 	}
 
-	Vector3f opAdd(ref Vector3f vec)
+	fn opAdd(ref vec: Vector3f) Vector3f
 	{
 		return Vector3f.opCall(vec.x + x, vec.y + y, vec.z + z);
 	}
 
-	void opAddAssign(Vector3f vec)
+	fn opAddAssign(vec: Vector3f)
 	{
 		x += vec.x;
 		y += vec.y;
 		z += vec.z;
 	}
 
-	void opAddAssign(float v)
+	fn opAddAssign(v: f32)
 	{
 		x += v;
 		y += v;
 		z += v;
 	}
 
-	Vector3f opSub(ref Vector3f vec)
+	fn opSub(ref vec: Vector3f) Vector3f
 	{
 		return Vector3f.opCall(vec.x - x, vec.y - y, vec.z - z);
 	}
 
-	void opSubAssign(ref Vector3f vec)
+	fn opSubAssign(ref vec: Vector3f)
 	{
 		x -= vec.x;
 		y -= vec.y;
 		z -= vec.z;
 	}
 
-	void opSubAssign(float v)
+	fn opSubAssign(v: f32)
 	{
 		x -= v;
 		y -= v;
 		z -= v;
 	}
 
-	Vector3f opNeg()
+	fn opNeg() Vector3f
 	{
-		Vector3f p = { -x, -y, -z };
+		p: Vector3f = { -x, -y, -z };
 		return p;
 	}
 
-	Vector3f opMul(ref Vector3f vec)
+	fn opMul(ref vec: Vector3f) Vector3f
 	{
-		Vector3f v = {
+		v: Vector3f = {
 			y * vec.z - z * vec.y,
 			z * vec.x - x * vec.z,
 			x * vec.y - y * vec.x,
@@ -116,23 +116,23 @@ public:
 		return v;
 	}
 
-	void scale(float v)
+	fn scale(v: f32)
 	{
 		x *= v;
 		y *= v;
 		z *= v;
 	}
 
-	void floor()
+	fn floor()
 	{
 		x = .floor(x);
 		y = .floor(y);
 		z = .floor(z);
 	}
 
-	void normalize()
+	fn normalize()
 	{
-		f32 l = length();
+		l := length();
 
 		if (l == 0.0) {
 			return;
@@ -143,22 +143,22 @@ public:
 		z /= l;
 	}
 
-	float length()
+	fn length() f32
 	{
 		return sqrt(lengthSqrd());
 	}
 
-	float lengthSqrd()
+	fn lengthSqrd() f32
 	{
 		return x * x + y * y + z * z;
 	}
 
-	float dot(Vector3f vector)
+	fn dot(vec: Vector3f) f32
 	{
-		return x*vector.x + y*vector.y + z*vector.z;
+		return x* vec.x + y* vec.y + z* vec.z;
 	}
 
-	string toString()
+	fn toString() string
 	{
 		return format("(%s, %s, %s)", x, y, z);
 	}

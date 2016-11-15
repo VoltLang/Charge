@@ -6,33 +6,33 @@
 module charge.math.morton;
 
 
-u64 encode(u32 x, u32 y)
+fn encode(x: u32, y: u32) u64
 {
 	return encode_component_2(x, 0) |
 	       encode_component_2(y, 1);
 }
 
-u64 encode(u32 x, u32 y, u32 z)
+fn encode(x: u32, y: u32, z: u32) u64
 {
 	return encode_component_3(x, 0) |
 	       encode_component_3(y, 1) |
 	       encode_component_3(z, 2);
 }
 
-void decode2(u64 p, out u32[2] result)
+fn decode2(p: u64, out result: u32[2])
 {
 	result[0] = decode_component_2(p, 0);
 	result[1] = decode_component_2(p, 1);
 }
 
-void decode3(u64 p, out u32[3] result)
+fn decode3(p: u64, out result: u32[3])
 {
 	result[0] = decode_component_3(p, 0);
 	result[1] = decode_component_3(p, 1);
 	result[2] = decode_component_3(p, 2);
 }
 
-u64 encode_component_2(u64 x, u64 shift)
+fn encode_component_2(x: u64, shift: u64) u64
 {
 // x = ---- ---- ---- ----  ---- ---- ---- ----  fedc ba98 7654 3210  fedc ba98 7654 3210
 // x = ---- ---- ---- ----  fedc ba98 7654 3210  ---- ---- ---- ----  fedc ba98 7654 3210
@@ -49,7 +49,7 @@ u64 encode_component_2(u64 x, u64 shift)
 	return x << shift;
 }
 
-u64 encode_component_3(u64 x, u64 shift)
+fn encode_component_3(x: u64, shift: u64) u64
 {
 // x = ---- ---- ---- ----  ---- ---- ---- ----  ---- ---- ---4 3210  fedc ba98 7654 3210
 // x = ---- ---- ---4 3210  ---- ---- ---- ----  ---- ---- ---- ----  fedc ba98 7654 3210
@@ -66,7 +66,7 @@ u64 encode_component_3(u64 x, u64 shift)
 	return x << shift;
 }
 
-u32 decode_component_2(u64 x, u64 shift)
+fn decode_component_2(x: u64, shift: u64) u32
 {
 // x = ---- ---- ---- ----  ---- ---- ---- ----  fedc ba98 7654 3210  fedc ba98 7654 3210
 // x = ---- ---- ---- ----  fedc ba98 7654 3210  ---- ---- ---- ----  fedc ba98 7654 3210
@@ -83,7 +83,7 @@ u32 decode_component_2(u64 x, u64 shift)
 	return cast(u32)x;
 }
 
-u32 decode_component_3(u64 x, u64 shift)
+fn decode_component_3(x: u64, shift: u64) u32
 {
 // x = ---4 --3- -2-- 1--0  --f- -e-- d--c --b-  -a-- 9--8 --7- -6--  5--4 --3- -2-- 1--0
 // x = ---4 ---- 32-- --10  ---- fe-- --dc ----  ba-- --98 ---- 76--  --54 ---- 32-- --10

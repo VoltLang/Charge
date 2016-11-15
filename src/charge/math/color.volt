@@ -11,60 +11,60 @@ import watt.text.format;
 struct Color4b
 {
 public:
-	ubyte r, g, b, a;
+	r, g, b, a: u8;
 
-	global Color4b White = {255, 255, 255, 255};
-	global Color4b Black = {  0,   0,   0, 255};
+	global White: const(Color4b) = {255, 255, 255, 255};
+	global Black: const(Color4b) = {  0,   0,   0, 255};
 
 public:
-	static Color4b opCall(ubyte r, ubyte g, ubyte b, ubyte a)
+	global fn opCall(r: u8, g: u8, b: u8, a: u8) Color4b
 	{
-		Color4b res = {r, g, b, a};
+		res: Color4b = {r, g, b, a};
 		return res;
 	}
 
-	static Color4b opCall(uint value)
+	global fn opCall(value: uint) Color4b
 	{
-		Color4b res = {
-			cast(ubyte)((value >> 24) & 0xff),
-			cast(ubyte)((value >> 16) & 0xff),
-			cast(ubyte)((value >>  8) & 0xff),
-			cast(ubyte)((value >>  0) & 0xff),
+		res: Color4b = {
+			cast(u8)((value >> 24) & 0xff),
+			cast(u8)((value >> 16) & 0xff),
+			cast(u8)((value >>  8) & 0xff),
+			cast(u8)((value >>  0) & 0xff),
 		};
 		return res;
 	}
 
-	void modulate(Color4b c)
+	fn modulate(c: Color4b)
 	{
-		Color4f c1 = Color4f.opCall(this);
-		Color4f c2 = Color4f.opCall(c);
+		c1 := Color4f.opCall(this);
+		c2 := Color4f.opCall(c);
 
-		r = cast(ubyte)(c1.r * c2.r * 255);
-		g = cast(ubyte)(c1.g * c2.g * 255);
-		b = cast(ubyte)(c1.b * c2.b * 255);
-		a = cast(ubyte)(c1.a * c2.a * 255);
+		r = cast(u8)(c1.r * c2.r * 255);
+		g = cast(u8)(c1.g * c2.g * 255);
+		b = cast(u8)(c1.b * c2.b * 255);
+		a = cast(u8)(c1.a * c2.a * 255);
 	}
 
-	void blend(Color4b c)
+	fn blend(c: Color4b)
 	{
-		Color4f c1 = Color4f.opCall(this);
-		Color4f c2 = Color4f.opCall(c);
+		c1 := Color4f.opCall(this);
+		c2 := Color4f.opCall(c);
 
-		float alpha = c2.a;
-		float alpha_minus_one = 1.0f - c2.a;
+		alpha := c2.a;
+		alpha_minus_one := 1.0f - c2.a;
 
-		r = cast(ubyte)((c1.r * alpha_minus_one + c2.r * alpha) * 255);
-		g = cast(ubyte)((c1.g * alpha_minus_one + c2.g * alpha) * 255);
-		b = cast(ubyte)((c1.b * alpha_minus_one + c2.b * alpha) * 255);
-		a = cast(ubyte)((c1.a * alpha_minus_one + c2.a * alpha) * 255);
+		r = cast(u8)((c1.r * alpha_minus_one + c2.r * alpha) * 255);
+		g = cast(u8)((c1.g * alpha_minus_one + c2.g * alpha) * 255);
+		b = cast(u8)((c1.b * alpha_minus_one + c2.b * alpha) * 255);
+		a = cast(u8)((c1.a * alpha_minus_one + c2.a * alpha) * 255);
 	}
 
-	string toString()
+	fn toString() string
 	{
 		return format("(%s, %s, %s, %s)", r, g, b, a);
 	}
 /+
-	inout(ubyte)* ptr() @property inout { return &r; }
+	inout(u8)* ptr() @property inout { return &r; }
 +/
 }
 
@@ -72,29 +72,29 @@ public:
 struct Color3f
 {
 public:
-	float r, g, b;
+	r, g, b: f32;
 
-	const static Color3f White = {1.0f, 1.0f, 1.0f};
-	const static Color3f Black = {0.0f, 0.0f, 0.0f};
+	global White: const(Color3f) = {1.0f, 1.0f, 1.0f};
+	global Black: const(Color3f) = {0.0f, 0.0f, 0.0f};
 
 public:
-	static Color3f opCall(float r, float g, float b)
+	global fn opCall(r: f32, g: f32, b: f32) Color3f
 	{
-		Color3f res = {r, g, b};
+		res: Color3f = {r, g, b};
 		return res;
 	}
 
-	static Color3f opCall(Color4b c)
+	global fn opCall(c: Color4b) Color3f
 	{
 		return Color3f.opCall(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f);
 	}
 
-	string toString()
+	fn toString() string
 	{
 		return format("(%s, %s, %s)", r, g, b);
 	}
 /+
-	inout(float)* ptr() @property inout { return &r; }
+	inout(f32)* ptr() @property inout { return &r; }
 +/
 }
 
@@ -102,43 +102,43 @@ public:
 struct Color4f
 {
 public:
-	float r, g, b, a;
+	r, g, b, a: f32;
 
-	global Color4f White = {1.0f, 1.0f, 1.0f, 1.0f};
-	global Color4f Black = {0.0f, 0.0f, 0.0f, 1.0f};
+	global White: const(Color4f) = {1.0f, 1.0f, 1.0f, 1.0f};
+	global Black: const(Color4f) = {0.0f, 0.0f, 0.0f, 1.0f};
 
 public:
-	static Color4f opCall()
+	global fn opCall() Color4f
 	{
 		return Black;
 	}
 
-	static Color4f opCall(Color4b c)
+	global fn opCall(c: Color4b) Color4f
 	{
 		return Color4f.opCall(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
 	}
 
-	static Color4f opCall(Color3f c)
+	global fn opCall(c: Color3f) Color4f
 	{
 		return Color4f.opCall(c.r, c.g, c.b, 1.0f);
 	}
 
-	static Color4f opCall(float r, float g, float b)
+	global fn opCall(r: f32, g: f32, b: f32) Color4f
 	{
 		return Color4f.opCall(r, g, b, 1.0f);
 	}
 
-	static Color4f opCall(float r, float g, float b, float a)
+	global fn opCall(r: f32, g: f32, b: f32, a: f32) Color4f
 	{
-		Color4f res = {r, g, b, a};
+		res: Color4f = {r, g, b, a};
 		return res;
 	}
 
-	string toString()
+	fn toString() string
 	{
 		return format("(%s, %s, %s, %s)", r, g, b, a);
 	}
 /+
-	inout(float)* ptr() @property inout { return &r; }
+	inout(f32)* ptr() @property inout { return &r; }
 +/
 }
