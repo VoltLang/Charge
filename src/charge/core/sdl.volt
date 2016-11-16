@@ -452,6 +452,10 @@ private:
 		windowDecorations := opts.windowDecorations;
 		title := opts.title.toStringz();
 
+		if (opts.openglDebug) {
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,
+			                    SDL_GL_CONTEXT_DEBUG_FLAG);
+		}
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
@@ -484,6 +488,9 @@ private:
 			gladLoadGL(loadFunc);
 			gfxLoaded = true;
 
+			if (GL_VERSION_4_5 && opts.openglDebug) {
+				glDebugMessageCallback(glDebug, cast(void*)this);
+			}
 			printf("%s\n".ptr, glGetString(GL_VENDOR));
 			printf("%s\n".ptr, glGetString(GL_VERSION));
 			printf("%s\n".ptr, glGetString(GL_RENDERER));
@@ -533,6 +540,13 @@ private:
 	fn loadFunc(c: string) void*
 	{
 		return SDL_GL_GetProcAddress(toStringz(c));
+	}
+
+	global extern(C) fn glDebug(source: GLuint, type: GLenum, id: GLenum,
+	                            severity: GLenum, length: GLsizei,
+	                            msg: const(GLchar*), data: GLvoid*)
+	{
+		printf("#OGL# %.*s\n", length, msg);
 	}
 }
 

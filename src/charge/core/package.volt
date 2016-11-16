@@ -41,6 +41,8 @@ public:
 	title: string;
 	flags: coreFlag;
 	windowDecorations: bool;
+	openglDebug: bool;
+
 
 public:
 	this()
