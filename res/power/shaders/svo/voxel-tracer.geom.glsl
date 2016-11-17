@@ -1,7 +1,6 @@
 #version 450 core
 
-#define POW 4
-#define LOOP 4
+#define POW 7
 #define DIVISOR pow(2, float(POW))
 #define DIVISOR_INV (1.0/DIVISOR)
 
@@ -19,6 +18,13 @@ layout (binding = 0) uniform isamplerBuffer octree;
 uniform mat4 matrix;
 uniform vec3 cameraPos;
 
+int calcAddress(uint select, uint node, int offset)
+{
+	int bits = int(select + 1);
+	uint toCount = bitfieldExtract(node, 0, bits);
+	int address = int(bitCount(toCount));
+	return address + int(offset);
+}
 
 bool findStart(out ivec3 ipos, out int offset)
 {
@@ -28,14 +34,149 @@ bool findStart(out ivec3 ipos, out int offset)
 	// Initial node address.
 	offset = inOffset[0];
 
-	// Subdivid until empty node or found the node for this box.
-	for (int i = (LOOP-1); i >= 0; i--) {
-		// Get the node.
-		uint node = uint(texelFetch(octree, offset).r);
+	// Subdivide until empty node or found the node for this box.
+	// This is a unrolled loop.
+//----------------------------------------------------------------------------//
+#define COUNTER (POW-1)
+	// Get the node.
+	uint node = uint(texelFetch(octree, offset).r);
 
-		// 3D bit selector, each element is in the range [0, 1].
-		// Turn that into scalar in the range [0, 8].
-		uint select = (morton >> (i * 3)) & 0x07;
+	// 3D bit selector, each element is in the range [0, 1].
+	// Turn that into scalar in the range [0, 8].
+	uint select = (morton >> (COUNTER * 3)) & 0x07;
+	if ((node & (uint(1) << select)) == uint(0)) {
+		return false;
+	}
+	ipos += ivec3(
+		(select >> 2) & 0x1,
+		(select     ) & 0x1,
+		(select >> 1) & 0x1) << COUNTER;
+
+//----------------------------------------------------------------------------//
+#if POW >= 2
+#undef COUNTER
+#define COUNTER (POW-2)
+
+	offset = calcAddress(select, node, offset);
+	offset = texelFetch(octree, offset).r;
+	node = uint(texelFetch(octree, offset).r);
+
+	select = (morton >> (COUNTER * 3)) & 0x07;
+	if ((node & (uint(1) << select)) == uint(0)) {
+		return false;
+	}
+
+	ipos += ivec3(
+		(select >> 2) & 0x1,
+		(select     ) & 0x1,
+		(select >> 1) & 0x1) << COUNTER;
+
+//----------------------------------------------------------------------------//
+#if POW >= 3
+#undef COUNTER
+#define COUNTER (POW-3)
+
+	offset = calcAddress(select, node, offset);
+	offset = texelFetch(octree, offset).r;
+	node = uint(texelFetch(octree, offset).r);
+
+	select = (morton >> (COUNTER * 3)) & 0x07;
+	if ((node & (uint(1) << select)) == uint(0)) {
+		return false;
+	}
+
+	ipos += ivec3(
+		(select >> 2) & 0x1,
+		(select     ) & 0x1,
+		(select >> 1) & 0x1) << COUNTER;
+
+//----------------------------------------------------------------------------//
+#if POW >= 4
+#undef COUNTER
+#define COUNTER (POW-4)
+
+	offset = calcAddress(select, node, offset);
+	offset = texelFetch(octree, offset).r;
+	node = uint(texelFetch(octree, offset).r);
+
+	select = (morton >> (COUNTER * 3)) & 0x07;
+	if ((node & (uint(1) << select)) == uint(0)) {
+		return false;
+	}
+
+	ipos += ivec3(
+		(select >> 2) & 0x1,
+		(select     ) & 0x1,
+		(select >> 1) & 0x1) << COUNTER;
+
+//----------------------------------------------------------------------------//
+#if POW >= 5
+#undef COUNTER
+#define COUNTER (POW-5)
+
+	offset = calcAddress(select, node, offset);
+	offset = texelFetch(octree, offset).r;
+	node = uint(texelFetch(octree, offset).r);
+
+	select = (morton >> (COUNTER * 3)) & 0x07;
+	if ((node & (uint(1) << select)) == uint(0)) {
+		return false;
+	}
+
+	ipos += ivec3(
+		(select >> 2)      ,
+		(select     ) & 0x1,
+		(select >> 1) & 0x1) << COUNTER;
+
+//----------------------------------------------------------------------------//
+#if POW >= 6
+#undef COUNTER
+#define COUNTER (POW-6)
+
+	offset = calcAddress(select, node, offset);
+	offset = texelFetch(octree, offset).r;
+	node = uint(texelFetch(octree, offset).r);
+
+	select = (morton >> (COUNTER * 3)) & 0x07;
+	if ((node & (uint(1) << select)) == uint(0)) {
+		return false;
+	}
+
+	ipos += ivec3(
+		(select >> 2) & 0x1,
+		(select     ) & 0x1,
+		(select >> 1) & 0x1) << COUNTER;
+
+//----------------------------------------------------------------------------//
+#if POW >= 7
+#undef COUNTER
+#define COUNTER (POW-7)
+
+	offset = calcAddress(select, node, offset);
+	offset = texelFetch(octree, offset).r;
+	node = uint(texelFetch(octree, offset).r);
+
+	select = (morton >> (COUNTER * 3)) & 0x07;
+	if ((node & (uint(1) << select)) == uint(0)) {
+		return false;
+	}
+
+	ipos += ivec3(
+		(select >> 2) & 0x1,
+		(select     ) & 0x1,
+		(select >> 1) & 0x1) << COUNTER;
+
+//----------------------------------------------------------------------------//
+#if POW >= 8
+#undef COUNTER
+#define COUNTER (POW-8)
+
+	do {
+		offset = calcAddress(select, node, offset);
+		offset = texelFetch(octree, offset).r;
+		node = uint(texelFetch(octree, offset).r);
+
+		select = (morton >> (COUNTER * 3)) & 0x07;
 		if ((node & (uint(1) << select)) == uint(0)) {
 			return false;
 		}
@@ -43,16 +184,20 @@ bool findStart(out ivec3 ipos, out int offset)
 		ipos += ivec3(
 			(select >> 2) & 0x1,
 			(select     ) & 0x1,
-			(select >> 1) & 0x1) << i;
+			(select >> 1) & 0x1) << COUNTER;
+	} while (false)
 
-		int bits = int(select + 1);
-		uint toCount = bitfieldExtract(node, 0, bits);
-		int address = int(bitCount(toCount));
-		address += int(offset);
+#endif // 2
+#endif // 3
+#endif // 4
+#endif // 5
+#endif // 6
+#endif // 7
+#endif // 8
 
-		offset = texelFetch(octree, address).r;
-	}
-
+	// Final offset calculation
+	offset = calcAddress(select, node, offset);
+	offset = texelFetch(octree, offset).r;
 	return true;
 }
 

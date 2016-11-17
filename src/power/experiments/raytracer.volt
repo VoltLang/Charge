@@ -284,7 +284,7 @@ public:
 			b.add(cast(i8)x, cast(i8)y, cast(i8)z, 1);
 		}
 		mVbo = DagBuffer.make("power/dag", b);
-		mInstance = InstanceBuffer.make("power.voxel.trace", 16*16*16, 1);
+		mInstance = InstanceBuffer.make("power.voxel.trace", 128*128*128, 1);
 	}
 
 	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)

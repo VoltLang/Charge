@@ -1,6 +1,6 @@
 #version 450 core
 
-#define POW 7
+#define POW 4
 #define MAX_ITERATIONS 500
 
 layout (location = 0) in vec3 inPosition;
@@ -200,7 +200,7 @@ void main(void)
 	}
 
 	if (hit) {
-		float traceSize = float(1 << 4);
+		float traceSize = float(1 << 11-POW);
 		vec3 pos = inPosition + rayDir * tMin;
 		outColor = vec4((pos - inMinEdge) * traceSize, 1.0);
 	} else {
