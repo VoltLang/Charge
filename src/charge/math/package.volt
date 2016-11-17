@@ -11,3 +11,4 @@ public import charge.math.point;
 public import charge.math.matrix;
 public import charge.math.vector;
 public import charge.math.morton;
+public import charge.math.average;
