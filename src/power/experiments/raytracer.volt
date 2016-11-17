@@ -64,6 +64,8 @@ class RayTracer : Viewer
 {
 public:
 
+	mPick: bool;
+	asvo: AdvancedSVO;
 	ssvo: SimpleSVO;
 	query: GLuint;
 	queryInFlight: bool;
@@ -85,7 +87,7 @@ public:
 	this(GameSceneManager g)
 	{
 		super(g);
-
+		mPick = true;
 
 		glGenQueries(1, &query);
 
@@ -99,6 +101,7 @@ public:
 		glTextureBuffer(octTexture, GL_R32UI, octBuffer);
 
 		ssvo = new SimpleSVO(octTexture);
+		asvo = new AdvancedSVO(octTexture);
 	}
 
 
@@ -119,9 +122,10 @@ public:
 	override fn keyDown(device: CtlKeyboard, keycode: int, c: dchar, m: scope const(char)[])
 	{
 		switch (keycode) {
-		case 'e': ssvo.triggerPatchStart(); break;
-		case 'r': ssvo.triggerPatchSize(); break;
-		case 't': ssvo.triggerShader(); break;
+		case 'e': mPick = !mPick; break;
+		case 'r': ssvo.triggerPatchStart(); break;
+		case 't': ssvo.triggerPatchSize(); break;
+		case 'y': ssvo.triggerShader(); break;
 		default: super.keyDown(device, keycode, c, m);
 		}	
 	}
@@ -156,7 +160,11 @@ public:
 			shouldEnd = true;
 		}
 
-		ssvo.draw(ref camPosition, ref proj);
+		if (mPick) {
+			asvo.draw(ref camPosition, ref proj);
+		} else {
+			ssvo.draw(ref camPosition, ref proj);
+		}
 
 		if (shouldEnd) {
 			glEndQuery(GL_TIME_ELAPSED);
@@ -193,15 +201,17 @@ Elapsed time:
  avg:  %02sms
 Resolution: %sx%s
 w a s d - move camera
-e - patch start level: %s
-r - patch size: %s^3
-t - shader: %s
+e - advanced: %s
+r - patch start level: %s
+t - patch size: %s^3
+y - shader: %s
 p - reset position`;
 
 		text := format(str,
 			timeElapsed / 1_000_000_000.0 * 1_000.0,
 			avg / 1_000_000_000.0 * 1_000.0,
 			t.width, t.height,
+			mPick,
 			ssvo.mPatchStartLevel,
 			ssvo.mPatchSize,
 			ssvo.mShaderNames[ssvo.mShaderIndex]);
@@ -224,7 +234,95 @@ fn calcNumMorton(dim: i32) i32
 
 class AdvancedSVO
 {
-	mVbo: InstanceBuffer;
+protected:
+	mVbo: DagBuffer;
+	mInstance: InstanceBuffer;
+
+	mFeedback: GfxShader;
+	mTracer: GfxShader;
+
+	/// Total number of levels in the SVO.
+	mVoxelPower: i32;
+
+	/// The number of levels that we subdivide.
+	mPatchPower: i32;
+
+	/// The number of levels that we trace.
+	mTracePower: i32;
+
+	mOctTexture: GLuint;
+
+
+public:
+	this(octTexture: GLuint)
+	{
+		mVoxelPower = 11;
+		mPatchPower = 4;
+		mTracePower = 4;
+
+		mOctTexture = octTexture;
+
+		vert := cast(string)read("res/power/shaders/svo/voxel-tracer.vert.glsl");
+		geom := cast(string)read("res/power/shaders/svo/voxel-tracer.geom.glsl");
+		frag := cast(string)read("res/power/shaders/svo/voxel-tracer.frag.glsl");
+		mTracer = new GfxShader("svo.voxel.tracer", vert, geom, frag, null, null);
+
+		numMorton := calcNumMorton(16);
+		b := new DagBuilder(cast(size_t)numMorton);
+		foreach (i; 0 .. numMorton) {
+			vals: u32[3];
+			math.decode3(cast(u64)i, out vals);
+
+			x := cast(i32)vals[0];
+			y := cast(i32)vals[1];
+			z := cast(i32)vals[2];
+
+			x = x % 2 == 1 ? -x >> 1 : x >> 1;
+			y = y % 2 == 1 ? -y >> 1 : y >> 1;
+			z = z % 2 == 1 ? -z >> 1 : z >> 1;
+
+			b.add(cast(i8)x, cast(i8)y, cast(i8)z, 1);
+		}
+		mVbo = DagBuffer.make("power/dag", b);
+		mInstance = InstanceBuffer.make("power.voxel.trace", 16*16*16, 1);
+	}
+
+	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
+	{
+		mTracer.bind();
+		mTracer.int1("tracePower".ptr, 2);
+		mTracer.matrix4("matrix", 1, false, mat.ptr);
+		mTracer.float3("cameraPos".ptr, camPosition.ptr);
+
+		glCullFace(GL_FRONT);
+		glEnable(GL_CULL_FACE);
+		glBindTextureUnit(0, mOctTexture);
+
+		glBindVertexArray(mInstance.vao);
+
+		glDrawArrays(GL_POINTS, 0, mInstance.num);
+
+		glBindVertexArray(0);
+
+		glBindTextureUnit(0, 0);
+		glDisable(GL_CULL_FACE);
+	}
+
+
+private:
+	fn getAlignedPosition(ref camPosition: math.Point3f, out position: math.Vector3f)
+	{
+/*
+		position = math.Vector3f.opCall(camPosition);
+		position.scale(cast(f32)mVoxelPerUnit);
+		position.floor();
+
+		vec := math.Vector3f.opCall(
+			cast(f32)calcAlign(cast(i32)pos.x, level),
+			cast(f32)calcAlign(cast(i32)pos.y, level),
+			cast(f32)calcAlign(cast(i32)pos.z, level));
+*/
+	}
 }
 
 class SimpleSVO

@@ -19,6 +19,7 @@ class InstanceBuffer : GfxBuffer
 public:
 	num: GLsizei;
 
+
 public:
 	global fn make(name: string, num: GLsizei, instances: size_t) InstanceBuffer
 	{
@@ -28,6 +29,7 @@ public:
 		buffer.__ctor(num, instances);
 		return buffer;
 	}
+
 
 protected:
 	this(num: GLsizei, instances: size_t)
