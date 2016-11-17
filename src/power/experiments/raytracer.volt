@@ -67,6 +67,7 @@ public:
 	ssvo: SimpleSVO;
 	query: GLuint;
 	queryInFlight: bool;
+	samples: math.Average;
 
 
 	/**
@@ -184,8 +185,12 @@ public:
 		glGetQueryObjectui64v(query, GL_QUERY_RESULT, &timeElapsed);
 		queryInFlight = false;
 
+		avg := samples.add(timeElapsed);
+
 		str := `Info:
-Elapsed time: %sms
+Elapsed time:
+ last: %02sms
+ avg:  %02sms
 Resolution: %sx%s
 w a s d - move camera
 e - patch start level: %s
@@ -195,6 +200,7 @@ p - reset position`;
 
 		text := format(str,
 			timeElapsed / 1_000_000_000.0 * 1_000.0,
+			avg / 1_000_000_000.0 * 1_000.0,
 			t.width, t.height,
 			ssvo.mPatchStartLevel,
 			ssvo.mPatchSize,
