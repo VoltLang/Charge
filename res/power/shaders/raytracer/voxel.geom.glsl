@@ -19,12 +19,12 @@ uniform vec3 lowerMin;
 uniform vec3 lowerMax;
 
 
-void emit(vec3 pos, vec3 off)
+int calcAddress(uint select, uint node, int offset)
 {
-	pos += off * splitSize;
-	outPosition = pos;
-	gl_Position = matrix * vec4(pos, 1.0);
-	EmitVertex();
+	int bits = int(select + 1);
+	uint toCount = bitfieldExtract(node, 0, bits);
+	int address = int(bitCount(toCount));
+	return address + int(offset);
 }
 
 bool findStart(vec3 pos, out int offset)
@@ -49,15 +49,19 @@ bool findStart(vec3 pos, out int offset)
 			return false;
 		}
 
-		int bits = int(select + 1);
-		uint toCount = bitfieldExtract(node, 0, bits);
-		int address = int(bitCount(toCount));
-		address += int(offset);
-
-		offset = texelFetch(octree, address).r;
+		offset = calcAddress(select, node, offset);
+		offset = texelFetch(octree, offset).r;
 	}
 
 	return true;
+}
+
+void emit(vec3 pos, vec3 off)
+{
+	pos += off * splitSize;
+	outPosition = pos;
+	gl_Position = matrix * vec4(pos, 1.0);
+	EmitVertex();
 }
 
 void main(void)
