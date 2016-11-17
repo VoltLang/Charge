@@ -3,21 +3,22 @@
 
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in flat vec3 inMinEdge;
-layout (location = 2) in flat vec3 inMaxEdge;
-layout (location = 3) in flat int inOffset;
+layout (location = 2) in flat int inOffset;
 layout (binding = 0) uniform isamplerBuffer octree;
 layout (location = 0) out vec4 outColor;
 
 uniform vec3 cameraPos;
 uniform int tracePower;
 uniform int splitPower;
+uniform float splitSize;
 
 
-vec3 rayAABBTest(vec3 rayOrigin, vec3 rayDir, vec3 aabbMin, vec3 aabbMax)
+vec3 rayAABBTest(vec3 rayOrigin, vec3 rayDir, vec3 aabbMin)
 {
 	float tMin, tMax;
 
 	// Project ray through aabb
+	vec3 aabbMax = aabbMin + splitSize;
 	vec3 invRayDir = 1.0 / rayDir;
 	vec3 t1 = (aabbMin - rayOrigin) * invRayDir;
 	vec3 t2 = (aabbMax - rayOrigin) * invRayDir;
@@ -48,12 +49,11 @@ bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 
 	// Store maximum extents of voxel volume.
 	vec3 minEdge = inMinEdge;
-	vec3 maxEdge = inMaxEdge;
-	float bias = maxEdge.x / 1000000.0;
+	float bias = (inMinEdge.x + splitSize) / 1000000.0;
 
 	// Only process ray if it intersects voxel volume.
 	float tMin, tMax;
-	vec3 result = rayAABBTest(rayOrigin, rayDir, minEdge, maxEdge);
+	vec3 result = rayAABBTest(rayOrigin, rayDir, minEdge);
 	tMin = result.y;
 	tMax = result.z;
 
@@ -75,7 +75,7 @@ bool trace(out vec4 finalColor, vec3 rayDir, vec3 rayOrigin)
 
 		// Which part of the space the voxel volume occupy.
 		vec3 boxMin = inMinEdge;
-		vec3 boxDim = inMaxEdge - inMinEdge;
+		float boxDim = splitSize;
 
 		// Loop until a leaf or max subdivided node is found.
 		for (int i = tracePower; i > 0; i--) {

@@ -6,8 +6,7 @@ layout (binding = 0) uniform isamplerBuffer octree;
 layout (triangle_strip, max_vertices = 12) out;
 layout (location = 0) out vec3 outPosition;
 layout (location = 1) out flat vec3 outMinEdge;
-layout (location = 2) out flat vec3 outMaxEdge;
-layout (location = 3) out flat int outOffset;
+layout (location = 2) out flat int outOffset;
 
 uniform mat4 matrix;
 uniform vec3 cameraPos;
@@ -78,58 +77,82 @@ void main(void)
 		return;
 	}
 
-	outMinEdge = inPosition[0] * voxelSize;
-	outMaxEdge = outMinEdge + splitSize;
+	int tmpOffset;
+	vec3 tmpMinEdge = inPosition[0] * voxelSize;
 
-	if (!findStart(outMinEdge, outOffset)) {
+	if (!findStart(tmpMinEdge, tmpOffset)) {
 		return;
 	}
 
-	if (cameraPos.z < outMinEdge.z) {
-		emit(outMinEdge, vec3(1.0, 1.0, 0.0));
-		emit(outMinEdge, vec3(0.0, 1.0, 0.0));
-		emit(outMinEdge, vec3(1.0, 0.0, 0.0));
-		emit(outMinEdge, vec3(0.0, 0.0, 0.0));
+	if (cameraPos.z < tmpMinEdge.z) {
+		emit(tmpMinEdge, vec3(1.0, 1.0, 0.0));
+		emit(tmpMinEdge, vec3(0.0, 1.0, 0.0));
+		outOffset = tmpOffset;
+		outMinEdge = tmpMinEdge;
+		emit(tmpMinEdge, vec3(1.0, 0.0, 0.0));
+		outOffset = tmpOffset;
+		outMinEdge = tmpMinEdge;
+		emit(tmpMinEdge, vec3(0.0, 0.0, 0.0));
 		EndPrimitive();
 	}
 
-	if (cameraPos.z > outMaxEdge.z) {
-		emit(outMinEdge, vec3(0.0, 0.0, 1.0));
-		emit(outMinEdge, vec3(0.0, 1.0, 1.0));
-		emit(outMinEdge, vec3(1.0, 0.0, 1.0));
-		emit(outMinEdge, vec3(1.0, 1.0, 1.0));
+	if (cameraPos.z > (tmpMinEdge.z + splitSize)) {
+		emit(tmpMinEdge, vec3(0.0, 0.0, 1.0));
+		emit(tmpMinEdge, vec3(0.0, 1.0, 1.0));
+		outOffset = tmpOffset;
+		outMinEdge = tmpMinEdge;
+		emit(tmpMinEdge, vec3(1.0, 0.0, 1.0));
+		outOffset = tmpOffset;
+		outMinEdge = tmpMinEdge;
+		emit(tmpMinEdge, vec3(1.0, 1.0, 1.0));
 		EndPrimitive();
 	}
 
-	if (cameraPos.y < outMinEdge.y) {
-		emit(outMinEdge, vec3(0.0, 0.0, 0.0));
-		emit(outMinEdge, vec3(0.0, 0.0, 1.0));
-		emit(outMinEdge, vec3(1.0, 0.0, 0.0));
-		emit(outMinEdge, vec3(1.0, 0.0, 1.0));
+	if (cameraPos.y < tmpMinEdge.y) {
+		emit(tmpMinEdge, vec3(0.0, 0.0, 0.0));
+		emit(tmpMinEdge, vec3(0.0, 0.0, 1.0));
+		outOffset = tmpOffset;
+		outMinEdge = tmpMinEdge;
+		emit(tmpMinEdge, vec3(1.0, 0.0, 0.0));
+		outOffset = tmpOffset;
+		outMinEdge = tmpMinEdge;
+		emit(tmpMinEdge, vec3(1.0, 0.0, 1.0));
 		EndPrimitive();
 	}
 
-	if (cameraPos.y > outMaxEdge.y) {
-		emit(outMinEdge, vec3(1.0, 1.0, 1.0));
-		emit(outMinEdge, vec3(0.0, 1.0, 1.0));
-		emit(outMinEdge, vec3(1.0, 1.0, 0.0));
-		emit(outMinEdge, vec3(0.0, 1.0, 0.0));
+	if (cameraPos.y > (tmpMinEdge.y + splitSize)) {
+		emit(tmpMinEdge, vec3(1.0, 1.0, 1.0));
+		emit(tmpMinEdge, vec3(0.0, 1.0, 1.0));
+		outOffset = tmpOffset;
+		outMinEdge = tmpMinEdge;
+		emit(tmpMinEdge, vec3(1.0, 1.0, 0.0));
+		outOffset = tmpOffset;
+		outMinEdge = tmpMinEdge;
+		emit(tmpMinEdge, vec3(0.0, 1.0, 0.0));
 		EndPrimitive();
 	}
 
-	if (cameraPos.x < outMinEdge.x) {
-		emit(outMinEdge, vec3(0.0, 0.0, 0.0));
-		emit(outMinEdge, vec3(0.0, 1.0, 0.0));
-		emit(outMinEdge, vec3(0.0, 0.0, 1.0));
-		emit(outMinEdge, vec3(0.0, 1.0, 1.0));
+	if (cameraPos.x < tmpMinEdge.x) {
+		emit(tmpMinEdge, vec3(0.0, 0.0, 0.0));
+		emit(tmpMinEdge, vec3(0.0, 1.0, 0.0));
+		outOffset = tmpOffset;
+		outMinEdge = tmpMinEdge;
+		emit(tmpMinEdge, vec3(0.0, 0.0, 1.0));
+		outOffset = tmpOffset;
+		outMinEdge = tmpMinEdge;
+		emit(tmpMinEdge, vec3(0.0, 1.0, 1.0));
 		EndPrimitive();
 	}
 
-	if (cameraPos.x > outMaxEdge.x) {
-		emit(outMinEdge, vec3(1.0, 1.0, 1.0));
-		emit(outMinEdge, vec3(1.0, 1.0, 0.0));
-		emit(outMinEdge, vec3(1.0, 0.0, 1.0));
-		emit(outMinEdge, vec3(1.0, 0.0, 0.0));
+	if (cameraPos.x > (tmpMinEdge.x + splitSize)) {
+		emit(tmpMinEdge, vec3(1.0, 1.0, 1.0));
+		emit(tmpMinEdge, vec3(1.0, 1.0, 0.0));
+		outOffset = tmpOffset;
+		outMinEdge = tmpMinEdge;
+		emit(tmpMinEdge, vec3(1.0, 0.0, 1.0));
+		outOffset = tmpOffset;
+		outMinEdge = tmpMinEdge;
+		emit(tmpMinEdge, vec3(1.0, 0.0, 0.0));
 		EndPrimitive();
 	}
 }
