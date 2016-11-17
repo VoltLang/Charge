@@ -79,109 +79,41 @@ void main(void)
 				break;
 			}
 
-//----------------------------------------------------------------------------//
+#define LOOPBODY() \
+			offset = calcAddress(select, node, offset);	\
+			offset = texelFetch(octree, offset).r;		\
+			node = uint(texelFetch(octree, offset).r);	\
+									\
+			boxDim *= 0.5f;					\
+			s = step(boxMin + boxDim, pos);			\
+			boxMin = boxMin + boxDim * s;			\
+			select = uint(s.x * 4 + s.y * 1 + s.z * 2);	\
+			if ((node & (uint(1) << select)) == uint(0)) {	\
+				break;					\
+			}
+
 #if POW >= 2
-			offset = calcAddress(select, node, offset);
-			offset = texelFetch(octree, offset).r;
-			node = uint(texelFetch(octree, offset).r);
-
-			boxDim *= 0.5f;
-			s = step(boxMin + boxDim, pos);
-			boxMin = boxMin + boxDim * s;
-			select = uint(s.x * 4 + s.y * 1 + s.z * 2);
-			if ((node & (uint(1) << select)) == uint(0)) {
-				break;
-			}
-
-//----------------------------------------------------------------------------//
+	LOOPBODY();
+#endif
 #if POW >= 3
-			offset = calcAddress(select, node, offset);
-			offset = texelFetch(octree, offset).r;
-			node = uint(texelFetch(octree, offset).r);
-
-			node = uint(texelFetch(octree, offset).r);
-
-			boxDim *= 0.5f;
-			s = step(boxMin + boxDim, pos);
-			boxMin = boxMin + boxDim * s;
-			select = uint(s.x * 4 + s.y * 1 + s.z * 2);
-			if ((node & (uint(1) << select)) == uint(0)) {
-				break;
-			}
-
-//----------------------------------------------------------------------------//
+	LOOPBODY();
+#endif
 #if POW >= 4
-			offset = calcAddress(select, node, offset);
-			offset = texelFetch(octree, offset).r;
-			node = uint(texelFetch(octree, offset).r);
-
-
-			node = uint(texelFetch(octree, offset).r);
-
-			boxDim *= 0.5f;
-			s = step(boxMin + boxDim, pos);
-			boxMin = boxMin + boxDim * s;
-			select = uint(s.x * 4 + s.y * 1 + s.z * 2);
-			if ((node & (uint(1) << select)) == uint(0)) {
-				break;
-			}
-
-//----------------------------------------------------------------------------//
+	LOOPBODY();
+#endif
 #if POW >= 5
-			offset = calcAddress(select, node, offset);
-			offset = texelFetch(octree, offset).r;
-			node = uint(texelFetch(octree, offset).r);
-
-
-			node = uint(texelFetch(octree, offset).r);
-
-			boxDim *= 0.5f;
-			s = step(boxMin + boxDim, pos);
-			boxMin = boxMin + boxDim * s;
-			select = uint(s.x * 4 + s.y * 1 + s.z * 2);
-			if ((node & (uint(1) << select)) == uint(0)) {
-				break;
-			}
-
-//----------------------------------------------------------------------------//
+	LOOPBODY();
+#endif
 #if POW >= 6
-			offset = calcAddress(select, node, offset);
-			offset = texelFetch(octree, offset).r;
-			node = uint(texelFetch(octree, offset).r);
-
-
-			node = uint(texelFetch(octree, offset).r);
-
-			boxDim *= 0.5f;
-			s = step(boxMin + boxDim, pos);
-			boxMin = boxMin + boxDim * s;
-			select = uint(s.x * 4 + s.y * 1 + s.z * 2);
-			if ((node & (uint(1) << select)) == uint(0)) {
-				break;
-			}
-
-//----------------------------------------------------------------------------//
+	LOOPBODY();
+#endif
 #if POW >= 7
-			offset = calcAddress(select, node, offset);
-			offset = texelFetch(octree, offset).r;
-			node = uint(texelFetch(octree, offset).r);
+	LOOPBODY();
+#endif
+#if POW >= 8
+	LOOPBODY();
+#endif
 
-
-			node = uint(texelFetch(octree, offset).r);
-
-			boxDim *= 0.5f;
-			s = step(boxMin + boxDim, pos);
-			boxMin = boxMin + boxDim * s;
-			select = uint(s.x * 4 + s.y * 1 + s.z * 2);
-			if ((node & (uint(1) << select)) == uint(0)) {
-				break;
-			}
-#endif // 7
-#endif // 6
-#endif // 5
-#endif // 4
-#endif // 3
-#endif // 2
 			hit = true;
 			break;
 
