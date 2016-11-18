@@ -237,6 +237,7 @@ class AdvancedSVO
 protected:
 	mVbo: DagBuffer;
 	mInstance: InstanceBuffer;
+	mIndirect: GfxIndirectBuffer;
 
 	mFeedback: GfxShader;
 	mTracer: GfxShader;
@@ -245,29 +246,36 @@ protected:
 	mVoxelPower: i32;
 
 	/// The number of levels that we subdivide.
-	mPatchPower: i32;
+	mTraceUpperPower: i32;
 
 	/// The number of levels that we trace.
-	mTracePower: i32;
+	mTraceLowerPower: i32;
 
 	mOctTexture: GLuint;
+	mFeedbackQuery: GLuint;
 
 
 public:
 	this(octTexture: GLuint)
 	{
 		mVoxelPower = 11;
-		mPatchPower = 4;
-		mTracePower = 4;
+		mTraceUpperPower = 4;
+		mTraceLowerPower = 4;
 
 		mOctTexture = octTexture;
+		glGenQueries(1, &mFeedbackQuery);
 
 		vert := cast(string)read("res/power/shaders/svo/voxel-tracer.vert.glsl");
 		geom := cast(string)read("res/power/shaders/svo/voxel-tracer.geom.glsl");
 		frag := cast(string)read("res/power/shaders/svo/voxel-tracer.frag.glsl");
 		mTracer = new GfxShader("svo.voxel.tracer", vert, geom, frag, null, null);
 
-		numMorton := calcNumMorton(16);
+		vert = cast(string)read("res/power/shaders/svo/voxel-feedback.vert.glsl");
+		geom = cast(string)read("res/power/shaders/svo/voxel-feedback.geom.glsl");
+		frag = cast(string)read("res/power/shaders/svo/voxel-feedback.frag.glsl");
+		mFeedback = new GfxShader("svo.voxel.feedback", vert, geom, frag, null, null);
+
+		numMorton := calcNumMorton(32);
 		b := new DagBuilder(cast(size_t)numMorton);
 		foreach (i; 0 .. numMorton) {
 			vals: u32[3];
@@ -284,44 +292,112 @@ public:
 			b.add(cast(i8)x, cast(i8)y, cast(i8)z, 1);
 		}
 		mVbo = DagBuffer.make("power/dag", b);
-		mInstance = InstanceBuffer.make("power.voxel.trace", 128*128*128, 1);
+		mInstance = InstanceBuffer.make("power.voxel.trace", 16*16*16, cast(size_t)numMorton);
+
+		ind: GfxIndirectData[1];
+		ind[0].count = cast(GLuint)calcNumMorton(1 << mTraceUpperPower);
+		ind[0].instanceCount = 1;
+		ind[0].first = 0;
+		ind[0].baseInstance = 0;
+
+		mIndirect = GfxIndirectBuffer.make("power.voxel.indirect", ind);
 	}
 
 	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
 	{
-		mTracer.bind();
-		mTracer.int1("tracePower".ptr, 2);
-		mTracer.matrix4("matrix", 1, false, mat.ptr);
-		mTracer.float3("cameraPos".ptr, camPosition.ptr);
+		// The octtree texture buffer is used for all shaders.
+		glBindTextureUnit(0, mOctTexture);
+
+		// We first do a initial pruning of cubes. This is put into a
+		// feedback buffer that is used as data to the raytracing step.
+		setupStaticFeedback(ref camPosition, ref mat);
+
+		// Setup the transform feedback state
+		glEnable(GL_RASTERIZER_DISCARD);
+		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, mInstance.buf);
+		glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, mFeedbackQuery);
+		glBeginTransformFeedback(GL_POINTS);
+
+		glBindVertexArray(mVbo.vao);
+		glDrawArrays(GL_POINTS, 0, mVbo.num);
+		glBindVertexArray(0);
+
+		glEndTransformFeedback();
+		glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
+		glDisable(GL_RASTERIZER_DISCARD);
+
+
+		// Retrive the number of entries written to the feedback buffer
+		// write that into the instance number of the indirect buffer.
+		glBindBuffer(GL_QUERY_BUFFER, mIndirect.buf);
+		glGetQueryObjectuiv(mFeedbackQuery, GL_QUERY_RESULT, (cast(GLuint*)null) + 1);
+		glBindBuffer(GL_QUERY_BUFFER, 0);
+
+
+		// Draw the raytracing cubes, the shader will futher subdivide
+		// the cubes into smaller cubes and then raytrace from them.
+		setupStaticTrace(ref camPosition, ref mat);
 
 		glCullFace(GL_FRONT);
 		glEnable(GL_CULL_FACE);
-		glBindTextureUnit(0, mOctTexture);
 
 		glBindVertexArray(mInstance.vao);
-
-		glDrawArrays(GL_POINTS, 0, mInstance.num);
-
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, mIndirect.buf);
+		glDrawArraysIndirect(GL_POINTS, null);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 		glBindVertexArray(0);
 
-		glBindTextureUnit(0, 0);
 		glDisable(GL_CULL_FACE);
+
+
+		glBindTextureUnit(0, 0);
+	}
+
+	fn setupStaticFeedback(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
+	{
+		voxelsPerUnit := (1 << 3);
+		position := math.Vector3f.opCall(camPosition);
+		position.scale(cast(f32)voxelsPerUnit);
+		position.floor();
+
+		positionScale: math.Vector3f;
+		positionScale.x = 1;
+		positionScale.y = 1;
+		positionScale.z = 1;
+
+		positionOffset: math.Vector3f;
+		getAlignedPosition(ref camPosition, out positionOffset,
+		                   cast(f32)(1 << 3));
+
+		mFeedback.bind();
+		mFeedback.matrix4("matrix", 1, false, mat.ptr);
+		mFeedback.float3("cameraPos".ptr, camPosition.ptr);
+		mFeedback.float3("positionScale".ptr, positionScale.ptr);
+		mFeedback.float3("positionOffset".ptr, positionOffset.ptr);
+	}
+
+	fn setupStaticTrace(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
+	{
+		mTracer.bind();
+		mTracer.matrix4("matrix", 1, false, mat.ptr);
+		mTracer.float3("cameraPos".ptr, camPosition.ptr);
 	}
 
 
 private:
-	fn getAlignedPosition(ref camPosition: math.Point3f, out position: math.Vector3f)
+	fn getAlignedPosition(ref camPosition: math.Point3f,
+	                      out position: math.Vector3f,
+	                      scaleFactor: f32)
 	{
-/*
 		position = math.Vector3f.opCall(camPosition);
-		position.scale(cast(f32)mVoxelPerUnit);
+		position.scale(scaleFactor);
 		position.floor();
 
 		vec := math.Vector3f.opCall(
-			cast(f32)calcAlign(cast(i32)pos.x, level),
-			cast(f32)calcAlign(cast(i32)pos.y, level),
-			cast(f32)calcAlign(cast(i32)pos.z, level));
-*/
+			cast(f32)calcAlign(cast(i32)position.x, 0),
+			cast(f32)calcAlign(cast(i32)position.y, 0),
+			cast(f32)calcAlign(cast(i32)position.z, 0));
 	}
 }
 

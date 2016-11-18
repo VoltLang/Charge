@@ -1,8 +1,11 @@
 #version 450 core
 
-#define POW 7
-#define DIVISOR pow(2, float(POW))
-#define DIVISOR_INV (1.0/DIVISOR)
+#define VOXEL_POWER 11
+#define FEEDBACK_POWER 3
+#define GEOM_POWER 4
+
+#define DIVISOR (1 << (FEEDBACK_POWER + GEOM_POWER))
+#define DIVISOR_INV (1.0 / DIVISOR)
 
 layout (points) in;
 layout (location = 0) in ivec3[] inPosition;
@@ -41,14 +44,14 @@ bool findStart(out ivec3 ipos, out int offset)
 
 	// 3D bit selector, each element is in the range [0, 1].
 	// Turn that into scalar in the range [0, 8].
-	uint select = (morton >> ((POW-1) * 3)) & 0x07;
+	uint select = (morton >> ((GEOM_POWER-1) * 3)) & 0x07;
 	if ((node & (uint(1) << select)) == uint(0)) {
 		return false;
 	}
 	ipos += ivec3(
 		(select >> 2) & 0x1,
 		(select     ) & 0x1,
-		(select >> 1) & 0x1) << (POW-1);
+		(select >> 1) & 0x1) << (GEOM_POWER-1);
 
 
 #define LOOPBODY(counter) \
@@ -56,7 +59,7 @@ bool findStart(out ivec3 ipos, out int offset)
 		offset = texelFetch(octree, offset).r;			\
 		node = uint(texelFetch(octree, offset).r);		\
 									\
-		select = (morton >> ((POW-counter) * 3)) & 0x07;	\
+		select = (morton >> ((GEOM_POWER-counter) * 3)) & 0x07;	\
 		if ((node & (uint(1) << select)) == uint(0)) {		\
 			return false;					\
 		}							\
@@ -64,27 +67,27 @@ bool findStart(out ivec3 ipos, out int offset)
 		ipos += ivec3(						\
 			(select >> 2) & 0x1,				\
 			(select     ) & 0x1,				\
-			(select >> 1) & 0x1) << (POW-counter);		\
+			(select >> 1) & 0x1) << (GEOM_POWER-counter);		\
 
-#if POW >= 2
+#if GEOM_POWER >= 2
 	LOOPBODY(2);
 #endif
-#if POW >= 3
+#if GEOM_POWER >= 3
 	LOOPBODY(3);
 #endif
-#if POW >= 4
+#if GEOM_POWER >= 4
 	LOOPBODY(4);
 #endif
-#if POW >= 5
+#if GEOM_POWER >= 5
 	LOOPBODY(5);
 #endif
-#if POW >= 6
+#if GEOM_POWER >= 6
 	LOOPBODY(6);
 #endif
-#if POW >= 7
+#if GEOM_POWER >= 7
 	LOOPBODY(7);
 #endif
-#if POW >= 8
+#if GEOM_POWER >= 8
 	LOOPBODY(8);
 #endif
 
@@ -111,7 +114,7 @@ void main(void)
 		return;
 	}
 
-	ipos += inPosition[0] * 8;
+	ipos += inPosition[0] * (1 << GEOM_POWER);
 
 	outMinEdge = vec3(ipos) * DIVISOR_INV;
 	outMaxEdge = outMinEdge + vec3(1.0) * DIVISOR_INV;

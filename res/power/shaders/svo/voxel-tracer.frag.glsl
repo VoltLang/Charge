@@ -11,8 +11,6 @@ layout (binding = 0) uniform isamplerBuffer octree;
 layout (location = 0) out vec4 outColor;
 
 uniform vec3 cameraPos;
-uniform int tracePower;
-uniform int splitPower;
 
 
 void rayAABBTest(vec3 rayDir, vec3 aabbMin, vec3 aabbMax,
