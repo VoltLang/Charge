@@ -84,3 +84,61 @@ private:
 		mPos = 0;
 	}
 }
+
+/**
+ * Follows the OpenGL spec for input to draw arrays indirection fuctions.
+ *
+ * glDrawArraysIndirect
+ * glMultiDrawArraysIndirect
+ */
+struct IndirectData
+{
+	count: GLuint;
+	instanceCount: GLuint;
+	first: GLuint;
+	baseInstance: GLuint;
+}
+
+/**
+ * Inderect buffer for use with OpenGL darw arrays indirect functions.
+ *
+ * glDrawArraysIndirect
+ * glMultiDrawArraysIndirect
+ */
+class IndirectBuffer : Resource
+{
+public:
+	buf: GLuint;
+	num: GLsizei;
+
+
+public:
+	global fn make(name: string, data: IndirectData[]) IndirectBuffer
+	{
+		dummy: void*;
+		buffer := cast(IndirectBuffer)Resource.alloc(
+			typeid(IndirectBuffer), Buffer.uri, name, 0, out dummy);
+		buffer.__ctor(data);
+		return buffer;
+	}
+
+
+protected:
+	this(data: IndirectData[])
+	{
+		super();
+		this.num = cast(GLsizei)data.length;
+
+		indirectStride := cast(GLsizei)typeid(IndirectData).size;
+		indirectLength := num * indirectStride;
+
+		glCreateBuffers(1, &buf);
+		glNamedBufferStorage(buf, indirectLength, cast(void*)data.ptr, GL_DYNAMIC_STORAGE_BIT);
+		glCheckError();
+	}
+
+	~this()
+	{
+		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
+	}
+}
