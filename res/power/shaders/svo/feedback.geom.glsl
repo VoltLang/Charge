@@ -1,8 +1,8 @@
 #version 450 core
 
-#define FEEDBACK_POWER 3
-#define FEEDBACK_VOXELS (1 << FEEDBACK_POWER)
-#define FEEDBACK_SIZE (1.0 / FEEDBACK_VOXELS)
+#define OCCLUDE_POWER %%
+#define OCCLUDE_VOXELS (1 << OCCLUDE_POWER)
+#define OCCLUDE_SIZE (1.0 / OCCLUDE_VOXELS)
 
 layout (points) in;
 layout (location = 0) in vec3[] inPosition;
@@ -30,13 +30,13 @@ bool findStart(vec3 pos, out int offset)
 {
 	// Which part of the space the voxel volume occupy.
 	vec3 boxMin = vec3(0.0);
-	float boxDim = FEEDBACK_VOXELS;
+	float boxDim = OCCLUDE_VOXELS;
 
 	// Initial node address.
 	offset = 0;
 
 	// Subdivid until empty node or found the node for this box.
-	for (int i = FEEDBACK_POWER; i > 0; i--) {
+	for (int i = OCCLUDE_POWER; i > 0; i--) {
 		// Get the node.
 		uint node = uint(texelFetch(octree, offset).r);
 
@@ -62,7 +62,7 @@ void main(void)
 
 	// Is this split voxel position outside of voxel box.
 	if (any(lessThan(pos, vec3(0.0))) ||
-	    any(greaterThanEqual(pos, vec3(FEEDBACK_VOXELS)))) {
+	    any(greaterThanEqual(pos, vec3(OCCLUDE_VOXELS)))) {
 		return;
 	}
 

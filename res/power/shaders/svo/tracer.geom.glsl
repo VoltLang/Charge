@@ -1,10 +1,10 @@
 #version 450 core
 
-#define VOXEL_POWER 11
-#define FEEDBACK_POWER 3
-#define GEOM_POWER 4
+#define VOXEL_POWER %%
+#define OCCLUDE_POWER %%
+#define GEOM_POWER %%
 
-#define DIVISOR (1 << (FEEDBACK_POWER + GEOM_POWER))
+#define DIVISOR (1 << (OCCLUDE_POWER + GEOM_POWER))
 #define DIVISOR_INV (1.0 / DIVISOR)
 
 layout (points) in;
@@ -97,11 +97,13 @@ bool findStart(out ivec3 ipos, out int offset)
 	return true;
 }
 
-void emit(ivec3 ipos, vec3 off)
+void emit(vec3 minEdge, vec3 maxEdge, ivec3 ipos, vec3 off)
 {
 	vec3 pos = ipos;
 	pos += off;
 	pos *= DIVISOR_INV;
+	outMinEdge = minEdge;
+	outMaxEdge = maxEdge;
 	outPosition = pos;
 	gl_Position = matrix * vec4(pos, 1.0);
 	EmitVertex();
@@ -116,54 +118,54 @@ void main(void)
 
 	ipos += inPosition[0] * (1 << GEOM_POWER);
 
-	outMinEdge = vec3(ipos) * DIVISOR_INV;
-	outMaxEdge = outMinEdge + vec3(1.0) * DIVISOR_INV;
+	vec3 minEdge = vec3(ipos) * DIVISOR_INV;
+	vec3 maxEdge = minEdge + vec3(1.0) * DIVISOR_INV;
 
-	if (cameraPos.z < outMinEdge.z) {
-		emit(ipos, vec3(1.0, 1.0, 0.0));
-		emit(ipos, vec3(0.0, 1.0, 0.0));
-		emit(ipos, vec3(1.0, 0.0, 0.0));
-		emit(ipos, vec3(0.0, 0.0, 0.0));
+	if (cameraPos.z < minEdge.z) {
+		emit(minEdge, maxEdge, ipos, vec3(1.0, 1.0, 0.0));
+		emit(minEdge, maxEdge, ipos, vec3(0.0, 1.0, 0.0));
+		emit(minEdge, maxEdge, ipos, vec3(1.0, 0.0, 0.0));
+		emit(minEdge, maxEdge, ipos, vec3(0.0, 0.0, 0.0));
 		EndPrimitive();
 	}
 
-	if (cameraPos.z > outMaxEdge.z) {
-		emit(ipos, vec3(0.0, 0.0, 1.0));
-		emit(ipos, vec3(0.0, 1.0, 1.0));
-		emit(ipos, vec3(1.0, 0.0, 1.0));
-		emit(ipos, vec3(1.0, 1.0, 1.0));
+	if (cameraPos.z > maxEdge.z) {
+		emit(minEdge, maxEdge, ipos, vec3(0.0, 0.0, 1.0));
+		emit(minEdge, maxEdge, ipos, vec3(0.0, 1.0, 1.0));
+		emit(minEdge, maxEdge, ipos, vec3(1.0, 0.0, 1.0));
+		emit(minEdge, maxEdge, ipos, vec3(1.0, 1.0, 1.0));
 		EndPrimitive();
 	}
 
-	if (cameraPos.y < outMinEdge.y) {
-		emit(ipos, vec3(0.0, 0.0, 0.0));
-		emit(ipos, vec3(0.0, 0.0, 1.0));
-		emit(ipos, vec3(1.0, 0.0, 0.0));
-		emit(ipos, vec3(1.0, 0.0, 1.0));
+	if (cameraPos.y < minEdge.y) {
+		emit(minEdge, maxEdge, ipos, vec3(0.0, 0.0, 0.0));
+		emit(minEdge, maxEdge, ipos, vec3(0.0, 0.0, 1.0));
+		emit(minEdge, maxEdge, ipos, vec3(1.0, 0.0, 0.0));
+		emit(minEdge, maxEdge, ipos, vec3(1.0, 0.0, 1.0));
 		EndPrimitive();
 	}
 
-	if (cameraPos.y > outMaxEdge.y) {
-		emit(ipos, vec3(1.0, 1.0, 1.0));
-		emit(ipos, vec3(0.0, 1.0, 1.0));
-		emit(ipos, vec3(1.0, 1.0, 0.0));
-		emit(ipos, vec3(0.0, 1.0, 0.0));
+	if (cameraPos.y > maxEdge.y) {
+		emit(minEdge, maxEdge, ipos, vec3(1.0, 1.0, 1.0));
+		emit(minEdge, maxEdge, ipos, vec3(0.0, 1.0, 1.0));
+		emit(minEdge, maxEdge, ipos, vec3(1.0, 1.0, 0.0));
+		emit(minEdge, maxEdge, ipos, vec3(0.0, 1.0, 0.0));
 		EndPrimitive();
 	}
 
-	if (cameraPos.x < outMinEdge.x) {
-		emit(ipos, vec3(0.0, 0.0, 0.0));
-		emit(ipos, vec3(0.0, 1.0, 0.0));
-		emit(ipos, vec3(0.0, 0.0, 1.0));
-		emit(ipos, vec3(0.0, 1.0, 1.0));
+	if (cameraPos.x < minEdge.x) {
+		emit(minEdge, maxEdge, ipos, vec3(0.0, 0.0, 0.0));
+		emit(minEdge, maxEdge, ipos, vec3(0.0, 1.0, 0.0));
+		emit(minEdge, maxEdge, ipos, vec3(0.0, 0.0, 1.0));
+		emit(minEdge, maxEdge, ipos, vec3(0.0, 1.0, 1.0));
 		EndPrimitive();
 	}
 
-	if (cameraPos.x > outMaxEdge.x) {
-		emit(ipos, vec3(1.0, 1.0, 1.0));
-		emit(ipos, vec3(1.0, 1.0, 0.0));
-		emit(ipos, vec3(1.0, 0.0, 1.0));
-		emit(ipos, vec3(1.0, 0.0, 0.0));
+	if (cameraPos.x > maxEdge.x) {
+		emit(minEdge, maxEdge, ipos, vec3(1.0, 1.0, 1.0));
+		emit(minEdge, maxEdge, ipos, vec3(1.0, 1.0, 0.0));
+		emit(minEdge, maxEdge, ipos, vec3(1.0, 0.0, 1.0));
+		emit(minEdge, maxEdge, ipos, vec3(1.0, 0.0, 0.0));
 		EndPrimitive();
 	}
 }

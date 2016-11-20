@@ -1,6 +1,6 @@
 #version 450 core
 
-#define POW 4
+#define TRACE_POWER %%
 #define MAX_ITERATIONS 500
 
 layout (location = 0) in vec3 inPosition;
@@ -90,25 +90,25 @@ void main(void)
 				break;					\
 			}
 
-#if POW >= 2
+#if TRACE_POWER >= 2
 	LOOPBODY();
 #endif
-#if POW >= 3
+#if TRACE_POWER >= 3
 	LOOPBODY();
 #endif
-#if POW >= 4
+#if TRACE_POWER >= 4
 	LOOPBODY();
 #endif
-#if POW >= 5
+#if TRACE_POWER >= 5
 	LOOPBODY();
 #endif
-#if POW >= 6
+#if TRACE_POWER >= 6
 	LOOPBODY();
 #endif
-#if POW >= 7
+#if TRACE_POWER >= 7
 	LOOPBODY();
 #endif
-#if POW >= 8
+#if TRACE_POWER >= 8
 	LOOPBODY();
 #endif
 
@@ -130,7 +130,7 @@ void main(void)
 	}
 
 	if (hit) {
-		float traceSize = float(1 << 11-POW);
+		float traceSize = float(1 << (11 - TRACE_POWER));
 		vec3 pos = inPosition + rayDir * tMin;
 		outColor = vec4((pos - inMinEdge) * traceSize, 1.0);
 	} else {
