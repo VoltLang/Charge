@@ -23,10 +23,10 @@ public:
 		this.id = makeShaderVF(name, vert, frag, attr, tex);
 	}
 
-	this(name: string, vert: string, geom: string, frag: string, attr: string[], tex: string[])
+	this(name: string, vert: string, geom: string, frag: string)
 	{
 		this.name = name;
-		this.id = makeShaderVGF(name, vert, geom, frag, attr, tex);
+		this.id = makeShaderVGF(name, vert, geom, frag);
 	}
 
 	this(name: string, id: GLuint)
@@ -220,18 +220,10 @@ fn makeShaderVF(name: string, vert: string, frag: string, attr: string[], texs: 
 	return shader;
 }
 
-fn makeShaderVGF(name: string, vert: string, geom: string, frag: string, attr: string[], texs: string[]) GLuint
+fn makeShaderVGF(name: string, vert: string, geom: string, frag: string) GLuint
 {
 	// Compile the shaders
 	shader := createAndCompileShaderVGF(name, vert, geom, frag);
-
-	// Setup vertex attributes, needs to done before linking.
-	foreach (i, att; attr) {
-		if (att is null) {
-			continue;
-		}
-		glBindAttribLocation(shader, cast(uint)i, att.ptr);
-	}
 
 	// Linking the Shader Program
 	glLinkProgram(shader);
@@ -242,22 +234,13 @@ fn makeShaderVGF(name: string, vert: string, geom: string, frag: string, attr: s
 		return 0;
 	}
 
-	// Setup the texture units.
-	glUseProgram(shader);
-	foreach (i, tex; texs) {
-		if (tex is null)
-			continue;
-
-		loc := glGetUniformLocation(shader, tex.ptr);
-		glUniform1i(loc, cast(int)i);
-	}
-	glUseProgram(0);
-
 	return shader;
 }
 
 fn createAndCompileShaderVF(name: string, vert: string, frag: string) GLuint
 {
+	assert(vert.length > 0 && frag.length > 0);
+
 	// Create the handels
 	vertShader := glCreateShader(GL_VERTEX_SHADER);
 	fragShader := glCreateShader(GL_FRAGMENT_SHADER);
@@ -283,32 +266,43 @@ fn createAndCompileShaderVF(name: string, vert: string, frag: string) GLuint
 
 fn createAndCompileShaderVGF(name: string, vert: string, geom: string, frag: string) GLuint
 {
-	// Create the handels
-	vertShader := glCreateShader(GL_VERTEX_SHADER);
-	geomShader := glCreateShader(GL_GEOMETRY_SHADER);
-	fragShader := glCreateShader(GL_FRAGMENT_SHADER);
+	// Create the handel
 	programShader := glCreateProgram();
 
-	// Attach the shaders to a program handel.
-	glAttachShader(programShader, vertShader);
-	glAttachShader(programShader, geomShader);
-	glAttachShader(programShader, fragShader);
-
 	// Load and compile the Vertex Shader
-	compileShader(name, vertShader, vert, "vert");
+	if (vert.length > 0) {
+		vertShader := glCreateShader(GL_VERTEX_SHADER);
+		glAttachShader(programShader, vertShader);
+
+		compileShader(name, vertShader, vert, "vert");
+
+		// The shader objects are not needed any more.
+		glDeleteShader(vertShader);
+	}
 
 	// Load and compile the Fragment Shader
-	compileShader(name, geomShader, geom, "geom");
+	if (geom.length > 0) {
+		geomShader := glCreateShader(GL_GEOMETRY_SHADER);
+		glAttachShader(programShader, geomShader);
+
+		compileShader(name, geomShader, geom, "geom");
+
+		// The shader objects are not needed any more.
+		glDeleteShader(geomShader);
+	}
 
 	// Load and compile the Fragment Shader
-	compileShader(name, fragShader, frag, "frag");
+	if (frag.length > 0) {
+		fragShader := glCreateShader(GL_FRAGMENT_SHADER);
+		glAttachShader(programShader, fragShader);
 
-	// The shader objects are not needed any more,
-	// the programShader is the complete shader to be used.
-	glDeleteShader(vertShader);
-	glDeleteShader(geomShader);
-	glDeleteShader(fragShader);
+		compileShader(name, fragShader, frag, "frag");
 
+		// The shader objects are not needed any more.
+		glDeleteShader(fragShader);
+	}
+
+	// The programShader is the complete shader to be used.
 	return programShader;
 }
 

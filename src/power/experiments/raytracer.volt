@@ -501,7 +501,7 @@ private:
 		vert = replaceShaderStrings(vert);
 		geom = replaceShaderStrings(geom);
 		frag = replaceShaderStrings(frag);
-		return new GfxShader(name, vert, geom, frag, null, null);
+		return new GfxShader(name, vert, geom, frag);
 	}
 
 	fn replaceShaderStrings(shader: string) string
@@ -566,10 +566,10 @@ public:
 		frag2 := cast(string)read("res/power/shaders/raytracer/voxel-nvidia.frag.glsl");
 		frag3 := cast(string)read("res/power/shaders/raytracer/voxel-org.frag.glsl");
 		frag4 := cast(string)read("res/power/shaders/raytracer/voxel-notrace.frag.glsl");
-		mShaders[0] = new GfxShader("voxel-amd", vert, geom, frag1, null, null);
-		mShaders[1] = new GfxShader("voxel-nvidia", vert, geom, frag2, null, null);
-		mShaders[2] = new GfxShader("voxel-org", vert, geom, frag3, null, null);
-		mShaders[3] = new GfxShader("voxel-notrace", vert, geom, frag4, null, null);
+		mShaders[0] = new GfxShader("voxel-amd", vert, geom, frag1);
+		mShaders[1] = new GfxShader("voxel-nvidia", vert, geom, frag2);
+		mShaders[2] = new GfxShader("voxel-org", vert, geom, frag3);
+		mShaders[3] = new GfxShader("voxel-notrace", vert, geom, frag4);
 		mShaderNames[0] = "AMD-OPTZ";
 		mShaderNames[1] = "NV-OPTZ";
 		mShaderNames[2] = "original";
