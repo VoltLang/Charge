@@ -290,21 +290,21 @@ public:
 
 		vert = cast(string)read("res/power/shaders/svo/feedback.vert.glsl");
 		geom = cast(string)read("res/power/shaders/svo/feedback.geom.glsl");
-		mFeedback = makeShaderVGF("svo.voxel.feedback", vert, geom, null);
+		mFeedback = makeShaderVGF("svo.feedback", vert, geom, null);
 
 		vert = cast(string)read("res/power/shaders/svo/occlude.vert.glsl");
 		geom = cast(string)read("res/power/shaders/svo/occlude.geom.glsl");
 		frag = cast(string)read("res/power/shaders/svo/occlude.frag.glsl");
-		mOcclude = makeShaderVGF("svo.voxel.occlude", vert, geom, frag);
+		mOcclude = makeShaderVGF("svo.occlude", vert, geom, frag);
 
 		vert = cast(string)read("res/power/shaders/svo/prune.vert.glsl");
 		geom = cast(string)read("res/power/shaders/svo/prune.geom.glsl");
-		mPrune = makeShaderVGF("svo.voxel.prune", vert, geom, null);
+		mPrune = makeShaderVGF("svo.prune", vert, geom, null);
 
 		vert = cast(string)read("res/power/shaders/svo/tracer.vert.glsl");
 		geom = cast(string)read("res/power/shaders/svo/tracer.geom.glsl");
 		frag = cast(string)read("res/power/shaders/svo/tracer.frag.glsl");
-		mTracer = makeShaderVGF("svo.voxel.tracer", vert, geom, frag);
+		mTracer = makeShaderVGF("svo.tracer", vert, geom, frag);
 
 
 		numMorton := calcNumMorton(1 << (mOccludePower + 1));
