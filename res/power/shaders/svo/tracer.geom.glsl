@@ -21,6 +21,7 @@ layout (binding = 0) uniform isamplerBuffer octree;
 uniform mat4 matrix;
 uniform vec3 cameraPos;
 
+
 int calcAddress(uint select, uint node, int offset)
 {
 	int bits = int(select + 1);
@@ -48,26 +49,25 @@ bool findStart(out ivec3 ipos, out int offset)
 	if ((node & (uint(1) << select)) == uint(0)) {
 		return false;
 	}
-	ipos += ivec3(
-		(select >> 2) & 0x1,
-		(select     ) & 0x1,
-		(select >> 1) & 0x1) << (GEOM_POWER-1);
 
+	ipos.x = ((int(select) >> 2)      ) << (GEOM_POWER-1);
+	ipos.y = ((int(select)     ) & 0x1) << (GEOM_POWER-1);
+	ipos.z = ((int(select) >> 1) & 0x1) << (GEOM_POWER-1);
 
 #define LOOPBODY(counter) \
-		offset = calcAddress(select, node, offset);		\
-		offset = texelFetch(octree, offset).r;			\
-		node = uint(texelFetch(octree, offset).r);		\
-									\
-		select = (morton >> ((GEOM_POWER-counter) * 3)) & 0x07;	\
-		if ((node & (uint(1) << select)) == uint(0)) {		\
-			return false;					\
-		}							\
-									\
-		ipos += ivec3(						\
-			(select >> 2) & 0x1,				\
-			(select     ) & 0x1,				\
-			(select >> 1) & 0x1) << (GEOM_POWER-counter);		\
+		offset = calcAddress(select, node, offset);			\
+		offset = texelFetch(octree, offset).r;				\
+		node = uint(texelFetch(octree, offset).r);			\
+										\
+		select = (morton >> ((GEOM_POWER-counter) * 3)) & 0x07;		\
+		if ((node & (uint(1) << select)) == uint(0)) {			\
+			return false;						\
+		}								\
+										\
+		ipos.x += ((int(select) >> 2)      ) << (GEOM_POWER-counter);	\
+		ipos.y += ((int(select)     ) & 0x1) << (GEOM_POWER-counter);	\
+		ipos.z += ((int(select) >> 1) & 0x1) << (GEOM_POWER-counter);	\
+
 
 #if GEOM_POWER >= 2
 	LOOPBODY(2);
@@ -111,12 +111,12 @@ void emit(vec3 minEdge, vec3 maxEdge, ivec3 ipos, vec3 off)
 
 void main(void)
 {
-	ivec3 ipos = ivec3(0);
+	ivec3 ipos;
 	if (!findStart(ipos, outOffset)) {
 		return;
 	}
 
-	ipos += inPosition[0] * (1 << GEOM_POWER);
+	ipos += inPosition[0] << GEOM_POWER;
 
 	vec3 minEdge = vec3(ipos) * DIVISOR_INV;
 	vec3 maxEdge = minEdge + vec3(1.0) * DIVISOR_INV;
