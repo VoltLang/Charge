@@ -286,10 +286,11 @@ public:
 		mOctTexture = octTexture;
 		glGenQueries(1, &mFeedbackQuery);
 
-		vert := cast(string)read("res/power/shaders/svo/feedback.vert.glsl");
-		geom := cast(string)read("res/power/shaders/svo/feedback.geom.glsl");
-		frag := cast(string)read("res/power/shaders/svo/feedback.frag.glsl");
-		mFeedback = makeShaderVGF("svo.voxel.feedback", vert, geom, frag);
+		vert, geom, frag: string;
+
+		vert = cast(string)read("res/power/shaders/svo/feedback.vert.glsl");
+		geom = cast(string)read("res/power/shaders/svo/feedback.geom.glsl");
+		mFeedback = makeShaderVGF("svo.voxel.feedback", vert, geom, null);
 
 		vert = cast(string)read("res/power/shaders/svo/occlude.vert.glsl");
 		geom = cast(string)read("res/power/shaders/svo/occlude.geom.glsl");
@@ -298,8 +299,7 @@ public:
 
 		vert = cast(string)read("res/power/shaders/svo/prune.vert.glsl");
 		geom = cast(string)read("res/power/shaders/svo/prune.geom.glsl");
-		frag = cast(string)read("res/power/shaders/svo/prune.frag.glsl");
-		mPrune = makeShaderVGF("svo.voxel.prune", vert, geom, frag);
+		mPrune = makeShaderVGF("svo.voxel.prune", vert, geom, null);
 
 		vert = cast(string)read("res/power/shaders/svo/tracer.vert.glsl");
 		geom = cast(string)read("res/power/shaders/svo/tracer.geom.glsl");
