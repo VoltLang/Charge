@@ -90,7 +90,7 @@ public:
 		super(g);
 		mPick = true;
 
-		glGenQueries(1, &query);
+		glCreateQueries(GL_TIME_ELAPSED, 1, &query);
 
 		data: void[];
 		loadDag("res/alley.dag", out data);
