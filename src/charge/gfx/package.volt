@@ -19,8 +19,10 @@ public import charge.gfx.shader :
 	GfxShader = Shader;
 public import charge.gfx.target :
 	GfxTarget = Target, GfxFramebuffer = Framebuffer;
-public import charge.gfx.texture : 
+public import charge.gfx.texture :
 	GfxTexture = Texture, GfxTexture2D = Texture2D;
+public import charge.gfx.timer :
+	GfxTimer = Timer;
 public import charge.gfx.bitmapfont :
 	GfxBitmapState = BitmapState, gfxBuildVertices = buildVertices,
 	gfxBitmapTexture = bitmapTexture;
