@@ -64,10 +64,7 @@ fn loadDag(filename: string, out data: void[])
 class RayTracer : Viewer
 {
 public:
-
-	mPick: bool;
-	asvo: AdvancedSVO;
-	ssvo: SimpleSVO;
+	svo: SVO;
 	query: GLuint;
 	queryInFlight: bool;
 	samples: math.Average;
@@ -88,7 +85,6 @@ public:
 	this(GameSceneManager g)
 	{
 		super(g);
-		mPick = true;
 
 		glCreateQueries(GL_TIME_ELAPSED, 1, &query);
 
@@ -101,8 +97,7 @@ public:
 		glCreateTextures(GL_TEXTURE_BUFFER, 1, &octTexture);
 		glTextureBuffer(octTexture, GL_R32UI, octBuffer);
 
-		ssvo = new SimpleSVO(octTexture);
-		asvo = new AdvancedSVO(octTexture);
+		svo = new SVO(octTexture);
 	}
 
 
@@ -118,18 +113,14 @@ public:
 
 		if (octTexture) { glDeleteTextures(1, &octTexture); octTexture = 0; }
 		if (octBuffer) { glDeleteBuffers(1, &octBuffer); octBuffer = 0; }
-		if (asvo !is null) { asvo.close(); asvo = null; }
+		if (svo !is null) { svo.close(); svo = null; }
 	}
 
 	override fn keyDown(device: CtlKeyboard, keycode: int, c: dchar, m: scope const(char)[])
 	{
 		switch (keycode) {
-		case 'e': mPick = !mPick; break;
-		case 'r': ssvo.triggerPatchStart(); break;
-		case 't': ssvo.triggerPatchSize(); break;
-		case 'y': ssvo.triggerShader(); break;
 		default: super.keyDown(device, keycode, c, m);
-		}	
+		}
 	}
 
 
@@ -162,11 +153,7 @@ public:
 			shouldEnd = true;
 		}
 
-		if (mPick) {
-			asvo.draw(ref camPosition, ref proj);
-		} else {
-			ssvo.draw(ref camPosition, ref proj);
-		}
+		svo.draw(ref camPosition, ref proj);
 
 		if (shouldEnd) {
 			glEndQuery(GL_TIME_ELAPSED);
@@ -203,20 +190,12 @@ Elapsed time:
  avg:  %02sms
 Resolution: %sx%s
 w a s d - move camera
-e - advanced: %s
-r - patch start level: %s
-t - patch size: %s^3
-y - shader: %s
 p - reset position`;
 
 		text := format(str,
 			timeElapsed / 1_000_000_000.0 * 1_000.0,
 			avg / 1_000_000_000.0 * 1_000.0,
-			t.width, t.height,
-			mPick,
-			ssvo.mPatchStartLevel,
-			ssvo.mPatchSize,
-			ssvo.mShaderNames[ssvo.mShaderIndex]);
+			t.width, t.height);
 
 		updateText(text);
 	}
@@ -234,7 +213,7 @@ fn calcNumMorton(dim: i32) i32
 	return dim * dim * dim;
 }
 
-class AdvancedSVO
+class SVO
 {
 protected:
 	mVbo: DagBuffer;
@@ -525,185 +504,5 @@ private:
 			cast(f32)calcAlign(cast(i32)position.x, 0),
 			cast(f32)calcAlign(cast(i32)position.y, 0),
 			cast(f32)calcAlign(cast(i32)position.z, 0));
-	}
-}
-
-class SimpleSVO
-{
-public:
-	mVbo: DagBuffer;
-
-	mShaders: GfxShader[4];
-	mShaderNames: string[4];
-	mShaderIndex: u32;
-	mShader: GfxShader;
-	mPatchSize: i32;
-	mPatchMinSize: i32;
-	mPatchMaxSize: i32;
-	mPatchStartLevel: i32;
-	mPatchStopLevel: i32;
-	mVoxelPower: i32;
-	mVoxelPerUnit: i32;
-
-	mOctTexture: GLuint;
-
-
-public:
-	this(octTexture: GLuint)
-	{
-		mOctTexture = octTexture;
-		mVoxelPower = 11;
-		mVoxelPerUnit = (1 << mVoxelPower);
-		mPatchSize = 16;
-		mPatchMinSize = 4;
-		mPatchMaxSize = 32;
-		mPatchStartLevel = 1;
-		mPatchStopLevel = 10;
-
-		vert := cast(string)read("res/power/shaders/raytracer/voxel.vert.glsl");
-		geom := cast(string)read("res/power/shaders/raytracer/voxel.geom.glsl");
-		frag1 := cast(string)read("res/power/shaders/raytracer/voxel-amd.frag.glsl");
-		frag2 := cast(string)read("res/power/shaders/raytracer/voxel-nvidia.frag.glsl");
-		frag3 := cast(string)read("res/power/shaders/raytracer/voxel-org.frag.glsl");
-		frag4 := cast(string)read("res/power/shaders/raytracer/voxel-notrace.frag.glsl");
-		mShaders[0] = new GfxShader("voxel-amd", vert, geom, frag1);
-		mShaders[1] = new GfxShader("voxel-nvidia", vert, geom, frag2);
-		mShaders[2] = new GfxShader("voxel-org", vert, geom, frag3);
-		mShaders[3] = new GfxShader("voxel-notrace", vert, geom, frag4);
-		mShaderNames[0] = "AMD-OPTZ";
-		mShaderNames[1] = "NV-OPTZ";
-		mShaderNames[2] = "original";
-		mShaderNames[3] = "no trace";
-		mShader = mShaders[0];
-
-		numMorton := calcNumMorton(mPatchMaxSize);
-		b := new DagBuilder(cast(size_t)numMorton);
-		foreach (i; 0 .. numMorton) {
-			vals: u32[3];
-			math.decode3(cast(u64)i, out vals);
-
-			x := cast(i32)vals[0];
-			y := cast(i32)vals[1];
-			z := cast(i32)vals[2];
-
-			x = x % 2 == 1 ? -x >> 1 : x >> 1;
-			y = y % 2 == 1 ? -y >> 1 : y >> 1;
-			z = z % 2 == 1 ? -z >> 1 : z >> 1;
-
-			b.add(cast(i8)x, cast(i8)y, cast(i8)z, 1);
-		}
-		mVbo = DagBuffer.make("power/dag", b);
-	}
-
-	fn triggerPatchStart()
-	{
-		mPatchStartLevel++;
-		if (mPatchStartLevel > mPatchStopLevel) {
-			mPatchStartLevel = 1;
-		}
-	}
-
-	fn triggerPatchSize()
-	{
-		mPatchSize *= 2;
-		if (mPatchSize > mPatchMaxSize) {
-			mPatchSize = mPatchMinSize;
-		}
-	}
-
-	fn triggerShader()
-	{
-		mShaderIndex++;
-		if (mShaderIndex >= mShaders.length) {
-			mShaderIndex = 0;
-		}
-		mShader = mShaders[mShaderIndex];	
-	}
-
-	fn close()
-	{
-		mShader = null;
-		foreach (ref s; mShaders) {
-			s.breakApart();
-			s = null;
-		}
-	}
-
-	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
-	{
-		// Setup shader.
-		mShader.bind();
-		setupStatic(ref camPosition, ref mat);
-
-		// Draw the array.
-		glCullFace(GL_FRONT);
-		glEnable(GL_CULL_FACE);
-		glBindTextureUnit(0, mOctTexture);
-
-		glBindVertexArray(mVbo.vao);
-
-		foreach (i; mPatchStartLevel .. mPatchStopLevel+1) {
-			drawLevel(ref camPosition, i);
-		}
-
-		glBindVertexArray(0);
-
-		glBindTextureUnit(0, 0);
-		glDisable(GL_CULL_FACE);
-	}
-
-	fn setupStatic(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
-	{
-		voxelsPerUnit := cast(f32)(1 << mVoxelPower);
-		voxelSize := 1.0f / voxelsPerUnit;
-		voxelSizeInv := voxelsPerUnit;
-
-		mShader.matrix4("matrix", 1, false, mat.ptr);
-		mShader.float3("cameraPos".ptr, camPosition.ptr);
-		mShader.float1("voxelSize".ptr, voxelSize);
-		mShader.float1("voxelSizeInv".ptr, voxelSizeInv);
-	}
-
-	fn drawLevel(ref camPosition: math.Point3f, level: i32)
-	{
-		splitPower := mVoxelPower - level;
-		splitPerUnit := cast(f32)(1 << splitPower);
-		splitSize := 1.0f / splitPerUnit;
-		splitSizeInv := splitPerUnit;
-
-		mShader.int1("splitPower".ptr, splitPower);
-		mShader.float1("splitSize".ptr, splitSize);
-		mShader.float1("splitSizeInv".ptr, splitSizeInv);
-		mShader.int1("tracePower".ptr, level);
-
-		pos := math.Vector3f.opCall(camPosition);
-		pos.scale(cast(f32)mVoxelPerUnit);
-		pos.floor();
-
-		vec := math.Vector3f.opCall(
-			cast(f32)calcAlign(cast(i32)pos.x, level),
-			cast(f32)calcAlign(cast(i32)pos.y, level),
-			cast(f32)calcAlign(cast(i32)pos.z, level));
-		mShader.float3("offset".ptr, 1, vec.ptr);
-
-		if (level <= mPatchStartLevel) {
-			vec = math.Vector3f.opCall(0.0f, 0.0f, 0.0f);
-			mShader.float3("lowerMin".ptr, 1, vec.ptr);
-			mShader.float3("lowerMax".ptr, 1, vec.ptr);
-		} else {
-			lowerLevel := level-1;
-			vec.x = cast(f32)calcAlign(cast(i32)pos.x, lowerLevel);
-			vec.y = cast(f32)calcAlign(cast(i32)pos.y, lowerLevel);
-			vec.z = cast(f32)calcAlign(cast(i32)pos.z, lowerLevel);
-			vec -= cast(f32)((mPatchSize / 2) * (1 << lowerLevel));
-			mShader.float3("lowerMin".ptr, 1, vec.ptr);
-			vec += cast(f32)(mPatchSize * (1 << lowerLevel));
-			mShader.float3("lowerMax".ptr, 1, vec.ptr);
-		}
-		vec.x = 1; vec.y = 1; vec.z = 1;
-		vec.scale(cast(f32)(1 << level));
-		mShader.float3("scale".ptr, 1, vec.ptr);
-
-		glDrawArrays(GL_POINTS, 0, calcNumMorton(mPatchSize));
 	}
 }
