@@ -152,8 +152,6 @@ public:
 		gfxDrawShader.bind();
 		gfxDrawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBindVertexArray(textVbo.vao);
 		gfxBitmapTexture.bind();
 
@@ -161,8 +159,6 @@ public:
 
 		gfxBitmapTexture.unbind();
 		glBindVertexArray(0);
-		glBlendFunc(GL_ONE, GL_ZERO);
-		glDisable(GL_BLEND);
 	}
 
 	override fn dropControl()
