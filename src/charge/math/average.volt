@@ -11,11 +11,14 @@ struct Average
 	samples: ulong[32];
 	size_t pos;
 
-	fn add(value: ulong) ulong
+	fn add(value: ulong)
 	{
 		samples[pos] = value;
 		pos = (pos + 1) % samples.length;
+	}
 
+	fn calc() ulong
+	{
 		sum: ulong;
 		foreach (v; samples) {
 			sum += v;

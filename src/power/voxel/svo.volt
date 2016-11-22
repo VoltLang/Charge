@@ -45,6 +45,10 @@ fn calcNumMorton(dim: i32) i32
 
 class SVO
 {
+public:
+	timers: GfxTimer[4];
+
+
 protected:
 	mVbo: DagBuffer;
 	mOccludeBuf: OccludeBuffer;
@@ -83,6 +87,10 @@ protected:
 public:
 	this(octTexture: GLuint)
 	{
+		foreach (ref t; timers) {
+			t.setup();
+		}
+
 		mVoxelPower = 11;
 		mOccludePower = 5;
 		mGeomPower = 3;
@@ -158,7 +166,9 @@ public:
 
 	void close()
 	{
-
+		foreach (ref t; timers) {
+			t.close();
+		}
 	}
 
 	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
@@ -170,6 +180,7 @@ public:
 
 		// We first do a initial pruning of cubes. This is put into a
 		// feedback buffer that is used as data to the occlusion step.
+		timers[0].start();
 		setupStaticFeedback(ref camPosition, ref mat);
 
 		// Setup the transform feedback state
@@ -183,11 +194,13 @@ public:
 		glEndTransformFeedback();
 		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
 		glDisable(GL_RASTERIZER_DISCARD);
+		timers[0].stop();
 
 
 		//
 		// Do occlusion testing, this generate a list of which aabb
 		// that the feedback step generated are visible.
+		timers[1].start();
 		setupStaticOcclude(ref camPosition, ref mat);
 
 		// Turn of depth and color write.
@@ -204,6 +217,7 @@ public:
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 		glDepthMask(GL_TRUE);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		timers[1].stop();
 
 
 		//
@@ -215,6 +229,7 @@ public:
 		//
 		// Use the occlusion testing to prune the list of aabb that are
 		// visible, this is then used to generate the raytracing boxes.
+		timers[2].start();
 		setupStaticPrune(ref camPosition, ref mat);
 
 		glEnable(GL_RASTERIZER_DISCARD);
@@ -229,11 +244,13 @@ public:
 		glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
 		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
 		glDisable(GL_RASTERIZER_DISCARD);
+		timers[2].stop();
 
 
 		//
 		// Retrive the number of entries written to the pruned buffer
 		// write that into the instance number of the indirect buffer.
+		timers[3].start();
 		glBindBuffer(GL_QUERY_BUFFER, mIndirectBuf.buf);
 		glGetQueryObjectuiv(mFeedbackQuery, GL_QUERY_RESULT, (cast(GLuint*)null) + 1);
 		glBindBuffer(GL_QUERY_BUFFER, 0);
@@ -254,6 +271,7 @@ public:
 		glBindVertexArray(0);
 
 		glDisable(GL_CULL_FACE);
+		timers[3].stop();
 
 
 		// Unbind the octTexture.

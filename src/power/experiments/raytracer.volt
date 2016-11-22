@@ -4,6 +4,7 @@ module power.experiments.raytracer;
 
 import watt.text.format;
 import watt.io.file;
+import io = watt.io;
 
 import charge.ctl;
 import charge.gfx;
@@ -57,9 +58,7 @@ class RayTracer : Viewer
 {
 public:
 	svo: SVO;
-	query: GLuint;
-	queryInFlight: bool;
-	samples: math.Average;
+	samples: math.Average[4];
 
 
 	/**
@@ -77,8 +76,6 @@ public:
 	this(GameSceneManager g)
 	{
 		super(g);
-
-		glCreateQueries(GL_TIME_ELAPSED, 1, &query);
 
 		data: void[];
 		loadDag("res/alley.dag", out data);
@@ -138,19 +135,7 @@ public:
 		proj.setToMultiply(ref view);
 		proj.transpose();
 
-
-		shouldEnd: bool;
-		if (!queryInFlight) {
-			glBeginQuery(GL_TIME_ELAPSED, query);
-			shouldEnd = true;
-		}
-
 		svo.draw(ref camPosition, ref proj);
-
-		if (shouldEnd) {
-			glEndQuery(GL_TIME_ELAPSED);
-			queryInFlight = true;
-		}
 
 		// Check for last frames query.
 		checkQuery(t);
@@ -160,33 +145,40 @@ public:
 
 	fn checkQuery(t: GfxTarget)
 	{
-		if (!queryInFlight) {
-			return;
+		vals: GLuint64[4];
+		total: GLuint64;
+		foreach (i, ref timer; svo.timers) {
+			v: GLuint64;
+			if (timer.getValue(out v)) {
+				samples[i].add(v);
+			}
+
+			vals[i] = samples[i].calc();
+			total += vals[i];
 		}
-
-		available: GLint;
-		glGetQueryObjectiv(query, GL_QUERY_RESULT_AVAILABLE, &available);
-		if (!available) {
-			return;
-		}
-
-		timeElapsed: GLuint64;
-		glGetQueryObjectui64v(query, GL_QUERY_RESULT, &timeElapsed);
-		queryInFlight = false;
-
-		avg := samples.add(timeElapsed);
 
 		str := `Info:
 Elapsed time:
- last: %02sms
- avg:  %02sms
+ feedback: % 1s.%03sms
+ occlude:  % 1s.%03sms
+ prune:    % 1s.%03sms
+ trace:    % 1s.%03sms
+ total:    % 1s.%03sms
 Resolution: %sx%s
 w a s d - move camera
 p - reset position`;
 
+		vals[0] /= (1_000_000_000 / 1_000_000u);
+		vals[1] /= (1_000_000_000 / 1_000_000u);
+		vals[2] /= (1_000_000_000 / 1_000_000u);
+		vals[3] /= (1_000_000_000 / 1_000_000u);
+		total   /= (1_000_000_000 / 1_000_000u);
 		text := format(str,
-			timeElapsed / 1_000_000_000.0 * 1_000.0,
-			avg / 1_000_000_000.0 * 1_000.0,
+			vals[0] / 1_000, vals[0] % 1_000,
+			vals[1] / 1_000, vals[1] % 1_000,
+			vals[2] / 1_000, vals[2] % 1_000,
+			vals[3] / 1_000, vals[3] % 1_000,
+			total   / 1_000, total   % 1_000,
 			t.width, t.height);
 
 		updateText(text);
