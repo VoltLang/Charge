@@ -208,10 +208,25 @@ fn calcAlign(pos: i32, level: i32) i32
 	return ((pos + size) >> shift) << shift;
 }
 
+fn getAlignedPosition(ref camPosition: math.Point3f,
+                      out position: math.Vector3f,
+                      scaleFactor: f32)
+{
+	position = math.Vector3f.opCall(camPosition);
+	position.scale(scaleFactor);
+	position.floor();
+
+	vec := math.Vector3f.opCall(
+		cast(f32)calcAlign(cast(i32)position.x, 0),
+		cast(f32)calcAlign(cast(i32)position.y, 0),
+		cast(f32)calcAlign(cast(i32)position.z, 0));
+}
+	
 fn calcNumMorton(dim: i32) i32
 {
 	return dim * dim * dim;
 }
+
 
 class SVO
 {
@@ -490,19 +505,5 @@ private:
 		shader = replace(shader, "#define GEOM_POWER %%",    mGeomPowerStr);
 		shader = replace(shader, "#define TRACE_POWER %%",   mTracePowerStr);
 		return shader;
-	}
-
-	fn getAlignedPosition(ref camPosition: math.Point3f,
-	                      out position: math.Vector3f,
-	                      scaleFactor: f32)
-	{
-		position = math.Vector3f.opCall(camPosition);
-		position.scale(scaleFactor);
-		position.floor();
-
-		vec := math.Vector3f.opCall(
-			cast(f32)calcAlign(cast(i32)position.x, 0),
-			cast(f32)calcAlign(cast(i32)position.y, 0),
-			cast(f32)calcAlign(cast(i32)position.z, 0));
 	}
 }
