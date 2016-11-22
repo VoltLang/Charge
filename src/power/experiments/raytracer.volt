@@ -331,10 +331,10 @@ public:
 		ind[0].first = 0;
 		ind[0].baseInstance = 0;
 
-		mIndirectBuf = GfxIndirectBuffer.make("power.voxel.indirect", ind);
+		mIndirectBuf = GfxIndirectBuffer.make("svo.buffer.indirect", ind);
 
-		mOccludeBuf = OccludeBuffer.make("power.voxel.trace", numMorton);
-		mInstanceBuf = InstanceBuffer.make("power.voxel.instance", numMorton);
+		mOccludeBuf = OccludeBuffer.make("svo.buffer.occlude", numMorton);
+		mInstanceBuf = InstanceBuffer.make("svo.buffer.trace", numMorton);
 
 		glCreateTransformFeedbacks(1, &mFBOcclude);
 		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, mFBOcclude);
