@@ -205,8 +205,8 @@ public:
 			camPitch += y * -0.003f;
 		}
 
-		if (camPitch < -PIf) camPitch = -PIf;
-		if (camPitch >  PIf) camPitch =  PIf;
+		if (camPitch < -(PIf/2)) camPitch = -(PIf/2);
+		if (camPitch >  (PIf/2)) camPitch =  (PIf/2);
 	}
 
 	override fn mouseDown(m: CtlMouse, button: int)
