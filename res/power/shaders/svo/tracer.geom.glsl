@@ -45,7 +45,7 @@ bool findStart(out ivec3 ipos, out int offset)
 
 	// 3D bit selector, each element is in the range [0, 1].
 	// Turn that into scalar in the range [0, 8].
-	uint select = (morton >> ((GEOM_POWER-1) * 3)) & 0x07;
+	uint select = (morton >> ((GEOM_POWER-1) * 3)) & uint(0x07);
 	if ((node & (uint(1) << select)) == uint(0)) {
 		return false;
 	}
@@ -59,7 +59,7 @@ bool findStart(out ivec3 ipos, out int offset)
 		offset = texelFetch(octree, offset).r;				\
 		node = uint(texelFetch(octree, offset).r);			\
 										\
-		select = (morton >> ((GEOM_POWER-counter) * 3)) & 0x07;		\
+		select = (morton >> ((GEOM_POWER-counter) * 3)) & uint(0x07);	\
 		if ((node & (uint(1) << select)) == uint(0)) {			\
 			return false;						\
 		}								\
