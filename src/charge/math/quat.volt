@@ -14,19 +14,19 @@ import charge.math.vector;
 struct Quatf
 {
 public:
-	w, x, y, z: f32;
+	x, y, z, w: f32;
 
 
 public:
 	global fn opCall() Quatf
 	{
-		q: Quatf = { 1.f, 0.f, 0.f, 0.f };
+		q: Quatf = { 0.f, 0.f, 0.f, 1.f };
 		return q;
 	}
 
 	global fn opCall(w: f32, x: f32, y: f32, z: f32) Quatf
 	{
-		q: Quatf = { w, x, y, z };
+		q: Quatf = { x, y, z, w };
 		return q;
 	}
 
@@ -80,14 +80,14 @@ public:
 	 */
 	fn opMul(vec: Vector3f) Vector3f
 	{
-		q: Quatf = {vec.x * x + vec.y * y + vec.z * z,
-		           vec.x * w + vec.z * y - vec.y * z,
-		           vec.y * w + vec.x * z - vec.z * x,
-		           vec.z * w + vec.y * x - vec.x * y};
+		q: Quatf = {vec.x * w + vec.z * y - vec.y * z,
+		            vec.y * w + vec.x * z - vec.z * x,
+		            vec.z * w + vec.y * x - vec.x * y,
+		            vec.x * x + vec.y * y + vec.z * z};
 
 		v: Vector3f = {w * q.x + x * q.w + y * q.z - z * q.y,
-		              w * q.y + y * q.w + z * q.x - x * q.z,
-		              w * q.z + z * q.w + x * q.y - y * q.x};
+		               w * q.y + y * q.w + z * q.x - x * q.z,
+		               w * q.z + z * q.w + x * q.y - y * q.x};
 
 		return v;
 	}
@@ -111,6 +111,6 @@ public:
 
 	const @property fn length() f32
 	{
-		return sqrt(w*w + x*x + y*y + z*z);
+		return sqrt(x*x + y*y + z*z + w*w);
 	}
 }
