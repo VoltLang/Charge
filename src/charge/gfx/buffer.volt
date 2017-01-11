@@ -73,7 +73,6 @@ public:
 		mPos += size;
 	}
 
-private:
 	fn resetStore(size: size_t)
 	{
 		if (mSize < size) {

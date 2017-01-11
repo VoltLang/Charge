@@ -63,7 +63,7 @@ protected:
 		return ptr;
 	}
 
-private:
+public:
 	final fn incRef()
 	{
 		if (mRefcount++ == 0) {
