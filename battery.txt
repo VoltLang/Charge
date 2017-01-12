@@ -2,7 +2,7 @@
 watt
 # SDL2
 --if-msvc
-SDL2.lib
+-lSDL2.lib
 --if-linux
 --if-osx
 --cmd
