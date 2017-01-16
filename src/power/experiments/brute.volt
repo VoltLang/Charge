@@ -264,6 +264,11 @@ public:
 
 
 public:
+	~this()
+	{
+		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
+	}
+
 	global fn make(name: string, num: GLsizei, count: GLuint) IndirectBuffer
 	{
 		dummy: void*;
@@ -295,11 +300,6 @@ protected:
 		glNamedBufferSubData(buf, 0, indirectStride, cast(void*)&data);
 
 		glCheckError();
-	}
-
-	~this()
-	{
-		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
 	}
 }
 

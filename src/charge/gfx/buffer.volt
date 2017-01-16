@@ -15,6 +15,13 @@ public:
 	buf: GLuint;
 
 
+public:
+	~this()
+	{
+		deleteBuffers();
+	}
+
+
 protected:
 	fn deleteBuffers()
 	{
@@ -29,11 +36,6 @@ private:
 		this.vao = vao;
 		this.buf = buf;
 		super();
-	}
-
-	~this()
-	{
-		deleteBuffers();
 	}
 }
 
@@ -112,6 +114,11 @@ public:
 
 
 public:
+	~this()
+	{
+		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
+	}
+
 	global fn make(name: string, data: IndirectData[]) IndirectBuffer
 	{
 		dummy: void*;
@@ -134,10 +141,5 @@ protected:
 		glCreateBuffers(1, &buf);
 		glNamedBufferStorage(buf, indirectLength, cast(void*)data.ptr, GL_DYNAMIC_STORAGE_BIT);
 		glCheckError();
-	}
-
-	~this()
-	{
-		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
 	}
 }

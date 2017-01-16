@@ -28,6 +28,14 @@ public:
 
 
 public:
+	~this()
+	{
+		if (fbo != 0) {
+			glDeleteFramebuffers(1, &fbo);
+			fbo = 0;
+		}
+	}
+
 	final fn bind()
 	{
 		glBindFramebuffer(target, fbo);
@@ -53,14 +61,6 @@ protected:
 		this.target = GL_FRAMEBUFFER;
 
 		super();
-	}
-
-	~this()
-	{
-		if (fbo != 0) {
-			glDeleteFramebuffers(1, &fbo);
-			fbo = 0;
-		}
 	}
 }
 
@@ -128,6 +128,12 @@ public:
 
 
 public:
+	~this()
+	{
+		if (color !is null) { color.decRef(); color = null; }
+		if (depth !is null) { depth.decRef(); depth = null; }
+	}
+
 	override final fn setMatrixToOrtho(ref mat: Matrix4x4f)
 	{
 		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
@@ -179,11 +185,5 @@ protected:
 		this.color = color;
 		this.depth = depth;
 		super(fbo, width, height);
-	}
-
-	~this()
-	{
-		if (color !is null) { color.decRef(); color = null; }
-		if (depth !is null) { depth.decRef(); depth = null; }
 	}
 }

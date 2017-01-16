@@ -321,8 +321,8 @@ version (Emscripten) {
 				break;
 
 			case SDL_JOYAXISMOTION:
-				j := input.joystickArray[e.jbutton.which];
-				j.handleAxis(e.jaxis.axis, e.jaxis.value);
+				j := cast(JoystickSDL)input.joystickArray[e.jbutton.which];
+				j.handleEvent(ref e);
 				break;
 
 			case SDL_KEYDOWN:
@@ -609,6 +609,11 @@ public:
 	this(size_t id)
 	{
 		mId = id;
+	}
+
+	final fn handleEvent(ref e: SDL_Event)
+	{
+		handleAxis(e.jaxis.axis, e.jaxis.value);
 	}
 
 	@property override fn enabled(status: bool) bool

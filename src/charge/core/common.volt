@@ -92,39 +92,6 @@ public:
 		}
 	}
 
-protected:
-/+
-	global this()
-	{
-		// Pretend to be the Core class when logging.
-		l = Logger(Core.classinfo);
-	}
-+/
-
-	this(coreFlag flags)
-	{
-		super(flags);
-
-		setRender(null);
-		setLogic(null);
-		setClose(null);
-		setIdle(null);
-
-		initSettings();
-
-/+
-		resizeSupported = p.getBool("forceResizeEnable", defaultForceResizeEnable);
-+/
-		// Init sub system
-		if (flags & phyFlags) {
-			initSubSystem(coreFlag.PHY);
-		}
-
-		if (flags & sfxFlags) {
-			initSubSystem(coreFlag.SFX);
-		}
-	}
-
 	override fn initSubSystem(flag: coreFlag)
 	{
 		not := coreFlag.PHY | coreFlag.SFX;
@@ -174,6 +141,32 @@ protected:
 			throw new Exception("Could not load SFX");
 		}
 +/
+	}
+
+
+protected:
+	this(coreFlag flags)
+	{
+		super(flags);
+
+		setRender(null);
+		setLogic(null);
+		setClose(null);
+		setIdle(null);
+
+		initSettings();
+
+/+
+		resizeSupported = p.getBool("forceResizeEnable", defaultForceResizeEnable);
++/
+		// Init sub system
+		if (flags & phyFlags) {
+			initSubSystem(coreFlag.PHY);
+		}
+
+		if (flags & sfxFlags) {
+			initSubSystem(coreFlag.SFX);
+		}
 	}
 
 	fn notLoaded(mask: coreFlag, name: string)
