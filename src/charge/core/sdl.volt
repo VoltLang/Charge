@@ -325,6 +325,24 @@ version (Emscripten) {
 				j.handleEvent(ref e);
 				break;
 
+			case SDL_TEXTEDITING:
+				i: size_t;
+				for (; i < e.edit.text.length && e.edit.text[i]; i++) {}
+
+				// Noop for now.
+				break;
+
+			case SDL_TEXTINPUT:
+				i: size_t;
+				for (; i < e.text.text.length && e.text.text[i]; i++) {}
+
+				k := input.keyboard;
+				if (k.text is null) {
+					break;
+				}
+				k.text(k, e.text.text[0 .. i]);
+				break;
+
 			case SDL_KEYDOWN:
 				k := input.keyboard;
 				//k.mod = e.key.keysym.mod;
@@ -332,7 +350,7 @@ version (Emscripten) {
 				if (k.down is null) {
 					break;
 				}
-				k.down(k, e.key.keysym.sym, 0, null);
+				k.down(k, e.key.keysym.sym);
 				break;
 
 			case SDL_KEYUP:

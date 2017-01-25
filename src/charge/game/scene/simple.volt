@@ -30,7 +30,8 @@ public:
 	override fn logic() {}
 	override fn render(GfxTarget) {}
 
-	fn keyDown(CtlKeyboard, int, dchar, scope const(char)[]) {}
+	fn keyText(CtlKeyboard, scope const(char)[]) {}
+	fn keyDown(CtlKeyboard, int) {}
 	fn keyUp(CtlKeyboard, int) {}
 
 	fn mouseMove(CtlMouse, int, int) {}
@@ -39,6 +40,7 @@ public:
 
 	override fn assumeControl()
 	{
+		mInput.keyboard.text = keyText;
 		mInput.keyboard.down = keyDown;
 		mInput.keyboard.up = keyUp;
 		mInput.mouse.move = mouseMove;
@@ -48,6 +50,9 @@ public:
 
 	override fn dropControl()
 	{
+		if (mInput.keyboard.text is keyText) {
+			mInput.keyboard.text = null;
+		}
 		if (mInput.keyboard.down is keyDown) {
 			mInput.keyboard.down = null;
 		}

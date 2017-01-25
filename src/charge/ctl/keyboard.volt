@@ -11,6 +11,7 @@ import charge.ctl.device;
 class Keyboard : Device
 {
 public:
-	down: dg(Keyboard, int, dchar, scope const(char)[]);
+	text: dg(Keyboard, scope const(char)[]);
+	down: dg(Keyboard, int);
 	up: dg(Keyboard, int);
 }

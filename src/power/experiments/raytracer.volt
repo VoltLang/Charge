@@ -105,10 +105,10 @@ public:
 		if (svo !is null) { svo.close(); svo = null; }
 	}
 
-	override fn keyDown(device: CtlKeyboard, keycode: int, c: dchar, m: scope const(char)[])
+	override fn keyDown(device: CtlKeyboard, keycode: int)
 	{
 		switch (keycode) {
-		default: super.keyDown(device, keycode, c, m);
+		default: super.keyDown(device, keycode);
 		}
 	}
 

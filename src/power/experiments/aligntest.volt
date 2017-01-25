@@ -111,7 +111,7 @@ public:
 		y = m.y / size - offsetY;
 	}
 
-	override fn keyDown(CtlKeyboard, keycode: int, dchar, scope const(char)[])
+	override fn keyDown(CtlKeyboard, keycode: int)
 	{
 		switch (keycode) {
 		case 27: mManager.closeMe(this); break;
