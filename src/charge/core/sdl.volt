@@ -67,8 +67,7 @@ private:
 
 	title: string;
 	screenshotNum: int;
-	fullscreen: bool; //< Should we be fullscreen
-	fullscreenAutoSize: bool; //< Only used at start
+	windowMode: coreWindow;
 
 	noVideo: bool;
 
@@ -155,8 +154,9 @@ public:
 
 	override fn getClipboardText() string
 	{
-		if (gfxLoaded)
+		if (!gfxLoaded) {
 			throw new Exception("Gfx not initd!");
+		}
 		return null;
 	}
 
@@ -167,23 +167,46 @@ public:
 		}
 	}
 
-	override fn resize(w: uint, h: uint)
+	override fn resize(w: uint, h: uint, mode: coreWindow)
 	{
-		this.resize(w, h, fullscreen);
-	}
-
-	override fn resize(w: uint, h: uint, fullscreen: bool)
-	{
-		if (!resizeSupported) {
-			return;
-		}
-
-		if (gfxLoaded) {
+		if (!gfxLoaded) {
 			throw new Exception("Gfx not initd!");
 		}
+
+		this.windowMode = mode;
+		final switch (mode) with (coreWindow) {
+		case Normal:
+			SDL_SetWindowSize(window, cast(int)w, cast(int)h);
+			SDL_SetWindowFullscreen(window, 0);
+			SDL_SetWindowBordered(window, true);
+			// TODO update to SDL 2.0.5
+			//SDL_SetWindowResizable(window, true);
+			break;
+		case Bordeless:
+			SDL_SetWindowSize(window, cast(int)w, cast(int)h);
+			SDL_SetWindowFullscreen(window, 0);
+			SDL_SetWindowBordered(window, false);
+			// TODO update to SDL 2.0.5
+			//SDL_SetWindowResizable(window, false);
+ 			break;
+		case FullscreenDesktop:
+			SDL_SetWindowFullscreen(window,
+				SDL_WINDOW_FULLSCREEN_DESKTOP);
+ 			break;
+		case Fullscreen:
+ 			// TODO add ways to get modes.
+			SDL_SetWindowSize(window, cast(int)w, cast(int)h);
+			SDL_SetWindowFullscreen(window,
+				SDL_WINDOW_FULLSCREEN);
+			break;
+		}
+
+		t := DefaultTarget.opCall();
+		t.width = w;
+		t.height = h;
 	}
 
-	override fn size(out w: uint, out h: uint, out fullscreen: bool)
+	override fn size(out w: uint, out h: uint, out mode: coreWindow)
 	{
 		if (!gfxLoaded) {
 			throw new Exception("Gfx not initd!");
@@ -192,7 +215,7 @@ public:
 		t := DefaultTarget.opCall();
 		w = t.width;
 		h = t.height;
-		fullscreen = this.fullscreen;
+		mode = this.windowMode;
 	}
 
 
@@ -296,13 +319,16 @@ version (Emscripten) {
 				running = false;
 				break;
 
-/*
-			case SDL_VIDEORESIZE:
-				auto t = DefaultTarget.opCall();
-				t.width = cast(uint)e.resize.w;
-				t.height = cast(uint)e.resize.h;
+			case SDL_WINDOWEVENT:
+				switch (e.window.event) {
+				case SDL_WINDOWEVENT_RESIZED:
+					auto t = DefaultTarget.opCall();
+					t.width = cast(uint)e.window.data1;
+					t.height = cast(uint)e.window.data2;
+					break;
+				default:
+				}
 				break;
-*/
 
 			case SDL_JOYBUTTONDOWN:
 				j := input.joystickArray[e.jbutton.which];
@@ -465,9 +491,7 @@ private:
 
 		width := opts.width;
 		height := opts.height;
-		fullscreen = false;//p.getBool("fullscreen", defaultFullscreen);
-		fullscreenAutoSize = true;//p.getBool("fullscreenAutoSize", defaultFullscreenAutoSize);
-		windowDecorations := opts.windowDecorations;
+		windowMode = opts.windowMode;
 		title := opts.title.toStringz();
 
 		if (opts.openglDebug) {
@@ -479,17 +503,20 @@ private:
 		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
 		bits: uint = SDL_WINDOW_OPENGL;
-		if (resizeSupported) {
- 			bits |= SDL_WINDOW_RESIZABLE;
-		}
-		if (fullscreen) {
+		final switch (windowMode) with (coreWindow) {
+		case Normal:
+			bits |= SDL_WINDOW_RESIZABLE;
+			break;
+		case Bordeless:
+ 			bits |= SDL_WINDOW_BORDERLESS;
+ 			break;
+		case FullscreenDesktop:
+ 			bits |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+ 			break;
+		case Fullscreen:
+			// TODO add ways to get modes.
 			bits |= SDL_WINDOW_FULLSCREEN;
-		}
-		if (!windowDecorations) {
-			bits |= SDL_WINDOW_BORDERLESS;
-		}
-		if (fullscreen && fullscreenAutoSize) {
-			width = height = 0;
+			break;
 		}
 
 		window = SDL_CreateWindow(title,

@@ -19,6 +19,14 @@ enum coreFlag
 	AUTO = (1 << 5),
 }
 
+enum coreWindow
+{
+	Normal,
+	Bordeless,
+	FullscreenDesktop,
+	Fullscreen,
+}
+
 /**
  * Get a new core created with the given flags.
  */
@@ -40,7 +48,7 @@ public:
 	height: uint;
 	title: string;
 	flags: coreFlag;
-	windowDecorations: bool;
+	windowMode: coreWindow;
 	openglDebug: bool;
 
 
@@ -51,7 +59,7 @@ public:
 		this.height = Core.defaultHeight;
 		this.flags = coreFlag.AUTO;
 		this.title = Core.defaultTitle;
-		this.windowDecorations = Core.defaultWindowDecorations;
+		this.windowMode = Core.defaultWindow;
 	}
 }
 
@@ -67,7 +75,7 @@ public:
 	enum bool defaultFullscreenAutoSize = true;
 	enum string defaultTitle = "Charge Game Engine";
 	enum bool defaultForceResizeEnable = false;
-	enum bool defaultWindowDecorations = true;
+	enum coreWindow defaultWindow = coreWindow.Normal;
 
 	flags: coreFlag;
 	resizeSupported: bool;
@@ -81,6 +89,11 @@ private:
 	global instance: Core;
 
 public:
+	/**
+	 * Return the current core.
+	 */
+	global fn get() Core { return instance; }
+
 	/**
 	 * Sets callback functions.
 	 * @{
@@ -143,9 +156,8 @@ public:
 	 */
 	abstract fn getClipboardText() string;
 
-	abstract fn resize(w: uint, h: uint);
-	abstract fn resize(w: uint, h: uint, fullscreen: bool);
-	abstract fn size(out w: uint, out h: uint, out fullscreen: bool);
+	abstract fn resize(w: uint, h: uint, mode: coreWindow);
+	abstract fn size(out w: uint, out h: uint, out mode: coreWindow);
 
 	abstract fn screenShot();
 

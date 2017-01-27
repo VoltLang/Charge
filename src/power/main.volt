@@ -28,6 +28,7 @@ public:
 		opts.title = "Charged Power";
 		opts.width = 1920;
 		opts.height = 1080;
+		opts.windowMode = coreWindow.Normal;
 		super(opts);
 
 		checkVersion();
