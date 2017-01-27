@@ -139,7 +139,7 @@ public:
 		glDisable(GL_BLEND);
 	}
 
-	override fn keyDown(CtlKeyboard, int, dchar, scope const(char)[])
+	override fn keyDown(CtlKeyboard, int)
 	{
 		mManager.closeMe(this);
 	}
