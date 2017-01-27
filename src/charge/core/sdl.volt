@@ -188,13 +188,13 @@ public:
 			SDL_SetWindowBordered(window, false);
 			// TODO update to SDL 2.0.5
 			//SDL_SetWindowResizable(window, false);
- 			break;
+			break;
 		case FullscreenDesktop:
 			SDL_SetWindowFullscreen(window,
 				SDL_WINDOW_FULLSCREEN_DESKTOP);
- 			break;
+			break;
 		case Fullscreen:
- 			// TODO add ways to get modes.
+			// TODO add ways to get modes.
 			SDL_SetWindowSize(window, cast(int)w, cast(int)h);
 			SDL_SetWindowFullscreen(window,
 				SDL_WINDOW_FULLSCREEN);
@@ -508,11 +508,11 @@ private:
 			bits |= SDL_WINDOW_RESIZABLE;
 			break;
 		case Bordeless:
- 			bits |= SDL_WINDOW_BORDERLESS;
- 			break;
+			bits |= SDL_WINDOW_BORDERLESS;
+			break;
 		case FullscreenDesktop:
- 			bits |= SDL_WINDOW_FULLSCREEN_DESKTOP;
- 			break;
+			bits |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+			break;
 		case Fullscreen:
 			// TODO add ways to get modes.
 			bits |= SDL_WINDOW_FULLSCREEN;
