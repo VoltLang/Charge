@@ -46,7 +46,7 @@ enum
 {
     SDLK_UNKNOWN = 0,
     SDLK_RETURN = '\r',
-    SDLK_ESCAPE = '\033',
+    SDLK_ESCAPE = 27,
     SDLK_BACKSPACE = '\b',
     SDLK_TAB = '\t',
     SDLK_SPACE = ' ',
