@@ -20,6 +20,7 @@
 */
 module lib.sdl2.blendmode;
 extern (C):
+version (!Windows):
 
 /**
  *  \file SDL_blendmode.h

@@ -20,6 +20,7 @@
 */
 module lib.sdl2.video;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_video.h

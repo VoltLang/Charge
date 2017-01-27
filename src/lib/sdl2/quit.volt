@@ -20,6 +20,7 @@
 */
 module lib.sdl2.quit;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_quit.h

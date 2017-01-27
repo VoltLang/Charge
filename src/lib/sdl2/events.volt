@@ -20,6 +20,7 @@
 */
 module lib.sdl2.events;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_events.h

@@ -20,6 +20,7 @@
 */
 module lib.sdl2.clipboard;
 extern (C):
+version (!Windows):
 
 /*
  * \file SDL_clipboard.h

@@ -1,12 +1,20 @@
 --dep
 watt
-# SDL2
+# Backend
+# Extra file needed for compile
+src/charge/sys/memheader.volt
 --if-msvc
--lSDL2.lib
+-lopengl32.lib
+--if-msvc
+-luser32.lib
+--if-msvc
+-lgdi32.lib
+--if-msvc
+src/charge/core/win32.volt
 --if-linux
 --if-osx
 --cmd
 sdl2-config --libs
-# Extra files needed for compile
+--if-linux
+--if-osx
 src/charge/core/sdl.volt
-src/charge/sys/memheader.volt

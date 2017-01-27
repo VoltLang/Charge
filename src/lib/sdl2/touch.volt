@@ -20,6 +20,7 @@
 */
 module lib.sdl2.touch;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_touch.h

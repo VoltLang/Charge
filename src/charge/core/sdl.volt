@@ -4,6 +4,7 @@
  * Source file for CoreSDL.
  */
 module charge.core.sdl;
+version (!Windows):
 
 import core.exception;
 import core.stdc.stdio : printf;

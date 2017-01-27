@@ -20,6 +20,7 @@
 */
 module lib.sdl2.shape;
 extern (C):
+version (!Windows):
 
 import lib.sdl2.stdinc;
 import lib.sdl2.pixels;

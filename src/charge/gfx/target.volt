@@ -11,6 +11,7 @@ import charge.gfx.gl;
 import charge.gfx.texture;
 import charge.math.matrix;
 
+import watt.io;
 
 /**
  * Base texture class.

@@ -25,6 +25,7 @@
 */
 module lib.sdl2.ttf;
 extern(C):
+version (!Windows):
 
 import lib.sdl2;
 

@@ -20,6 +20,7 @@
 */
 module lib.sdl2.haptic;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_haptic.h

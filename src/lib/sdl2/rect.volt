@@ -20,6 +20,7 @@
 */
 module lib.sdl2.rect;
 extern (C):
+version (!Windows):
 
 struct SDL_Point
 {

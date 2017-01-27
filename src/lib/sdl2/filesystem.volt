@@ -20,6 +20,7 @@
 */
 module lib.sdl2.filesystem;
 extern (C):
+version (!Windows):
 
 /**
  * \brief Get the path where the application resides.

@@ -20,6 +20,7 @@
 */
 module lib.sdl2.pixels;
 extern (C):
+version (!Windows):
 
 enum SDL_ALPHA_OPAQUE = 255;
 enum SDL_ALPHA_TRANSPARENT = 0;

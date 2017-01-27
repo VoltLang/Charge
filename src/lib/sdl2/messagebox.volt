@@ -20,6 +20,7 @@
 */
 module lib.sdl2.messagebox;
 extern (C):
+version (!Windows):
 
 import lib.sdl2.stdinc;
 import lib.sdl2.video;

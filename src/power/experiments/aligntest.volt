@@ -111,6 +111,16 @@ public:
 		y = m.y / size - offsetY;
 	}
 
+	override fn mouseDown(m: CtlMouse, button: i32)
+	{
+		io.writefln("MOUSE DOWN %s", button);
+	}
+
+	override fn mouseUp(m: CtlMouse, button: i32)
+	{
+		io.writefln("MOUSE UP %s", button);
+	}
+
 	override fn keyDown(CtlKeyboard, keycode: int)
 	{
 		switch (keycode) {

@@ -20,6 +20,7 @@
 */
 module lib.sdl2.timer;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_timer.h

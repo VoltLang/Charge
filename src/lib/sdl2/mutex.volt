@@ -20,6 +20,7 @@
 */
 module lib.sdl2.mutex;
 extern (C):
+version (!Windows):
 
 
 /*

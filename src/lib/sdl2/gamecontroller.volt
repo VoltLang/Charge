@@ -20,6 +20,7 @@
 */
 module lib.sdl2.gamecontroller;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_gamecontroller.h

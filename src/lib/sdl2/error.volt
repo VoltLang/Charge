@@ -20,6 +20,7 @@
 */
 module lib.sdl2.error;
 extern (C):
+version (!Windows):
 
 /**
  *  \file SDL_error.h

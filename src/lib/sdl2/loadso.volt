@@ -20,6 +20,7 @@
 */
 module lib.sdl2.loadso;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_loadso.h

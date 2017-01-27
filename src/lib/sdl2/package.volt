@@ -20,6 +20,7 @@
 */
 module lib.sdl2.sdl2;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL.h

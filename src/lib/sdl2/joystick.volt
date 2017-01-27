@@ -37,6 +37,7 @@
  */
 module lib.sdl2.joystick;
 extern (C):
+version (!Windows):
 
 import lib.sdl2.stdinc;
 import lib.sdl2.error;

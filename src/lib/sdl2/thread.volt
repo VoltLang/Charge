@@ -20,6 +20,7 @@
 */
 module lib.sdl2.thread;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_thread.h

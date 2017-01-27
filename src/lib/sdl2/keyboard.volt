@@ -20,6 +20,7 @@
 */
 module lib.sdl2.keyboard;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_keyboard.h

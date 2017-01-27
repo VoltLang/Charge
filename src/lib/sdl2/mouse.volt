@@ -57,6 +57,7 @@ enum : SDL_SystemCursor
 
 /* Function prototypes */
 
+version (!Windows) {
 /**
  *  \brief Get the window which currently has mouse focus.
  */
@@ -188,6 +189,8 @@ void  SDL_FreeCursor(SDL_Cursor * cursor);
  *  \return 1 if the cursor is shown, or 0 if the cursor is hidden.
  */
 int  SDL_ShowCursor(int toggle);
+
+}  // version (!Windows)
 
 /**
  *  Used as a mask when testing buttons in buttonstate.

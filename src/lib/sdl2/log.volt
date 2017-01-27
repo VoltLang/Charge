@@ -20,6 +20,7 @@
 */
 module lib.sdl2.log;
 extern (C):
+version (!Windows):
 
 
 /*

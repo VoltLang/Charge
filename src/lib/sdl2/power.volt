@@ -20,6 +20,7 @@
 */
 module lib.sdl2.power;
 extern (C):
+version (!Windows):
 
 
 /*

@@ -20,6 +20,7 @@
 */
 module lib.sdl2.rwops;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_rwops.h

@@ -20,6 +20,7 @@
 */
 module lib.sdl2.surface;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_surface.h

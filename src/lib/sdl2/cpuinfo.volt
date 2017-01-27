@@ -20,6 +20,7 @@
 */
 module lib.sdl2.cpuinfo;
 extern (C):
+version (!Windows):
 
 import lib.sdl2.stdinc;
 

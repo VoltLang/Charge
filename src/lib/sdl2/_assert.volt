@@ -20,6 +20,7 @@
 */
 module lib.sdl2._assert;
 extern (C):
+version (!Windows):
 
 alias SDL_assert_state = int;
 enum : SDL_assert_state

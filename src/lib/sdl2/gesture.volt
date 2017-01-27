@@ -20,6 +20,7 @@
 */
 module lib.sdl2.gesture;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_gesture.h

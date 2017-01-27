@@ -20,6 +20,7 @@
 */
 module lib.sdl2.audio;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_audio.h

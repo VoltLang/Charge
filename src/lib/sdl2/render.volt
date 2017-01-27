@@ -20,6 +20,7 @@
 */
 module lib.sdl2.render;
 extern (C):
+version (!Windows):
 
 /*
  *  \file SDL_render.h

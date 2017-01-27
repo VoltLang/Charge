@@ -20,6 +20,7 @@
 */
 module lib.sdl2.stdinc;
 extern (C):
+version (!Windows):
 
 /**
  *  \file SDL_stdinc.h
@@ -99,7 +100,7 @@ void * SDL_memcpy(void *dst, const void *src, size_t len);
 
 void *SDL_memcpy4(void *dst, const void *src, size_t dwords)
 {
-	return SDL_memcpy(dst, src, dwords * 4);
+  return SDL_memcpy(dst, src, dwords * 4);
 }
 
 void * SDL_memmove(void *dst, const void *src, size_t len);
