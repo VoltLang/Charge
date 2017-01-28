@@ -182,7 +182,7 @@ public:
 			// TODO update to SDL 2.0.5
 			//SDL_SetWindowResizable(window, true);
 			break;
-		case Bordeless:
+		case Borderless:
 			SDL_SetWindowSize(window, cast(int)w, cast(int)h);
 			SDL_SetWindowFullscreen(window, 0);
 			SDL_SetWindowBordered(window, false);
@@ -507,7 +507,7 @@ private:
 		case Normal:
 			bits |= SDL_WINDOW_RESIZABLE;
 			break;
-		case Bordeless:
+		case Borderless:
 			bits |= SDL_WINDOW_BORDERLESS;
 			break;
 		case FullscreenDesktop:

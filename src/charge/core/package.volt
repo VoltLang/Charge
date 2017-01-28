@@ -22,7 +22,7 @@ enum coreFlag
 enum coreWindow
 {
 	Normal,
-	Bordeless,
+	Borderless,
 	FullscreenDesktop,
 	Fullscreen,
 }
