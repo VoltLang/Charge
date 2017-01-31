@@ -179,13 +179,13 @@ public:
 			SDL_SetWindowSize(window, cast(int)w, cast(int)h);
 			SDL_SetWindowFullscreen(window, 0);
 			SDL_SetWindowBordered(window, true);
-			SDL_SetWindowResizable(window, true);
+			version (Windows) SDL_SetWindowResizable(window, true);
 			break;
 		case Borderless:
 			SDL_SetWindowSize(window, cast(int)w, cast(int)h);
 			SDL_SetWindowFullscreen(window, 0);
 			SDL_SetWindowBordered(window, false);
-			SDL_SetWindowResizable(window, false);
+			version (Windows) SDL_SetWindowResizable(window, false);
 			break;
 		case FullscreenDesktop:
 			SDL_SetWindowFullscreen(window,
