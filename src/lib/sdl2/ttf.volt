@@ -32,7 +32,7 @@ import lib.sdl2;
 */
 enum SDL_TTF_MAJOR_VERSION = 2;
 enum SDL_TTF_MINOR_VERSION = 0;
-enum SDL_TTF_PATCHLEVEL = 12;
+enum SDL_TTF_PATCHLEVEL = 14;
 
 /+
 /* This macro can be used to fill a version structure with the compile-time
@@ -251,3 +251,5 @@ int TTF_GetFontKerningSize(TTF_Font *font, int prev_index, int index);
 //enum TTF_SetError    SDL_SetError
 //enum TTF_GetError    SDL_GetError
 
+/* Get the kerning size of two glyphs */
+int TTF_GetFontKerningSizeGlyphs(TTF_Font *font, Uint16 previous_ch, Uint16 ch);

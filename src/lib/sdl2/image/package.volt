@@ -27,7 +27,7 @@ import lib.sdl2;
 
 enum SDL_IMAGE_MAJOR_VERSION = 2;
 enum SDL_IMAGE_MINOR_VERSION = 0;
-enum SDL_IMAGE_PATCHLEVEL    = 0;
+enum SDL_IMAGE_PATCHLEVEL    = 1;
 
 /* This function gets the version of the dynamically linked SDL_image library.
    it should NOT be used to fill a version structure, instead you should

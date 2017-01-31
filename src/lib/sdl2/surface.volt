@@ -111,6 +111,8 @@ alias SDL_blit = int function(SDL_Surface * src, SDL_Rect * srcrect,
  SDL_Surface * SDL_CreateRGBSurface
     (Uint32 flags, int width, int height, int depth,
      Uint32 Rmask, Uint32 Gmask, Uint32 Bmask, Uint32 Amask);
+SDL_Surface * SDL_CreateRGBSurfaceWithFormat
+    (Uint32 flags, int width, int height, int depth, Uint32 format);
  SDL_Surface * SDL_CreateRGBSurfaceFrom(void *pixels,
                                                               int width,
                                                               int height,
@@ -120,6 +122,8 @@ alias SDL_blit = int function(SDL_Surface * src, SDL_Rect * srcrect,
                                                               Uint32 Gmask,
                                                               Uint32 Bmask,
                                                               Uint32 Amask);
+SDL_Surface * SDL_CreateRGBSurfaceWithFormatFrom
+    (void *pixels, int width, int height, int depth, int pitch, Uint32 format);
  void  SDL_FreeSurface(SDL_Surface * surface);
 
 /**

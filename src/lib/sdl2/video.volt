@@ -103,7 +103,13 @@ enum : SDL_WindowFlags
 	SDL_WINDOW_INPUT_FOCUS = 0x00000200,		/*< window has input focus */
 	SDL_WINDOW_MOUSE_FOCUS = 0x00000400,		/*< window has mouse focus */
 	SDL_WINDOW_FULLSCREEN_DESKTOP = ( SDL_WINDOW_FULLSCREEN | 0x00001000 ),
-	SDL_WINDOW_FOREIGN = 0x00000800			 /*< window not created by SDL */
+	SDL_WINDOW_FOREIGN = 0x00000800,			 /*< window not created by SDL */
+	SDL_WINDOW_ALLOW_HIGHDPI = 0x00002000,
+	SDL_WINDOW_MOUSE_CAPTURE = 0x00004000,
+	SDL_WINDOW_ALWAYS_ON_TOP = 0x00010000,
+	SDL_WINDOW_SKIP_TASKBAR = 0x00020000,
+	SDL_WINDOW_UTILITY = 0x00040000,
+	SDL_WINDOW_POPUP_MENU = 0x00080000
 }
 
 /**
@@ -145,8 +151,10 @@ enum : SDL_WindowEventID
 	SDL_WINDOWEVENT_LEAVE,		  /*< Window has lost mouse focus */
 	SDL_WINDOWEVENT_FOCUS_GAINED,   /*< Window has gained keyboard focus */
 	SDL_WINDOWEVENT_FOCUS_LOST,	 /*< Window has lost keyboard focus */
-	SDL_WINDOWEVENT_CLOSE		   /*< The window manager requests that the
+	SDL_WINDOWEVENT_CLOSE,		   /*< The window manager requests that the
 										 window be closed */
+	SDL_WINDOWEVENT_TAKE_FOCUS,
+	SDL_WINDOWEVENT_HIT_TEST,
 }
 
 /**
@@ -283,6 +291,25 @@ const char * SDL_GetDisplayName(int displayIndex);
  *  \sa SDL_GetNumVideoDisplays()
  */
 int SDL_GetDisplayBounds(int displayIndex, SDL_Rect * rect);
+
+/**
+ *  \brief Get the usable desktop area represented by a display, with the
+ *         primary display located at 0,0
+ *
+ *  This is the same area as SDL_GetDisplayBounds() reports, but with portions
+ *  reserved by the system removed. For example, on Mac OS X, this subtracts
+ *  the area occupied by the menu bar and dock.
+ *
+ *  Setting a window to be fullscreen generally bypasses these unusable areas,
+ *  so these are good guidelines for the maximum space available to a
+ *  non-fullscreen window.
+ *
+ *  \return 0 on success, or -1 if the index is out of range.
+ *
+ *  \sa SDL_GetDisplayBounds()
+ *  \sa SDL_GetNumVideoDisplays()
+ */
+int SDL_GetDisplayUsableBounds(int displayIndex, SDL_Rect * rect);
 
 /**
  *  \brief Returns the number of available display modes.
@@ -540,6 +567,23 @@ void SDL_GetWindowSize(SDL_Window * window, int *w,
 											   int *h);
 
 /**
+ *  \brief Get the size of a window's borders (decorations) around the client area.
+ *
+ *  \param window The window to query.
+ *  \param top Pointer to variable for storing the size of the top border. NULL is permitted.
+ *  \param left Pointer to variable for storing the size of the left border. NULL is permitted.
+ *  \param bottom Pointer to variable for storing the size of the bottom border. NULL is permitted.
+ *  \param right Pointer to variable for storing the size of the right border. NULL is permitted.
+ *
+ *  \return 0 on success, or -1 if getting this information is not supported.
+ *
+ *  \note if this function fails (returns -1), the size values will be
+ *        initialized to 0, 0, 0, 0 (if a non-NULL pointer is provided), as
+ *        if the window in question was borderless.
+ */
+int SDL_GetWindowBordersSize(SDL_Window* window, int* top, int* left, int* bottom, int* right);
+
+/**
  *  \brief Set the minimum size of a window's client area.
  *
  *  \param window	The window to set a new minimum size.
@@ -613,6 +657,22 @@ void SDL_GetWindowMaximumSize(SDL_Window * window,
  */
 void SDL_SetWindowBordered(SDL_Window * window,
 												   SDL_bool bordered);
+
+/**
+ *  \brief Set the user-resizable state of a window.
+ *
+ *  This will add or remove the window's SDL_WINDOW_RESIZABLE flag and
+ *  allow/disallow user resizing of the window. This is a no-op if the
+ *  window's resizable state already matches the requested state.
+ *
+ *  \param window The window of which to change the resizable state.
+ *  \param resizable SDL_TRUE to allow resizing, SDL_FALSE to disallow.
+ *
+ *  \note You can't change the resizable state of a fullscreen window.
+ *
+ *  \sa SDL_GetWindowFlags()
+ */
+void SDL_SetWindowResizable(SDL_Window* window, SDL_bool resizable);
 
 /**
  *  \brief Show a window.
@@ -741,6 +801,59 @@ int SDL_SetWindowBrightness(SDL_Window * window, float brightness);
  *  \sa SDL_SetWindowBrightness()
  */
 float SDL_GetWindowBrightness(SDL_Window * window);
+
+/**
+ *  \brief Set the opacity for a window
+ *
+ *  \param window The window which will be made transparent or opaque
+ *  \param opacity Opacity (0.0f - transparent, 1.0f - opaque) This will be
+ *                 clamped internally between 0.0f and 1.0f.
+ * 
+ *  \return 0 on success, or -1 if setting the opacity isn't supported.
+ *
+ *  \sa SDL_GetWindowOpacity()
+ */
+int SDL_SetWindowOpacity(SDL_Window * window, float opacity);
+
+/**
+ *  \brief Get the opacity of a window.
+ *
+ *  If transparency isn't supported on this platform, opacity will be reported
+ *  as 1.0f without error.
+ *
+ *  \param window The window in question.
+ *  \param out_opacity Opacity (0.0f - transparent, 1.0f - opaque)
+ *
+ *  \return 0 on success, or -1 on error (invalid window, etc).
+ *
+ *  \sa SDL_SetWindowOpacity()
+ */
+int SDL_GetWindowOpacity(SDL_Window * window, float * out_opacity);
+
+/**
+ *  \brief Sets the window as a modal for another window (TODO: reconsider this function and/or its name)
+ *
+ *  \param modal_window The window that should be modal
+ *  \param parent_window The parent window
+ * 
+ *  \return 0 on success, or -1 otherwise.
+ */
+int SDL_SetWindowModalFor(SDL_Window * modal_window, SDL_Window * parent_window);
+
+/**
+ *  \brief Explicitly sets input focus to the window.
+ *
+ *  You almost certainly want SDL_RaiseWindow() instead of this function. Use
+ *  this with caution, as you might give focus to a window that's completely
+ *  obscured by other windows.
+ *
+ *  \param window The window that should get the input focus
+ * 
+ *  \return 0 on success, or -1 otherwise.
+ *  \sa SDL_RaiseWindow()
+ */
+int SDL_SetWindowInputFocus(SDL_Window * window);
+
 
 /**
  *  \brief Set the gamma ramp for a window.

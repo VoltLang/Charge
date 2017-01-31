@@ -52,7 +52,7 @@ struct SDL_version
 */
 enum SDL_MAJOR_VERSION = 2;
 enum SDL_MINOR_VERSION = 0;
-enum SDL_PATCHLEVEL = 0;
+enum SDL_PATCHLEVEL = 5;
 
 /**
  *  \brief Get the version of SDL that is linked against your program.

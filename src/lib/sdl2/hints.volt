@@ -276,6 +276,13 @@ enum : SDL_HintPriority
  const char *  SDL_GetHint(const char *name);
 
 /**
+ *  \brief Get a hint
+ *
+ *  \return The boolean value of a hint variable.
+ */
+SDL_bool SDL_GetHintBoolean(const char *name, SDL_bool default_value);
+
+/**
  *  \brief  Clear all hints
  *
  *  This function is called during SDL_Quit() to free stored hints.

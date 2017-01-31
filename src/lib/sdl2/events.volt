@@ -127,6 +127,9 @@ enum : SDL_EventType
 
     /* Drag and drop events */
     SDL_DROPFILE        = 0x1000U, /*< The system requests a file open */
+    SDL_DROPTEXT,
+    SDL_DROPBEGIN,
+    SDL_DROPCOMPLETE,
 
     /* Events ::SDL_USEREVENT through ::SDL_LASTEVENT are for your use,
      *  and should be allocated with SDL_RegisterEvents()
@@ -432,6 +435,7 @@ struct SDL_DropEvent
     Uint32 type;        /*< ::SDL_DROPFILE */
     Uint32 timestamp;
     char *file;         /*< The file name, which should be freed with SDL_free() */
+    Uint32 windowID;
 }
 
 

@@ -457,6 +457,30 @@ struct SDL_Texture {}
  */
  int  SDL_RenderSetLogicalSize(SDL_Renderer * renderer, int w, int h);
 
+ /**
+ *  \brief Set whether to force integer scales for resolution-independent rendering
+ *
+ *  \param renderer The renderer for which integer scaling should be set.
+ *  \param enable   Enable or disable integer scaling
+ *
+ *  This function restricts the logical viewport to integer values - that is, when
+ *  a resolution is between two multiples of a logical size, the viewport size is
+ *  rounded down to the lower multiple.
+ *
+ *  \sa SDL_RenderSetLogicalSize()
+ */
+int SDL_RenderSetIntegerScale(SDL_Renderer * renderer,
+                                                      SDL_bool enable);
+
+/**
+ *  \brief Get whether integer scales are forced for resolution-independent rendering
+ *
+ *  \param renderer The renderer from which integer scaling should be queried.
+ *
+ *  \sa SDL_RenderSetIntegerScale()
+ */
+SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
+
 /**
  *  \brief Get device independent resolution for rendering
  *
