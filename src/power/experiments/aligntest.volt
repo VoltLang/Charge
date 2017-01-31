@@ -116,7 +116,6 @@ public:
 		switch (keycode) {
 		case 27: mManager.closeMe(this); break;
 		case 'n': Core.get().resize(800, 600, coreWindow.Normal); break;
-		case 'b': Core.get().resize(800, 600, coreWindow.Borderless); break;
 		case 'f': Core.get().resize(800, 600, coreWindow.Fullscreen); break;
 		case 'd': Core.get().resize(800, 600, coreWindow.FullscreenDesktop); break;
 		default:

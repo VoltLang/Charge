@@ -181,12 +181,6 @@ public:
 			SDL_SetWindowBordered(window, true);
 			version (Windows) SDL_SetWindowResizable(window, true);
 			break;
-		case Borderless:
-			SDL_SetWindowSize(window, cast(int)w, cast(int)h);
-			SDL_SetWindowFullscreen(window, 0);
-			SDL_SetWindowBordered(window, false);
-			version (Windows) SDL_SetWindowResizable(window, false);
-			break;
 		case FullscreenDesktop:
 			SDL_SetWindowFullscreen(window,
 				SDL_WINDOW_FULLSCREEN_DESKTOP);
@@ -504,9 +498,6 @@ private:
 		final switch (windowMode) with (coreWindow) {
 		case Normal:
 			bits |= SDL_WINDOW_RESIZABLE;
-			break;
-		case Borderless:
-			bits |= SDL_WINDOW_BORDERLESS;
 			break;
 		case FullscreenDesktop:
 			bits |= SDL_WINDOW_FULLSCREEN_DESKTOP;
