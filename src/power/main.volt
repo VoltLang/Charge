@@ -33,9 +33,9 @@ public:
 
 		checkVersion();
 
-		/*if (GL_VERSION_4_5) {
+		if (GL_VERSION_4_5) {
 			push(new RayTracer(this));
-		} else */if (GL_VERSION_3_3) {
+		} else if (GL_VERSION_3_3) {
 			push(new AlignTest(this));
 		} else {
 			throw new Exception("Need at least GL 3.3");
