@@ -2,6 +2,7 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module power.experiments.raytracer;
 
+import watt.text.sink;
 import watt.text.format;
 import watt.io.file;
 import io = watt.io;
@@ -12,6 +13,7 @@ import charge.game;
 
 import math = charge.math;
 
+import power.util.counters;
 import power.voxel.svo;
 import power.experiments.viewer;
 
@@ -145,42 +147,13 @@ public:
 
 	fn checkQuery(t: GfxTarget)
 	{
-		vals: GLuint64[4];
-		total: GLuint64;
-		foreach (i, ref timer; svo.timers) {
-			v: GLuint64;
-			if (timer.getValue(out v)) {
-				samples[i].add(v);
-			}
+		ss: StringSink;
+		sink := ss.sink;
 
-			vals[i] = samples[i].calc();
-			total += vals[i];
-		}
-
-		str := `Info:
-Elapsed time:
- feedback: % 1s.%03sms
- occlude:  % 1s.%03sms
- prune:    % 1s.%03sms
- trace:    % 1s.%03sms
- total:    % 1s.%03sms
-Resolution: %sx%s
-w a s d - move camera
-p - reset position`;
-
-		vals[0] /= (1_000_000_000 / 1_000_000u);
-		vals[1] /= (1_000_000_000 / 1_000_000u);
-		vals[2] /= (1_000_000_000 / 1_000_000u);
-		vals[3] /= (1_000_000_000 / 1_000_000u);
-		total   /= (1_000_000_000 / 1_000_000u);
-		text := format(str,
-			vals[0] / 1_000, vals[0] % 1_000,
-			vals[1] / 1_000, vals[1] % 1_000,
-			vals[2] / 1_000, vals[2] % 1_000,
-			vals[3] / 1_000, vals[3] % 1_000,
-			total   / 1_000, total   % 1_000,
-			t.width, t.height);
-
-		updateText(text);
+		sink.format("Info:\n");
+		svo.counters.print(sink);
+		sink.format("Resolution: %sx%s\n", t.width, t.height);
+		sink.format("w a s d - move camera\np - reset position");
+		updateText(ss.toString());
 	}
 }
