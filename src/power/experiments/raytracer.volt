@@ -15,6 +15,7 @@ import math = charge.math;
 
 import power.util.counters;
 import power.voxel.svo;
+import power.voxel.mixed;
 import power.experiments.viewer;
 
 
@@ -59,8 +60,9 @@ fn loadDag(filename: string, out data: void[])
 class RayTracer : Viewer
 {
 public:
+	useSVO: bool;
 	svo: SVO;
-	samples: math.Average[4];
+	mixed: Mixed;
 
 
 	/**
@@ -89,6 +91,7 @@ public:
 		glTextureBuffer(octTexture, GL_R32UI, octBuffer);
 
 		svo = new SVO(octTexture);
+		mixed = new Mixed(octTexture);
 	}
 
 
@@ -110,6 +113,7 @@ public:
 	override fn keyDown(device: CtlKeyboard, keycode: int)
 	{
 		switch (keycode) {
+		case 'm': useSVO = !useSVO; break;
 		default: super.keyDown(device, keycode);
 		}
 	}
@@ -137,7 +141,11 @@ public:
 		proj.setToMultiply(ref view);
 		proj.transpose();
 
-		svo.draw(ref camPosition, ref proj);
+		if (useSVO) {
+			svo.draw(ref camPosition, ref proj);
+		} else {
+			mixed.draw(ref camPosition, ref proj);
+		}
 
 		// Check for last frames query.
 		checkQuery(t);
@@ -151,9 +159,15 @@ public:
 		sink := ss.sink;
 
 		sink.format("Info:\n");
-		svo.counters.print(sink);
+		if (useSVO) {
+			svo.counters.print(sink);
+		} else {
+			mixed.counters.print(sink);
+		}
 		sink.format("Resolution: %sx%s\n", t.width, t.height);
-		sink.format("w a s d - move camera\np - reset position");
+		sink.format(`w a s d - move camera
+p - reset position
+m - switch renderer`);
 		updateText(ss.toString());
 	}
 }
