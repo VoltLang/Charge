@@ -163,6 +163,7 @@ private:
 	{
 		mTrace.bind();
 		mTrace.matrix4("matrix", 1, false, mat.ptr);
+		mTrace.float3("cameraPos".ptr, camPosition.ptr);
 	}
 
 	fn makeShaderVGF(name: string, vert: string, geom: string, frag: string) GfxShader
