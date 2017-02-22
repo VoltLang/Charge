@@ -44,6 +44,8 @@ fn calcNumMorton(dim: i32) i32
 }
 
 
+
+
 class Mixed
 {
 public:
@@ -61,6 +63,9 @@ protected:
 	mFeedbackQuery: GLuint;
 
 
+	mIndexBuffer: GLuint;
+
+
 public:
 	this(octTexture: GLuint)
 	{
@@ -68,6 +73,8 @@ public:
 
 		mTracePower = 2;
 		mTracePowerStr = format("#define TRACE_POWER %s", mTracePower);
+
+		createIndexBuffer();
 
 		mOctTexture = octTexture;
 		glGenQueries(1, &mFeedbackQuery);
@@ -96,12 +103,64 @@ public:
 		glCheckError();
 
 		counters.start(0);
+		setupStaticTrace(ref camPosition, ref mat);
+		glCullFace(GL_FRONT);
+		glEnable(GL_CULL_FACE);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer);
+		glDrawElements(GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_INT, null);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		glDisable(GL_CULL_FACE);
+		glUseProgram(0);
 		counters.stop(0);
+
+		glCheckError();
 	}
 
 
-
 private:
+	fn createIndexBuffer()
+	{
+		/*
+		 * bitRakes' tri-strip cube, modified to fit OpenGL.
+		 *
+		 * Its still a bit DXy so backsides of triangles are out.
+		 *
+		 * 6-------2-------3-------7
+		 * |  E __/|\__ A  |  H __/|   
+		 * | __/   |   \__ | __/   |   
+		 * |/   D  |  B   \|/   I  |
+		 * 4-------0-------1-------5
+		 *         |  C __/|
+		 *         | __/   |  Cube = 8 vertices
+		 *         |/   J  |  =================
+		 *         4-------5  Single Strip: 3 2 1 0 4 2 6 3 7 1 5 4 7 6
+		 *         |\__ K  |  12 triangles:     A B C D E F G H I J K L
+		 *         |   \__ |
+		 *         |  L   \|         Left  D+E
+		 *         6-------7        Right  H+I
+		 *         |\__ G  |         Back  K+L
+		 *         |   \__ |        Front  A+B
+		 *         |  F   \|          Top  F+G
+		 *         2-------3       Bottom  C+J
+		 *
+		 */
+
+		data := [3, 2, 1, 0, 4, 2, 6, 3, 7, 1, 5, 4, 7, 6, 6, 3+8];
+		ptr := cast(void*)data.ptr;
+		length := cast(GLsizeiptr)(data.length * 4);
+
+		glCreateBuffers(1, &mIndexBuffer);
+		glNamedBufferData(mIndexBuffer, length, ptr, GL_STATIC_DRAW);
+	}
+
+	fn setupStaticTrace(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
+	{
+		mTrace.bind();
+		mTrace.matrix4("matrix", 1, false, mat.ptr);
+	}
+
 	fn makeShaderVGF(name: string, vert: string, geom: string, frag: string) GfxShader
 	{
 		vert = replaceShaderStrings(vert);
