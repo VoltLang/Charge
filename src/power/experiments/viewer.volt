@@ -87,9 +87,9 @@ public:
 
 	fn resetPosition()
 	{
-		camHeading = 0.f;
-		camPitch = 0.f;
-		camPosition = math.Point3f.opCall(0.20f, 0.20f, 1.0f);
+		camHeading = -0.558000f;
+		camPitch = -0.291000f;
+		camPosition = math.Point3f.opCall(0.071190f, 0.722351f, 1.566161f);
 		distance = 1.0;
 	}
 
