@@ -62,6 +62,7 @@ protected:
 	mOctTexture: GLuint;
 	mFeedbackQuery: GLuint;
 
+	mVAO: GLuint;
 
 	mIndexBuffer: GLuint;
 
@@ -75,6 +76,9 @@ public:
 		mTracePowerStr = format("#define TRACE_POWER %s", mTracePower);
 
 		createIndexBuffer();
+
+		glCreateVertexArrays(1, &mVAO);
+		glVertexArrayElementBuffer(mVAO, mIndexBuffer);
 
 		mOctTexture = octTexture;
 		glGenQueries(1, &mFeedbackQuery);
@@ -107,9 +111,9 @@ public:
 		glCullFace(GL_FRONT);
 		glEnable(GL_CULL_FACE);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer);
+		glBindVertexArray(mVAO);
 		glDrawElements(GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_INT, null);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindVertexArray(mVAO);
 
 		glDisable(GL_CULL_FACE);
 		glUseProgram(0);
