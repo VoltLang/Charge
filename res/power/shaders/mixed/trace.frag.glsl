@@ -72,7 +72,7 @@ void main(void)
 			vec3 pos = inPosition + rayDir * tMin;
 			vec3 s = step(boxMin + boxDim, pos);
 			boxMin = boxMin + boxDim * s;
-			int select = int(s.x * 4 + s.y * 1 + s.z * 2);
+			int select = int(s.x * 1 + s.y * 2 + s.z * 4);
 			int bits = getBits(select);
 			if (bits == int(0)) {
 				break;
@@ -81,7 +81,7 @@ void main(void)
 			boxDim *= 0.5f;
 			s = step(boxMin + boxDim, pos);
 			boxMin = boxMin + boxDim * s;
-			select = int(s.x * 4 + s.y * 1 + s.z * 2);
+			select = int(s.x * 1 + s.y * 2 + s.z * 4);
 			if ((bits & (int(1) << select)) == uint(0)) {
 				break;
 			}
