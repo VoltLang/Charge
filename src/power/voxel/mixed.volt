@@ -107,6 +107,8 @@ public:
 		glCheckError();
 
 		counters.start(0);
+		glBindTextureUnit(0, mOctTexture);
+
 		setupStaticTrace(ref camPosition, ref mat);
 		glCullFace(GL_FRONT);
 		glEnable(GL_CULL_FACE);
@@ -117,6 +119,8 @@ public:
 
 		glDisable(GL_CULL_FACE);
 		glUseProgram(0);
+
+		glBindTextureUnit(0, 0);
 		counters.stop(0);
 
 		glCheckError();
