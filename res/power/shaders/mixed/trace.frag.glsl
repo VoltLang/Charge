@@ -1,15 +1,17 @@
 #version 450 core
 
+#define SPLIT_POWER 0
+#define SPLIT_SIZE 1.0
 #define TRACE_POWER 2
 #define MAX_ITERATIONS 500
 
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in flat vec3 inMinEdge;
-layout (location = 2) in flat vec3 inMaxEdge;
-layout (location = 3) in flat ivec3 array;
+layout (location = 2) in flat ivec3 array;
 layout (location = 0) out vec4 outColor;
 
 uniform vec3 cameraPos;
+
 
 int getBits(int select)
 {
@@ -51,7 +53,7 @@ void main(void)
 
 	// Only process ray if it intersects voxel volume.
 	float tMin, tMax;
-	rayAABBTest(rayDir, inMinEdge, inMaxEdge, tMin, tMax);
+	rayAABBTest(rayDir, inMinEdge, inMinEdge + SPLIT_SIZE, tMin, tMax);
 
 	// Force initial ray position to start at the
 	// camera origin if it is in the voxel box.
@@ -59,13 +61,12 @@ void main(void)
 
 	// Loop until ray exits volume.
 	bool hit = false;
-	int itr = 0;
-	while (tMin < tMax && ++itr < MAX_ITERATIONS) {
+	while (tMin < tMax) {
 		// Restart at top of tree.
 
 		// Which part of the space the voxel volume occupy.
 		vec3 boxMin = inMinEdge;
-		float boxDim = inMaxEdge.x - inMinEdge.x;
+		float boxDim = SPLIT_SIZE;
 
 		do {
 			boxDim *= 0.5f;
