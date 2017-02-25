@@ -201,7 +201,7 @@ fn makeShaderVF(name: string, vert: string, frag: string, attr: string[], texs: 
 	glLinkProgram(shader);
 
 	// Check status and print any debug message.
-	if (!printDebug(name, shader, true, "program (vert/frag)")) {
+	if (!printDebug(name, shader, true, "(vert/frag)")) {
 		glDeleteProgram(shader);
 		return 0;
 	}
@@ -229,7 +229,7 @@ fn makeShaderVGF(name: string, vert: string, geom: string, frag: string) GLuint
 	glLinkProgram(shader);
 
 	// Check status and print any debug message.
-	if (!printDebug(name, shader, true, "program (vert/geom/frag)")) {
+	if (!printDebug(name, shader, true, "(vert/geom/frag)")) {
 		glDeleteProgram(shader);
 		return 0;
 	}
@@ -354,27 +354,27 @@ fn printDebug(name: string, shader: GLuint, program: bool, type: string) bool
 	case 1: //GL_TRUE:
 		// Only print warnings from the linking stage.
 		if (length != 0 && program) {
-			writef("%s \"%s\" status ok!\n%s", type, name, buffer);
+			writef("shader \"%s\" %s status ok!\n%s", name, type, buffer);
 		} else if (program) {
-			writefln("%s \"%s\" status ok!", type, name);
+			writefln("shader \"%s\" %s status ok!", name, type);
 		}
 
 		return true;
 
 	case 0: //GL_FALSE:
 		if (length != 0) {
-			writef("%s \"%s\" status ok!\n%s", type, name, buffer);
+			writef("shader \"%s\" %s status ok!\n%s", name, type, buffer);
 		} else if (program) {
-			writefln("%s \"%s\" status ok!", type, name);
+			writefln("shader \"%s\" %s status ok!", name, type);
 		}
 
 		return false;
 
 	default:
 		if (length != 0) {
-			writef("%s \"%s\" status %s\n%s", type, name, status, buffer);
+			writef("shader \"%s\" %s status %s\n%s", name, type, status, buffer);
 		} else if (program) {
-			writefln("%s \"%s\" status %s", type, name, status);
+			writefln("shader \"%s\" %s status %s", name, type, status);
 		}
 
 		return false;
