@@ -29,6 +29,12 @@ public:
 		this.id = makeShaderVGF(name, vert, geom, frag);
 	}
 
+	this(name: string, comp: string)
+	{
+		this.name = name;
+		this.id = makeShaderC(name, comp);
+	}
+
 	this(name: string, id: GLuint)
 	{
 		this.name = name;
@@ -42,6 +48,7 @@ public:
 		}
 		id = 0;
 	}
+
 
 final:
 	fn breakApart()
@@ -184,6 +191,23 @@ final:
 	}
 }
 
+fn makeShaderC(name: string, comp: string) GLuint
+{
+	// Compile the shader.
+	shader := createAndCompileShaderC(name, comp);
+
+	// Linking the Shader Program.
+	glLinkProgram(shader);
+
+	// Check status and print any debug message.
+	if (!printDebug(name, shader, true, "(comp)")) {
+		glDeleteProgram(shader);
+		return 0;
+	}
+
+	return shader;
+}
+
 fn makeShaderVF(name: string, vert: string, frag: string, attr: string[], texs: string[]) GLuint
 {
 	// Compile the shaders
@@ -235,6 +259,27 @@ fn makeShaderVGF(name: string, vert: string, geom: string, frag: string) GLuint
 	}
 
 	return shader;
+}
+
+fn createAndCompileShaderC(name: string, comp: string) GLuint
+{
+	assert(comp.length > 0);
+
+	// Create the handels
+	compShader := glCreateShader(GL_COMPUTE_SHADER);
+	programShader := glCreateProgram();
+
+	// Attach the shader to a program handel.
+	glAttachShader(programShader, compShader);
+
+	// Load and compile the Compute Shader
+	compileShader(name, compShader, comp, "comp");
+
+	// The shader object is not needed any more,
+	// the programShader is the complete shader to be used.
+	glDeleteShader(compShader);
+
+	return programShader;
 }
 
 fn createAndCompileShaderVF(name: string, vert: string, frag: string) GLuint
