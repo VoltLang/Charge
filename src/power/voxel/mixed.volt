@@ -53,6 +53,7 @@ public:
 
 
 protected:
+	mList: GfxShader;
 	mTrace: GfxShader;
 
 	/// The number of levels that we trace.
@@ -83,7 +84,10 @@ public:
 		mOctTexture = octTexture;
 		glGenQueries(1, &mFeedbackQuery);
 
-		vert, geom, frag: string;
+		vert, geom, frag, comp: string;
+
+		comp = cast(string)read("res/power/shaders/mixed/list.comp.glsl");
+		mList = makeShaderC("mixed.list", comp);
 
 		vert = cast(string)read("res/power/shaders/mixed/trace.vert.glsl");
 		frag = cast(string)read("res/power/shaders/mixed/trace.frag.glsl");
@@ -95,6 +99,10 @@ public:
 		if (counters !is null) {
 			counters.close();
 			counters = null;
+		}
+		if (mList !is null) {
+			mList.breakApart();
+			mList = null;
 		}
 		if (mTrace !is null) {
 			mTrace.breakApart();
@@ -168,6 +176,12 @@ private:
 		mTrace.bind();
 		mTrace.matrix4("matrix", 1, false, mat.ptr);
 		mTrace.float3("cameraPos".ptr, camPosition.ptr);
+	}
+
+	fn makeShaderC(name: string, comp: string) GfxShader
+	{
+		comp = replaceShaderStrings(comp);
+		return new GfxShader(name, comp);
 	}
 
 	fn makeShaderVGF(name: string, vert: string, geom: string, frag: string) GfxShader
