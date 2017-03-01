@@ -25,7 +25,7 @@ debug {
 
 } else {
 
-	public import core.stdc.stdlib :
+	public import core.c.stdlib :
 		cMalloc = malloc,
 		cRealloc = realloc,
 		cFree = free;

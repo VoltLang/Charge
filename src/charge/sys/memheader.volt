@@ -5,7 +5,7 @@
  */
 module charge.sys.memheader;
 
-static import core.stdc.stdlib;
+static import core.c.stdlib;
 
 
 private struct MemHeader
@@ -46,7 +46,7 @@ debug {
 	void* cMalloc(size_t size, const(char)* file, uint line)
 	{
 		size_t totalSize = size + typeid(MemHeader).size;
-		MemHeader* mem = cast(MemHeader*)core.stdc.stdlib.malloc(totalSize);
+		MemHeader* mem = cast(MemHeader*)core.c.stdlib.malloc(totalSize);
 
 		mem.file = file;
 		mem.line = line;
@@ -76,7 +76,7 @@ debug {
 		auto mem = MemHeader.fromData(ptr);
 		MemHeader.memory -= mem.size;
 
-		mem = cast(MemHeader*)core.stdc.stdlib.realloc(
+		mem = cast(MemHeader*)core.c.stdlib.realloc(
 				cast(void*)mem, totalSize);
 
 		mem.file = file;
@@ -96,24 +96,24 @@ debug {
 		auto mem = MemHeader.fromData(ptr);
 
 		MemHeader.memory -= mem.size;
-		core.stdc.stdlib.free(cast(void*)mem);
+		core.c.stdlib.free(cast(void*)mem);
 	}
 
 } else {
 
 	void* cMalloc(size_t size, const(char)* file, uint line)
 	{
-		return core.stdc.stdlib.malloc(size);
+		return core.c.stdlib.malloc(size);
 	}
 
 	void* cRealloc(void* ptr, size_t size, const(char)* file, uint line)
 	{
-		return core.stdc.stdlib.realloc(ptr, size);
+		return core.c.stdlib.realloc(ptr, size);
 	}
 
 	void cFree(void* ptr, const(char)* file, uint line)
 	{
-		core.stdc.stdlib.free(ptr);
+		core.c.stdlib.free(ptr);
 	}
 
 }

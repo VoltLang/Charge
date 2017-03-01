@@ -7,9 +7,9 @@ module charge.core.win32;
 version (Windows):
 
 import core.exception;
-import core.windows;
-import core.stdc.stdio;
-import core.stdc.string;
+import core.c.windows;
+import core.c.stdio;
+import core.c.string;
 
 import watt.conv;
 
@@ -27,7 +27,7 @@ import lib.gl.loader;
 import lib.sdl2.keycode;
 import lib.sdl2.mouse;
 
-extern (Windows) { // TODO: Move to Watt.
+extern (Windows) { // TODO: Move to RT.
 	fn GetWindowRect(HWND, RECT*) BOOL;
 	enum SWP_NOCOPYBITS = 0x0100;
 	enum SWP_NOACTIVATE = 0x0010;

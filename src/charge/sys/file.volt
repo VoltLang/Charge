@@ -6,7 +6,7 @@
 module charge.sys.file;
 
 import core.exception;
-import core.stdc.stdio;
+import core.c.stdio;
 
 import watt.conv;
 import watt.text.format;
