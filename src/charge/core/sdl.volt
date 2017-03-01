@@ -7,8 +7,8 @@ module charge.core.sdl;
 version (!Windows):
 
 import core.exception;
-import core.stdc.stdio : printf;
-import core.stdc.stdlib : exit;
+import core.c.stdio : printf;
+import core.c.stdlib : exit;
 
 import watt.conv : toStringz;
 import watt.library;

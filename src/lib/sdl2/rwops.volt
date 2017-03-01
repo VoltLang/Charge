@@ -29,7 +29,7 @@ version (!Windows):
  *  data streams.  It can easily be extended to files, memory, etc.
  */
 
-import core.stdc.stdio;
+import core.c.stdio;
 
 import lib.sdl2.stdinc;
 import lib.sdl2.error;
