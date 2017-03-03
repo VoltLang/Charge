@@ -90,11 +90,12 @@ public:
 
 		// Create the big output buffer.
 		glCreateBuffers(10, mOutputBuffers.ptr);
-		glNamedBufferStorage(mOutputBuffers[0], 64*1024*1024, null, GL_DYNAMIC_STORAGE_BIT);
-		glNamedBufferStorage(mOutputBuffers[1], 64*1024*1024, null, GL_DYNAMIC_STORAGE_BIT);
-		glNamedBufferStorage(mOutputBuffers[2], 64*1024*1024, null, GL_DYNAMIC_STORAGE_BIT);
-		glNamedBufferStorage(mOutputBuffers[3], 64*1024*1024, null, GL_DYNAMIC_STORAGE_BIT);
-		glNamedBufferStorage(mOutputBuffers[4], 64*1024*1024, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[0], 4, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[1], 512*4, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[2], 512*512*4, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[3], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[4], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
+		glClearNamedBufferData(mOutputBuffers[0], GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glCheckError();
 
 		// Setup a VAO.
@@ -154,39 +155,41 @@ public:
 		counters.start(0);
 		mList.bind();
 
-		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, mAtomicBuffer);
+
+		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[0]);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[1]);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 		glDispatchCompute(1u, 1u, 1u);
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		glCheckError();
 
 		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[1]);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[2]);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 		//glDispatchCompute(21u, 1u, 1u);
 		glDispatchCompute(96u, 1u, 1u);
-		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 		glCheckError();
 
 		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[2]);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[3]);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 		//glDispatchCompute(352u, 1u, 1u);
 		glDispatchCompute(5015u, 1u, 1u);
-		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 		glCheckError();
 
 /*
 		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[3]);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[4]);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 		glDispatchCompute(267894u/16, 16u, 1u);
-		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 		glCheckError();
 
 		val: u32;
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		glGetNamedBufferSubData(mAtomicBuffer, 0, 4, cast(void*)&val);
 		io.writefln("%s", val);
 */
@@ -194,12 +197,9 @@ public:
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
 		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 		counters.stop(0);
-
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
-		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
 
 		counters.start(1);
 
