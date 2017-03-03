@@ -19,7 +19,7 @@ import power.voxel.mixed;
 import power.experiments.viewer;
 
 
-fn loadDag(filename: string, out data: void[])
+fn loadDag(filename: string, out data: void[], out frames: u32[])
 {
 	// Setup raytracing code.
 	data = read(filename);
@@ -28,7 +28,7 @@ fn loadDag(filename: string, out data: void[])
 	u64ptr := cast(u64*)data.ptr;
 
 	id := u64ptr[0];
-	frames := u64ptr[1];
+	numFrames := u64ptr[1];
 	resolution := u64ptr[2];
 	dataSizeInU32 := u64ptr[3];
 	minX := f32ptr[ 8];
@@ -39,16 +39,21 @@ fn loadDag(filename: string, out data: void[])
 	maxZ := f32ptr[13];
 
 	// Calculate offset to data, both values are orignally in u32s.
-	offset := (frames + 14UL) * 4;
+	offset := (numFrames + 14UL) * 4;
+	frames = u32ptr[14UL .. 14UL + numFrames];
 	data = data[offset .. offset + dataSizeInU32 * 4];
 
 /*
 	io.writefln("id:         %016x", id);
-	io.writefln("frames:     %s", frames);
+	io.writefln("numFrames:  %s", numFrames);
 	io.writefln("resolution: %s", resolution);
 	io.writefln("ndwords:    %s", dataSizeInU32);
 	io.writefln("rootMin:    %s %s %s", cast(f64)minX, cast(f64)minY, cast(f64)minZ);
 	io.writefln("rootMax:    %s %s %s", cast(f64)maxX, cast(f64)maxY, cast(f64)maxZ);
+
+	foreach (i; 0 .. numFrames) {
+		io.writefln("frame %02s: %s", numFrames, frames[i]);
+	}
 
 	io.writefln("%s %s", dataSizeInU32 * 4, data.length);
 	foreach (i; 0U .. 128U) {
@@ -63,6 +68,9 @@ public:
 	useSVO: bool;
 	svo: SVO;
 	mixed: Mixed;
+	frame: u32;
+	frames: u32[];
+	animate: bool;
 
 
 	/**
@@ -82,7 +90,7 @@ public:
 		super(g);
 
 		data: void[];
-		loadDag("res/alley.dag", out data);
+		loadDag("res/alley.dag", out data, out frames);
 
 		glCreateBuffers(1, &octBuffer);
 		glNamedBufferData(octBuffer, cast(GLsizeiptr)data.length, data.ptr, GL_STATIC_DRAW);
@@ -114,6 +122,7 @@ public:
 	{
 		switch (keycode) {
 		case 'm': useSVO = !useSVO; break;
+		case 't': animate = !animate; break;
 		case 'c': mixed.useCubes = !mixed.useCubes; break;
 		default: super.keyDown(device, keycode);
 		}
@@ -145,6 +154,10 @@ public:
 		if (useSVO) {
 			svo.draw(ref camPosition, ref proj);
 		} else {
+			mixed.frame = frames[frame];
+			if ((frame += animate) >= frames.length) {
+				frame = 0;
+			}
 			mixed.draw(ref camPosition, ref proj);
 		}
 
@@ -168,6 +181,7 @@ public:
 		sink.format("Resolution: %sx%s\n", t.width, t.height);
 		sink.format(`w a s d - move camera
 p - reset position
+t - animate
 m - switch renderer
 c - use cubes (%s)`, mixed.useCubes);
 		updateText(ss.toString());

@@ -50,6 +50,7 @@ fn calcNumMorton(dim: i32) i32
 class Mixed
 {
 public:
+	frame: u32;
 	useCubes: bool;
 	counters: Counters;
 
@@ -90,7 +91,7 @@ public:
 
 		// Create the big output buffer.
 		glCreateBuffers(10, mOutputBuffers.ptr);
-		glNamedBufferStorage(mOutputBuffers[0], 4, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[0], 8, null, GL_DYNAMIC_STORAGE_BIT);
 		glNamedBufferStorage(mOutputBuffers[1], 512*4, null, GL_DYNAMIC_STORAGE_BIT);
 		glNamedBufferStorage(mOutputBuffers[2], 512*512*4, null, GL_DYNAMIC_STORAGE_BIT);
 		glNamedBufferStorage(mOutputBuffers[3], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
@@ -150,6 +151,7 @@ public:
 	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
 	{
 		glCheckError();
+		glNamedBufferSubData(mOutputBuffers[0], 4, 4, cast(void*)&frame);
 		glBindTextureUnit(0, mOctTexture);
 
 		counters.start(0);
