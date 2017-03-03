@@ -114,6 +114,7 @@ public:
 	{
 		switch (keycode) {
 		case 'm': useSVO = !useSVO; break;
+		case 'c': mixed.useCubes = !mixed.useCubes; break;
 		default: super.keyDown(device, keycode);
 		}
 	}
@@ -167,7 +168,8 @@ public:
 		sink.format("Resolution: %sx%s\n", t.width, t.height);
 		sink.format(`w a s d - move camera
 p - reset position
-m - switch renderer`);
+m - switch renderer
+c - use cubes (%s)`, mixed.useCubes);
 		updateText(ss.toString());
 	}
 }

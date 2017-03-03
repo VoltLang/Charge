@@ -1,75 +1,77 @@
 #version 450 core
 
-#define GEOM_POWER 3
-layout(local_size_x = 1) in;
+#define LIST_POWER 3
+#define SIZE (1 << LIST_POWER)
+layout(local_size_x = SIZE, local_size_y = SIZE, local_size_z = SIZE) in;
 
 layout (binding = 0) uniform usamplerBuffer octree;
 layout (binding = 0) uniform atomic_uint counter;
 
-layout (binding = 0, std430) buffer Buffer
+layout (binding = 0, std430) buffer BufferIn
 {
-	uint data[];
+	uint inData[];
+};
+
+layout (binding = 1, std430) buffer BufferOut
+{
+	uint outData[];
 };
 
 
-int calcAddress(uint select, uint node, int offset)
+uint calcAddress(uint select, uint node, uint offset)
 {
 	int bits = int(select + 1);
 	uint toCount = bitfieldExtract(node, 0, bits);
-	int address = int(bitCount(toCount));
-	return address + int(offset);
+	uint address = bitCount(toCount);
+	return address + offset;
 }
 
 void main(void)
 {
 	// The morton value for this position.
-	uint morton = gl_GlobalInvocationID.x;
+	uint morton = gl_LocalInvocationIndex;
 
-	// Initial node address.
-	int offset = 0;
+	// Get the initial node adress and extra morton bits.
+	uint offset = (gl_WorkGroupID.x + gl_NumWorkGroups.x * gl_WorkGroupID.y) * 2;
+	uint extra = inData[offset + 0];
+	offset =     inData[offset + 1];
 
 	// This is a unrolled loop.
 	// Subdivide until empty node or found the node for this box.
 	// Get the node.
-	uint node = texelFetch(octree, offset).r;
+	uint node = texelFetch(octree, int(offset)).r;
 
 	// 3D bit selector, each element is in the range [0, 1].
 	// Turn that into scalar in the range [0, 8].
-	uint select = (morton >> ((GEOM_POWER-1) * 3)) & uint(0x07);
+	uint select = (morton >> ((LIST_POWER-1) * 3)) & uint(0x07);
 	if ((node & (uint(1) << select)) == uint(0)) {
 		return;
 	}
 
 #define LOOPBODY(counter) \
 	offset = calcAddress(select, node, offset);			\
-	offset = int(texelFetch(octree, offset).r);			\
-	node = uint(texelFetch(octree, offset).r);			\
+	offset = texelFetch(octree, int(offset)).r;			\
+	node = texelFetch(octree, int(offset)).r;			\
 									\
-	select = (morton >> ((GEOM_POWER-counter) * 3)) & uint(0x07);	\
+	select = (morton >> ((LIST_POWER-counter) * 3)) & uint(0x07);	\
 	if ((node & (uint(1) << select)) == uint(0)) {			\
 		return;							\
 	}								\
 
-#if GEOM_POWER >= 2
+#if LIST_POWER >= 2
 	LOOPBODY(2);
 #endif
-#if GEOM_POWER >= 3
+#if LIST_POWER >= 3
 	LOOPBODY(3);
 #endif
-#if GEOM_POWER >= 4
-	LOOPBODY(4);
-#endif
-#if GEOM_POWER >= 5
-	LOOPBODY(5);
-#endif
-#if GEOM_POWER >= 6
-	LOOPBODY(6);
-#endif
-#if GEOM_POWER >= 7
-	LOOPBODY(7);
+#if LIST_POWER >= 4
+#error
 #endif
 
-	uint index = atomicCounterIncrement(counter);
-	data[index * 2] = morton;
-	data[index * 2 + 1] = offset;
+	offset = calcAddress(select, node, offset);
+	offset = texelFetch(octree, int(offset)).r;
+
+	uint index = atomicCounterIncrement(counter) * 2;
+	outData[index] = morton | (extra << (LIST_POWER * 3));
+	outData[index + 1] = offset;
 }

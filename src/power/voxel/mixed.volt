@@ -5,6 +5,7 @@ module power.voxel.mixed;
 import watt.text.string;
 import watt.text.format;
 import watt.io.file;
+import io = watt.io;
 
 import charge.gfx;
 import charge.sys.resource;
@@ -49,11 +50,14 @@ fn calcNumMorton(dim: i32) i32
 class Mixed
 {
 public:
+	useCubes: bool;
 	counters: Counters;
 
 
 protected:
+	mNew: GfxShader;
 	mList: GfxShader;
+	mCubes: GfxShader;
 	mTrace: GfxShader;
 
 	/// The number of levels that we trace.
@@ -63,23 +67,46 @@ protected:
 	mOctTexture: GLuint;
 	mFeedbackQuery: GLuint;
 
-	mVAO: GLuint;
+	mElementsVAO: GLuint;
+	mArrayVAO: GLuint;
 
 	mIndexBuffer: GLuint;
+	mAtomicBuffer: GLuint;
+	mOutputBuffers: GLuint[10];
 
 
 public:
 	this(octTexture: GLuint)
 	{
-		counters = new Counters("trace");
+		useCubes = true;
+		counters = new Counters("list", "trace");
 
 		mTracePower = 2;
 		mTracePowerStr = format("#define TRACE_POWER %s", mTracePower);
 
-		createIndexBuffer();
+		// Create the storage for the atomic buffer.
+		glCreateBuffers(1, &mAtomicBuffer);
+		glNamedBufferStorage(mAtomicBuffer, 4, null, GL_DYNAMIC_STORAGE_BIT);
 
-		glCreateVertexArrays(1, &mVAO);
-		glVertexArrayElementBuffer(mVAO, mIndexBuffer);
+		// Create the big output buffer.
+		glCreateBuffers(10, mOutputBuffers.ptr);
+		glNamedBufferStorage(mOutputBuffers[0], 64*1024*1024, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[1], 64*1024*1024, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[2], 64*1024*1024, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[3], 64*1024*1024, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[4], 64*1024*1024, null, GL_DYNAMIC_STORAGE_BIT);
+		glCheckError();
+
+		// Setup a VAO.
+		createIndexBuffer();
+		glCreateVertexArrays(1, &mElementsVAO);
+		glVertexArrayElementBuffer(mElementsVAO, mIndexBuffer);
+
+		glCreateVertexArrays(1, &mArrayVAO);
+		glVertexArrayVertexBuffer(mArrayVAO, 0, mOutputBuffers[3], 0, 8);
+		glVertexArrayAttribIFormat(mArrayVAO, 0, 2, GL_UNSIGNED_INT, 0);
+		glVertexArrayAttribBinding(mArrayVAO, 0, 0);
+		glEnableVertexArrayAttrib(mArrayVAO, 0);
 
 		mOctTexture = octTexture;
 		glGenQueries(1, &mFeedbackQuery);
@@ -89,9 +116,18 @@ public:
 		comp = cast(string)read("res/power/shaders/mixed/list.comp.glsl");
 		mList = makeShaderC("mixed.list", comp);
 
-		vert = cast(string)read("res/power/shaders/mixed/trace.vert.glsl");
-		frag = cast(string)read("res/power/shaders/mixed/trace.frag.glsl");
+		vert = cast(string)read("res/power/shaders/mixed/old.vert.glsl");
+		frag = cast(string)read("res/power/shaders/mixed/old.frag.glsl");
 		mTrace = makeShaderVGF("mixed.trace", vert, null, frag);
+
+		vert = cast(string)read("res/power/shaders/mixed/tracer-geom.vert.glsl");
+		geom = cast(string)read("res/power/shaders/mixed/tracer-geom.geom.glsl");
+		frag = cast(string)read("res/power/shaders/mixed/tracer.frag.glsl");
+		mNew = makeShaderVGF("mixed.tracer", vert, geom, frag);
+
+		vert = cast(string)read("res/power/shaders/mixed/tracer-cubes.vert.glsl");
+		frag = cast(string)read("res/power/shaders/mixed/tracer.frag.glsl");
+		mCubes = makeShaderVGF("mixed.cubes", vert, null, frag);
 	}
 
 	void close()
@@ -113,24 +149,85 @@ public:
 	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
 	{
 		glCheckError();
-
-		counters.start(0);
 		glBindTextureUnit(0, mOctTexture);
 
-		setupStaticTrace(ref camPosition, ref mat);
+		counters.start(0);
+		mList.bind();
+
+		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, mAtomicBuffer);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[0]);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[1]);
+		glDispatchCompute(1u, 1u, 1u);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+		glCheckError();
+
+		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[1]);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[2]);
+		//glDispatchCompute(21u, 1u, 1u);
+		glDispatchCompute(96u, 1u, 1u);
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+		glCheckError();
+
+		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[2]);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[3]);
+		//glDispatchCompute(352u, 1u, 1u);
+		glDispatchCompute(5015u, 1u, 1u);
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+		glCheckError();
+
+/*
+		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[3]);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[4]);
+		glDispatchCompute(267894u/16, 16u, 1u);
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+		glCheckError();
+
+		val: u32;
+		glGetNamedBufferSubData(mAtomicBuffer, 0, 4, cast(void*)&val);
+		io.writefln("%s", val);
+*/
+
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
+		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
+
+		counters.stop(0);
+
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
+		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
+
+		counters.start(1);
+
 		glCullFace(GL_FRONT);
 		glEnable(GL_CULL_FACE);
 
-		glBindVertexArray(mVAO);
-		glDrawElements(GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_INT, null);
-		glBindVertexArray(mVAO);
+		//num := 73804;
+		num := 267894;
+		buffer := mOutputBuffers[3];
+		if (useCubes) {
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffer);
+			glBindVertexArray(mElementsVAO);
+			setupStaticCubes(ref camPosition, ref mat);
+			glDrawElements(GL_TRIANGLE_STRIP, num * 16, GL_UNSIGNED_INT, null);
+		} else {
+			glVertexArrayVertexBuffer(mArrayVAO, 0, buffer, 0, 8);
+			glBindVertexArray(mArrayVAO);
+			setupStaticTracer(ref camPosition, ref mat);
+			glDrawArrays(GL_POINTS, 0, num);
+		}
 
+		glBindVertexArray(0);
 		glDisable(GL_CULL_FACE);
+
+		counters.stop(1);
+
 		glUseProgram(0);
-
 		glBindTextureUnit(0, 0);
-		counters.stop(0);
-
 		glCheckError();
 	}
 
@@ -163,12 +260,22 @@ private:
 		 *
 		 */
 
+		num := 662230u;
 		data := [3, 2, 1, 0, 4, 2, 6, 3, 7, 1, 5, 4, 7, 6, 6, 3+8];
-		ptr := cast(void*)data.ptr;
-		length := cast(GLsizeiptr)(data.length * 4);
+		length := cast(GLsizeiptr)(data.length * num * 4);
 
 		glCreateBuffers(1, &mIndexBuffer);
-		glNamedBufferData(mIndexBuffer, length, ptr, GL_STATIC_DRAW);
+		glNamedBufferData(mIndexBuffer, length, null, GL_STATIC_DRAW);
+		ptr := cast(i32*)glMapNamedBuffer(mIndexBuffer, GL_WRITE_ONLY);
+
+		foreach (i; 0 .. num) {
+			foreach (d; data) {
+				*ptr = d + cast(i32)i * 8;
+				ptr++;
+			}
+		}
+
+		glUnmapNamedBuffer(mIndexBuffer);
 	}
 
 	fn setupStaticTrace(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
@@ -176,6 +283,21 @@ private:
 		mTrace.bind();
 		mTrace.matrix4("matrix", 1, false, mat.ptr);
 		mTrace.float3("cameraPos".ptr, camPosition.ptr);
+	}
+
+	fn setupStaticTracer(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
+	{
+		mNew.bind();
+		mNew.matrix4("matrix", 1, false, mat.ptr);
+		mNew.float3("cameraPos".ptr, camPosition.ptr);
+	}
+
+
+	fn setupStaticCubes(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
+	{
+		mCubes.bind();
+		mCubes.matrix4("matrix", 1, false, mat.ptr);
+		mCubes.float3("cameraPos".ptr, camPosition.ptr);
 	}
 
 	fn makeShaderC(name: string, comp: string) GfxShader
