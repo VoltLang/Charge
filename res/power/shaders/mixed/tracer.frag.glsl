@@ -6,7 +6,7 @@
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in flat vec3 inMinEdge;
 layout (location = 2) in flat vec3 inMaxEdge;
-layout (location = 3) in flat int inOffset;
+layout (location = 3) in flat uint inOffset;
 layout (binding = 0) uniform isamplerBuffer octree;
 layout (location = 0) out vec4 outColor;
 
@@ -65,7 +65,7 @@ void main(void)
 
 		do {
 
-			int offset = inOffset;
+			int offset = int(inOffset);
 			uint node = uint(texelFetch(octree, offset).r);
 
 			boxDim *= 0.5f;
