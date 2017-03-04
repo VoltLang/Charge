@@ -60,6 +60,7 @@ protected:
 	mList: GfxShader;
 	mCubes: GfxShader;
 	mTrace: GfxShader;
+	mIndirectDispatch: GfxShader;
 
 	/// The number of levels that we trace.
 	mTracePower: i32;
@@ -73,6 +74,7 @@ protected:
 
 	mIndexBuffer: GLuint;
 	mAtomicBuffer: GLuint;
+	mIndirectBuffer: GLuint;
 	mOutputBuffers: GLuint[10];
 
 
@@ -89,6 +91,9 @@ public:
 		glCreateBuffers(1, &mAtomicBuffer);
 		glNamedBufferStorage(mAtomicBuffer, 4, null, GL_DYNAMIC_STORAGE_BIT);
 
+		glCreateBuffers(1, &mIndirectBuffer);
+		glNamedBufferStorage(mIndirectBuffer, 4*16, null, GL_DYNAMIC_STORAGE_BIT);
+
 		// Create the big output buffer.
 		glCreateBuffers(10, mOutputBuffers.ptr);
 		glNamedBufferStorage(mOutputBuffers[0], 8, null, GL_DYNAMIC_STORAGE_BIT);
@@ -96,6 +101,11 @@ public:
 		glNamedBufferStorage(mOutputBuffers[2], 512*512*4, null, GL_DYNAMIC_STORAGE_BIT);
 		glNamedBufferStorage(mOutputBuffers[3], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
 		glNamedBufferStorage(mOutputBuffers[4], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[5], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[6], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[7], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[8], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mOutputBuffers[9], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
 		glClearNamedBufferData(mOutputBuffers[0], GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glCheckError();
 
@@ -117,6 +127,9 @@ public:
 
 		comp = cast(string)read("res/power/shaders/mixed/list.comp.glsl");
 		mList = makeShaderC("mixed.list", comp);
+
+		comp = cast(string)read("res/power/shaders/mixed/indirect-dispatch.comp.glsl");
+		mIndirectDispatch = makeShaderC("mixed.indirect-dispatch", comp);
 
 		vert = cast(string)read("res/power/shaders/mixed/old.vert.glsl");
 		frag = cast(string)read("res/power/shaders/mixed/old.frag.glsl");
@@ -151,54 +164,42 @@ public:
 	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
 	{
 		glCheckError();
-		glNamedBufferSubData(mOutputBuffers[0], 4, 4, cast(void*)&frame);
 		glBindTextureUnit(0, mOctTexture);
 
 		counters.start(0);
-		mList.bind();
 
 		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, mAtomicBuffer);
+		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, mIndirectBuffer);
 
-		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[0]);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[1]);
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-		glDispatchCompute(1u, 1u, 1u);
-		glCheckError();
+		glNamedBufferSubData(mIndirectBuffer,   0, 4 * 3, cast(void*)[1, 1, 1].ptr);
+		glNamedBufferSubData(mOutputBuffers[0], 4,     4, cast(void*)&frame);
 
-		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[1]);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[2]);
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-		//glDispatchCompute(21u, 1u, 1u);
-		glDispatchCompute(96u, 1u, 1u);
-		glCheckError();
+		numSteps := 3u;
+		foreach (i; 0 .. numSteps) {
+			if (i != 0) {
+				// Fill out the indirect buffer.
+				mIndirectDispatch.bind();
+				glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mIndirectBuffer);
+				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
+				glDispatchCompute(1u, 1u, 1u);
+			}
 
-		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[2]);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[3]);
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-		//glDispatchCompute(352u, 1u, 1u);
-		glDispatchCompute(5015u, 1u, 1u);
-		glCheckError();
-
-/*
-		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[3]);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[4]);
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-		glDispatchCompute(267894u/16, 16u, 1u);
-		glCheckError();
-
-		val: u32;
-		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-		glGetNamedBufferSubData(mAtomicBuffer, 0, 4, cast(void*)&val);
-		io.writefln("%s", val);
-*/
+			mList.bind();
+			glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[i    ]);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[i + 1]);
+			glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+			                GL_SHADER_STORAGE_BARRIER_BIT |
+			                GL_COMMAND_BARRIER_BIT);
+			glDispatchComputeIndirect(0);
+			glCheckError();
+		}
 
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
 		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
+		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 		counters.stop(0);
@@ -208,9 +209,9 @@ public:
 		glCullFace(GL_FRONT);
 		glEnable(GL_CULL_FACE);
 
-		//num := 73804;
-		num := 267894;
-		buffer := mOutputBuffers[3];
+		num := 0;
+		glGetNamedBufferSubData(mAtomicBuffer, 0, 4, cast(void*)&num);
+		buffer := mOutputBuffers[numSteps];
 		if (useCubes) {
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffer);
 			glBindVertexArray(mElementsVAO);

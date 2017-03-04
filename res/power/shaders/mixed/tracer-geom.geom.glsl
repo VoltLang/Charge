@@ -1,6 +1,5 @@
 #version 450 core
 
-#define VOXEL_POWER 11
 #define CUBE_POWER 9
 
 #define DIVISOR (1 << CUBE_POWER)
