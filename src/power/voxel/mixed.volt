@@ -60,6 +60,10 @@ protected:
 	mList: GfxShader;
 	mCubes: GfxShader;
 	mTrace: GfxShader;
+
+	// Generating indirect command buffers.
+	mIndirectArray: GfxShader;
+	mIndirectElements: GfxShader;
 	mIndirectDispatch: GfxShader;
 
 	/// The number of levels that we trace.
@@ -127,6 +131,12 @@ public:
 
 		comp = cast(string)read("res/power/shaders/mixed/list.comp.glsl");
 		mList = makeShaderC("mixed.list", comp);
+
+		comp = cast(string)read("res/power/shaders/mixed/indirect-array.comp.glsl");
+		mIndirectArray = makeShaderC("mixed.indirect-array", comp);
+
+		comp = cast(string)read("res/power/shaders/mixed/indirect-elements.comp.glsl");
+		mIndirectElements = makeShaderC("mixed.indirect-elements", comp);
 
 		comp = cast(string)read("res/power/shaders/mixed/indirect-dispatch.comp.glsl");
 		mIndirectDispatch = makeShaderC("mixed.indirect-dispatch", comp);
@@ -209,22 +219,39 @@ public:
 		glCullFace(GL_FRONT);
 		glEnable(GL_CULL_FACE);
 
-		num := 0;
-		glGetNamedBufferSubData(mAtomicBuffer, 0, 4, cast(void*)&num);
+		// Setup for the indrect buffer.
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, mIndirectBuffer);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mIndirectBuffer);
+
+		// Select the correct output buffer.
 		buffer := mOutputBuffers[numSteps];
+
 		if (useCubes) {
+			// Make the indirect buffer.
+			mIndirectElements.bind();
+			glDispatchCompute(1u, 1u, 1u);
+
+			// Prepare to run the actual drawing command.
+			glMemoryBarrier(GL_COMMAND_BARRIER_BIT);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffer);
 			glBindVertexArray(mElementsVAO);
 			setupStaticCubes(ref camPosition, ref mat);
-			glDrawElements(GL_TRIANGLE_STRIP, num * 16, GL_UNSIGNED_INT, null);
+			glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, null);
 		} else {
+			// Make the indirect buffer.
+			mIndirectArray.bind();
+			glDispatchCompute(1u, 1u, 1u);
+
+			// Prepare to run the actual drawing command.
+			glMemoryBarrier(GL_COMMAND_BARRIER_BIT);
 			glVertexArrayVertexBuffer(mArrayVAO, 0, buffer, 0, 8);
 			glBindVertexArray(mArrayVAO);
 			setupStaticTracer(ref camPosition, ref mat);
-			glDrawArrays(GL_POINTS, 0, num);
+			glDrawArraysIndirect(GL_POINTS, null);
 		}
 
 		glBindVertexArray(0);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 		glDisable(GL_CULL_FACE);
 
 		counters.stop(1);
