@@ -226,9 +226,9 @@ public:
 			glCheckError();
 		}
 
+		// Unbind all but the atomic counter buffers.
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
-		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
 		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
@@ -251,22 +251,35 @@ public:
 			mIndirectElements.bind();
 			glDispatchCompute(1u, 1u, 1u);
 
+			// Unbind the atomic buffer now (indirect unbound by input).
+			glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
+
 			// Prepare to run the actual drawing command.
-			glMemoryBarrier(GL_COMMAND_BARRIER_BIT);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffer);
 			glBindVertexArray(mElementsVAO);
 			setupStaticCubes(ref camPosition, ref mat);
+
+			// Flush the memory writes.
+			glMemoryBarrier(GL_COMMAND_BARRIER_BIT |
+			                GL_SHADER_STORAGE_BARRIER_BIT);
 			glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, null);
 		} else {
 			// Make the indirect buffer.
 			mIndirectArray.bind();
 			glDispatchCompute(1u, 1u, 1u);
 
+			// Unbind the atomic buffer and indirect buffer.
+			glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+
 			// Prepare to run the actual drawing command.
-			glMemoryBarrier(GL_COMMAND_BARRIER_BIT);
 			glVertexArrayVertexBuffer(mArrayVAO, 0, buffer, 0, 8);
 			glBindVertexArray(mArrayVAO);
 			setupStaticTracer(ref camPosition, ref mat);
+
+			// Flush the memory writes.
+			glMemoryBarrier(GL_COMMAND_BARRIER_BIT |
+			                GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
 			glDrawArraysIndirect(GL_POINTS, null);
 		}
 
