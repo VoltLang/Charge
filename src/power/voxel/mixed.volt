@@ -66,9 +66,23 @@ protected:
 	mIndirectElements: GfxShader;
 	mIndirectDispatch: GfxShader;
 
+	/// The number of levels in the voxel volume.
+	mVoxelPower: i32;
+	mVoxelPowerStr: string;
+
+	/// The number of levels that the compute shader does in one step.
+	mListLoops: i32;
+	mListPower: i32;
+	mListPowerStr: string;
+
+	/// The level where we generate the cubes.
+	mCubePower: i32;
+	mCubePowerStr: string;
+
 	/// The number of levels that we trace.
-	mTracePower: i32;
-	mTracePowerStr: string;
+	mTracerPower: i32;
+	mTracerPowerStr: string;
+
 
 	mOctTexture: GLuint;
 	mFeedbackQuery: GLuint;
@@ -88,8 +102,15 @@ public:
 		useCubes = true;
 		counters = new Counters("list", "trace");
 
-		mTracePower = 2;
-		mTracePowerStr = format("#define TRACE_POWER %s", mTracePower);
+		mVoxelPower = 11;
+		mVoxelPowerStr = format("#define VOXEL_POWER %s", mVoxelPower);
+		mListLoops = 3;
+		mListPower = 3;
+		mListPowerStr = format("#define LIST_POWER %s", mListPower);
+		mCubePower = mListLoops * mListPower;
+		mCubePowerStr = format("#define CUBE_POWER %s", mCubePower);
+		mTracerPower = mVoxelPower - mCubePower;
+		mTracerPowerStr = format("#define TRACER_POWER %s", mTracerPower);
 
 		// Create the storage for the atomic buffer.
 		glCreateBuffers(1, &mAtomicBuffer);
@@ -184,8 +205,7 @@ public:
 		glNamedBufferSubData(mIndirectBuffer,   0, 4 * 3, cast(void*)[1, 1, 1].ptr);
 		glNamedBufferSubData(mOutputBuffers[0], 4,     4, cast(void*)&frame);
 
-		numSteps := 3u;
-		foreach (i; 0 .. numSteps) {
+		foreach (i; 0 .. mListLoops) {
 			if (i != 0) {
 				// Fill out the indirect buffer.
 				mIndirectDispatch.bind();
@@ -224,7 +244,7 @@ public:
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mIndirectBuffer);
 
 		// Select the correct output buffer.
-		buffer := mOutputBuffers[numSteps];
+		buffer := mOutputBuffers[mListLoops];
 
 		if (useCubes) {
 			// Make the indirect buffer.
@@ -346,7 +366,10 @@ private:
 
 	fn replaceShaderStrings(shader: string) string
 	{
-		shader = replace(shader, "#define TRACE_POWER %%",   mTracePowerStr);
+		shader = replace(shader, "#define TRACER_POWER %%", mTracerPowerStr);
+		shader = replace(shader, "#define CUBE_POWER %%",  mCubePowerStr);
+		shader = replace(shader, "#define LIST_POWER %%",  mListPowerStr);
+		shader = replace(shader, "#define VOXEL_POWER %%", mVoxelPowerStr);
 		return shader;
 	}
 }

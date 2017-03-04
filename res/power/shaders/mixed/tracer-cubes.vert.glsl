@@ -1,7 +1,7 @@
 #version 450 core
 
-#define LIST_POWER 9
-#define DIVISOR (1 << LIST_POWER)
+#define CUBE_POWER %%
+#define DIVISOR (1 << CUBE_POWER)
 #define DIVISOR_INV (1.0 / DIVISOR)
 
 

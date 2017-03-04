@@ -1,6 +1,6 @@
 #version 450 core
 
-#define LIST_POWER 3
+#define LIST_POWER %%
 #define SIZE (1 << LIST_POWER)
 layout(local_size_x = SIZE, local_size_y = SIZE, local_size_z = SIZE) in;
 

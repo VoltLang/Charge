@@ -1,6 +1,6 @@
 #version 450 core
 
-#define CUBE_POWER 9
+#define CUBE_POWER %%
 
 #define DIVISOR (1 << CUBE_POWER)
 #define DIVISOR_INV (1.0 / DIVISOR)
