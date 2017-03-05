@@ -236,8 +236,7 @@ public:
 
 		counters.start(1);
 
-		glCullFace(GL_FRONT);
-		glEnable(GL_CULL_FACE);
+
 
 		// Setup for the indrect buffer.
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, mIndirectBuffer);
@@ -264,6 +263,9 @@ public:
 			                GL_SHADER_STORAGE_BARRIER_BIT);
 			glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, null);
 		} else {
+			glCullFace(GL_FRONT);
+			glEnable(GL_CULL_FACE);
+
 			// Make the indirect buffer.
 			mIndirectArray.bind();
 			glDispatchCompute(1u, 1u, 1u);
@@ -281,11 +283,12 @@ public:
 			glMemoryBarrier(GL_COMMAND_BARRIER_BIT |
 			                GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
 			glDrawArraysIndirect(GL_POINTS, null);
+
+			glDisable(GL_CULL_FACE);
 		}
 
 		glBindVertexArray(0);
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-		glDisable(GL_CULL_FACE);
 
 		counters.stop(1);
 
@@ -324,7 +327,8 @@ private:
 		 */
 
 		num := 662230u;
-		data := [3, 2, 1, 0, 4, 2, 6, 3, 7, 1, 5, 4, 7, 6, 6, 3+8];
+		//data := [3, 2, 1, 0, 4, 2, 6, 3, 7, 1, 5, 4, 7, 6, 6, 3+8];
+		  data := [4, 5, 6, 7, 2, 3, 3, 7, 1, 5, 5, 4+8];
 		length := cast(GLsizeiptr)(data.length * num * 4);
 
 		glCreateBuffers(1, &mIndexBuffer);

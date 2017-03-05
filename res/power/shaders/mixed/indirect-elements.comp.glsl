@@ -16,7 +16,7 @@ layout (binding = 0, std430) buffer BufferOut
 
 void main(void)
 {
-	count = atomicCounter(counter) * 16;
+	count = atomicCounter(counter) * 12;
 	primCount = 1;
 	firstIndex = 0;
 	baseVertex = 0;
