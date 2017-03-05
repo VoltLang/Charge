@@ -182,6 +182,7 @@ public:
 		case 'd': camRight = true; break;
 		case 'q': printInfo(); break;
 		case 'p': resetPosition(); break;
+		case 'o': mUseAA = !mUseAA; break;
 		default:
 		}
 	}

@@ -181,9 +181,10 @@ public:
 		sink.format("Resolution: %sx%s\n", t.width, t.height);
 		sink.format(`w a s d - move camera
 p - reset position
-t - animate
+o - AA (%s)
+t - animate (%s, #%s)
 m - switch renderer
-c - use cubes (%s)`, mixed.useCubes);
+c - use cubes (%s)`, mUseAA, animate, frame, mixed.useCubes);
 		updateText(ss.toString());
 	}
 }
