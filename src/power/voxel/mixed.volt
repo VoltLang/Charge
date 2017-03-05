@@ -56,10 +56,21 @@ public:
 
 
 protected:
-	mNew: GfxShader;
-	mList: GfxShader;
-	mCubes: GfxShader;
-	mTrace: GfxShader;
+	static struct ListInfo
+	{
+		levels: u32;
+	}
+
+	global ListSteps: ListInfo[] = [
+		{ 3 },
+		{ 2 },
+		{ 2 },
+		{ 2 },
+	];
+
+	mList: GfxShader[];
+	mTracerGeom: GfxShader;
+	mTracerCubes: GfxShader;
 
 	// Generating indirect command buffers.
 	mIndirectArray: GfxShader;
@@ -67,20 +78,15 @@ protected:
 	mIndirectDispatch: GfxShader;
 
 	/// The number of levels in the voxel volume.
-	mVoxelPower: i32;
+	mVoxelPower: u32;
 	mVoxelPowerStr: string;
 
-	/// The number of levels that the compute shader does in one step.
-	mListLoops: i32;
-	mListPower: i32;
-	mListPowerStr: string;
-
 	/// The level where we generate the cubes.
-	mCubePower: i32;
+	mCubePower: u32;
 	mCubePowerStr: string;
 
 	/// The number of levels that we trace.
-	mTracerPower: i32;
+	mTracerPower: u32;
 	mTracerPowerStr: string;
 
 
@@ -93,7 +99,7 @@ protected:
 	mIndexBuffer: GLuint;
 	mAtomicBuffer: GLuint;
 	mIndirectBuffer: GLuint;
-	mOutputBuffers: GLuint[10];
+	mOutputBuffers: GLuint[];
 
 
 public:
@@ -104,10 +110,12 @@ public:
 
 		mVoxelPower = 11;
 		mVoxelPowerStr = format("#define VOXEL_POWER %s", mVoxelPower);
-		mListLoops = 3;
-		mListPower = 3;
-		mListPowerStr = format("#define LIST_POWER %s", mListPower);
-		mCubePower = mListLoops * mListPower;
+
+		mList = new GfxShader[](ListSteps.length);
+		foreach (ref e; ListSteps) {
+			mCubePower += e.levels;
+		}
+
 		mCubePowerStr = format("#define CUBE_POWER %s", mCubePower);
 		mTracerPower = mVoxelPower - mCubePower;
 		mTracerPowerStr = format("#define TRACER_POWER %s", mTracerPower);
@@ -116,21 +124,18 @@ public:
 		glCreateBuffers(1, &mAtomicBuffer);
 		glNamedBufferStorage(mAtomicBuffer, 4, null, GL_DYNAMIC_STORAGE_BIT);
 
+		// Indirect command buffer, used for both dispatch and drawing.
 		glCreateBuffers(1, &mIndirectBuffer);
-		glNamedBufferStorage(mIndirectBuffer, 4*16, null, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mIndirectBuffer, 4 * 16, null, GL_DYNAMIC_STORAGE_BIT);
 
 		// Create the big output buffer.
-		glCreateBuffers(10, mOutputBuffers.ptr);
-		glNamedBufferStorage(mOutputBuffers[0], 8, null, GL_DYNAMIC_STORAGE_BIT);
-		glNamedBufferStorage(mOutputBuffers[1], 512*4, null, GL_DYNAMIC_STORAGE_BIT);
-		glNamedBufferStorage(mOutputBuffers[2], 512*512*4, null, GL_DYNAMIC_STORAGE_BIT);
-		glNamedBufferStorage(mOutputBuffers[3], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
-		glNamedBufferStorage(mOutputBuffers[4], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
-		glNamedBufferStorage(mOutputBuffers[5], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
-		glNamedBufferStorage(mOutputBuffers[6], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
-		glNamedBufferStorage(mOutputBuffers[7], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
-		glNamedBufferStorage(mOutputBuffers[8], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
-		glNamedBufferStorage(mOutputBuffers[9], 512*512*8*4, null, GL_DYNAMIC_STORAGE_BIT);
+		mOutputBuffers = new GLuint[](ListSteps.length + 1);
+		glCreateBuffers(cast(GLint)mOutputBuffers.length, mOutputBuffers.ptr);
+		foreach (i, ref buf; mOutputBuffers) {
+			Sizes := [0x8, 0x800, 0x100_0000, 0x200_0000];
+			size := i < Sizes.length ? Sizes[i] : Sizes[$];
+			glNamedBufferStorage(mOutputBuffers[i], size, null, GL_DYNAMIC_STORAGE_BIT);
+		}
 		glClearNamedBufferData(mOutputBuffers[0], GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glCheckError();
 
@@ -151,7 +156,10 @@ public:
 		vert, geom, frag, comp: string;
 
 		comp = cast(string)read("res/power/shaders/mixed/list.comp.glsl");
-		mList = makeShaderC("mixed.list", comp);
+		foreach (i, ref e; ListSteps) {
+			name := format("mixed.list (%s, %s)", i, e.levels);
+			mList[i] = makeListShader(name, comp, ref e);
+		}
 
 		comp = cast(string)read("res/power/shaders/mixed/indirect-array.comp.glsl");
 		mIndirectArray = makeShaderC("mixed.indirect-array", comp);
@@ -162,33 +170,52 @@ public:
 		comp = cast(string)read("res/power/shaders/mixed/indirect-dispatch.comp.glsl");
 		mIndirectDispatch = makeShaderC("mixed.indirect-dispatch", comp);
 
-		vert = cast(string)read("res/power/shaders/mixed/old.vert.glsl");
-		frag = cast(string)read("res/power/shaders/mixed/old.frag.glsl");
-		mTrace = makeShaderVGF("mixed.trace", vert, null, frag);
-
 		vert = cast(string)read("res/power/shaders/mixed/tracer-geom.vert.glsl");
 		geom = cast(string)read("res/power/shaders/mixed/tracer-geom.geom.glsl");
 		frag = cast(string)read("res/power/shaders/mixed/tracer.frag.glsl");
-		mNew = makeShaderVGF("mixed.tracer", vert, geom, frag);
+		mTracerGeom = makeShaderVGF("mixed.tracer", vert, geom, frag);
 
 		vert = cast(string)read("res/power/shaders/mixed/tracer-cubes.vert.glsl");
 		frag = cast(string)read("res/power/shaders/mixed/tracer.frag.glsl");
-		mCubes = makeShaderVGF("mixed.cubes", vert, null, frag);
+		mTracerCubes = makeShaderVGF("mixed.cubes", vert, null, frag);
 	}
 
 	void close()
 	{
+		foreach (ref l; mList) {
+			if (l !is null) {
+				l.breakApart();
+				l = null;
+			}
+		}
+
+		if (mTracerGeom !is null) {
+			mTracerGeom.breakApart();
+			mTracerGeom = null;
+		}
+		if (mTracerCubes !is null) {
+			mTracerCubes.breakApart();
+			mTracerCubes = null;
+		}
+		if (mTracerCubes !is null) {
+			mTracerCubes.breakApart();
+			mTracerCubes = null;
+		}
+		if (mIndirectArray !is null) {
+			mIndirectArray.breakApart();
+			mIndirectArray = null;
+		}
+		if (mIndirectElements !is null) {
+			mIndirectElements.breakApart();
+			mIndirectElements = null;
+		}
+		if (mIndirectDispatch !is null) {
+			mIndirectDispatch.breakApart();
+			mIndirectDispatch = null;
+		}
 		if (counters !is null) {
 			counters.close();
 			counters = null;
-		}
-		if (mList !is null) {
-			mList.breakApart();
-			mList = null;
-		}
-		if (mTrace !is null) {
-			mTrace.breakApart();
-			mTrace = null;
 		}
 	}
 
@@ -205,7 +232,7 @@ public:
 		glNamedBufferSubData(mIndirectBuffer,   0, 4 * 3, cast(void*)[1, 1, 1].ptr);
 		glNamedBufferSubData(mOutputBuffers[0], 4,     4, cast(void*)&frame);
 
-		foreach (i; 0 .. mListLoops) {
+		foreach (i; 0 .. ListSteps.length) {
 			if (i != 0) {
 				// Fill out the indirect buffer.
 				mIndirectDispatch.bind();
@@ -215,7 +242,7 @@ public:
 				glDispatchCompute(1u, 1u, 1u);
 			}
 
-			mList.bind();
+			mList[i].bind();
 			glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[i    ]);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[i + 1]);
@@ -243,7 +270,7 @@ public:
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mIndirectBuffer);
 
 		// Select the correct output buffer.
-		buffer := mOutputBuffers[mListLoops];
+		buffer := mOutputBuffers[ListSteps.length];
 
 		if (useCubes) {
 			// Make the indirect buffer.
@@ -326,7 +353,7 @@ private:
 		 *
 		 */
 
-		num := 662230u;
+		num := 662230u*2;
 		//data := [3, 2, 1, 0, 4, 2, 6, 3, 7, 1, 5, 4, 7, 6, 6, 3+8];
 		  data := [4, 5, 6, 7, 2, 3, 3, 7, 1, 5, 5, 4+8];
 		length := cast(GLsizeiptr)(data.length * num * 4);
@@ -345,26 +372,26 @@ private:
 		glUnmapNamedBuffer(mIndexBuffer);
 	}
 
-	fn setupStaticTrace(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
-	{
-		mTrace.bind();
-		mTrace.matrix4("matrix", 1, false, mat.ptr);
-		mTrace.float3("cameraPos".ptr, camPosition.ptr);
-	}
-
 	fn setupStaticTracer(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
 	{
-		mNew.bind();
-		mNew.matrix4("matrix", 1, false, mat.ptr);
-		mNew.float3("cameraPos".ptr, camPosition.ptr);
+		mTracerGeom.bind();
+		mTracerGeom.matrix4("matrix", 1, false, mat.ptr);
+		mTracerGeom.float3("cameraPos".ptr, camPosition.ptr);
 	}
-
 
 	fn setupStaticCubes(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
 	{
-		mCubes.bind();
-		mCubes.matrix4("matrix", 1, false, mat.ptr);
-		mCubes.float3("cameraPos".ptr, camPosition.ptr);
+		mTracerCubes.bind();
+		mTracerCubes.matrix4("matrix", 1, false, mat.ptr);
+		mTracerCubes.float3("cameraPos".ptr, camPosition.ptr);
+	}
+
+	fn makeListShader(name: string, comp: string, ref e: ListInfo) GfxShader
+	{
+		listPowerStr := format("#define LIST_POWER %s", e.levels);
+		comp = replace(comp, "#define LIST_POWER %%",  listPowerStr);
+		comp = replaceShaderStrings(comp);
+		return new GfxShader(name, comp);
 	}
 
 	fn makeShaderC(name: string, comp: string) GfxShader
@@ -385,7 +412,6 @@ private:
 	{
 		shader = replace(shader, "#define TRACER_POWER %%", mTracerPowerStr);
 		shader = replace(shader, "#define CUBE_POWER %%",  mCubePowerStr);
-		shader = replace(shader, "#define LIST_POWER %%",  mListPowerStr);
 		shader = replace(shader, "#define VOXEL_POWER %%", mVoxelPowerStr);
 		return shader;
 	}
