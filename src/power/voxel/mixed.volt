@@ -210,7 +210,7 @@ public:
 		counters.stop(6);
 
 		counters.start(7);
-		runElementShader(ref camPosition, ref mat, 0, 7, 2);
+		runElementShader(ref camPosition, ref mat, 0, 7, 3);
 		counters.stop(7);
 
 		glBindVertexArray(0);
