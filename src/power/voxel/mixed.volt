@@ -104,10 +104,7 @@ protected:
 public:
 	this(octTexture: GLuint)
 	{
-		counters = new Counters("list   0 -  9", "trace 9 - 11",
-		                        "list   6 -  8", "trace 8 - 11",
-		                        "list   3 -  8", "trace 8 - 10",
-		                        "list   5 -  7", "trace 7 - 10");
+		counters = new Counters("initial", "trace1", "trace2", "trace3");
 
 		{
 			test: GLint;
@@ -119,22 +116,19 @@ public:
 			io.writefln("GL_MAX_COMBINED_ATOMIC_COUNTERS: %s", test);
 		}
 
+		// Premake the shaders.
 		makeComputeDispatchShader(0, 4);
 		makeComputeDispatchShader(1, 4);
 		makeComputeDispatchShader(2, 4);
 		makeComputeDispatchShader(3, 4);
 		makeElementsDispatchShader(0, 4);
-		makeListShader(1, 0, 2, 0, 3, 0.5f);
-		makeListShader(0, 3, 1, 3, 3, 0.3f);
-		makeListShader(3, 0, 1, 6, 3, 0.0f);
-		makeListShader(1, 0, 1, 6, 2, 0.0f);
-		makeListShader(2, 1, 3, 3, 2, 0.6f);
-		makeListShader(1, 0, 1, 5, 3, 0.0f);
-		makeListShader(3, 0, 1, 5, 2, 0.0f);
+		makeListShader(0, 1, 2, 0, 3, 0.0f);
+		makeListShader(1, 0, 3, 3, 2, 0.0f);
+		makeListShader(0, 1, 2, 5, 2, 0.01f);
+		makeListShader(1, 0, 3, 7, 3, 0.0f);
+		makeListShader(2, 0, 3, 7, 2, 0.0f);
+		makeElementsShader(0, 10, 1);
 		makeElementsShader(0, 9, 2);
-		makeElementsShader(0, 8, 3);
-		makeElementsShader(0, 8, 2);
-		makeElementsShader(0, 7, 3);
 
 		// Setup the texture.
 		mOctTexture = octTexture;
@@ -194,40 +188,21 @@ public:
 		glCheckError();
 
 		counters.start(0);
-		initConfig(dst: 1);
-		runListShader(ref camPosition, ref mat, 1, 0, 2, 0, 3, 0.5f);
-		runListShader(ref camPosition, ref mat, 0, 3, 1, 3, 3, 0.3f);
-		runListShader(ref camPosition, ref mat, 3, 0, 1, 6, 3, 0.0f);
+		initConfig(dst: 0);
+		runListShader(ref camPosition, ref mat, 0, 1, 2, 0, 3, 0.0f);
+		runListShader(ref camPosition, ref mat, 1, 0, 3, 3, 2, 0.0f);
+		runListShader(ref camPosition, ref mat, 0, 1, 2, 5, 2, 0.01f);
 		counters.stop(0);
 
 		counters.start(1);
-		runElementShader(ref camPosition, ref mat, 0, 9, 2);
+		runListShader(ref camPosition, ref mat, 1, 0, 3, 7, 3, 0.0f);
+		runElementShader(ref camPosition, ref mat, 0, 10, 1);
 		counters.stop(1);
 
 		counters.start(2);
-		runListShader(ref camPosition, ref mat, 1, 0, 1, 6, 2, 0.0f);
+		runListShader(ref camPosition, ref mat, 2, 0, 3, 7, 2, 0.0f);
+		runElementShader(ref camPosition, ref mat, 0, 9, 2);
 		counters.stop(2);
-
-		counters.start(3);
-		runElementShader(ref camPosition, ref mat, 0, 8, 3);
-		counters.stop(3);
-
-		counters.start(4);
-		runListShader(ref camPosition, ref mat, 2, 1, 3, 3, 2, 0.6f);
-		runListShader(ref camPosition, ref mat, 1, 0, 1, 5, 3, 0.0f);
-		counters.stop(4);
-
-		counters.start(5);
-		runElementShader(ref camPosition, ref mat, 0, 8, 2);
-		counters.stop(5);
-
-		counters.start(6);
-		runListShader(ref camPosition, ref mat, 3, 0, 1, 5, 2, 0.0f);
-		counters.stop(6);
-
-		counters.start(7);
-		runElementShader(ref camPosition, ref mat, 0, 7, 3);
-		counters.stop(7);
 
 		glBindVertexArray(0);
 
