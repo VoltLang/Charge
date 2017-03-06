@@ -179,8 +179,8 @@ public:
 
 		counters.start(0);
 		initConfig(dst: 1);
-		runListShader(ref camPosition, ref mat, 1, 0, 2, 0, 3, 0.4f);
-		runListShader(ref camPosition, ref mat, 0, 3, 1, 3, 3, 0.05f);
+		runListShader(ref camPosition, ref mat, 1, 0, 2, 0, 3, 0.5f);
+		runListShader(ref camPosition, ref mat, 0, 3, 1, 3, 3, 0.3f);
 		runListShader(ref camPosition, ref mat, 3, 0, 1, 6, 3, 0.0f);
 		counters.stop(0);
 
