@@ -100,6 +100,55 @@ public:
 
 		svo = new SVO(octTexture);
 		mixed = new Mixed(octTexture);
+
+		// Set the starting position.
+		resetPosition(1);
+	}
+
+	fn resetPosition(pos: i32)
+	{
+		switch (pos) {
+		default:
+		case 1:
+			// Down the alley.
+			camHeading = 0.f;
+			camPitch = 0.f;
+			camPosition = math.Point3f.opCall(0.20f, 0.20f, 1.0f);
+			break;
+		case 2:
+			camHeading = 0.020998f;
+			camPitch = 0.108000f;
+			camPosition = math.Point3f.opCall(0.172619f, 0.120140f, 0.939102f);
+			break;
+		case 3:
+			// Outside looking down.
+			camHeading = -1.182002f;
+			camPitch = -0.576000f;
+			camPosition = math.Point3f.opCall(-0.282043f, 0.623386f, 0.813192f);
+			break;
+		case 4:
+			camHeading = 1.586998f;
+			camPitch = 0.150000f;
+			camPosition = math.Point3f.opCall(0.304225f, 0.137506f, 0.626945f);
+			break;
+		case 5:
+			camHeading = 1.565997f;
+			camPitch = -0.012000f;
+			camPosition = math.Point3f.opCall(0.320065f, 0.133823f, 0.617499f);
+			break;
+		case 6:
+			camHeading = 3.452999f;
+			camPitch = 0.189000f;
+			camPosition = math.Point3f.opCall(0.106617f, 0.135277f, 0.269312f);
+			break;
+		}
+	}
+
+	fn stepFrame()
+	{
+		if ((frame += 1) >= frames.length) {
+			frame = 0;
+		}
 	}
 
 
@@ -121,11 +170,22 @@ public:
 	override fn keyDown(device: CtlKeyboard, keycode: int)
 	{
 		switch (keycode) {
+		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+			resetPosition(keycode - '0');
+			break;
 		case 'm': useSVO = !useSVO; break;
 		case 't': animate = !animate; break;
-		case 'c': mixed.useCubes = !mixed.useCubes; break;
+		case 'y': stepFrame(); break;
 		default: super.keyDown(device, keycode);
 		}
+	}
+
+	override fn logic()
+	{
+		if (animate) {
+			stepFrame();
+		}
+		super.logic();
 	}
 
 
@@ -155,9 +215,6 @@ public:
 			svo.draw(ref camPosition, ref proj);
 		} else {
 			mixed.frame = frames[frame];
-			if ((frame += animate) >= frames.length) {
-				frame = 0;
-			}
 			mixed.draw(ref camPosition, ref proj);
 		}
 
@@ -180,11 +237,11 @@ public:
 		}
 		sink.format("Resolution: %sx%s\n", t.width, t.height);
 		sink.format(`w a s d - move camera
-p - reset position
+1 2 3 4 5 6 - reset position
 o - AA (%s)
-t - animate (%s, #%s)
-m - switch renderer
-c - use cubes (%s)`, mUseAA, animate, frame, mixed.useCubes);
+t - animate (%s)
+y - step frame (#%s)
+m - switch renderer`, mUseAA, animate, frame);
 		updateText(ss.toString());
 	}
 }

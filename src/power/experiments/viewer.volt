@@ -41,7 +41,6 @@ public:
 	this(g: GameSceneManager)
 	{
 		super(g, Type.Game);
-		resetPosition();
 		mUseAA = false;
 
 		textState.glyphWidth = cast(int)gfxBitmapTexture.width / 16;
@@ -85,13 +84,6 @@ public:
 		io.writefln("%3s %3s %3s", x, y, z);
 	}
 
-	fn resetPosition()
-	{
-		camHeading = -1.182002f;
-		camPitch = -0.576000f;
-		camPosition = math.Point3f.opCall(-0.282043f, 0.623386f, 0.813192f);
-		distance = 1.0;
-	}
 
 	/*
 	 *
@@ -181,7 +173,6 @@ public:
 		case 'a': camLeft = true; break;
 		case 'd': camRight = true; break;
 		case 'q': printInfo(); break;
-		case 'p': resetPosition(); break;
 		case 'o': mUseAA = !mUseAA; break;
 		default:
 		}
