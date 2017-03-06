@@ -64,9 +64,9 @@ public:
 			val := samples[i].calc();
 			total += val;
 			val /= (1_000_000_000 / 1_000_000u);
-			format(sink, " % 9s:% 2s.%03sms\n", names[i], val / 1000, val % 1000);
+			format(sink, " % 14s:% 2s.%03sms\n", names[i], val / 1000, val % 1000);
 		}
 		total /= (1_000_000_000 / 1_000_000u);
-		format(sink, " % 9s:% 2s.%03sms\n", "total", total / 1000, total % 1000);
+		format(sink, " % 14s:% 2s.%03sms\n", "total", total / 1000, total % 1000);
 	}
 }

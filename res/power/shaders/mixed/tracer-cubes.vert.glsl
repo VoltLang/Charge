@@ -1,6 +1,10 @@
 #version 450 core
 
-#define CUBE_POWER %%
+#define VOXEL_SRC %%
+#define POWER_START %%
+#define POWER_LEVELS %%
+
+#define CUBE_POWER POWER_START
 #define DIVISOR (1 << CUBE_POWER)
 #define DIVISOR_INV (1.0 / DIVISOR)
 
@@ -13,7 +17,7 @@ layout (location = 3) out flat uint outOffset;
 uniform mat4 matrix;
 uniform vec3 cameraPos;
 
-layout (binding = 0, std430) buffer BufferIn
+layout (binding = VOXEL_SRC, std430) buffer BufferIn
 {
 	uint inData[];
 };

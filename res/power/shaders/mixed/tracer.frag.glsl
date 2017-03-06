@@ -1,7 +1,10 @@
 #version 450 core
 
-#define VOXEL_POWER %%
-#define TRACER_POWER %%
+#define POWER_START %%
+#define POWER_LEVELS %%
+
+#define VOXEL_POWER (POWER_START + POWER_LEVELS)
+#define TRACER_POWER POWER_LEVELS
 #define MAX_ITERATIONS 500
 
 layout (location = 0) in vec3 inPosition;

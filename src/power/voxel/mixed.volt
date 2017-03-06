@@ -56,39 +56,39 @@ public:
 
 
 protected:
-	static struct ListInfo
+	static class VoxelBuffer
 	{
-		levels: u32;
+		bufferSource: u32;
+		bufferDst1: u32;
+		bufferDst2: u32;
+		distance: f32;
+
+		dispatchShader: GfxShader;
+		drawShader: GfxShader;
 	}
 
-	global ListSteps: ListInfo[] = [
-		{ 3 },
-		{ 2 },
-		{ 2 },
-		{ 2 },
-	];
+	static class DrawPass
+	{
+		bufferSource: u32;
+		powerStart: u32;
+		powerNum: u32;
 
-	mList: GfxShader[];
-	mTracerGeom: GfxShader;
-	mTracerCubes: GfxShader;
+		dispatchShader: GfxShader;
+		drawShader: GfxShader;
+	}
 
-	// Generating indirect command buffers.
-	mIndirectArray: GfxShader;
-	mIndirectElements: GfxShader;
-	mIndirectDispatch: GfxShader;
+	static struct PassInfo
+	{
+		powerStart: u32;
+		powerNum: u32;
+		bufSrc: u32;
+		bufDst1: u32;
+		bufDst2: u32;
+		distance: f32;
+		draw: bool;
+	}
 
-	/// The number of levels in the voxel volume.
-	mVoxelPower: u32;
-	mVoxelPowerStr: string;
-
-	/// The level where we generate the cubes.
-	mCubePower: u32;
-	mCubePowerStr: string;
-
-	/// The number of levels that we trace.
-	mTracerPower: u32;
-	mTracerPowerStr: string;
-
+	mShaderStore: GfxShader[string];
 
 	mOctTexture: GLuint;
 	mFeedbackQuery: GLuint;
@@ -105,39 +105,23 @@ protected:
 public:
 	this(octTexture: GLuint)
 	{
-		useCubes = true;
-		counters = new Counters("list", "trace");
+		counters = new Counters("list   0 -  9", "trace 9 - 11",
+		                        "list   6 -  8", "trace 8 - 11",
+		                        "list   3 -  8", "trace 8 - 10",
+		                        "list   5 -  7", "trace 7 - 10");
 
-		mVoxelPower = 11;
-		mVoxelPowerStr = format("#define VOXEL_POWER %s", mVoxelPower);
-
-		mList = new GfxShader[](ListSteps.length);
-		foreach (ref e; ListSteps) {
-			mCubePower += e.levels;
+		{
+			test: GLint;
+			glGetIntegerv(GL_MAX_COMPUTE_ATOMIC_COUNTERS, &test);
+			io.writefln("GL_MAX_COMPUTE_ATOMIC_COUNTERS: %s", test);
+			glGetIntegerv(GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS, &test);
+			io.writefln("GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS: %s", test);
+			glGetIntegerv(GL_MAX_COMBINED_ATOMIC_COUNTERS, &test);
+			io.writefln("GL_MAX_COMBINED_ATOMIC_COUNTERS: %s", test);
 		}
 
-		mCubePowerStr = format("#define CUBE_POWER %s", mCubePower);
-		mTracerPower = mVoxelPower - mCubePower;
-		mTracerPowerStr = format("#define TRACER_POWER %s", mTracerPower);
-
-		// Create the storage for the atomic buffer.
-		glCreateBuffers(1, &mAtomicBuffer);
-		glNamedBufferStorage(mAtomicBuffer, 4, null, GL_DYNAMIC_STORAGE_BIT);
-
-		// Indirect command buffer, used for both dispatch and drawing.
-		glCreateBuffers(1, &mIndirectBuffer);
-		glNamedBufferStorage(mIndirectBuffer, 4 * 16, null, GL_DYNAMIC_STORAGE_BIT);
-
-		// Create the big output buffer.
-		mOutputBuffers = new GLuint[](ListSteps.length + 1);
-		glCreateBuffers(cast(GLint)mOutputBuffers.length, mOutputBuffers.ptr);
-		foreach (i, ref buf; mOutputBuffers) {
-			Sizes := [0x8, 0x800, 0x100_0000, 0x200_0000];
-			size := i < Sizes.length ? Sizes[i] : Sizes[$];
-			glNamedBufferStorage(mOutputBuffers[i], size, null, GL_DYNAMIC_STORAGE_BIT);
-		}
-		glClearNamedBufferData(mOutputBuffers[0], GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
-		glCheckError();
+		// Setup the texture.
+		mOctTexture = octTexture;
 
 		// Setup a VAO.
 		createIndexBuffer();
@@ -145,183 +129,170 @@ public:
 		glVertexArrayElementBuffer(mElementsVAO, mIndexBuffer);
 
 		glCreateVertexArrays(1, &mArrayVAO);
-		glVertexArrayVertexBuffer(mArrayVAO, 0, mOutputBuffers[3], 0, 8);
+		glVertexArrayVertexBuffer(mArrayVAO, 0, 0, 0, 8);
 		glVertexArrayAttribIFormat(mArrayVAO, 0, 2, GL_UNSIGNED_INT, 0);
 		glVertexArrayAttribBinding(mArrayVAO, 0, 0);
 		glEnableVertexArrayAttrib(mArrayVAO, 0);
 
-		mOctTexture = octTexture;
-		glGenQueries(1, &mFeedbackQuery);
+		// Create the storage for the atomic buffer.
+		glCreateBuffers(1, &mAtomicBuffer);
+		glNamedBufferStorage(mAtomicBuffer, 8 * 4, null, GL_DYNAMIC_STORAGE_BIT);
 
-		vert, geom, frag, comp: string;
+		// Indirect command buffer, used for both dispatch and drawing.
+		glCreateBuffers(1, &mIndirectBuffer);
+		glNamedBufferStorage(mIndirectBuffer, 4 * 16, null, GL_DYNAMIC_STORAGE_BIT);
 
-		comp = cast(string)read("res/power/shaders/mixed/list.comp.glsl");
-		foreach (i, ref e; ListSteps) {
-			name := format("mixed.list (%s, %s)", i, e.levels);
-			mList[i] = makeListShader(name, comp, ref e);
+		// Create the storage for the voxel lists.
+		mOutputBuffers = new GLuint[](4);
+		glCreateBuffers(cast(GLint)mOutputBuffers.length, mOutputBuffers.ptr);
+		foreach (i, ref buf; mOutputBuffers) {
+			glNamedBufferStorage(mOutputBuffers[i], 0x200_0000, null, GL_DYNAMIC_STORAGE_BIT);
 		}
-
-		comp = cast(string)read("res/power/shaders/mixed/indirect-array.comp.glsl");
-		mIndirectArray = makeShaderC("mixed.indirect-array", comp);
-
-		comp = cast(string)read("res/power/shaders/mixed/indirect-elements.comp.glsl");
-		mIndirectElements = makeShaderC("mixed.indirect-elements", comp);
-
-		comp = cast(string)read("res/power/shaders/mixed/indirect-dispatch.comp.glsl");
-		mIndirectDispatch = makeShaderC("mixed.indirect-dispatch", comp);
-
-		vert = cast(string)read("res/power/shaders/mixed/tracer-geom.vert.glsl");
-		geom = cast(string)read("res/power/shaders/mixed/tracer-geom.geom.glsl");
-		frag = cast(string)read("res/power/shaders/mixed/tracer.frag.glsl");
-		mTracerGeom = makeShaderVGF("mixed.tracer", vert, geom, frag);
-
-		vert = cast(string)read("res/power/shaders/mixed/tracer-cubes.vert.glsl");
-		frag = cast(string)read("res/power/shaders/mixed/tracer.frag.glsl");
-		mTracerCubes = makeShaderVGF("mixed.cubes", vert, null, frag);
 	}
 
 	void close()
 	{
-		foreach (ref l; mList) {
-			if (l !is null) {
-				l.breakApart();
-				l = null;
-			}
-		}
-
-		if (mTracerGeom !is null) {
-			mTracerGeom.breakApart();
-			mTracerGeom = null;
-		}
-		if (mTracerCubes !is null) {
-			mTracerCubes.breakApart();
-			mTracerCubes = null;
-		}
-		if (mTracerCubes !is null) {
-			mTracerCubes.breakApart();
-			mTracerCubes = null;
-		}
-		if (mIndirectArray !is null) {
-			mIndirectArray.breakApart();
-			mIndirectArray = null;
-		}
-		if (mIndirectElements !is null) {
-			mIndirectElements.breakApart();
-			mIndirectElements = null;
-		}
-		if (mIndirectDispatch !is null) {
-			mIndirectDispatch.breakApart();
-			mIndirectDispatch = null;
-		}
-		if (counters !is null) {
-			counters.close();
-			counters = null;
-		}
 	}
 
 	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
 	{
+		s: GfxShader;
+
 		glCheckError();
 		glBindTextureUnit(0, mOctTexture);
 
-		counters.start(0);
+		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 
 		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, mAtomicBuffer);
 		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, mIndirectBuffer);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, mIndirectBuffer);
 
-		glNamedBufferSubData(mIndirectBuffer,   0, 4 * 3, cast(void*)[1, 1, 1].ptr);
-		glNamedBufferSubData(mOutputBuffers[0], 4,     4, cast(void*)&frame);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[0]);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[1]);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mOutputBuffers[2]);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, mOutputBuffers[3]);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, mIndirectBuffer);
 
-		foreach (i; 0 .. ListSteps.length) {
-			if (i != 0) {
-				// Fill out the indirect buffer.
-				mIndirectDispatch.bind();
-				glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
-				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mIndirectBuffer);
-				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
-				glDispatchCompute(1u, 1u, 1u);
-			}
+		glBindVertexArray(mElementsVAO);
 
-			mList[i].bind();
-			glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[i    ]);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[i + 1]);
-			glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
-			                GL_SHADER_STORAGE_BARRIER_BIT |
-			                GL_COMMAND_BARRIER_BIT);
-			glDispatchComputeIndirect(0);
-			glCheckError();
-		}
+		glCheckError();
 
-		// Unbind all but the atomic counter buffers.
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
-		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
-		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
+		counters.start(0);
+		initConfig(dst: 1);
+		runListShader(ref camPosition, ref mat, 1, 0, 2, 0, 3, 0.4f);
+		runListShader(ref camPosition, ref mat, 0, 3, 1, 3, 3, 0.05f);
+		runListShader(ref camPosition, ref mat, 3, 0, 1, 6, 3, 0.0f);
 		counters.stop(0);
 
 		counters.start(1);
-
-
-
-		// Setup for the indrect buffer.
-		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, mIndirectBuffer);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mIndirectBuffer);
-
-		// Select the correct output buffer.
-		buffer := mOutputBuffers[ListSteps.length];
-
-		if (useCubes) {
-			// Make the indirect buffer.
-			mIndirectElements.bind();
-			glDispatchCompute(1u, 1u, 1u);
-
-			// Unbind the atomic buffer now (indirect unbound by input).
-			glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
-
-			// Prepare to run the actual drawing command.
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffer);
-			glBindVertexArray(mElementsVAO);
-			setupStaticCubes(ref camPosition, ref mat);
-
-			// Flush the memory writes.
-			glMemoryBarrier(GL_COMMAND_BARRIER_BIT |
-			                GL_SHADER_STORAGE_BARRIER_BIT);
-			glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, null);
-		} else {
-			glCullFace(GL_FRONT);
-			glEnable(GL_CULL_FACE);
-
-			// Make the indirect buffer.
-			mIndirectArray.bind();
-			glDispatchCompute(1u, 1u, 1u);
-
-			// Unbind the atomic buffer and indirect buffer.
-			glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
-
-			// Prepare to run the actual drawing command.
-			glVertexArrayVertexBuffer(mArrayVAO, 0, buffer, 0, 8);
-			glBindVertexArray(mArrayVAO);
-			setupStaticTracer(ref camPosition, ref mat);
-
-			// Flush the memory writes.
-			glMemoryBarrier(GL_COMMAND_BARRIER_BIT |
-			                GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
-			glDrawArraysIndirect(GL_POINTS, null);
-
-			glDisable(GL_CULL_FACE);
-		}
-
-		glBindVertexArray(0);
-		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-
+		runElementShader(ref camPosition, ref mat, 0, 9, 2);
 		counters.stop(1);
 
-		glUseProgram(0);
-		glBindTextureUnit(0, 0);
+		counters.start(2);
+		runListShader(ref camPosition, ref mat, 1, 0, 1, 6, 2, 0.0f);
+		counters.stop(2);
+
+		counters.start(3);
+		runElementShader(ref camPosition, ref mat, 0, 8, 3);
+		counters.stop(3);
+
+		counters.start(4);
+		runListShader(ref camPosition, ref mat, 2, 1, 3, 3, 2, 0.6f);
+		runListShader(ref camPosition, ref mat, 1, 0, 1, 5, 3, 0.0f);
+		counters.stop(4);
+
+		counters.start(5);
+		runElementShader(ref camPosition, ref mat, 0, 8, 2);
+		counters.stop(5);
+
+		counters.start(6);
+		runListShader(ref camPosition, ref mat, 3, 0, 1, 5, 2, 0.0f);
+		counters.stop(6);
+
+		counters.start(7);
+		runElementShader(ref camPosition, ref mat, 0, 7, 2);
+		counters.stop(7);
+
+		glBindVertexArray(0);
+
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, 0);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, 0);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
+		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
 		glCheckError();
+	}
+
+	fn initConfig(dst: u32)
+	{
+		one := 1;
+		glNamedBufferSubData(mAtomicBuffer, dst * 4, 4, cast(void*)&one);
+		glNamedBufferSubData(mOutputBuffers[dst], 0, 8, cast(void*)[0, frame].ptr);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+		                GL_SHADER_STORAGE_BARRIER_BIT);
+	}
+
+	fn runComputeDispatch(src: u32)
+	{
+		s := makeComputeDispatchShader(src, 4);
+		s.bind();
+		glDispatchCompute(1u, 1u, 1u);
+		zero := 0;
+		glNamedBufferSubData(mAtomicBuffer, src * 4, 4, cast(void*)&zero);
+	}
+
+	fn runListShader(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f,
+	                  src: u32, dst1: u32, dst2: u32,
+	                  powerStart: u32, powerLevels: u32, dist: f32)
+	{
+		// Setup the indirect buffer first.
+		runComputeDispatch(src);
+
+		s := makeListShader(src, dst1, dst2, powerStart, powerLevels, dist);
+		s.bind();
+		s.float3("cameraPos".ptr, camPosition.ptr);
+		s.matrix4("matrix", 1, false, mat.ptr);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+		                GL_SHADER_STORAGE_BARRIER_BIT |
+		                GL_COMMAND_BARRIER_BIT);
+		glDispatchComputeIndirect(0);
+	}
+
+	fn runElementsDispatch(src: u32)
+	{
+		s := makeElementsDispatchShader(src, 4);
+		s.bind();
+		glDispatchCompute(1u, 1u, 1u);
+		zero := 0;
+		glNamedBufferSubData(mAtomicBuffer, src * 4, 4, cast(void*)&zero);
+	}
+
+	fn runElementShader(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f,
+	                    src: u32, powerStart: u32, powerLevels: u32)
+	{
+		runElementsDispatch(src);
+
+		s := makeDrawElementsShader(src, powerStart, powerLevels);
+		s.bind();
+		s.float3("cameraPos".ptr, camPosition.ptr);
+		s.matrix4("matrix", 1, false, mat.ptr);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+		                GL_SHADER_STORAGE_BARRIER_BIT |
+		                GL_COMMAND_BARRIER_BIT);
+		glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, null);
+	}
+
+	fn debugCounter(str: string, src: u32)
+	{
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+		                GL_SHADER_STORAGE_BARRIER_BIT);
+		val: u32; 
+		glGetNamedBufferSubData(mAtomicBuffer, src * 4, 4, cast(void*)&val); 
+		io.writefln("%s: %s", str, val); 
 	}
 
 
@@ -372,47 +343,91 @@ private:
 		glUnmapNamedBuffer(mIndexBuffer);
 	}
 
-	fn setupStaticTracer(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
+	fn makeComputeDispatchShader(src: u32, dst: u32) GfxShader
 	{
-		mTracerGeom.bind();
-		mTracerGeom.matrix4("matrix", 1, false, mat.ptr);
-		mTracerGeom.float3("cameraPos".ptr, camPosition.ptr);
+		name := format("mixed.comp-dispatch (src: %s, dst: %s)", src, dst);
+		if (s := name in mShaderStore) {
+			return *s;
+		}
+
+		indSrcStr := format("#define INDIRECT_SRC %s", src);
+		indDstStr := format("#define INDIRECT_DST %s", dst);
+
+		comp := cast(string)read("res/power/shaders/mixed/indirect-dispatch.comp.glsl");
+		comp = replace(comp, "#define INDIRECT_SRC %%", indSrcStr);
+		comp = replace(comp, "#define INDIRECT_DST %%", indDstStr);
+
+		s := new GfxShader(name, comp);
+		mShaderStore[name] = s;
+		return s;
 	}
 
-	fn setupStaticCubes(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
+	fn makeElementsDispatchShader(src: u32, dst: u32) GfxShader
 	{
-		mTracerCubes.bind();
-		mTracerCubes.matrix4("matrix", 1, false, mat.ptr);
-		mTracerCubes.float3("cameraPos".ptr, camPosition.ptr);
+		name := format("mixed.elements-dispatch (src: %s, dst: %s)", src, dst);
+		if (s := name in mShaderStore) {
+			return *s;
+		}
+
+		indSrcStr := format("#define INDIRECT_SRC %s", src);
+		indDstStr := format("#define INDIRECT_DST %s", dst);
+
+		comp := cast(string)read("res/power/shaders/mixed/indirect-elements.comp.glsl");
+		comp = replace(comp, "#define INDIRECT_SRC %%", indSrcStr);
+		comp = replace(comp, "#define INDIRECT_DST %%", indDstStr);
+
+		s := new GfxShader(name, comp);
+		mShaderStore[name] = s;
+		return s;
 	}
 
-	fn makeListShader(name: string, comp: string, ref e: ListInfo) GfxShader
+	fn makeListShader(src: u32, dst1: u32, dst2: u32,
+	                  powerStart: u32, powerLevels: u32, dist: f32) GfxShader
 	{
-		listPowerStr := format("#define LIST_POWER %s", e.levels);
-		comp = replace(comp, "#define LIST_POWER %%",  listPowerStr);
-		comp = replaceShaderStrings(comp);
-		return new GfxShader(name, comp);
+		name := format("mixed.list (src: %s, dst1: %s, dst2: %s, powerStart: %s, powerLevels: %s)",
+			src, dst1, dst2, powerStart, powerLevels);
+		if (s := name in mShaderStore) {
+			return *s;
+		}
+
+		comp := cast(string)read("res/power/shaders/mixed/list.comp.glsl");
+		comp = replace(comp, "%VOXEL_SRC%", format("%s", src));
+		comp = replace(comp, "%VOXEL_DST1%", format("%s", dst1));
+		comp = replace(comp, "%VOXEL_DST2%", format("%s", dst2));
+		comp = replace(comp, "%POWER_START%", format("%s", powerStart));
+		comp = replace(comp, "%POWER_LEVELS%", format("%s", powerLevels));
+		comp = replace(comp, "%POWER_DISTANCE%", format("%s", dist));
+		if (dist > 0.0001) {
+			comp = replace(comp, "#undef LIST_DO_TAG", "#define LIST_DO_TAG");
+		}
+		s := new GfxShader(name, comp);
+		mShaderStore[name] = s;
+		return s;
 	}
 
-	fn makeShaderC(name: string, comp: string) GfxShader
+	fn makeDrawElementsShader(src: u32, powerStart: u32, powerLevels: u32) GfxShader
 	{
-		comp = replaceShaderStrings(comp);
-		return new GfxShader(name, comp);
-	}
+		name := format("mixed.tracer (src: %s, start: %s, levels: %s)",
+			src, powerStart, powerLevels);
+		if (s := name in mShaderStore) {
+			return *s;
+		}
 
-	fn makeShaderVGF(name: string, vert: string, geom: string, frag: string) GfxShader
-	{
-		vert = replaceShaderStrings(vert);
-		geom = replaceShaderStrings(geom);
-		frag = replaceShaderStrings(frag);
-		return new GfxShader(name, vert, geom, frag);
-	}
+		voxelSrcStr := format("#define VOXEL_SRC %s", src);
+		powerStartStr := format("#define POWER_START %s", powerStart);
+		powerLevelsStr := format("#define POWER_LEVELS %s", powerLevels);
 
-	fn replaceShaderStrings(shader: string) string
-	{
-		shader = replace(shader, "#define TRACER_POWER %%", mTracerPowerStr);
-		shader = replace(shader, "#define CUBE_POWER %%",  mCubePowerStr);
-		shader = replace(shader, "#define VOXEL_POWER %%", mVoxelPowerStr);
-		return shader;
+		vert := cast(string)read("res/power/shaders/mixed/tracer-cubes.vert.glsl");
+		vert = replace(vert, "#define VOXEL_SRC %%", voxelSrcStr);
+		vert = replace(vert, "#define POWER_START %%", powerStartStr);
+		vert = replace(vert, "#define POWER_LEVELS %%", powerLevelsStr);
+		frag := cast(string)read("res/power/shaders/mixed/tracer.frag.glsl");
+		frag = replace(frag, "#define VOXEL_SRC %%", voxelSrcStr);
+		frag = replace(frag, "#define POWER_START %%", powerStartStr);
+		frag = replace(frag, "#define POWER_LEVELS %%", powerLevelsStr);
+
+		s := new GfxShader(name, vert, null, frag);
+		mShaderStore[name] = s;
+		return s;
 	}
 }
