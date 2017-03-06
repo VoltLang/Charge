@@ -13,7 +13,6 @@ import math = charge.math;
 
 import power.util.counters;
 import power.voxel.dag;
-import power.voxel.boxel;
 import power.voxel.instance;
 
 
