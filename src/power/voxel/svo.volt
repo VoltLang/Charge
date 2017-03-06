@@ -105,22 +105,22 @@ public:
 
 		vert, geom, frag: string;
 
-		vert = cast(string)read("res/power/shaders/svo/feedback.vert.glsl");
-		geom = cast(string)read("res/power/shaders/svo/feedback.geom.glsl");
+		vert = cast(string)import("power/old/svo/feedback.vert.glsl");
+		geom = cast(string)import("power/old/svo/feedback.geom.glsl");
 		mFeedback = makeShaderVGF("svo.feedback", vert, geom, null);
 
-		vert = cast(string)read("res/power/shaders/svo/occlude.vert.glsl");
-		geom = cast(string)read("res/power/shaders/svo/occlude.geom.glsl");
-		frag = cast(string)read("res/power/shaders/svo/occlude.frag.glsl");
+		vert = cast(string)import("power/old/svo/occlude.vert.glsl");
+		geom = cast(string)import("power/old/svo/occlude.geom.glsl");
+		frag = cast(string)import("power/old/svo/occlude.frag.glsl");
 		mOcclude = makeShaderVGF("svo.occlude", vert, geom, frag);
 
-		vert = cast(string)read("res/power/shaders/svo/prune.vert.glsl");
-		geom = cast(string)read("res/power/shaders/svo/prune.geom.glsl");
+		vert = cast(string)import("power/old/svo/prune.vert.glsl");
+		geom = cast(string)import("power/old/svo/prune.geom.glsl");
 		mPrune = makeShaderVGF("svo.prune", vert, geom, null);
 
-		vert = cast(string)read("res/power/shaders/svo/tracer.vert.glsl");
-		geom = cast(string)read("res/power/shaders/svo/tracer.geom.glsl");
-		frag = cast(string)read("res/power/shaders/svo/tracer.frag.glsl");
+		vert = cast(string)import("power/old/svo/tracer.vert.glsl");
+		geom = cast(string)import("power/old/svo/tracer.geom.glsl");
+		frag = cast(string)import("power/old/svo/tracer.frag.glsl");
 		mTracer = makeShaderVGF("svo.tracer", vert, geom, frag);
 
 

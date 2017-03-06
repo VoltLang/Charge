@@ -4,7 +4,6 @@ module power.voxel.mixed;
 
 import watt.text.string;
 import watt.text.format;
-import watt.io.file;
 import io = watt.io;
 
 import charge.gfx;
@@ -359,7 +358,7 @@ private:
 		indSrcStr := format("#define INDIRECT_SRC %s", src);
 		indDstStr := format("#define INDIRECT_DST %s", dst);
 
-		comp := cast(string)read("res/power/shaders/mixed/indirect-dispatch.comp.glsl");
+		comp := cast(string)import("power/shaders/indirect-dispatch.comp.glsl");
 		comp = replace(comp, "#define INDIRECT_SRC %%", indSrcStr);
 		comp = replace(comp, "#define INDIRECT_DST %%", indDstStr);
 
@@ -378,7 +377,7 @@ private:
 		indSrcStr := format("#define INDIRECT_SRC %s", src);
 		indDstStr := format("#define INDIRECT_DST %s", dst);
 
-		comp := cast(string)read("res/power/shaders/mixed/indirect-elements.comp.glsl");
+		comp := cast(string)import("power/shaders/indirect-elements.comp.glsl");
 		comp = replace(comp, "#define INDIRECT_SRC %%", indSrcStr);
 		comp = replace(comp, "#define INDIRECT_DST %%", indDstStr);
 
@@ -396,7 +395,7 @@ private:
 			return *s;
 		}
 
-		comp := cast(string)read("res/power/shaders/mixed/list.comp.glsl");
+		comp := cast(string)import("power/shaders/list.comp.glsl");
 		comp = replace(comp, "%VOXEL_SRC%", format("%s", src));
 		comp = replace(comp, "%VOXEL_DST1%", format("%s", dst1));
 		comp = replace(comp, "%VOXEL_DST2%", format("%s", dst2));
@@ -423,11 +422,11 @@ private:
 		powerStartStr := format("#define POWER_START %s", powerStart);
 		powerLevelsStr := format("#define POWER_LEVELS %s", powerLevels);
 
-		vert := cast(string)read("res/power/shaders/mixed/tracer-cubes.vert.glsl");
+		vert := cast(string)import("power/shaders/tracer.vert.glsl");
 		vert = replace(vert, "#define VOXEL_SRC %%", voxelSrcStr);
 		vert = replace(vert, "#define POWER_START %%", powerStartStr);
 		vert = replace(vert, "#define POWER_LEVELS %%", powerLevelsStr);
-		frag := cast(string)read("res/power/shaders/mixed/tracer.frag.glsl");
+		frag := cast(string)import("power/shaders/tracer.frag.glsl");
 		frag = replace(frag, "#define VOXEL_SRC %%", voxelSrcStr);
 		frag = replace(frag, "#define POWER_START %%", powerStartStr);
 		frag = replace(frag, "#define POWER_LEVELS %%", powerLevelsStr);
