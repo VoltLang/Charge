@@ -230,7 +230,8 @@ public:
 	fn initConfig(dst: u32)
 	{
 		one := 1;
-		glNamedBufferSubData(mAtomicBuffer, dst * 4, 4, cast(void*)&one);
+		offset := cast(GLintptr)(dst * 4);
+		glNamedBufferSubData(mAtomicBuffer, offset, 4, cast(void*)&one);
 		glNamedBufferSubData(mOutputBuffers[dst], 0, 8, cast(void*)[0, frame].ptr);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
 		                GL_SHADER_STORAGE_BARRIER_BIT);
@@ -242,7 +243,8 @@ public:
 		s.bind();
 		glDispatchCompute(1u, 1u, 1u);
 		zero := 0;
-		glNamedBufferSubData(mAtomicBuffer, src * 4, 4, cast(void*)&zero);
+		offset := cast(GLintptr)(src * 4);
+		glNamedBufferSubData(mAtomicBuffer, offset, 4, cast(void*)&zero);
 	}
 
 	fn runListShader(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f,
@@ -268,7 +270,8 @@ public:
 		s.bind();
 		glDispatchCompute(1u, 1u, 1u);
 		zero := 0;
-		glNamedBufferSubData(mAtomicBuffer, src * 4, 4, cast(void*)&zero);
+		offset := cast(GLintptr)(src * 4);
+		glNamedBufferSubData(mAtomicBuffer, offset, 4, cast(void*)&zero);
 	}
 
 	fn runElementShader(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f,
