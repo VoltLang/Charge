@@ -293,8 +293,9 @@ public:
 	{
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
 		                GL_SHADER_STORAGE_BARRIER_BIT);
-		val: u32; 
-		glGetNamedBufferSubData(mAtomicBuffer, src * 4, 4, cast(void*)&val); 
+		val: u32;
+		offset := cast(GLintptr)(src * 4);
+		glGetNamedBufferSubData(mAtomicBuffer, offset, 4, cast(void*)&val); 
 		io.writefln("%s: %s", str, val); 
 	}
 
