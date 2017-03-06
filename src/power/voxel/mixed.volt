@@ -239,6 +239,7 @@ public:
 
 	fn runComputeDispatch(src: u32)
 	{
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		s := makeComputeDispatchShader(src, 4);
 		s.bind();
 		glDispatchCompute(1u, 1u, 1u);
@@ -266,6 +267,7 @@ public:
 
 	fn runElementsDispatch(src: u32)
 	{
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		s := makeElementsDispatchShader(src, 4);
 		s.bind();
 		glDispatchCompute(1u, 1u, 1u);
