@@ -119,6 +119,23 @@ public:
 			io.writefln("GL_MAX_COMBINED_ATOMIC_COUNTERS: %s", test);
 		}
 
+		makeComputeDispatchShader(0, 4);
+		makeComputeDispatchShader(1, 4);
+		makeComputeDispatchShader(2, 4);
+		makeComputeDispatchShader(3, 4);
+		makeElementsDispatchShader(0, 4);
+		makeListShader(1, 0, 2, 0, 3, 0.5f);
+		makeListShader(0, 3, 1, 3, 3, 0.3f);
+		makeListShader(3, 0, 1, 6, 3, 0.0f);
+		makeListShader(1, 0, 1, 6, 2, 0.0f);
+		makeListShader(2, 1, 3, 3, 2, 0.6f);
+		makeListShader(1, 0, 1, 5, 3, 0.0f);
+		makeListShader(3, 0, 1, 5, 2, 0.0f);
+		makeElementsShader(0, 9, 2);
+		makeElementsShader(0, 8, 3);
+		makeElementsShader(0, 8, 2);
+		makeElementsShader(0, 7, 3);
+
 		// Setup the texture.
 		mOctTexture = octTexture;
 
@@ -280,7 +297,7 @@ public:
 	{
 		runElementsDispatch(src);
 
-		s := makeDrawElementsShader(src, powerStart, powerLevels);
+		s := makeElementsShader(src, powerStart, powerLevels);
 		s.bind();
 		s.float3("cameraPos".ptr, camPosition.ptr);
 		s.matrix4("matrix", 1, false, mat.ptr);
@@ -389,8 +406,8 @@ private:
 	fn makeListShader(src: u32, dst1: u32, dst2: u32,
 	                  powerStart: u32, powerLevels: u32, dist: f32) GfxShader
 	{
-		name := format("mixed.list (src: %s, dst1: %s, dst2: %s, powerStart: %s, powerLevels: %s)",
-			src, dst1, dst2, powerStart, powerLevels);
+		name := format("mixed.list (src: %s, dst1: %s, dst2: %s, powerStart: %s, powerLevels: %s, dist: %s)",
+			src, dst1, dst2, powerStart, powerLevels, dist);
 		if (s := name in mShaderStore) {
 			return *s;
 		}
@@ -410,7 +427,7 @@ private:
 		return s;
 	}
 
-	fn makeDrawElementsShader(src: u32, powerStart: u32, powerLevels: u32) GfxShader
+	fn makeElementsShader(src: u32, powerStart: u32, powerLevels: u32) GfxShader
 	{
 		name := format("mixed.tracer (src: %s, start: %s, levels: %s)",
 			src, powerStart, powerLevels);
