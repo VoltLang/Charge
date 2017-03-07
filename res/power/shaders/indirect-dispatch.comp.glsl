@@ -1,5 +1,11 @@
 #version 450 core
+#ifdef GL_ARB_shader_atomic_counter_ops
 #extension GL_ARB_shader_atomic_counter_ops : require
+#define atomicCounterExchange atomicCounterExchangeARB
+#else
+#extension GL_AMD_shader_atomic_counter_ops : require
+#endif
+
 
 #define INDIRECT_SRC %%
 #define INDIRECT_DST %%
@@ -18,7 +24,7 @@ layout (binding = INDIRECT_DST, std430) buffer BufferOut
 
 void main(void)
 {
-	num_groups_x = atomicCounterExchangeARB(counter, 0);
+	num_groups_x = atomicCounterExchange(counter, 0);
 	num_groups_y = 1;
 	num_groups_z = 1;
 }
