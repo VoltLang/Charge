@@ -1,4 +1,5 @@
 #version 450 core
+#extension GL_ARB_shader_atomic_counter_ops : require
 
 #define INDIRECT_SRC %%
 #define INDIRECT_DST %%
@@ -18,7 +19,7 @@ layout (binding = INDIRECT_DST, std430) buffer BufferOut
 
 void main(void)
 {
-	count = atomicCounter(counter);
+	count = atomicCounterExchangeARB(counter, 0);
 	primCount = 1;
 	first = 0;
 	baseInstance = 0;

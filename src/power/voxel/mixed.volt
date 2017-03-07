@@ -234,9 +234,6 @@ public:
 		s := makeComputeDispatchShader(src, 4);
 		s.bind();
 		glDispatchCompute(1u, 1u, 1u);
-		zero := 0;
-		offset := cast(GLintptr)(src * 4);
-		glNamedBufferSubData(mAtomicBuffer, offset, 4, cast(void*)&zero);
 	}
 
 	fn runListShader(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f,
@@ -262,9 +259,6 @@ public:
 		s := makeElementsDispatchShader(src, 4);
 		s.bind();
 		glDispatchCompute(1u, 1u, 1u);
-		zero := 0;
-		offset := cast(GLintptr)(src * 4);
-		glNamedBufferSubData(mAtomicBuffer, offset, 4, cast(void*)&zero);
 	}
 
 	fn runElementShader(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f,
