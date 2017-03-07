@@ -112,12 +112,14 @@ void find_coreGL() {
 }
 
 void find_extensionsGL() {
+	GL_AMD_shader_trinary_minmax = has_ext("GL_AMD_shader_trinary_minmax");
 	GL_ARB_ES2_compatibility = has_ext("GL_ARB_ES2_compatibility");
 	GL_ARB_ES3_1_compatibility = has_ext("GL_ARB_ES3_1_compatibility");
 	GL_ARB_ES3_2_compatibility = has_ext("GL_ARB_ES3_2_compatibility");
 	GL_ARB_ES3_compatibility = has_ext("GL_ARB_ES3_compatibility");
 	GL_ARB_explicit_attrib_location = has_ext("GL_ARB_explicit_attrib_location");
 	GL_ARB_sampler_objects = has_ext("GL_ARB_sampler_objects");
+	GL_ARB_shader_atomic_counter_ops = has_ext("GL_ARB_shader_atomic_counter_ops");
 	GL_ARB_texture_storage = has_ext("GL_ARB_texture_storage");
 	return;
 }
