@@ -10,14 +10,19 @@
 #define VOXEL_DST1 %VOXEL_DST1%
 #define VOXEL_DST2 %VOXEL_DST2%
 
-
-#define SIZE (1 << POWER_LEVELS)
-layout(local_size_x = SIZE, local_size_y = SIZE, local_size_z = SIZE) in;
+#if POWER_LEVELS == 2
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+#elif POWER_LEVELS == 3
+layout (local_size_x = 64, local_size_y = 8, local_size_z = 1) in;
+#else
+#error
+#endif
 
 layout (binding = 0) uniform usamplerBuffer octree;
 layout (binding = 0, offset = VOXEL_DST1 * 4) uniform atomic_uint counter1;
 layout (binding = 0, offset = VOXEL_DST2 * 4) uniform atomic_uint counter2;
 
+uniform vec4 planes[8];
 uniform vec3 cameraPos;
 
 layout (binding = VOXEL_SRC, std430) buffer BufferIn
@@ -36,6 +41,19 @@ layout (binding = VOXEL_DST2, std430) buffer BufferOut2
 };
 
 
+uvec4 unpack_2_10_10_10(uint data)
+{
+	return uvec4(
+		(data >>  0) & 0x3FF,
+		(data >> 10) & 0x3FF,
+		(data >> 20) & 0x3FF,
+		(data >> 30) & 0x003);
+}
+
+uint pack_2_10_10_10_unsafe(uvec4 data)
+{
+	return data.w << 30 | data.z << 20 | data.y << 10 | data.x;
+}
 
 uint calcAddress(uint select, uint node, uint offset)
 {
@@ -45,25 +63,15 @@ uint calcAddress(uint select, uint node, uint offset)
 	return address + offset;
 }
 
-uint decode(uint x, uint shift)
-{
-	x =   (x >> shift)  & 0x49249249U;
-	x = (x ^ (x >> 2))  & 0xc30c30c3U;
-	x = (x ^ (x >> 4))  & 0x0f00f00fU;
-	x = (x ^ (x >> 8))  & 0xff0000ffU;
-	x = (x ^ (x >> 16)) & 0x0000ffffU;
-	return x;
-}
-
 void main(void)
 {
 	// The morton value for this position.
 	uint morton = gl_LocalInvocationIndex;
 
-	// Get the initial node adress and extra morton bits.
+	// Get the initial node adress and the packed position.
 	uint offset = (gl_WorkGroupID.x + gl_NumWorkGroups.x * gl_WorkGroupID.y) * 2;
-	uint extra = inData[offset + 0];
-	offset =     inData[offset + 1];
+	uint packedPos = inData[offset + 0] << POWER_LEVELS;
+	offset = inData[offset + 1];
 
 	// This is a unrolled loop.
 	// Subdivide until empty node or found the node for this box.
@@ -72,56 +80,77 @@ void main(void)
 
 	// 3D bit selector, each element is in the range [0, 1].
 	// Turn that into scalar in the range [0, 8].
-	uint select = (morton >> ((POWER_LEVELS-1) * 3)) & uint(0x07);
+	uint select = gl_LocalInvocationID.y;
 	if ((node & (uint(1) << select)) == uint(0)) {
 		return;
 	}
 
-
+	packedPos = packedPos |
+		(((select >> 2) & 0x1) << (POWER_LEVELS - 1 +  0)) |
+		(((select >> 0) & 0x1) << (POWER_LEVELS - 1 + 10)) |
+		(((select >> 1) & 0x1) << (POWER_LEVELS - 1 + 20));
+	
 #define LOOPBODY(counter) \
-	offset = calcAddress(select, node, offset);			\
-	offset = texelFetch(octree, int(offset)).r;			\
-	node = texelFetch(octree, int(offset)).r;			\
-									\
-	select = (morton >> ((POWER_LEVELS-counter) * 3)) & uint(0x07);	\
-	if ((node & (uint(1) << select)) == uint(0)) {			\
-		return;							\
-	}								\
+	offset = calcAddress(select, node, offset);				\
+	offset = texelFetch(octree, int(offset)).r;				\
+	node = texelFetch(octree, int(offset)).r;				\
+										\
+	select = (morton >> ((POWER_LEVELS-counter) * 3)) & uint(0x07);		\
+	if ((node & (uint(1) << select)) == uint(0)) {				\
+		return;								\
+	}									\
+										\
+	packedPos = packedPos |							\
+		(((select >> 2) & 0x1) << (POWER_LEVELS - counter +  0)) |	\
+		(((select >> 0) & 0x1) << (POWER_LEVELS - counter + 10)) |	\
+		(((select >> 1) & 0x1) << (POWER_LEVELS - counter + 20));	\
 
-#if POWER_LEVELS >= 2
+
+	// After this loop level each group of 8 lanes holds one box of voxels.
+#if POWER_LEVELS == 3
 	LOOPBODY(2);
 #endif
-#if POWER_LEVELS >= 3
-	LOOPBODY(3);
-#endif
-#if POWER_LEVELS >= 4
-#error
+
+	// Some constants
+	float invDiv2 =    1.0 / (1 << (POWER_FINAL - 1));
+	float invDiv =     1.0 / (1 << (POWER_FINAL    ));
+	float invDivHalf = 1.0 / (1 << (POWER_FINAL + 1));
+	float invRadii2 = invDiv2 * sqrt(2.0);
+
+	// Unpack the position.
+	uvec3 upos = unpack_2_10_10_10(packedPos).xyz;
+	vec4 v = vec4(vec3(upos) * invDiv + invDiv, 1.0);
+
+#if POWER_FINAL > 4
+	uint bitsIndex = morton & 0x38;
+	uint b = uint(ballotARB(dot(v, planes[morton & 0x03]) < -invRadii2) >> bitsIndex);
+	if (b & 0x0f) {
+		return;
+	}
 #endif
 
-	morton |= (extra << (POWER_LEVELS * 3));
+	// Final loop body.
+#if POWER_LEVELS == 2
+	LOOPBODY(2);
+#elif POWER_LEVELS == 3
+	LOOPBODY(3);
+#endif
 
 	offset = calcAddress(select, node, offset);
 	offset = texelFetch(octree, int(offset)).r;
 
 #ifdef LIST_DO_TAG
-	float invDiv = 1.0 / (1 << POWER_FINAL);
-	float halfInvDiv = 1.0 / (1 << (POWER_FINAL + 1));
-
-	vec3 pos = vec3(
-		decode(morton, 2),
-		decode(morton, 0),
-		decode(morton, 1)) * invDiv + halfInvDiv;
-	vec3 v1 = pos - cameraPos;
+	vec3 v1 = v.xyz - cameraPos;
 	float l = dot(v1, v1);
 	if (l > POWER_DISTANCE) {
 		uint index = atomicCounterIncrement(counter2) * 2;
-		outData2[index] = morton;
+		outData2[index] = packedPos;
 		outData2[index + 1] = offset;
 		return;
 	}
 #endif
 
 	uint index = atomicCounterIncrement(counter1) * 2;
-	outData1[index] = morton;
+	outData1[index] = packedPos;
 	outData1[index + 1] = offset;
 }

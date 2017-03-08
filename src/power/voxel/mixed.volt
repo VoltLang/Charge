@@ -49,6 +49,15 @@ fn calcNumMorton(dim: i32) i32
 class Mixed
 {
 public:
+	struct DrawState
+	{
+		matrix: math.Matrix4x4f;
+		planes: math.Planef[4];
+		camPosition: math.Point3f; float pad;
+	}
+
+
+public:
 	frame: u32;
 	useCubes: bool;
 	counters: Counters;
@@ -104,7 +113,7 @@ protected:
 public:
 	this(octTexture: GLuint)
 	{
-		counters = new Counters("initial", "trace1", "trace2", "trace3");
+		counters = new Counters("initial", "list1", "trace1", "list2", "trace2");
 
 		{
 			test: GLint;
@@ -124,7 +133,7 @@ public:
 		makeElementsDispatchShader(0, 4);
 		makeListShader(0, 1, 2, 0, 3, 0.0f);
 		makeListShader(1, 0, 3, 3, 2, 0.0f);
-		makeListShader(0, 1, 2, 5, 2, 0.01f);
+		makeListShader(0, 1, 2, 5, 2, 0.1f);
 		makeListShader(1, 0, 3, 7, 3, 0.0f);
 		makeListShader(2, 0, 3, 7, 2, 0.0f);
 		makeElementsShader(0, 10, 1);
@@ -166,7 +175,15 @@ public:
 
 	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
 	{
-		s: GfxShader;
+		frustum: math.Frustum;
+		frustum.setFromGL(ref mat);
+		state: DrawState;
+		state.matrix = mat;
+		state.camPosition = camPosition;
+		state.planes[0] = frustum.p[0];
+		state.planes[1] = frustum.p[1];
+		state.planes[2] = frustum.p[2];
+		state.planes[3] = frustum.p[3];
 
 		glCheckError();
 		glBindTextureUnit(0, mOctTexture);
@@ -189,20 +206,28 @@ public:
 
 		counters.start(0);
 		initConfig(dst: 0);
-		runListShader(ref camPosition, ref mat, 0, 1, 2, 0, 3, 0.0f);
-		runListShader(ref camPosition, ref mat, 1, 0, 3, 3, 2, 0.0f);
-		runListShader(ref camPosition, ref mat, 0, 1, 2, 5, 2, 0.01f);
+		runListShader(ref state, 0, 1, 2, 0, 3, 0.0f);
+		runListShader(ref state, 1, 0, 3, 3, 2, 0.0f);
+		runListShader(ref state, 0, 1, 2, 5, 2, 0.1f);
 		counters.stop(0);
 
 		counters.start(1);
-		runListShader(ref camPosition, ref mat, 1, 0, 3, 7, 3, 0.0f);
-		runElementShader(ref camPosition, ref mat, 0, 10, 1);
+		runListShader(ref state, 1, 0, 3, 7, 3, 0.0f);
 		counters.stop(1);
 
 		counters.start(2);
-		runListShader(ref camPosition, ref mat, 2, 0, 3, 7, 2, 0.0f);
-		runElementShader(ref camPosition, ref mat, 0, 9, 2);
+		runElementShader(ref state, 0, 10, 1);
 		counters.stop(2);
+
+
+		counters.start(3);
+		runListShader(ref state, 2, 0, 3, 7, 2, 0.0f);
+		counters.stop(3);
+
+		counters.start(4);
+		runElementShader(ref state, 0, 9, 2);
+		counters.stop(4);
+
 
 		glBindVertexArray(0);
 
@@ -236,17 +261,17 @@ public:
 		glDispatchCompute(1u, 1u, 1u);
 	}
 
-	fn runListShader(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f,
-	                  src: u32, dst1: u32, dst2: u32,
-	                  powerStart: u32, powerLevels: u32, dist: f32)
+	fn runListShader(ref state: DrawState, src: u32, dst1: u32, dst2: u32,
+	                 powerStart: u32, powerLevels: u32, dist: f32)
 	{
 		// Setup the indirect buffer first.
 		runComputeDispatch(src);
 
 		s := makeListShader(src, dst1, dst2, powerStart, powerLevels, dist);
 		s.bind();
-		s.float3("cameraPos".ptr, camPosition.ptr);
-		s.matrix4("matrix", 1, false, mat.ptr);
+		s.float3("cameraPos".ptr, state.camPosition.ptr);
+		s.matrix4("matrix", 1, false, state.matrix.ptr);
+		s.float4("planes".ptr, 4, &state.planes[0].a);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
 		                GL_SHADER_STORAGE_BARRIER_BIT |
 		                GL_COMMAND_BARRIER_BIT);
@@ -261,15 +286,15 @@ public:
 		glDispatchCompute(1u, 1u, 1u);
 	}
 
-	fn runElementShader(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f,
-	                    src: u32, powerStart: u32, powerLevels: u32)
+	fn runElementShader(ref state: DrawState, src: u32,
+	                    powerStart: u32, powerLevels: u32)
 	{
 		runElementsDispatch(src);
 
 		s := makeElementsShader(src, powerStart, powerLevels);
 		s.bind();
-		s.float3("cameraPos".ptr, camPosition.ptr);
-		s.matrix4("matrix", 1, false, mat.ptr);
+		s.float3("cameraPos".ptr, state.camPosition.ptr);
+		s.matrix4("matrix", 1, false, state.matrix.ptr);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
 		                GL_SHADER_STORAGE_BARRIER_BIT |
 		                GL_COMMAND_BARRIER_BIT);

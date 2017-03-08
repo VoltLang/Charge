@@ -22,15 +22,13 @@ layout (binding = VOXEL_SRC, std430) buffer BufferIn
 	uint inData[];
 };
 
-
-uint decode(uint x, uint shift)
+uvec4 unpack_2_10_10_10(uint data)
 {
-	x =   (x >> shift)  & 0x49249249U;
-	x = (x ^ (x >> 2))  & 0xc30c30c3U;
-	x = (x ^ (x >> 4))  & 0x0f00f00fU;
-	x = (x ^ (x >> 8))  & 0xff0000ffU;
-	x = (x ^ (x >> 16)) & 0x0000ffffU;
-	return x;
+	return uvec4(
+		(data >>  0) & 0x3FF,
+		(data >> 10) & 0x3FF,
+		(data >> 20) & 0x3FF,
+		(data >> 30) & 0x003);
 }
 
 void main(void)
@@ -41,13 +39,10 @@ void main(void)
 	uint inOffset = inData[index + 1];
 
 	// Generate coords on the fly.
-	ivec3 ipos = ivec3(
-		decode(inPos, 2),
-		decode(inPos, 0),
-		decode(inPos, 1));
+	uvec3 upos = unpack_2_10_10_10(inPos).xyz;
 
 	// Generate the front lower left corner position.
-	vec3 pos = vec3(ipos) * DIVISOR_INV;
+	vec3 pos = vec3(upos) * DIVISOR_INV;
 
 	// We draw only half a cube and flip the bits in order
 	// to draw the other side, this saves 1/8 shader instances
