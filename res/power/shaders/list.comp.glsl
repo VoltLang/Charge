@@ -11,9 +11,9 @@
 #define VOXEL_DST1 %VOXEL_DST1%
 #define VOXEL_DST2 %VOXEL_DST2%
 
-#define X_SHIFT 2
-#define Y_SHIFT 0
-#define Z_SHIFT 1
+#define X_SHIFT %X_SHIFT%
+#define Y_SHIFT %Y_SHIFT%
+#define Z_SHIFT %Z_SHIFT%
 
 #if POWER_LEVELS == 2
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;

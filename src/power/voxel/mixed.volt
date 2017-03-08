@@ -67,6 +67,7 @@ protected:
 		draw: bool;
 	}
 
+	mXShift, mYShift, mZShift: u32;
 	mShaderStore: GfxShader[string];
 
 	mOctTexture: GLuint;
@@ -95,6 +96,10 @@ public:
 			glGetIntegerv(GL_MAX_COMBINED_ATOMIC_COUNTERS, &test);
 			io.writefln("GL_MAX_COMBINED_ATOMIC_COUNTERS: %s", test);
 		}
+
+		mXShift = 2;
+		mYShift = 0;
+		mZShift = 1;
 
 		// Premake the shaders.
 		makeComputeDispatchShader(0, 4);
@@ -379,6 +384,9 @@ private:
 		}
 
 		comp := cast(string)import("power/shaders/list.comp.glsl");
+		comp = replace(comp, "%X_SHIFT%", format("%s", mXShift));
+		comp = replace(comp, "%Y_SHIFT%", format("%s", mYShift));
+		comp = replace(comp, "%Z_SHIFT%", format("%s", mZShift));
 		comp = replace(comp, "%VOXEL_SRC%", format("%s", src));
 		comp = replace(comp, "%VOXEL_DST1%", format("%s", dst1));
 		comp = replace(comp, "%VOXEL_DST2%", format("%s", dst2));
@@ -406,10 +414,16 @@ private:
 		powerLevelsStr := format("#define POWER_LEVELS %s", powerLevels);
 
 		vert := cast(string)import("power/shaders/tracer.vert.glsl");
+		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
+		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
+		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
 		vert = replace(vert, "#define VOXEL_SRC %%", voxelSrcStr);
 		vert = replace(vert, "#define POWER_START %%", powerStartStr);
 		vert = replace(vert, "#define POWER_LEVELS %%", powerLevelsStr);
 		frag := cast(string)import("power/shaders/tracer.frag.glsl");
+		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
+		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
+		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
 		frag = replace(frag, "#define VOXEL_SRC %%", voxelSrcStr);
 		frag = replace(frag, "#define POWER_START %%", powerStartStr);
 		frag = replace(frag, "#define POWER_LEVELS %%", powerLevelsStr);
