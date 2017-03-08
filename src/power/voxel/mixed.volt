@@ -247,6 +247,7 @@ public:
 	{
 		one := 1;
 		offset := cast(GLintptr)(dst * 4);
+		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glNamedBufferSubData(mAtomicBuffer, offset, 4, cast(void*)&one);
 		glNamedBufferSubData(mOutputBuffers[dst], 0, 8, cast(void*)[0, frame].ptr);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
