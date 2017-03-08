@@ -11,6 +11,10 @@
 #define VOXEL_DST1 %VOXEL_DST1%
 #define VOXEL_DST2 %VOXEL_DST2%
 
+#define X_SHIFT 2
+#define Y_SHIFT 0
+#define Z_SHIFT 1
+
 #if POWER_LEVELS == 2
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 #elif POWER_LEVELS == 3
@@ -87,9 +91,9 @@ void main(void)
 	}
 
 	packedPos = packedPos |
-		(((select >> 2) & 0x1) << (POWER_LEVELS - 1 +  0)) |
-		(((select >> 0) & 0x1) << (POWER_LEVELS - 1 + 10)) |
-		(((select >> 1) & 0x1) << (POWER_LEVELS - 1 + 20));
+		(((select >> X_SHIFT) & 0x1) << (POWER_LEVELS - 1 +  0)) |
+		(((select >> Y_SHIFT) & 0x1) << (POWER_LEVELS - 1 + 10)) |
+		(((select >> Z_SHIFT) & 0x1) << (POWER_LEVELS - 1 + 20));
 	
 #define LOOPBODY(counter) \
 	offset = calcAddress(select, node, offset);				\
@@ -102,9 +106,9 @@ void main(void)
 	}									\
 										\
 	packedPos = packedPos |							\
-		(((select >> 2) & 0x1) << (POWER_LEVELS - counter +  0)) |	\
-		(((select >> 0) & 0x1) << (POWER_LEVELS - counter + 10)) |	\
-		(((select >> 1) & 0x1) << (POWER_LEVELS - counter + 20));	\
+		(((select >> X_SHIFT) & 0x1) << (POWER_LEVELS - counter +  0)) |\
+		(((select >> Y_SHIFT) & 0x1) << (POWER_LEVELS - counter + 10)) |\
+		(((select >> Z_SHIFT) & 0x1) << (POWER_LEVELS - counter + 20));	\
 
 
 	// After this loop level each group of 8 lanes holds one box of voxels.

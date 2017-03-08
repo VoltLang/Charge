@@ -7,6 +7,14 @@
 #define TRACER_POWER POWER_LEVELS
 #define MAX_ITERATIONS 500
 
+#define X_SHIFT 2
+#define Y_SHIFT 0
+#define Z_SHIFT 1
+
+#define X_MUL (1 << X_SHIFT)
+#define Y_MUL (1 << Y_SHIFT)
+#define Z_MUL (1 << Z_SHIFT)
+
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in flat vec3 inMinEdge;
 layout (location = 2) in flat vec3 inMaxEdge;
@@ -76,7 +84,7 @@ void main(void)
 			vec3 pos = inPosition + rayDir * tMin;
 			vec3 s = step(boxMin + boxDim, pos);
 			boxMin = boxMin + boxDim * s;
-			uint select = uint(s.x * 4 + s.y * 1 + s.z * 2);
+			uint select = uint(s.x * X_MUL + s.y * Y_MUL + s.z * Z_MUL);
 			if ((node & (uint(1) << select)) == uint(0)) {
 				break;
 			}
