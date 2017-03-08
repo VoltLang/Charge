@@ -1,4 +1,5 @@
 #version 450 core
+#extension GL_ARB_shader_ballot : enable
 
 #undef LIST_DO_TAG
 #define POWER_START %POWER_START%
@@ -124,7 +125,7 @@ void main(void)
 #if POWER_FINAL > 4
 	uint bitsIndex = morton & 0x38;
 	uint b = uint(ballotARB(dot(v, planes[morton & 0x03]) < -invRadii2) >> bitsIndex);
-	if (b & 0x0f) {
+	if ((b & 0x0f) != 0) {
 		return;
 	}
 #endif
