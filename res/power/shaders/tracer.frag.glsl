@@ -2,10 +2,10 @@
 
 #define POWER_START %%
 #define POWER_LEVELS %%
+#define SPLIT_SIZE (1.0 / (1 << POWER_START))
 
 #define VOXEL_POWER (POWER_START + POWER_LEVELS)
 #define TRACER_POWER POWER_LEVELS
-#define MAX_ITERATIONS 500
 
 #define X_SHIFT %X_SHIFT%
 #define Y_SHIFT %Y_SHIFT%
@@ -17,8 +17,7 @@
 
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in flat vec3 inMinEdge;
-layout (location = 2) in flat vec3 inMaxEdge;
-layout (location = 3) in flat uint inOffset;
+layout (location = 2) in flat uint inOffset;
 layout (binding = 0) uniform isamplerBuffer octree;
 layout (location = 0) out vec4 outColor;
 
@@ -59,22 +58,21 @@ void main(void)
 
 	// Only process ray if it intersects voxel volume.
 	float tMin, tMax;
-	rayAABBTest(rayDir, inMinEdge, inMaxEdge, tMin, tMax);
+	rayAABBTest(rayDir, inMinEdge, inMinEdge + SPLIT_SIZE, tMin, tMax);
 
 	// Force initial ray position to start at the
 	// camera origin if it is in the voxel box.
 	tMin = max(0.0f, tMin);
 
 	// Loop until ray exits volume.
-	bool hit = false;
-	int itr = 0;
-	while (tMin < tMax && ++itr < MAX_ITERATIONS) {
+
+	while (true) {
 		// Restart at top of tree.
 
 		// Which part of the space the voxel volume occupy.
 		vec3 boxMin = inMinEdge;
-		float boxDim = inMaxEdge.x - inMinEdge.x;
-
+		float boxDim = SPLIT_SIZE;
+		bool hit = false;
 		do {
 
 			int offset = int(inOffset);
@@ -139,13 +137,13 @@ void main(void)
 		vec3 t1 = (boxMin + boxDim - pos) / rayDir;
 		vec3 tNext = max(t0, t1);
 		tMin += min(tNext.x, min(tNext.y, tNext.z)) + epsilon;
+
+		if (tMin >= tMax) {
+			discard;
+		}
 	}
 
-	if (hit) {
-		float traceSize = float(1 << (VOXEL_POWER - TRACER_POWER));
-		vec3 pos = inPosition + rayDir * tMin;
-		outColor = vec4((pos - inMinEdge) * traceSize, 1.0);
-	} else {
-		discard;
-	}
+	float traceSize = float(1 << (VOXEL_POWER - TRACER_POWER));
+	vec3 pos = inPosition + rayDir * tMin;
+	outColor = vec4((pos - inMinEdge) * traceSize, 1.0);
 }

@@ -11,8 +11,7 @@
 
 layout (location = 0) out vec3 outPosition;
 layout (location = 1) out flat vec3 outMinEdge;
-layout (location = 2) out flat vec3 outMaxEdge;
-layout (location = 3) out flat uint outOffset;
+layout (location = 2) out flat uint outOffset;
 
 uniform mat4 matrix;
 uniform vec3 cameraPos;
@@ -53,7 +52,6 @@ void main(void)
 	bits = gl_VertexID ^ bits;
 
 	outMinEdge = pos;
-	outMaxEdge = pos + vec3(1.0) * DIVISOR_INV;
 	outOffset = inOffset;
 
 	vec3 offsetPos = vec3(
