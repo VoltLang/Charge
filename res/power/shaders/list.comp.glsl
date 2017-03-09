@@ -16,7 +16,7 @@
 #define Z_SHIFT %Z_SHIFT%
 
 #if POWER_LEVELS == 2
-layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+layout (local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 #elif POWER_LEVELS == 3
 layout (local_size_x = 64, local_size_y = 8, local_size_z = 1) in;
 #else
@@ -84,7 +84,7 @@ void main(void)
 
 	// 3D bit selector, each element is in the range [0, 1].
 	// Turn that into scalar in the range [0, 8].
-	uint select = gl_LocalInvocationID.y;
+	uint select = (morton >> ((POWER_LEVELS - 1) * 3)) & uint(0x07);
 	if ((node & (uint(1) << select)) == uint(0)) {
 		return;
 	}
