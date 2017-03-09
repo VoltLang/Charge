@@ -24,8 +24,7 @@ layout (local_size_x = 64, local_size_y = 8, local_size_z = 1) in;
 #endif
 
 layout (binding = 0) uniform usamplerBuffer octree;
-layout (binding = 0, offset = VOXEL_DST1 * 4) uniform atomic_uint counter1;
-layout (binding = 0, offset = VOXEL_DST2 * 4) uniform atomic_uint counter2;
+layout (binding = 0) uniform atomic_uint counter[8];
 
 uniform vec4 planes[8];
 uniform vec3 cameraPos;
@@ -148,14 +147,14 @@ void main(void)
 	vec3 v1 = v.xyz - cameraPos;
 	float l = dot(v1, v1);
 	if (l > POWER_DISTANCE) {
-		uint index = atomicCounterIncrement(counter2) * 2;
+		uint index = atomicCounterIncrement(counter[VOXEL_DST2]) * 2;
 		outData2[index] = packedPos;
 		outData2[index + 1] = offset;
 		return;
 	}
 #endif
 
-	uint index = atomicCounterIncrement(counter1) * 2;
+	uint index = atomicCounterIncrement(counter[VOXEL_DST1]) * 2;
 	outData1[index] = packedPos;
 	outData1[index + 1] = offset;
 }
