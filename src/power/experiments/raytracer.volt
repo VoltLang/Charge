@@ -62,6 +62,21 @@ fn loadDag(filename: string, out data: void[], out frames: u32[])
 */
 }
 
+fn makeFlatDag(out data: void[], out frames: u32[])
+{
+	bits := new u32[](1+2+4);
+	bits[0] = 0;
+	bits[1] = 0x0_0_0_0_0_0_5_5;
+	bits[2] = 1;
+	bits[3] = 1;
+	bits[4] = 1;
+	bits[5] = 1;
+	data = cast(void[])bits;
+
+	frames = new u32[](1);
+	frames[0] = 1;
+}
+
 class RayTracer : Viewer
 {
 public:
