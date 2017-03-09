@@ -126,8 +126,8 @@ void main(void)
 	vec4 v = vec4(vec3(upos) * invDiv + invDiv, 1.0);
 
 #if POWER_FINAL > 4
-	uint bitsIndex = morton & 0x38;
-	uint b = uint(ballotARB(dot(v, planes[morton & 0x03]) < -invRadii2) >> bitsIndex);
+	uint bitsIndex = gl_SubGroupInvocationARB & 0x38;
+	uint b = uint(ballotARB(dot(v, planes[gl_SubGroupInvocationARB & 0x03]) < -invRadii2) >> bitsIndex);
 	if ((b & 0x0f) != 0) {
 		return;
 	}
