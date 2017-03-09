@@ -90,16 +90,16 @@ void main(void)
 			}
 
 #define LOOPBODY() \
-			offset = calcAddress(select, node, offset);	\
-			offset = texelFetch(octree, offset).r;		\
-			node = uint(texelFetch(octree, offset).r);	\
-									\
-			boxDim *= 0.5f;					\
-			s = step(boxMin + boxDim, pos);			\
-			boxMin = boxMin + boxDim * s;			\
-			select = uint(s.x * 4 + s.y * 1 + s.z * 2);	\
-			if ((node & (uint(1) << select)) == uint(0)) {	\
-				break;					\
+			offset = calcAddress(select, node, offset);		\
+			offset = texelFetch(octree, offset).r;			\
+			node = uint(texelFetch(octree, offset).r);		\
+										\
+			boxDim *= 0.5f;						\
+			s = step(boxMin + boxDim, pos);				\
+			boxMin = boxMin + boxDim * s;				\
+			select = uint(s.x * X_MUL + s.y * Y_MUL + s.z * Z_MUL);	\
+			if ((node & (uint(1) << select)) == uint(0)) {		\
+				break;						\
 			}
 
 #if TRACER_POWER >= 2
