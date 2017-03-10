@@ -49,9 +49,13 @@ fn getColor(c: u32) math.Color4b
 class AlignTest : GameSimpleScene
 {
 public:
-	x, y, offsetX, offsetY, size: i32;
+	x, y, lookX, lookY, offsetX, offsetY: i32;
 	buf: GfxDrawBuffer;
 	testShader: GfxShader;
+
+
+private:
+	mDragging, mLooking: bool;
 
 
 public:
@@ -64,7 +68,7 @@ public:
 		                    ["position", "uv", "color"],
 		                    ["tex"]);
 
-		size = 16;
+		lookX = lookY = 6;
 		offsetX = 0;
 		offsetY = 0;
 
@@ -107,18 +111,38 @@ public:
 
 	override fn mouseMove(m: CtlMouse, int, int)
 	{
-		x = m.x / size - offsetX;
-		y = m.y / size - offsetY;
+		if (mDragging) {
+			x = m.x - offsetX;
+			y = m.y - offsetY;
+		}
+		if (mLooking) {
+			lookX = m.x - offsetX;
+			lookY = m.y - offsetY;
+		}
 	}
 
 	override fn mouseDown(m: CtlMouse, button: i32)
 	{
-		io.writefln("MOUSE DOWN %s", button);
+		if (button == 1 && !mLooking) {
+			mDragging = true;
+			x = m.x - offsetX;
+			y = m.y - offsetY;
+		}
+		if (button == 3 && !mDragging) {
+			mLooking = true;
+			lookX = m.x - offsetX;
+			lookY = m.y - offsetY;
+		}
 	}
 
 	override fn mouseUp(m: CtlMouse, button: i32)
 	{
-		io.writefln("MOUSE UP %s", button);
+		if (button == 1) {
+			mDragging = false;
+		}
+		if (button == 3) {
+			mLooking = false;
+		}
 	}
 
 	override fn keyDown(CtlKeyboard, keycode: int)
@@ -143,26 +167,49 @@ public:
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		drawLevel(x, y, 4);
-		drawLevel(x, y, 3);
-		drawLevel(x, y, 2);
-		drawLevel(x, y, 1);
-		drawLevel(x, y, 0);
-	}
 
-	fn drawLevel(x: i32, y: i32, level: i32)
-	{
-		size := 1 << level;
-		flipX := (x >> level) % 2 == 1;
-		flipY := (y >> level) % 2 == 1;
-		lsize := this.size * size;
+		drawLevel(7);
+		drawLevel(6);
+		drawLevel(5);
+		drawLevel(4);
 
 		vec: f32[4];
-		vec[0] = cast(f32)(calcAlign(x, level) * this.size);
-		vec[1] = cast(f32)(calcAlign(y, level) * this.size);
+		vec[0] = 0.f;
+		vec[1] = 0.f;
 		testShader.float2("offset".ptr, 1, &vec[0]);
-		vec[0] = cast(f32)lsize * (flipX ? -1.f : 1.f);
-		vec[1] = cast(f32)lsize * (flipY ? -1.f : 1.f);
+		vec[0] = 0.f;
+		vec[1] = 0.f;
+		testShader.float2("scale".ptr, 1, &vec[0]);
+	}
+
+	fn drawLevel(level: i32)
+	{
+		fx := cast(f32)(lookX - x);
+		fy := cast(f32)(lookY - y);
+		d := sqrt(fx * fx + fy * fy);
+		if (d == 0.0) {
+			fy = 1.f;
+		} else {
+			fx /= d;
+			fy /= d;
+		}
+
+		size := 1 << level;
+		offX := cast(i32)(fx * 3.0f * size);
+		offY := cast(i32)(fy * 3.0f * size);
+
+		resultX := x + offX;
+		resultY := y + offY;
+
+		flipX := (resultX >> level) % 2 == 1;
+		flipY := (resultY >> level) % 2 == 1;
+
+		vec: f32[4];
+		vec[0] = cast(f32)calcAlign(resultX, level);
+		vec[1] = cast(f32)calcAlign(resultY, level);
+		testShader.float2("offset".ptr, 1, &vec[0]);
+		vec[0] = cast(f32)size * (flipX ? -1.f : 1.f);
+		vec[1] = cast(f32)size * (flipY ? -1.f : 1.f);
 		testShader.float2("scale".ptr, 1, &vec[0]);
 
 		glBindVertexArray(buf.vao);
