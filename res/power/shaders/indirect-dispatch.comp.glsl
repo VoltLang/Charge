@@ -1,9 +1,16 @@
 #version 450 core
+
 #ifdef GL_ARB_shader_atomic_counter_ops
 #extension GL_ARB_shader_atomic_counter_ops : require
-#define atomicCounterExchange atomicCounterExchangeARB
-#else
+// This define brought to you by crappy nVidia hardware/drivers.
+// Good thing for us we only have one instance in flight at a time.
+#define ATOMIC_RESET_UNSAFE(C) \
+	atomicCounterAddARB(C, uint(-atomicCounter(C)))
+#elif defined GL_AMD_shader_atomic_counter_ops
 #extension GL_AMD_shader_atomic_counter_ops : require
+#define ATOMIC_RESET_UNSAFE(C) atomicCounterExchange(C, 0)
+#else
+#error "No atomic ops"
 #endif
 
 
@@ -24,7 +31,7 @@ layout (binding = INDIRECT_DST, std430) buffer BufferOut
 
 void main(void)
 {
-	num_groups_x = atomicCounterExchange(counter[INDIRECT_SRC], 0);
+	num_groups_x = ATOMIC_RESET_UNSAFE(counter[INDIRECT_SRC]);
 	num_groups_y = 1;
 	num_groups_z = 1;
 }
