@@ -278,14 +278,14 @@ public:
 		glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, null);
 	}
 
-	fn debugCounter(str: string, src: u32)
+	fn debugCounter(src: u32) u32
 	{
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
 		                GL_SHADER_STORAGE_BARRIER_BIT);
 		val: u32;
 		offset := cast(GLintptr)(src * 4);
 		glGetNamedBufferSubData(mAtomicBuffer, offset, 4, cast(void*)&val); 
-		io.writefln("%s: %s", str, val); 
+		return val;
 	}
 
 
