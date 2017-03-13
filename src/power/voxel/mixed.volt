@@ -24,7 +24,7 @@ public:
 	{
 		matrix: math.Matrix4x4f;
 		planes: math.Planef[4];
-		camPosition: math.Point3f; float pad;
+		camPosition: math.Point3f; pad: f32;
 	}
 
 
