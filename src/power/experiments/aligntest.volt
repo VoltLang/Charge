@@ -158,8 +158,10 @@ public:
 
 	override fn render(t: GfxTarget)
 	{
+		transform: math.Matrix4x4d;
+		t.setMatrixToOrtho(ref transform);
 		mat: math.Matrix4x4f;
-		t.setMatrixToOrtho(ref mat);
+		mat.setFrom(ref transform);
 		testShader.bind();
 		testShader.matrix4("matrix", 1, true, ref mat);
 

@@ -218,10 +218,10 @@ public:
 		glEnable(GL_DEPTH_TEST);
 		glUseProgram(0);
 
-		view: math.Matrix4x4f;
+		view: math.Matrix4x4d;
 		view.setToLookFrom(ref camPosition, ref camRotation);
 
-		proj: math.Matrix4x4f;
+		proj: math.Matrix4x4d;
 		t.setMatrixToProjection(ref proj, 45.f, 0.0001f, 256.f);
 		proj.setToMultiply(ref view);
 		proj.transpose();

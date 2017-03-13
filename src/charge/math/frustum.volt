@@ -11,27 +11,53 @@ import charge.math.matrix;
 
 
 /**
- * 3D Plane used by the Frustum struct.
+ * 3D Plane uses single precision.
  *
  * @ingroup Math
  */
 struct Planef
 {
 public:
-	float a, b, c, d;
+	f32 a, b, c, d;
 
 
 public:
-	void normalize()
+	fn setFrom(ref p: Planed)
 	{
-		auto mag = sqrtf(a * a + b * b + c * c);
+		a = cast(f32)p.a;
+		b = cast(f32)p.b;
+		c = cast(f32)p.c;
+		d = cast(f32)p.d;
+	}
+
+	string toString()
+	{
+		return format("((%s, %s, %s), %s)", a, b, c, d);
+	}
+}
+
+/**
+ * 3D Plane used by the Frustum struct, double precision.
+ *
+ * @ingroup Math
+ */
+struct Planed
+{
+public:
+	f64 a, b, c, d;
+
+
+public:
+	fn normalize()
+	{
+		mag := sqrt(a * a + b * b + c * c);
 		a /= mag;
 		b /= mag;
 		c /= mag;
 		d /= mag;
 	}
 
-	string toString()
+	fn toString() string
 	{
 		return format("((%s, %s, %s), %s)", a, b, c, d);
 	}
@@ -48,7 +74,7 @@ public:
 struct Frustum
 {
 public:
-	Planef[6] p;
+	Planed[6] p;
 
 	enum Planes {
 		Left,
@@ -68,7 +94,7 @@ public:
 
 
 public:
-	void setFromGL(ref Matrix4x4f mat)
+	fn setFromGL(ref mat: Matrix4x4d)
 	{
 		p[Left].a = mat.u.m[0][3] + mat.u.m[0][0];
 		p[Left].b = mat.u.m[1][3] + mat.u.m[1][0];

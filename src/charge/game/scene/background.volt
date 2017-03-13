@@ -138,8 +138,10 @@ public:
 			return;
 		}
 
+		transform: Matrix4x4d;
+		t.setMatrixToOrtho(ref transform);
 		mat: Matrix4x4f;
-		t.setMatrixToOrtho(ref mat);
+		mat.setFrom(ref transform);
 		gfxDrawShader.bind();
 		gfxDrawShader.matrix4("matrix", 1, true, ref mat);
 

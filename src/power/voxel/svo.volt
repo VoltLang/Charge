@@ -171,8 +171,10 @@ public:
 		}
 	}
 
-	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
+	fn draw(ref camPosition: math.Point3f, ref transform: math.Matrix4x4d)
 	{
+		mat: math.Matrix4x4f;
+		mat.setFrom(ref transform);
 		glCheckError();
 
 		// The octtree texture buffer is used for all shaders.

@@ -127,12 +127,15 @@ public:
 		glUseProgram(0);
 
 
-		view: math.Matrix4x4f;
+		view: math.Matrix4x4d;
 		view.setToLookFrom(ref camPosition, ref camRotation);
 
-		proj: math.Matrix4x4f;
+		proj: math.Matrix4x4d;
 		t.setMatrixToProjection(ref proj, 45.f, 0.1f, 256.f);
 		proj.setToMultiply(ref view);
+
+		mat: math.Matrix4x4f;
+		mat.setFrom(ref proj);
 
 
 		shouldEnd: bool;
@@ -194,7 +197,7 @@ public:
 
 		// Setup shader.
 		voxelShader.bind();
-		voxelShader.matrix4("matrix", 1, true, ref proj);
+		voxelShader.matrix4("matrix", 1, true, ref mat);
 		voxelShader.float3("cameraPos".ptr, 1, camPosition.ptr);
 
 		// Draw voxels

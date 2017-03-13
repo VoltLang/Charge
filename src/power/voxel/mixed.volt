@@ -149,17 +149,17 @@ public:
 	{
 	}
 
-	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
+	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4d)
 	{
 		frustum: math.Frustum;
 		frustum.setFromGL(ref mat);
 		state: DrawState;
-		state.matrix = mat;
+		state.matrix.setFrom(ref mat);
 		state.camPosition = camPosition;
-		state.planes[0] = frustum.p[0];
-		state.planes[1] = frustum.p[1];
-		state.planes[2] = frustum.p[2];
-		state.planes[3] = frustum.p[3];
+		state.planes[0].setFrom(ref frustum.p[0]);
+		state.planes[1].setFrom(ref frustum.p[1]);
+		state.planes[2].setFrom(ref frustum.p[2]);
+		state.planes[3].setFrom(ref frustum.p[3]);
 
 		glCheckError();
 		glBindTextureUnit(0, mOctTexture);

@@ -48,9 +48,9 @@ public:
 		glBindFramebuffer(target, 0);
 	}
 
-	abstract fn setMatrixToOrtho(ref mat: Matrix4x4f);
-	abstract fn setMatrixToOrtho(ref mat: Matrix4x4f, width: f32, height: f32);
-	abstract fn setMatrixToProjection(ref mat: Matrix4x4f, fov: f32, near: f32, far: f32);
+	abstract fn setMatrixToOrtho(ref mat: Matrix4x4d);
+	abstract fn setMatrixToOrtho(ref mat: Matrix4x4d, width: f32, height: f32);
+	abstract fn setMatrixToProjection(ref mat: Matrix4x4d, fov: f32, near: f32, far: f32);
 
 
 protected:
@@ -72,17 +72,17 @@ private:
 
 
 public:
-	override final fn setMatrixToOrtho(ref mat: Matrix4x4f)
+	override final fn setMatrixToOrtho(ref mat: Matrix4x4d)
 	{
 		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
 	}
 
-	override final fn setMatrixToOrtho(ref mat: Matrix4x4f, width: f32, height: f32)
+	override final fn setMatrixToOrtho(ref mat: Matrix4x4d, width: f32, height: f32)
 	{
 		mat.setToOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
 	}
 
-	override final fn setMatrixToProjection(ref mat: Matrix4x4f, fov: f32, near: f32, far: f32)
+	override final fn setMatrixToProjection(ref mat: Matrix4x4d, fov: f32, near: f32, far: f32)
 	{
 		mat.setToPerspective(fov, cast(f32)width / cast(f32)height, near, far);
 	}
@@ -135,17 +135,17 @@ public:
 		if (depth !is null) { depth.decRef(); depth = null; }
 	}
 
-	override final fn setMatrixToOrtho(ref mat: Matrix4x4f)
+	override final fn setMatrixToOrtho(ref mat: Matrix4x4d)
 	{
 		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
 	}
 
-	override final fn setMatrixToOrtho(ref mat: Matrix4x4f, width: f32, height: f32)
+	override final fn setMatrixToOrtho(ref mat: Matrix4x4d, width: f32, height: f32)
 	{
 		mat.setToOrtho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
 	}
 
-	override final fn setMatrixToProjection(ref mat: Matrix4x4f, fov: f32, near: f32, far: f32)
+	override final fn setMatrixToProjection(ref mat: Matrix4x4d, fov: f32, near: f32, far: f32)
 	{
 		mat.setToPerspective(fov, cast(f32)width / cast(f32)height, near, far);
 	}
