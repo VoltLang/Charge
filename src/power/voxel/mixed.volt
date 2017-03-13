@@ -247,7 +247,7 @@ public:
 		s := makeListShader(src, dst1, dst2, powerStart, powerLevels, dist);
 		s.bind();
 		s.float3("cameraPos".ptr, state.camPosition.ptr);
-		s.matrix4("matrix", 1, false, state.matrix.ptr);
+		s.matrix4("matrix", 1, false, ref state.matrix);
 		s.float4("planes".ptr, 4, &state.planes[0].a);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
 		                GL_SHADER_STORAGE_BARRIER_BIT |
@@ -271,7 +271,7 @@ public:
 		s := makeElementsShader(src, powerStart, powerLevels);
 		s.bind();
 		s.float3("cameraPos".ptr, state.camPosition.ptr);
-		s.matrix4("matrix", 1, false, state.matrix.ptr);
+		s.matrix4("matrix", 1, false, ref state.matrix);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
 		                GL_SHADER_STORAGE_BARRIER_BIT |
 		                GL_COMMAND_BARRIER_BIT);

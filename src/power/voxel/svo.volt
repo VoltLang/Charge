@@ -296,7 +296,7 @@ public:
 		                   cast(f32)(1 << mOccludePower));
 
 		mFeedback.bind();
-		mFeedback.matrix4("matrix", 1, false, mat.ptr);
+		mFeedback.matrix4("matrix", 1, false, ref mat);
 		mFeedback.float3("cameraPos".ptr, camPosition.ptr);
 		mFeedback.float3("positionScale".ptr, positionScale.ptr);
 		mFeedback.float3("positionOffset".ptr, positionOffset.ptr);
@@ -305,7 +305,7 @@ public:
 	fn setupStaticOcclude(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
 	{
 		mOcclude.bind();
-		mOcclude.matrix4("matrix", 1, false, mat.ptr);
+		mOcclude.matrix4("matrix", 1, false, ref mat);
 		mOcclude.float3("cameraPos".ptr, camPosition.ptr);
 	}
 
@@ -317,7 +317,7 @@ public:
 	fn setupStaticTrace(ref camPosition: math.Point3f, ref mat: math.Matrix4x4f)
 	{
 		mTracer.bind();
-		mTracer.matrix4("matrix", 1, false, mat.ptr);
+		mTracer.matrix4("matrix", 1, false, ref mat);
 		mTracer.float3("cameraPos".ptr, camPosition.ptr);
 	}
 

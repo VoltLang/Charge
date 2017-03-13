@@ -194,7 +194,7 @@ public:
 
 		// Setup shader.
 		voxelShader.bind();
-		voxelShader.matrix4("matrix", 1, true, proj.ptr);
+		voxelShader.matrix4("matrix", 1, true, ref proj);
 		voxelShader.float3("cameraPos".ptr, 1, camPosition.ptr);
 
 		// Draw voxels

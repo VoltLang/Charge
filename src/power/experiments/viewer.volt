@@ -142,7 +142,7 @@ public:
 		t.setMatrixToOrtho(ref mat);
 
 		gfxDrawShader.bind();
-		gfxDrawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
+		gfxDrawShader.matrix4("matrix", 1, true, ref mat);
 
 		glBindVertexArray(textVbo.vao);
 		gfxBitmapTexture.bind();

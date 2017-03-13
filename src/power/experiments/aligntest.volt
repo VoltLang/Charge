@@ -161,7 +161,7 @@ public:
 		mat: math.Matrix4x4f;
 		t.setMatrixToOrtho(ref mat);
 		testShader.bind();
-		testShader.matrix4("matrix", 1, true, mat.u.a.ptr);
+		testShader.matrix4("matrix", 1, true, ref mat);
 
 		// Clear the screen.
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);

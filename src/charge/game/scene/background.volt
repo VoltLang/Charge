@@ -141,7 +141,7 @@ public:
 		mat: Matrix4x4f;
 		t.setMatrixToOrtho(ref mat);
 		gfxDrawShader.bind();
-		gfxDrawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
+		gfxDrawShader.matrix4("matrix", 1, true, ref mat);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

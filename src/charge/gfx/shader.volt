@@ -7,6 +7,7 @@ module charge.gfx.shader;
 
 import watt.io;
 import lib.gl;
+import charge.math.matrix;
 
 
 class Shader
@@ -174,10 +175,10 @@ final:
 	 * Matrix
 	 */
 
-	fn matrix4(name: const(char)*, count: int, transpose: bool, value: f32*)
+	fn matrix4(name: const(char)*, count: int, transpose: bool, ref mat: Matrix4x4f)
 	{
 		loc := glGetUniformLocation(id, name);
-		glUniformMatrix4fv(loc, count, transpose, value);
+		glUniformMatrix4fv(loc, count, transpose, mat.ptr);
 	}
 
 	/*

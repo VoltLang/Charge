@@ -119,7 +119,7 @@ public:
 		mat: Matrix4x4f;
 		t.setMatrixToOrtho(ref mat);
 		gfxDrawShader.bind();
-		gfxDrawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
+		gfxDrawShader.matrix4("matrix", 1, true, ref mat);
 
 		// Clear the screen.
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);

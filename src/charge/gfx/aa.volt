@@ -46,7 +46,7 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		drawShader.bind();
-		drawShader.matrix4("matrix", 1, true, mat.u.a.ptr);
+		drawShader.matrix4("matrix", 1, true, ref mat);
 
 		glBindVertexArray(aaVbo.vao);
 		fbo.color.bind();
