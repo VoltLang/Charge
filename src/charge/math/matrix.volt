@@ -164,7 +164,7 @@ public:
 		u.m[3][3] = 0.0;
 	}
 
-	fn opMul(point: Point3f) Point3f
+	fn opMul(ref point: Point3f) Point3f
 	{
 		px: f64 = point.x; py: f64 = point.y; pz: f64 = point.z;
 		x := px * u.m[0][0] + py * u.m[0][1] + pz * u.m[0][2] + u.m[0][3];
@@ -173,7 +173,7 @@ public:
 		return Point3f.opCall(cast(f32)x, cast(f32)y, cast(f32)z);
 	}
 
-	fn opDiv(point: Point3f) Point3f
+	fn opDiv(ref point: Point3f) Point3f
 	{
 		px: f64 = point.x; py: f64 = point.y; pz: f64 = point.z;
 		x := px * u.m[0][0] + py * u.m[0][1] + pz * u.m[0][2] + u.m[0][3];
