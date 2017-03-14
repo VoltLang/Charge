@@ -171,10 +171,8 @@ public:
 		}
 	}
 
-	fn draw(ref camPosition: math.Point3f, ref transform: math.Matrix4x4d)
+	fn draw(ref camPosition: math.Point3f, ref mvp: math.Matrix4x4f)
 	{
-		mat: math.Matrix4x4f;
-		mat.setFrom(ref transform);
 		glCheckError();
 
 		// The octtree texture buffer is used for all shaders.
@@ -183,7 +181,7 @@ public:
 		// We first do a initial pruning of cubes. This is put into a
 		// feedback buffer that is used as data to the occlusion step.
 		counters.start(0);
-		setupStaticFeedback(ref camPosition, ref mat);
+		setupStaticFeedback(ref camPosition, ref mvp);
 
 		// Setup the transform feedback state
 		glEnable(GL_RASTERIZER_DISCARD);
@@ -203,7 +201,7 @@ public:
 		// Do occlusion testing, this generate a list of which aabb
 		// that the feedback step generated are visible.
 		counters.start(1);
-		setupStaticOcclude(ref camPosition, ref mat);
+		setupStaticOcclude(ref camPosition, ref mvp);
 
 		// Turn of depth and color write.
 		glDepthMask(GL_FALSE);
@@ -232,7 +230,7 @@ public:
 		// Use the occlusion testing to prune the list of aabb that are
 		// visible, this is then used to generate the raytracing boxes.
 		counters.start(2);
-		setupStaticPrune(ref camPosition, ref mat);
+		setupStaticPrune(ref camPosition, ref mvp);
 
 		glEnable(GL_RASTERIZER_DISCARD);
 		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, mFBPrune);
@@ -261,7 +259,7 @@ public:
 		//
 		// Draw the raytracing cubes, the shader will futher subdivide
 		// the cubes into smaller cubes and then raytrace from them.
-		setupStaticTrace(ref camPosition, ref mat);
+		setupStaticTrace(ref camPosition, ref mvp);
 
 		glCullFace(GL_FRONT);
 		glEnable(GL_CULL_FACE);

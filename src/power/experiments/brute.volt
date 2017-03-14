@@ -132,11 +132,9 @@ public:
 
 		proj: math.Matrix4x4d;
 		t.setMatrixToProjection(ref proj, 45.f, 0.1f, 256.f);
-		proj.setToMultiply(ref view);
 
-		mat: math.Matrix4x4f;
-		mat.setFrom(ref proj);
-
+		mvp: math.Matrix4x4f;
+		mvp.setToMultiplyAndTranspose(ref proj, ref view);
 
 		shouldEnd: bool;
 		if (!queryInFlight) {
@@ -197,7 +195,7 @@ public:
 
 		// Setup shader.
 		voxelShader.bind();
-		voxelShader.matrix4("matrix", 1, true, ref mat);
+		voxelShader.matrix4("matrix", 1, true, ref mvp);
 		voxelShader.float3("cameraPos".ptr, 1, camPosition.ptr);
 
 		// Draw voxels

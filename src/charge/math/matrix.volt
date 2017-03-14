@@ -35,9 +35,56 @@ public:
 		}
 	}
 
+	fn setToAndTranspose(ref mat: Matrix4x4d)
+	{
+		a[ 0] = cast(f32)mat.u.a[ 0];
+		a[ 4] = cast(f32)mat.u.a[ 1];
+		a[ 8] = cast(f32)mat.u.a[ 2];
+		a[12] = cast(f32)mat.u.a[ 3];
+		a[ 1] = cast(f32)mat.u.a[ 4];
+		a[ 5] = cast(f32)mat.u.a[ 5];
+		a[ 9] = cast(f32)mat.u.a[ 6];
+		a[13] = cast(f32)mat.u.a[ 7];
+		a[ 2] = cast(f32)mat.u.a[ 8];
+		a[ 6] = cast(f32)mat.u.a[ 9];
+		a[10] = cast(f32)mat.u.a[10];
+		a[14] = cast(f32)mat.u.a[11];
+		a[ 3] = cast(f32)mat.u.a[12];
+		a[ 7] = cast(f32)mat.u.a[13];
+		a[11] = cast(f32)mat.u.a[14];
+		a[15] = cast(f32)mat.u.a[15];
+	}
+
+	fn setToMultiply(ref l: Matrix4x4d, ref r: Matrix4x4d)
+	{
+		foreach (i; 0 .. 4) {
+			l0 := l.u.m[i][0];
+			l1 := l.u.m[i][1];
+			l2 := l.u.m[i][2];
+			l3 := l.u.m[i][3];
+			a[i * 4 + 0] = cast(f32)(l0 * r.u.m[0][0] + l1 * r.u.m[1][0] + l2 * r.u.m[2][0] + l3 * r.u.m[3][0]);
+			a[i * 4 + 1] = cast(f32)(l0 * r.u.m[0][1] + l1 * r.u.m[1][1] + l2 * r.u.m[2][1] + l3 * r.u.m[3][1]);
+			a[i * 4 + 2] = cast(f32)(l0 * r.u.m[0][2] + l1 * r.u.m[1][2] + l2 * r.u.m[2][2] + l3 * r.u.m[3][2]);
+			a[i * 4 + 3] = cast(f32)(l0 * r.u.m[0][3] + l1 * r.u.m[1][3] + l2 * r.u.m[2][3] + l3 * r.u.m[3][3]);
+		}
+	}
+
+	fn setToMultiplyAndTranspose(ref l: Matrix4x4d, ref r: Matrix4x4d)
+	{
+		foreach (i; 0 .. 4) {
+			l0 := l.u.m[i][0];
+			l1 := l.u.m[i][1];
+			l2 := l.u.m[i][2];
+			l3 := l.u.m[i][3];
+			a[i +  0] = cast(f32)(l0 * r.u.m[0][0] + l1 * r.u.m[1][0] + l2 * r.u.m[2][0] + l3 * r.u.m[3][0]);
+			a[i +  4] = cast(f32)(l0 * r.u.m[0][1] + l1 * r.u.m[1][1] + l2 * r.u.m[2][1] + l3 * r.u.m[3][1]);
+			a[i +  8] = cast(f32)(l0 * r.u.m[0][2] + l1 * r.u.m[1][2] + l2 * r.u.m[2][2] + l3 * r.u.m[3][2]);
+			a[i + 12] = cast(f32)(l0 * r.u.m[0][3] + l1 * r.u.m[1][3] + l2 * r.u.m[2][3] + l3 * r.u.m[3][3]);
+		}
+	}
+
 	@property fn ptr() f32* { return a.ptr; }
 }
-
 
 struct Matrix4x4d
 {
@@ -188,17 +235,17 @@ public:
 		return Point3f.opCall(cast(f32)x, cast(f32)y, cast(f32)z);
 	}
 
-	fn setToMultiply(ref b: Matrix4x4d)
+	fn setToMultiply(ref l: Matrix4x4d, ref r: Matrix4x4d)
 	{
 		foreach (i; 0 .. 4) {
-			a0 := u.m[i][0];
-			a1 := u.m[i][1];
-			a2 := u.m[i][2];
-			a3 := u.m[i][3];
-			u.m[i][0] = a0 * b.u.m[0][0] + a1 * b.u.m[1][0] + a2 * b.u.m[2][0] + a3 * b.u.m[3][0];
-			u.m[i][1] = a0 * b.u.m[0][1] + a1 * b.u.m[1][1] + a2 * b.u.m[2][1] + a3 * b.u.m[3][1];
-			u.m[i][2] = a0 * b.u.m[0][2] + a1 * b.u.m[1][2] + a2 * b.u.m[2][2] + a3 * b.u.m[3][2];
-			u.m[i][3] = a0 * b.u.m[0][3] + a1 * b.u.m[1][3] + a2 * b.u.m[2][3] + a3 * b.u.m[3][3];
+			l0 := l.u.m[i][0];
+			l1 := l.u.m[i][1];
+			l2 := l.u.m[i][2];
+			l3 := l.u.m[i][3];
+			u.m[i][0] = cast(f32)(l0 * r.u.m[0][0] + l1 * r.u.m[1][0] + l2 * r.u.m[2][0] + l3 * r.u.m[3][0]);
+			u.m[i][1] = cast(f32)(l0 * r.u.m[0][1] + l1 * r.u.m[1][1] + l2 * r.u.m[2][1] + l3 * r.u.m[3][1]);
+			u.m[i][2] = cast(f32)(l0 * r.u.m[0][2] + l1 * r.u.m[1][2] + l2 * r.u.m[2][2] + l3 * r.u.m[3][2]);
+			u.m[i][3] = cast(f32)(l0 * r.u.m[0][3] + l1 * r.u.m[1][3] + l2 * r.u.m[2][3] + l3 * r.u.m[3][3]);
 		}
 	}
 

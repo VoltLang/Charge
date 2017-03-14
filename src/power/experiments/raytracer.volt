@@ -218,19 +218,25 @@ public:
 		glEnable(GL_DEPTH_TEST);
 		glUseProgram(0);
 
+
 		view: math.Matrix4x4d;
 		view.setToLookFrom(ref camPosition, ref camRotation);
 
 		proj: math.Matrix4x4d;
 		t.setMatrixToProjection(ref proj, 45.f, 0.0001f, 256.f);
-		proj.setToMultiply(ref view);
-		proj.transpose();
+
 
 		if (useSVO) {
-			svo.draw(ref camPosition, ref proj);
+			temp: math.Matrix4x4f;
+			temp.setToMultiplyAndTranspose(ref proj, ref view);
+
+			svo.draw(ref camPosition, ref temp);
 		} else {
 			mixed.frame = frames[frame];
-			mixed.draw(ref camPosition, ref proj);
+			temp: math.Matrix4x4d;
+			temp.setToMultiply(ref proj, ref view);
+			temp.transpose();
+			mixed.draw(ref camPosition, ref temp);
 		}
 
 		// Check for last frames query.
