@@ -126,34 +126,34 @@ public:
 		default:
 		case 1:
 			// Down the alley.
-			camHeading = 0.f;
-			camPitch = 0.f;
+			mCamHeading = 0.f;
+			mCamPitch = 0.f;
 			camPosition = math.Point3f.opCall(0.20f, 0.20f, 1.0f);
 			break;
 		case 2:
-			camHeading = 0.020998f;
-			camPitch = 0.108000f;
+			mCamHeading = 0.020998f;
+			mCamPitch = 0.108000f;
 			camPosition = math.Point3f.opCall(0.172619f, 0.120140f, 0.939102f);
 			break;
 		case 3:
 			// Outside looking down.
-			camHeading = -1.182002f;
-			camPitch = -0.576000f;
+			mCamHeading = -1.182002f;
+			mCamPitch = -0.576000f;
 			camPosition = math.Point3f.opCall(-0.282043f, 0.623386f, 0.813192f);
 			break;
 		case 4:
-			camHeading = 1.586998f;
-			camPitch = 0.150000f;
+			mCamHeading = 1.586998f;
+			mCamPitch = 0.150000f;
 			camPosition = math.Point3f.opCall(0.304225f, 0.137506f, 0.626945f);
 			break;
 		case 5:
-			camHeading = 1.565997f;
-			camPitch = -0.012000f;
+			mCamHeading = 1.565997f;
+			mCamPitch = -0.012000f;
 			camPosition = math.Point3f.opCall(0.320065f, 0.133823f, 0.617499f);
 			break;
 		case 6:
-			camHeading = 3.452999f;
-			camPitch = 0.189000f;
+			mCamHeading = 3.452999f;
+			mCamPitch = 0.189000f;
 			camPosition = math.Point3f.opCall(0.106617f, 0.135277f, 0.269312f);
 			break;
 		}
@@ -232,11 +232,19 @@ public:
 
 			svo.draw(ref camPosition, ref temp);
 		} else {
+			cull: math.Matrix4x4d;
+			cull.setToLookFrom(ref cullPosition, ref cullRotation);
+
+			state: Mixed.DrawInput;
+
+			state.camPos = camPosition;
+			state.camMVP.setToMultiply(ref proj, ref view);
+
+			state.cullPos = cullPosition;
+			state.cullMVP.setToMultiply(ref proj, ref cull);
+
 			mixed.frame = frames[frame];
-			temp: math.Matrix4x4d;
-			temp.setToMultiply(ref proj, ref view);
-			temp.transpose();
-			mixed.draw(ref camPosition, ref temp);
+			mixed.draw(ref state);
 		}
 
 		// Check for last frames query.

@@ -20,6 +20,14 @@ import power.voxel.instance;
 class Mixed
 {
 public:
+	struct DrawInput
+	{
+		camMVP: math.Matrix4x4d;
+		cullMVP: math.Matrix4x4d;
+		camPos: math.Point3f; pad1: f32;
+		cullPos: math.Point3f; pad0: f32;
+	}
+
 	struct DrawState
 	{
 		matrix: math.Matrix4x4f;
@@ -149,13 +157,14 @@ public:
 	{
 	}
 
-	fn draw(ref camPosition: math.Point3f, ref mat: math.Matrix4x4d)
+	fn draw(ref input: DrawInput)
 	{
 		frustum: math.Frustum;
-		frustum.setFromGL(ref mat);
+		frustum.setFromUntransposedGL(ref input.cullMVP);
+
 		state: DrawState;
-		state.matrix.setFrom(ref mat);
-		state.camPosition = camPosition;
+		state.matrix.setToAndTranspose(ref input.camMVP);
+		state.camPosition = input.cullPos;
 		state.planes[0].setFrom(ref frustum.p[0]);
 		state.planes[1].setFrom(ref frustum.p[1]);
 		state.planes[2].setFrom(ref frustum.p[2]);

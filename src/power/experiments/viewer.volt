@@ -25,16 +25,21 @@ public:
 
 	// Rotation stuff.
 	isDragging: bool;
-	camHeading, camPitch, distance: f32;
-	camRotation: math.Quatf;
 	camPosition: math.Point3f;
-
-	camUp, camFore, camBack, camLeft, camRight: bool;
+	camRotation: math.Quatf;
+	cullPosition: math.Point3f;
+	cullRotation: math.Quatf;
 
 	/// Text rendering stuff.
 	textVbo: GfxDrawBuffer;
 	textBuilder: GfxDrawVertexBuilder;
 	textState: GfxBitmapState;
+
+
+protected:
+	mLockCull: bool;
+	mCamHeading, mCamPitch, distance: f32;
+	mCamUp, mCamFore, mCamBack, mCamLeft, mCamRight: bool;
 
 
 public:
@@ -71,8 +76,8 @@ public:
 
 	fn printInfo()
 	{
-		io.writefln("\t\tcamHeading = %sf;", cast(f64)camHeading);
-		io.writefln("\t\tcamPitch = %sf;", cast(f64)camPitch);
+		io.writefln("\t\tmCamHeading = %sf;", cast(f64)mCamHeading);
+		io.writefln("\t\tmCamPitch = %sf;", cast(f64)mCamPitch);
 		io.writefln("\t\tcamPosition = math.Point3f.opCall(%sf, %sf, %sf);",
 			cast(f64)camPosition.x, cast(f64)camPosition.y,
 			cast(f64)camPosition.z);
@@ -99,32 +104,35 @@ public:
 
 	override fn logic()
 	{
-		camRotation = math.Quatf.opCall(camHeading, camPitch, 0.0f);
+		camRotation = math.Quatf.opCall(mCamHeading, mCamPitch, 0.0f);
 		sum: math.Vector3f;
 
-		if (camFore != camBack) {
+		if (mCamFore != mCamBack) {
 			v: math.Vector3f;
-			v.z = camBack ? 1.0f : -1.0f;
+			v.z = mCamBack ? 1.0f : -1.0f;
 			sum += camRotation * v;
 		}
 
-		if (camLeft != camRight) {
+		if (mCamLeft != mCamRight) {
 			v: math.Vector3f;
-			v.x = camRight ? 1.0f : -1.0f;
+			v.x = mCamRight ? 1.0f : -1.0f;
 			sum += camRotation * v;
 		}
 
-		if (camUp) {
+		if (mCamUp) {
 			sum.y += 1;
 		}
 
-		if (sum.lengthSqrd() == 0.f) {
-			return;
+		if (sum.lengthSqrd() != 0.f) {
+			sum.normalize();
+			sum.scale(0.001f);
+			camPosition += sum;
 		}
 
-		sum.normalize();
-		sum.scale(0.001f);
-		camPosition += sum;
+		if (!mLockCull) {
+			cullPosition = camPosition;
+			cullRotation = camRotation;
+		}
 	}
 
 	override fn render(t: GfxTarget)
@@ -158,24 +166,25 @@ public:
 	override fn dropControl()
 	{
 		super.dropControl();
-		camUp = false;
-		camFore = false;
-		camBack = false;
-		camLeft = false;
-		camRight = false;
+		mCamUp = false;
+		mCamFore = false;
+		mCamBack = false;
+		mCamLeft = false;
+		mCamRight = false;
 	}
 
 	override fn keyDown(CtlKeyboard, keycode: int)
 	{
 		switch (keycode) {
 		case 27: mManager.closeMe(this); break;
-		case 32: camUp = true; break;
-		case 'w': camFore = true; break;
-		case 's': camBack = true; break;
-		case 'a': camLeft = true; break;
-		case 'd': camRight = true; break;
+		case 32: mCamUp = true; break;
+		case 'w': mCamFore = true; break;
+		case 's': mCamBack = true; break;
+		case 'a': mCamLeft = true; break;
+		case 'd': mCamRight = true; break;
 		case 'q': printInfo(); break;
 		case 'o': mUseAA = !mUseAA; break;
+		case 'l': mLockCull = !mLockCull; break;
 		default:
 		}
 	}
@@ -183,11 +192,11 @@ public:
 	override fn keyUp(CtlKeyboard, keycode: int)
 	{
 		switch (keycode) {
-		case 32: camUp = false; break;
-		case 'w': camFore = false; break;
-		case 's': camBack = false; break;
-		case 'a': camLeft = false; break;
-		case 'd': camRight = false; break;
+		case 32: mCamUp = false; break;
+		case 'w': mCamFore = false; break;
+		case 's': mCamBack = false; break;
+		case 'a': mCamLeft = false; break;
+		case 'd': mCamRight = false; break;
 		default:
 		}
 	}
@@ -195,12 +204,12 @@ public:
 	override fn mouseMove(m: CtlMouse, x: int, y: int)
 	{
 		if (isDragging) {
-			camHeading += x * -0.003f;
-			camPitch += y * -0.003f;
+			mCamHeading += x * -0.003f;
+			mCamPitch += y * -0.003f;
 		}
 
-		if (camPitch < -(PIf/2)) camPitch = -(PIf/2);
-		if (camPitch >  (PIf/2)) camPitch =  (PIf/2);
+		if (mCamPitch < -(PIf/2)) mCamPitch = -(PIf/2);
+		if (mCamPitch >  (PIf/2)) mCamPitch =  (PIf/2);
 	}
 
 	override fn mouseDown(m: CtlMouse, button: int)

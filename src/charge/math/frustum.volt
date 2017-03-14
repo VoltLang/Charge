@@ -94,42 +94,42 @@ public:
 
 
 public:
-	fn setFromGL(ref mat: Matrix4x4d)
+	fn setFromUntransposedGL(ref mat: Matrix4x4d)
 	{
-		p[Left].a = mat.u.m[0][3] + mat.u.m[0][0];
-		p[Left].b = mat.u.m[1][3] + mat.u.m[1][0];
-		p[Left].c = mat.u.m[2][3] + mat.u.m[2][0];
-		p[Left].d = mat.u.m[3][3] + mat.u.m[3][0];
+		p[Left].a = mat.u.m[3][0] + mat.u.m[0][0];
+		p[Left].b = mat.u.m[3][1] + mat.u.m[0][1];
+		p[Left].c = mat.u.m[3][2] + mat.u.m[0][2];
+		p[Left].d = mat.u.m[3][3] + mat.u.m[0][3];
 		p[Left].normalize();
 
-		p[Right].a = mat.u.m[0][3] - mat.u.m[0][0];
-		p[Right].b = mat.u.m[1][3] - mat.u.m[1][0];
-		p[Right].c = mat.u.m[2][3] - mat.u.m[2][0];
-		p[Right].d = mat.u.m[3][3] - mat.u.m[3][0];
+		p[Right].a = mat.u.m[3][0] - mat.u.m[0][0];
+		p[Right].b = mat.u.m[3][1] - mat.u.m[0][1];
+		p[Right].c = mat.u.m[3][2] - mat.u.m[0][2];
+		p[Right].d = mat.u.m[3][3] - mat.u.m[0][3];
 		p[Right].normalize();
 
-		p[Top].a = mat.u.m[0][3] - mat.u.m[0][1];
-		p[Top].b = mat.u.m[1][3] - mat.u.m[1][1];
-		p[Top].c = mat.u.m[2][3] - mat.u.m[2][1];
-		p[Top].d = mat.u.m[3][3] - mat.u.m[3][1];
+		p[Top].a = mat.u.m[3][0] - mat.u.m[1][0];
+		p[Top].b = mat.u.m[3][1] - mat.u.m[1][1];
+		p[Top].c = mat.u.m[3][2] - mat.u.m[1][2];
+		p[Top].d = mat.u.m[3][3] - mat.u.m[1][3];
 		p[Top].normalize();
 
-		p[Bottom].a = mat.u.m[0][3] + mat.u.m[0][1];
-		p[Bottom].b = mat.u.m[1][3] + mat.u.m[1][1];
-		p[Bottom].c = mat.u.m[2][3] + mat.u.m[2][1];
-		p[Bottom].d = mat.u.m[3][3] + mat.u.m[3][1];
+		p[Bottom].a = mat.u.m[3][0] + mat.u.m[1][0];
+		p[Bottom].b = mat.u.m[3][1] + mat.u.m[1][1];
+		p[Bottom].c = mat.u.m[3][2] + mat.u.m[1][2];
+		p[Bottom].d = mat.u.m[3][3] + mat.u.m[1][3];
 		p[Bottom].normalize();
 
-		p[Far].a = mat.u.m[0][3] - mat.u.m[0][2];
-		p[Far].b = mat.u.m[1][3] - mat.u.m[1][2];
-		p[Far].c = mat.u.m[2][3] - mat.u.m[2][2];
-		p[Far].d = mat.u.m[3][3] - mat.u.m[3][2];
+		p[Far].a = mat.u.m[3][0] - mat.u.m[2][0];
+		p[Far].b = mat.u.m[3][1] - mat.u.m[2][1];
+		p[Far].c = mat.u.m[3][2] - mat.u.m[2][2];
+		p[Far].d = mat.u.m[3][3] - mat.u.m[2][3];
 		p[Far].normalize();
 
-		p[Near].a = mat.u.m[0][3] + mat.u.m[0][2];
-		p[Near].b = mat.u.m[1][3] + mat.u.m[1][2];
-		p[Near].c = mat.u.m[2][3] + mat.u.m[2][2];
-		p[Near].d = mat.u.m[3][3] + mat.u.m[3][2];
+		p[Near].a = mat.u.m[3][0] + mat.u.m[2][0];
+		p[Near].b = mat.u.m[3][1] + mat.u.m[2][1];
+		p[Near].c = mat.u.m[3][2] + mat.u.m[2][2];
+		p[Near].d = mat.u.m[3][3] + mat.u.m[2][3];
 		p[Near].normalize();
 	}
 }
