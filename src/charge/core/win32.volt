@@ -7,10 +7,12 @@ module charge.core.win32;
 version (Windows):
 
 import core.exception;
-import core.c.windows;
 import core.c.stdio;
+import core.c.stdlib;
 import core.c.string;
+import core.c.windows;
 
+import io = watt.io;
 import watt.conv;
 
 import charge.core;
@@ -139,7 +141,8 @@ public:
 
 	override fn panic(message: string)
 	{
-		assert(false);
+		io.writefln("PANIC: %s", message);
+		exit(-1);
 	}
 
 	override fn getClipboardText() string
