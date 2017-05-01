@@ -4,12 +4,14 @@ module main;
 
 static import examples.gl;
 static import power.main;
+static import voxel.game;
 
 
 fn main(args: string[]) int
 {
 	//g := new examples.gl.Game(args);
-	g := new power.main.Game(args);
+	//g := new power.main.Game(args);
+	g := new voxel.game.Game(args);
 
 	return g.c.loop();
 }
