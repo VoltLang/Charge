@@ -170,6 +170,21 @@ public:
 		state.planes[2].setFrom(ref frustum.p[2]);
 		state.planes[3].setFrom(ref frustum.p[3]);
 
+/*
+		test: math.Matrix4x4d;
+		test = input.camMVP;
+		test.inverse();
+		p1 := math.Point3f.opCall(0.f, 0.f,  1.f);
+		p2 := math.Point3f.opCall(0.f, 0.f, -1.f);
+		p1 = test / p1;
+		p2 = test / p2;
+		io.writefln("far  %s", p1.toString());
+		io.writefln("near %s", p2.toString());
+		io.writefln("plane near (%s %s %s) %s", frustum.p[5].a, frustum.p[5].b, frustum.p[5].c, frustum.p[5].d);
+		io.writefln("plane far  (%s %s %s) %s", frustum.p[4].a, frustum.p[4].b, frustum.p[4].c, frustum.p[4].d);
+		io.output.flush();
+*/
+
 		glCheckError();
 		glBindTextureUnit(0, mOctTexture);
 
