@@ -1,10 +1,8 @@
 // Copyright © 2016-2017, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-module power.game;
+module voxel.game;
 
 import core.exception;
-
-import watt.io;
 
 import charge.ctl;
 import charge.sys.resource;
