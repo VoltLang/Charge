@@ -6,12 +6,18 @@ static import examples.gl;
 static import power.main;
 static import voxel.game;
 
+import voxel.svo;
+
 
 fn main(args: string[]) int
 {
 	//g := new examples.gl.Game(args);
 	//g := new power.main.Game(args);
-	g := new voxel.game.Game(args);
+	//g := new voxel.game.Game(args);
 
-	return g.c.loop();
+	//return g.c.loop();
+
+	test();
+
+	return 0;
 }

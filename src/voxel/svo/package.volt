@@ -8,6 +8,8 @@ import io = watt.io;
 
 fn test()
 {
+	t: Input1;
+
 	io.output.writefln("Pow          %s", Input1.Pow);
 	io.output.writefln("Size         %s", Input1.Size);
 	io.output.writefln("NumElements  %s", Input1.NumElements);
@@ -32,7 +34,6 @@ fn test()
 	io.output.writefln("ZStride      %s", Input3.ZStride);
 	io.output.writefln("FlagsNumBits %s", Input3.FlagsNumBits);
 	io.output.flush();
-	chargeQuit();
 }
 
 enum NumDim = 3;

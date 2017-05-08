@@ -28,13 +28,9 @@ public:
 		opts.windowMode = coreWindow.Normal;
 		super(opts);
 
-		test();
-
-/*
 		if (checkVersion()) {
 			push(new RayTracer(this));
 		}
-*/
 	}
 
 
