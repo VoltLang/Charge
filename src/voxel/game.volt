@@ -12,6 +12,7 @@ import charge.game;
 import charge.game.scene.background;
 
 import power.experiments.raytracer;
+import voxel.svo;
 
 
 class Game : GameSceneManagerApp
@@ -27,9 +28,13 @@ public:
 		opts.windowMode = coreWindow.Normal;
 		super(opts);
 
+		test();
+
+/*
 		if (checkVersion()) {
 			push(new RayTracer(this));
 		}
+*/
 	}
 
 
