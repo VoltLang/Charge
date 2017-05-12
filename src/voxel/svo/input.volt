@@ -32,7 +32,7 @@ private:
 
 
 private:
-	mMap: Entry[const(u32)[]];
+	mMap: Entry[const(u8)[]];
 	mBuddy: InputBuddy;
 	mData: u32[];
 
@@ -96,7 +96,7 @@ public:
 	fn add(data: scope const(u32)[]) u32
 	{
 		// Is there a cache of the data.
-		r := data in mMap;
+		r := (cast(u8[])data) in mMap;
 		if (r !is null) {
 			return r.pos;
 		}
@@ -105,9 +105,10 @@ public:
 		order := sizeToOrder(data.length);
 		pos := cast(u32)mBuddy.alloc(order) * (1u << order);
 		internal := mData[pos .. pos + data.length];
-		internal[] = data;
+		internal[..] = data;
 		e: Entry = { pos, order };
-		mMap[internal] = e;
+		mMap[cast(u8[])internal] = e;
+
 		return pos;
 	}
 }
