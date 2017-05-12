@@ -127,7 +127,7 @@ void main(void)
 
 		} while (false);
 
-		if (hit) {
+		if (hit != 0) {
 			break;
 		}
 
