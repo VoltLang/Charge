@@ -105,9 +105,9 @@ public:
 			io.writefln("GL_MAX_COMBINED_ATOMIC_COUNTERS: %s", test);
 		}
 
-		mXShift = 2;
-		mYShift = 0;
-		mZShift = 1;
+		mXShift = 0;
+		mYShift = 1;
+		mZShift = 2;
 
 		// Premake the shaders.
 		makeComputeDispatchShader(0, 4);

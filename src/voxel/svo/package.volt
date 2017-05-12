@@ -5,10 +5,3 @@ module voxel.svo;
 public import voxel.svo.gen;
 public import voxel.svo.input;
 public import voxel.svo.design;
-
-
-// Temp
-fn test()
-{
-
-}

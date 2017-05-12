@@ -11,8 +11,7 @@ import charge.gfx;
 import charge.game;
 import charge.game.scene.background;
 
-import power.experiments.raytracer;
-import voxel.svo;
+import voxel.viewer;
 
 
 class Game : GameSceneManagerApp
