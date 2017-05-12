@@ -138,6 +138,12 @@ public:
 
 
 public:
+	static fn indexOf(x: u32, y: u32, z: u32) u32
+	{
+		x %= Size; y %= Size; z %= Size;
+		return x * XStride + y * YStride + z * ZStride;
+	}
+
 	fn getBit(index: u32) bool
 	{
 		findex := index / FlagsNumBits;
@@ -145,15 +151,17 @@ public:
 		return (u.flags[findex] & cast(FlagsType)(1 << fshift)) != 0;
 	}
 
-	fn set(x: u32, y: u32, z: u32, d: u32)
+	fn set(index: u32, d: u32)
 	{
-		x %= Size; y %= Size; z %= Size;
-
-		index := x * XStride + y * YStride + z * ZStride;
 		data[index] = d;
 		findex := index / FlagsNumBits;
 		fshift := index % FlagsNumBits;
 		u.flags[findex] |= cast(FlagsType)(1 << fshift);
+	}
+
+	fn set(x: u32, y: u32, z: u32, d: u32)
+	{
+		set(indexOf(x, y, z), d);
 	}
 
 	fn reset()

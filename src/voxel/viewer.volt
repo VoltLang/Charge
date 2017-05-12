@@ -4,7 +4,6 @@ module voxel.viewer;
 
 import watt.text.sink;
 import watt.text.format;
-import watt.io.file;
 import io = watt.io;
 
 import charge.ctl;
@@ -19,6 +18,7 @@ import power.voxel.mixed;
 import power.experiments.viewer;
 
 import voxel.svo;
+import voxel.loaders.magica;
 
 
 class RayTracer : Viewer
@@ -44,20 +44,10 @@ public:
 
 
 public:
-	this(GameSceneManager g)
+	this(g: GameSceneManager, frames: u32[], data: void[])
 	{
 		super(g);
-
-		// Only one frame.
-		frames = new u32[](1);
-
-		// Reserve the first index.
-		ib: InputBuffer;
-		ib.setup(1);
-
-		gen: FlatGen;
-		frames[0] = gen.genY(ref ib, 11);
-		data := ib.getData();
+		this.frames = frames;
 
 		glCreateBuffers(1, &octBuffer);
 		glNamedBufferData(octBuffer, cast(GLsizeiptr)data.length, data.ptr, GL_STATIC_DRAW);
