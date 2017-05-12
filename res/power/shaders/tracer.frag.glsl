@@ -66,13 +66,13 @@ void main(void)
 
 	// Loop until ray exits volume.
 
+	int hit = 0;
 	while (true) {
 		// Restart at top of tree.
 
 		// Which part of the space the voxel volume occupy.
 		vec3 boxMin = inMinEdge;
 		float boxDim = SPLIT_SIZE;
-		bool hit = false;
 		do {
 
 			int offset = int(inOffset);
@@ -122,7 +122,7 @@ void main(void)
 	LOOPBODY();
 #endif
 
-			hit = true;
+			hit = calcAddress(select, node, offset);
 			break;
 
 		} while (false);
@@ -143,7 +143,5 @@ void main(void)
 		}
 	}
 
-	float traceSize = float(1 << (VOXEL_POWER - TRACER_POWER));
-	vec3 pos = inPosition + rayDir * tMin;
-	outColor = vec4((pos - inMinEdge) * traceSize, 1.0);
+	outColor = unpackUnorm4x8(uint(texelFetch(octree, hit).r));
 }
