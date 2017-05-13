@@ -78,7 +78,7 @@ public:
 
 		// Only one frame.
 		frames = new u32[](1);
-		frames[0] = l.toBuffer(ref ib, 3);
+		frames[0] = l.toBuffer(ib: ref ib, totalLevels: 11, repeat: true);
 
 		// Grab the data.
 		data = ib.getData();

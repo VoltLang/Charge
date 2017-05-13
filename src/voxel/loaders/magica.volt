@@ -12,6 +12,7 @@ import watt.algorithm;
 
 import math = charge.math;
 import voxel.svo;
+import voxel.svo.buddy : nextHighestPowerOfTwo, sizeToOrder;
 
 
 final class Loader
@@ -53,8 +54,8 @@ public:
 			case "SIZE":
 				u32Ptr := cast(u32*)ptr;
 				x = u32Ptr[0];
-				y = u32Ptr[1];
-				z = u32Ptr[2];
+				z = u32Ptr[1]; // Magica has Z as gravity.
+				y = u32Ptr[2];
 				break;
 			case "XYZI":
 				numVoxels = *cast(u32*)ptr;
@@ -69,7 +70,7 @@ public:
 		}
 
 		if (numModels != 1) {
-			io.writefln("invalid number of modules (%s)", numModels);
+			io.writefln("invalid number of models '%s' (no animations).", numModels);
 			return false;
 		}
 
@@ -79,6 +80,11 @@ public:
 			return false;
 		}
 
+		size := max(nextHighestPowerOfTwo(x), 
+		            max(nextHighestPowerOfTwo(y),
+		                nextHighestPowerOfTwo(z)));
+		mLevels = sizeToOrder(size);
+
 		foreach (v; voxels) {
 			color := colors[v.c-1];
 			add(v.x, v.z, v.y, color);
@@ -87,13 +93,18 @@ public:
 		return true;
 	}
 
-	fn toBuffer(ref ib: InputBuffer, extraLevels: u32) u32
+	fn toBuffer(ref ib: InputBuffer, totalLevels: u32, repeat: bool) u32
 	{
 		ret := decent(ref ib, 0, mLevels - 1);
 
-		foreach (i; 0 .. extraLevels) {
+		foreach (i; 0 .. totalLevels - mLevels) {
 			tmp: Input2Cubed;
 			tmp.set(0, 0, 0, ret);
+			if (repeat) {
+				tmp.set(0, 0, 1, ret);
+				tmp.set(1, 0, 1, ret);
+				tmp.set(1, 0, 0, ret);
+			}
 			ret = ib.compressAndAdd(ref tmp);
 		}
 
@@ -133,7 +144,7 @@ private:
 		dst: u32 = 0;
 
 		foreach (level; 0u .. mLevels - 1) {
-			shift := 7 - level;
+			shift := mLevels - 1 - level;
 			index := Input2Cubed.indexOf(x >> shift, y >> shift, z >> shift);
 			if (mArr[dst].getBit(index)) {
 				dst = mArr[dst].data[index];
