@@ -115,6 +115,7 @@ public:
 		makeComputeDispatchShader(2, 4);
 		makeComputeDispatchShader(3, 4);
 		makeElementsDispatchShader(0, 4);
+		makeArrayDispatchShader(0, 4);
 		makeListShader(0, 1, 2, 0, 3, 0.0f);
 		makeListShader(1, 0, 3, 3, 2, 0.0f);
 		makeListShader(0, 1, 2, 5, 2, 0.1f);
@@ -123,6 +124,7 @@ public:
 		makeElementsShader(0, 11, 0);
 		makeElementsShader(0, 10, 1);
 		makeElementsShader(0, 9, 2);
+		makePointsShader(0, 11);
 
 		// Setup the texture.
 		mOctTexture = octTexture;
@@ -288,6 +290,14 @@ public:
 		glDispatchCompute(1u, 1u, 1u);
 	}
 
+	fn runArrayDispatch(src: u32)
+	{
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+		s := makeArrayDispatchShader(src, 4);
+		s.bind();
+		glDispatchCompute(1u, 1u, 1u);
+	}
+
 	fn runElementShader(ref state: DrawState, src: u32,
 	                    powerStart: u32, powerLevels: u32)
 	{
@@ -301,6 +311,23 @@ public:
 		                GL_SHADER_STORAGE_BARRIER_BIT |
 		                GL_COMMAND_BARRIER_BIT);
 		glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, null);
+	}
+
+	fn runPointsShader(ref state: DrawState, src: u32,
+	                    powerStart: u32)
+	{
+		runArrayDispatch(src);
+
+		s := makePointsShader(src, powerStart);
+		s.bind();
+		s.float3("cameraPos".ptr, state.camPosition.ptr);
+		s.matrix4("matrix", 1, false, ref state.matrix);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+		                GL_SHADER_STORAGE_BARRIER_BIT |
+		                GL_COMMAND_BARRIER_BIT);
+		glEnable(GL_PROGRAM_POINT_SIZE);
+		glDrawArraysIndirect(GL_POINTS, null);
+		glDisable(GL_PROGRAM_POINT_SIZE);
 	}
 
 	fn debugCounter(src: u32) u32
@@ -399,6 +426,25 @@ private:
 		return s;
 	}
 
+	fn makeArrayDispatchShader(src: u32, dst: u32) GfxShader
+	{
+		name := format("mixed.array-dispatch (src: %s, dst: %s)", src, dst);
+		if (s := name in mShaderStore) {
+			return *s;
+		}
+
+		indSrcStr := format("#define INDIRECT_SRC %s", src);
+		indDstStr := format("#define INDIRECT_DST %s", dst);
+
+		comp := cast(string)import("power/shaders/indirect-array.comp.glsl");
+		comp = replace(comp, "#define INDIRECT_SRC %%", indSrcStr);
+		comp = replace(comp, "#define INDIRECT_DST %%", indDstStr);
+
+		s := new GfxShader(name, comp);
+		mShaderStore[name] = s;
+		return s;
+	}
+
 	fn makeListShader(src: u32, dst1: u32, dst2: u32,
 	                  powerStart: u32, powerLevels: u32, dist: f32) GfxShader
 	{
@@ -452,6 +498,35 @@ private:
 		frag = replace(frag, "#define VOXEL_SRC %%", voxelSrcStr);
 		frag = replace(frag, "#define POWER_START %%", powerStartStr);
 		frag = replace(frag, "#define POWER_LEVELS %%", powerLevelsStr);
+
+		s := new GfxShader(name, vert, null, frag);
+		mShaderStore[name] = s;
+		return s;
+	}
+
+	fn makePointsShader(src: u32, powerStart: u32) GfxShader
+	{
+		name := format("mixed.point (src: %s, start: %s)",
+			src, powerStart);
+		if (s := name in mShaderStore) {
+			return *s;
+		}
+
+		voxelSrcStr := format("#define VOXEL_SRC %s", src);
+		powerStartStr := format("#define POWER_START %s", powerStart);
+
+		vert := cast(string)import("power/shaders/points.vert.glsl");
+		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
+		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
+		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
+		vert = replace(vert, "#define VOXEL_SRC %%", voxelSrcStr);
+		vert = replace(vert, "#define POWER_START %%", powerStartStr);
+		frag := cast(string)import("power/shaders/points.frag.glsl");
+		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
+		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
+		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
+		frag = replace(frag, "#define VOXEL_SRC %%", voxelSrcStr);
+		frag = replace(frag, "#define POWER_START %%", powerStartStr);
 
 		s := new GfxShader(name, vert, null, frag);
 		mShaderStore[name] = s;
