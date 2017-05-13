@@ -59,6 +59,15 @@ uint pack_2_10_10_10_unsafe(uvec4 data)
 	return data.w << 30 | data.z << 20 | data.y << 10 | data.x;
 }
 
+uvec4 unpack_16_16_16_16(uint data1, uint data2)
+{
+	return uvec4(
+		(data1 >>  0) & 0xFFFF,
+		(data1 >> 16) & 0xFFFF,
+		(data2 >>  0) & 0xFFFF,
+		(data2 >> 16) & 0xFFFF);
+}
+
 uint calcAddress(uint select, uint node, uint offset)
 {
 	int bits = int(select + 1);
@@ -73,9 +82,10 @@ void main(void)
 	uint morton = gl_LocalInvocationIndex;
 
 	// Get the initial node adress and the packed position.
-	uint offset = (gl_WorkGroupID.x + gl_NumWorkGroups.x * gl_WorkGroupID.y) * 2;
-	uint packedPos = inData[offset + 0] << POWER_LEVELS;
-	offset = inData[offset + 1];
+	uint offset = (gl_WorkGroupID.x + gl_NumWorkGroups.x * gl_WorkGroupID.y) * 3;
+	uint packedPos1 = inData[offset + 0] << POWER_LEVELS;
+	uint packedPos2 = inData[offset + 1] << POWER_LEVELS;
+	offset = inData[offset + 2];
 
 	// This is a unrolled loop.
 	// Subdivide until empty node or found the node for this box.
@@ -89,10 +99,11 @@ void main(void)
 		return;
 	}
 
-	packedPos = packedPos |
+	packedPos1 = packedPos1 |
 		(((select >> X_SHIFT) & 0x1) << (POWER_LEVELS - 1 +  0)) |
-		(((select >> Y_SHIFT) & 0x1) << (POWER_LEVELS - 1 + 10)) |
-		(((select >> Z_SHIFT) & 0x1) << (POWER_LEVELS - 1 + 20));
+		(((select >> Y_SHIFT) & 0x1) << (POWER_LEVELS - 1 + 16));
+	packedPos2 = packedPos2 |
+		(((select >> Z_SHIFT) & 0x1) << (POWER_LEVELS - 1 +  0));
 	
 #define LOOPBODY(counter) \
 	offset = calcAddress(select, node, offset);				\
@@ -104,10 +115,11 @@ void main(void)
 		return;								\
 	}									\
 										\
-	packedPos = packedPos |							\
+	packedPos1 = packedPos1 |						\
 		(((select >> X_SHIFT) & 0x1) << (POWER_LEVELS - counter +  0)) |\
-		(((select >> Y_SHIFT) & 0x1) << (POWER_LEVELS - counter + 10)) |\
-		(((select >> Z_SHIFT) & 0x1) << (POWER_LEVELS - counter + 20));	\
+		(((select >> Y_SHIFT) & 0x1) << (POWER_LEVELS - counter + 16));	\
+	packedPos2 = packedPos2 |						\
+		(((select >> Z_SHIFT) & 0x1) << (POWER_LEVELS - counter +  0));	\
 
 
 	// After this loop level each group of 8 lanes holds one box of voxels.
@@ -122,7 +134,7 @@ void main(void)
 	float invRadii2 = invDiv2 * sqrt(2.0);
 
 	// Unpack the position.
-	uvec3 upos = unpack_2_10_10_10(packedPos).xyz;
+	uvec3 upos = unpack_16_16_16_16(packedPos1, packedPos2).xyz;
 	vec4 v = vec4(vec3(upos) * invDiv + invDiv, 1.0);
 
 #if POWER_FINAL > 4
@@ -147,14 +159,18 @@ void main(void)
 	vec3 v1 = v.xyz - cameraPos;
 	float l = dot(v1, v1);
 	if (l > POWER_DISTANCE) {
-		uint index = atomicCounterIncrement(counter[VOXEL_DST2]) * 2;
-		outData2[index] = packedPos;
-		outData2[index + 1] = offset;
+		uint index = atomicCounterIncrement(counter[VOXEL_DST2]) * 3;
+		outData2[index + 0] = packedPos1;
+		outData2[index + 1] = packedPos2;
+		outData2[index + 2] = offset;
+		//outData2[index + 3] = 0;
 		return;
 	}
 #endif
 
-	uint index = atomicCounterIncrement(counter[VOXEL_DST1]) * 2;
-	outData1[index] = packedPos;
-	outData1[index + 1] = offset;
+	uint index = atomicCounterIncrement(counter[VOXEL_DST1]) * 3;
+	outData1[index + 0] = packedPos1;
+	outData1[index + 1] = packedPos2;
+	outData1[index + 2] = offset;
+	//outData1[index + 3] = 0;
 }

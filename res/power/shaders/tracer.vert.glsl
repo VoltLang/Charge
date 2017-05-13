@@ -30,15 +30,25 @@ uvec4 unpack_2_10_10_10(uint data)
 		(data >> 30) & 0x003);
 }
 
+uvec4 unpack_16_16_16_16(uint data1, uint data2)
+{
+	return uvec4(
+		(data1 >>  0) & 0xFFFF,
+		(data1 >> 16) & 0xFFFF,
+		(data2 >>  0) & 0xFFFF,
+		(data2 >> 16) & 0xFFFF);
+}
+
 void main(void)
 {
-	uint index = (gl_VertexID / 8) * 2;
+	uint index = (gl_VertexID / 8) * 3;
 
-	uint inPos =    inData[index];
-	uint inOffset = inData[index + 1];
+	uint inPos1 =   inData[index + 0];
+	uint inPos2 =   inData[index + 1];
+	uint inOffset = inData[index + 2];
 
 	// Generate coords on the fly.
-	uvec3 upos = unpack_2_10_10_10(inPos).xyz;
+	uvec3 upos = unpack_16_16_16_16(inPos1, inPos2).xyz;
 
 	// Generate the front lower left corner position.
 	vec3 pos = vec3(upos) * DIVISOR_INV;

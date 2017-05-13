@@ -149,7 +149,7 @@ public:
 		mOutputBuffers = new GLuint[](4);
 		glCreateBuffers(cast(GLint)mOutputBuffers.length, mOutputBuffers.ptr);
 		foreach (i, ref buf; mOutputBuffers) {
-			glNamedBufferStorage(mOutputBuffers[i], 0x200_0000, null, GL_DYNAMIC_STORAGE_BIT);
+			glNamedBufferStorage(mOutputBuffers[i], 0x800_0000, null, GL_DYNAMIC_STORAGE_BIT);
 		}
 	}
 
@@ -249,7 +249,7 @@ public:
 		offset := cast(GLintptr)(dst * 4);
 		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glNamedBufferSubData(mAtomicBuffer, offset, 4, cast(void*)&one);
-		glNamedBufferSubData(mOutputBuffers[dst], 0, 8, cast(void*)[0, frame].ptr);
+		glNamedBufferSubData(mOutputBuffers[dst], 0, 16, cast(void*)[0, 0, frame, 0].ptr);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
 		                GL_SHADER_STORAGE_BARRIER_BIT);
 	}
