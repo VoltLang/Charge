@@ -85,7 +85,20 @@ public:
 		                nextHighestPowerOfTwo(z)));
 		mLevels = sizeToOrder(size);
 
+		// This helps use prune voxels that have neighbours set.
+		p := new Pruner;
 		foreach (v; voxels) {
+			p.add(v.x, v.z, v.y);
+		}
+
+		added: u32; pruned: u32;
+		foreach (v; voxels) {
+			if (p.shouldPrune(v.x, v.z, v.y)) {
+				pruned++;
+				continue;
+			}
+			added++;
+
 			color := colors[v.c-1];
 			add(v.x, v.z, v.y, color);
 		}
@@ -191,6 +204,63 @@ struct Voxel
 	u8 y;
 	u8 z;
 	u8 c;
+}
+
+struct Pruner
+{
+private:
+	enum u32 PaddedSize = 256u + 2u;
+	enum u32 XStride = 1u;
+	enum u32 YStride = XStride * PaddedSize;
+	enum u32 ZStride = YStride * PaddedSize;
+	enum u32 Bits = (ZStride * PaddedSize);
+	enum u32 Elems = Bits / 32u + 4u;
+
+
+public:
+	bits: u32[Elems];
+
+
+public:
+	fn add(x: u8, y: u8, z: u8)
+	{
+		set(getIndex(x, y, z));
+	}
+
+	fn shouldPrune(x: u8, y: u8, z: u8) bool
+	{
+
+		index := getIndex(x, y, z);
+		ret := cast(bool)(
+			get(index + XStride) &
+			get(index - XStride) &
+			get(index + YStride) &
+			get(index - YStride) &
+			get(index + ZStride) &
+			get(index - ZStride));
+		return ret;
+	}
+
+
+private:
+	fn getIndex(x: u8, y: u8, z: u8) u32
+	{
+		return (x + 1u) * XStride + (y + 1u) * YStride + (z + 1u) * ZStride;
+	}
+
+	fn set(index: u32)
+	{
+		findex := index / 32u;
+		bindex := index % 32u;
+		bits[findex] |= (1u << bindex);
+	}
+
+	fn get(index: u32) u32
+	{
+		findex := index / 32u;
+		bindex := index % 32u;
+		return (bits[findex] & (1u << bindex)) != 0;
+	}
 }
 
 global math.Color4b[] defaultColors = [
