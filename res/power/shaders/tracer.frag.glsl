@@ -50,6 +50,9 @@ void main(void)
 {
 	vec3 rayDir = normalize(inPosition - cameraPos);
 
+#if TRACER_POWER == 0
+	outColor = unpackUnorm4x8(inOffset);
+#else
 	// Check for ray components being parallel to axes (i.e. values of 0).
 	const float epsilon = 0.000001;	// Platform dependent value!
 	if (abs(rayDir.x) <= epsilon) rayDir.x = epsilon * sign(rayDir.x);
@@ -144,4 +147,5 @@ void main(void)
 	}
 
 	outColor = unpackUnorm4x8(uint(texelFetch(octree, hit).r));
+#endif
 }

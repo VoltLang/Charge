@@ -120,6 +120,7 @@ public:
 		makeListShader(0, 1, 2, 5, 2, 0.1f);
 		makeListShader(1, 0, 3, 7, 3, 0.0f);
 		makeListShader(2, 0, 3, 7, 2, 0.0f);
+		makeElementsShader(0, 11, 0);
 		makeElementsShader(0, 10, 1);
 		makeElementsShader(0, 9, 2);
 
