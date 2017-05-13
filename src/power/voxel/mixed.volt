@@ -370,17 +370,17 @@ private:
 		 */
 
 		num := 662230u*2;
-		//data := [3, 2, 1, 0, 4, 2, 6, 3, 7, 1, 5, 4, 7, 6, 6, 3+8];
-		  data := [4, 5, 6, 7, 2, 3, 3, 7, 1, 5, 5, 4+8];
+		//data: u32[] = [3, 2, 1, 0, 4, 2, 6, 3, 7, 1, 5, 4, 7, 6, 6, 3+8];
+		  data: u32[] = [4, 5, 6, 7, 2, 3, 3, 7, 1, 5, 5, 4+8];
 		length := cast(GLsizeiptr)(data.length * num * 4);
 
 		glCreateBuffers(1, &mIndexBuffer);
 		glNamedBufferData(mIndexBuffer, length, null, GL_STATIC_DRAW);
-		ptr := cast(i32*)glMapNamedBuffer(mIndexBuffer, GL_WRITE_ONLY);
+		ptr := cast(u32*)glMapNamedBuffer(mIndexBuffer, GL_WRITE_ONLY);
 
 		foreach (i; 0 .. num) {
 			foreach (d; data) {
-				*ptr = d + cast(i32)i * 8;
+				*ptr = d + i * 8;
 				ptr++;
 			}
 		}
