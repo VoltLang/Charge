@@ -16,8 +16,8 @@ import charge.game.scene.background;
 
 import voxel.viewer;
 import voxel.svo;
+import voxel.loaders;
 import gen = voxel.svo.gen;
-import magica = voxel.loaders.magica;
 
 
 class Game : GameSceneManagerApp
@@ -69,21 +69,10 @@ public:
 		ib.setup(1);
 
 		// Create the loader.
-		l := new magica.Loader();
+		l := new MagicaLoader();
 
 		// Load parse the file.
-		if (!l.loadFileFromData(fileData)) {
-			return false;
-		}
-
-		// Only one frame.
-		frames = new u32[](1);
-		frames[0] = l.toBuffer(ib: ref ib, totalLevels: 11, repeat: true);
-
-		// Grab the data.
-		data = ib.getData();
-
-		return true;
+		return l.loadFileFromData(fileData, out frames, out data);
 	}
 
 	fn genFlat(out frames: u32[], out data: void[]) bool

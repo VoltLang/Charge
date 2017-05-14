@@ -1,4 +1,4 @@
-// Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
+// Copyright © 2016-2017, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 /**
  * Code for loading magicavoxel files.
@@ -29,6 +29,27 @@ public:
 		mArr = new Input2Cubed[](256);
 		mNum = 1;
 		mLevels = 8;
+	}
+
+	fn loadFileFromData(fileData: void[], out frames: u32[], out data: void[]) bool
+	{
+		// Reserve the first index.
+		ib: InputBuffer;
+		ib.setup(1);
+
+		// Load parse the file.
+		if (!loadFileFromData(fileData)) {
+			return false;
+		}
+
+		// Only one frame.
+		frames = new u32[](1);
+		frames[0] = toBuffer(ib: ref ib, totalLevels: 11, repeat: true);
+
+		// Grab the data.
+		data = ib.getData();
+
+		return true;
 	}
 
 	fn loadFileFromData(data: void[]) bool
