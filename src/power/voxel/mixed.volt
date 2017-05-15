@@ -15,18 +15,14 @@ import power.util.counters;
 import power.voxel.dag;
 import power.voxel.boxel;
 import power.voxel.instance;
+static import voxel.gfx.input;
 
 
 class Mixed
 {
 public:
-	struct DrawInput
-	{
-		camMVP: math.Matrix4x4d;
-		cullMVP: math.Matrix4x4d;
-		camPos: math.Point3f; pad1: f32;
-		cullPos: math.Point3f; pad0: f32;
-	}
+	alias DrawInput = voxel.gfx.input.Draw;
+	alias CreateInput = voxel.gfx.input.Create;
 
 	struct DrawState
 	{
@@ -37,8 +33,6 @@ public:
 
 
 public:
-	frame: u32;
-	useCubes: bool;
 	counters: Counters;
 
 
@@ -91,7 +85,7 @@ protected:
 
 
 public:
-	this(octTexture: GLuint)
+	this(octTexture: GLuint, ref create: CreateInput)
 	{
 		counters = new Counters("initial", "list1", "trace1", "list2", "trace2");
 
@@ -105,9 +99,9 @@ public:
 			io.writefln("GL_MAX_COMBINED_ATOMIC_COUNTERS: %s", test);
 		}
 
-		mXShift = 0;
-		mYShift = 1;
-		mZShift = 2;
+		mXShift = create.xShift;
+		mYShift = create.yShift;
+		mZShift = create.zShift;
 
 		// Premake the shaders.
 		makeComputeDispatchShader(0, 4);
@@ -208,7 +202,7 @@ public:
 		glCheckError();
 
 		counters.start(0);
-		initConfig(dst: 0);
+		initConfig(dst: 0, frame: input.frame);
 		runListShader(ref state, 0, 1, 2, 0, 3, 0.0f);
 		runListShader(ref state, 1, 0, 3, 3, 2, 0.0f);
 		runListShader(ref state, 0, 1, 2, 5, 2, 0.1f);
@@ -246,7 +240,7 @@ public:
 		glCheckError();
 	}
 
-	fn initConfig(dst: u32)
+	fn initConfig(dst: u32, frame: u32)
 	{
 		one := 1;
 		offset := cast(GLintptr)(dst * 4);

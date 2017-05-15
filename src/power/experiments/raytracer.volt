@@ -113,8 +113,13 @@ public:
 		glCreateTextures(GL_TEXTURE_BUFFER, 1, &octTexture);
 		glTextureBuffer(octTexture, GL_R32UI, octBuffer);
 
+		create: Mixed.CreateInput;
+		create.xShift = 2;
+		create.yShift = 0;
+		create.zShift = 1;
+
 		svo = new SVO(octTexture);
-		mixed = new Mixed(octTexture);
+		mixed = new Mixed(octTexture, ref create);
 
 		// Set the starting position.
 		resetPosition(1);
@@ -236,6 +241,7 @@ public:
 			cull.setToLookFrom(ref cullPosition, ref cullRotation);
 
 			state: Mixed.DrawInput;
+			state.frame = frames[frame];
 
 			state.camPos = camPosition;
 			state.camMVP.setToMultiply(ref proj, ref view);
@@ -243,7 +249,6 @@ public:
 			state.cullPos = cullPosition;
 			state.cullMVP.setToMultiply(ref proj, ref cull);
 
-			mixed.frame = frames[frame];
 			mixed.draw(ref state);
 		}
 
