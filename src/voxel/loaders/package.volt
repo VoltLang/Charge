@@ -5,4 +5,4 @@
  */
 module voxel.loaders;
 
-public import voxel.loaders.magica : MagicaLoader = Loader;
+public import magica = voxel.loaders.magica;

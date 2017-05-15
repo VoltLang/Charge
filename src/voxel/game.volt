@@ -69,7 +69,7 @@ public:
 		ib.setup(1);
 
 		// Create the loader.
-		l := new MagicaLoader();
+		l := new magica.Loader();
 
 		// Load parse the file.
 		return l.loadFileFromData(fileData, out frames, out data);
