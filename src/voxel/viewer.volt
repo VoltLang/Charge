@@ -67,10 +67,10 @@ public:
 		switch (pos) {
 		default:
 		case 1:
-			// Down the alley.
-			mCamHeading = 0.f;
-			mCamPitch = 0.f;
-			camPosition = math.Point3f.opCall(0.20f, 0.20f, 1.0f);
+			// Looking at 0, 0, 0 in.
+			mCamHeading = -2.358001f;
+			mCamPitch = -0.477000f;
+			camPosition = math.Point3f.opCall(-0.183648f, 0.293329f, -0.172469f);
 			break;
 		case 2:
 			mCamHeading = 0.020998f;
@@ -97,6 +97,12 @@ public:
 			mCamHeading = 3.452999f;
 			mCamPitch = 0.189000f;
 			camPosition = math.Point3f.opCall(0.106617f, 0.135277f, 0.269312f);
+			break;
+		case 7:
+			// Down the alley.
+			mCamHeading = 0.f;
+			mCamPitch = 0.f;
+			camPosition = math.Point3f.opCall(0.20f, 0.20f, 1.0f);
 			break;
 		}
 	}
