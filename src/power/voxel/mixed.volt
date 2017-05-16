@@ -99,14 +99,14 @@ public:
 		makeArrayDispatchShader(0, BufferCommandId);
 
 		// Setup the pipeline steps.
-		mSteps ~= newInitStep(p: this, dst: 0);
-		mSteps ~= newListStep(p: this, src: 0, dst1: 1, powerStart: 0, powerLevels: 3);
-		mSteps ~= newListStep(p: this, src: 1, dst1: 0, powerStart: 3, powerLevels: 2);
-		mSteps ~= newListStep(p: this, src: 0, dst1: 1, powerStart: 5, powerLevels: 2, dst2: 2, distance: 0.1f);
-		mSteps ~= newListStep(p: this, src: 1, dst1: 0, powerStart: 7, powerLevels: 3);
-		mSteps ~= newElementsStep(p: this, src: 0, powerStart: 10, powerLevels: 1);
-		mSteps ~= newListStep(p: this, src: 2, dst1: 0, powerStart: 7, powerLevels: 2);
-		mSteps ~= newElementsStep(p: this, src: 0, powerStart:  9, powerLevels: 2);
+		mSteps ~= newInitStep(p:     this,         dst:  0);
+		mSteps ~= newList1Step(p:    this, src: 0, dst:  1, powerStart:  0, powerLevels: 3);
+		mSteps ~= newList1Step(p:    this, src: 1, dst:  0, powerStart:  3, powerLevels: 2);
+		mSteps ~= newList2Step(p:    this, src: 0, dst1: 1, powerStart:  5, powerLevels: 2, dst2: 2, distance: 0.1f);
+		mSteps ~= newList1Step(p:    this, src: 1, dst:  0, powerStart:  7, powerLevels: 3);
+		mSteps ~= newElementsStep(p: this, src: 0,          powerStart: 10, powerLevels: 1);
+		mSteps ~= newList1Step(p:    this, src: 2, dst:  0, powerStart:  7, powerLevels: 2);
+		mSteps ~= newElementsStep(p: this, src: 0,          powerStart:  9, powerLevels: 2);
 		names: string[];
 		foreach (i, step; mSteps) {
 			names ~= step.name;
@@ -420,28 +420,33 @@ private:
 enum BufferNum = 4;
 enum GLuint BufferCommandId = BufferNum; // Buffer ids start at zero.
 
-fn newInitStep(p: Mixed = null, dst: u32 = 0) InitStep
+fn newInitStep(p: Mixed = null, dst: u32) InitStep
 {
 	return new InitStep(p, dst);
 }
 
-fn newListStep(p: Mixed = null, src: u32 = 0, dst1: u32 = 0, dst2: u32 = 0,
-	     powerStart: u32 = 0, powerLevels: u32 = 0, distance: f32 = 0.0f) ListStep
+fn newList1Step(p: Mixed, src: u32, dst: u32,
+                powerStart: u32, powerLevels: u32) ListStep
+{
+	return new ListStep(p, src, dst, 0, powerStart, powerLevels, 0.0f);
+}
+fn newList2Step(p: Mixed, src: u32, dst1: u32, dst2: u32,
+                powerStart: u32, powerLevels: u32, distance: f32) ListStep
 {
 	return new ListStep(p, src, dst1, dst2, powerStart, powerLevels, distance);
 }
 
-fn newElementsStep(p: Mixed, src: u32, powerStart: u32 = 0, powerLevels: u32 = 0) ElementsStep
+fn newElementsStep(p: Mixed, src: u32, powerStart: u32, powerLevels: u32) ElementsStep
 {
 	return new ElementsStep(p, src, powerStart, powerLevels);
 }
 
-fn newPointsStep(p: Mixed, src: u32, powerStart: u32 = 0) PointsStep
+fn newPointsStep(p: Mixed, src: u32, powerStart: u32) PointsStep
 {
 	return new PointsStep(p, src, powerStart);
 }
 
-fn newCubesStep(p: Mixed, src: u32, powerStart: u32 = 0) ElementsStep
+fn newCubesStep(p: Mixed, src: u32, powerStart: u32) ElementsStep
 {
 	return new ElementsStep(p, src, powerStart, 0);
 }
