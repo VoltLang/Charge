@@ -206,7 +206,8 @@ public:
 o - AA (%s)
 t - animate (%s)
 y - step frame (#%s)
-m - switch renderer`, mUseAA, animate, frame);
+m - switch renderer
+l - lock culling (%s)`, mUseAA, animate, frame, mLockCull);
 		updateText(ss.toString());
 	}
 }
