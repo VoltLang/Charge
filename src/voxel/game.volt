@@ -56,6 +56,8 @@ public:
 			c.panic("Could not load or generate a level");
 		}
 
+		io.writefln("svo: %s (x: %s, y: %s, z: %s)", state.numLevels,
+		            state.xShift, state.yShift, state.zShift);
 		push(new RayTracer(this, ref state, frames, data));
 	}
 
@@ -79,10 +81,15 @@ public:
 			return loadMagica(fileData, out c, out frames, out data);
 		}
 
+		if (chalmers.isChalmersDag(fileData)) {
+			return loadChalmers(fileData, out c, out frames, out data);
+		}
+
 		return false;
 	}
 
-	fn loadMagica(fileData: void[], out c: Create, out frames: u32[], out data: void[]) bool
+	fn loadMagica(fileData: void[], out c: Create,
+	              out frames: u32[], out data: void[]) bool
 	{
 		// Setup the state.
 		c.xShift = XShift;
@@ -99,6 +106,20 @@ public:
 
 		// Load parse the file.
 		return l.loadFileFromData(fileData, out frames, out data);
+	}
+
+	fn loadChalmers(fileData: void[], out c: Create,
+	                out frames: u32[], out data: void[]) bool
+	{
+		// Reserve the first index.
+		ib: InputBuffer;
+		ib.setup(1);
+
+		// Create the loader.
+		l := new chalmers.Loader();
+
+		// Load parse the file.
+		return l.loadFileFromData(fileData, out c, out frames, out data);
 	}
 
 	fn genFlat(out c: Create, out frames: u32[], out data: void[]) bool
@@ -123,8 +144,6 @@ public:
 		data = ib.getData();
 		return true;
 	}
-
-
 
 	/// Absolute minimum required.
 	fn checkVersion() bool
