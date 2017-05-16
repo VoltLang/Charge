@@ -49,6 +49,69 @@ struct BufferTracker
 	}
 }
 
+class StepsBuilder
+{
+public:
+	p: Mixed;
+	endLevelOfBuf: u32[BufferNum];
+	tracker: BufferTracker;
+
+
+public:
+	this(p: Mixed)
+	{
+		this.p = p;
+		tracker.setup(BufferNum);
+	}
+
+	fn makeInit(out dst: u32) InitStep
+	{
+		// Setup the pipeline steps.
+		dst = tracker.get(); // Produce
+		endLevelOfBuf[dst] = 0;
+		return newInitStep(p, dst);
+	}
+
+	fn makeList1(src: u32, powerLevels: u32, out dst: u32) ListStep
+	{
+		powerStart := endLevelOfBuf[src];
+
+		// Track used buffers and level they produce.
+		dst = tracker.get(); // Produce
+		tracker.free(src);   // Consume
+		endLevelOfBuf[dst] = powerStart + powerLevels;
+		return newList2Step(p, src, dst, 0, powerStart, powerLevels, 0.0f);
+	}
+
+	fn makeList2(src: u32, powerLevels: u32, distance: f32,
+	             out dst1: u32, out dst2: u32) ListStep
+	{
+		powerStart := endLevelOfBuf[src];
+
+		// Track used buffers and level they produce.
+		dst1 = tracker.get(); // Produce
+		dst2 = tracker.get(); // Produce
+		tracker.free(src);    // Consume
+		endLevelOfBuf[dst1] = powerStart + powerLevels;
+		endLevelOfBuf[dst2] = powerStart + powerLevels;
+		return newList2Step(p, src, dst1, dst2, powerStart, powerLevels, distance);
+	}
+
+	fn makeCubes(src: u32) ElementsStep
+	{
+		powerStart := endLevelOfBuf[src];
+		tracker.free(src); // Consume
+		return newCubesStep(p, src, powerStart);
+	}
+
+	fn makePoints(src: u32) PointsStep
+	{
+		powerStart := endLevelOfBuf[src];
+		tracker.free(src); // Consume
+		return newPointsStep(p, src, powerStart);
+	}
+}
+
 class Mixed
 {
 public:
@@ -129,63 +192,28 @@ public:
 		makeElementsDispatchShader(0, BufferCommandId);
 		makeArrayDispatchShader(0, BufferCommandId);
 
-		bufTrack: BufferTracker;
-		bufTrack.setup(BufferNum);
+		b := new StepsBuilder(this);
+
 
 		if (test) {
-			// Setup the pipeline steps.
-			buf0 := bufTrack.get();    // Produce
-			mSteps ~= newInitStep(p: this, dst: buf0);
+			buf0, buf3, buf6_1, buf6_2: u32;
+			buf9_1, buf9_2, buf11_1, buf11_2: u32;
+			buf8, buf10: u32;
 
-			// First pass
-			buf3 := bufTrack.get();    // Produce
-			mSteps ~= newList1Step(p: this, src: buf0, dst: buf3, powerStart: 0, powerLevels: 3);
-			bufTrack.free(buf0);       // Consumed
+			mSteps ~= b.makeInit(                     out    buf0);
+			mSteps ~= b.makeList1(    buf0, 3,        out    buf3);
+			mSteps ~= b.makeList2(    buf3, 3,  0.6f, out  buf6_1, out  buf6_2);
+			mSteps ~= b.makeList2(  buf6_1, 3,  0.2f, out  buf9_1, out  buf9_2);
+			mSteps ~= b.makeList2(  buf9_1, 2, 0.03f, out buf11_1, out buf11_2);
+			mSteps ~= b.makeCubes( buf11_1);
+			mSteps ~= b.makePoints(buf11_2);
 
-			// Split between far and near.
-			buf6_1 := bufTrack.get();  // Produce
-			buf6_2 := bufTrack.get();  // Produce
-			mSteps ~= newList2Step(p: this, src: buf3, dst1: buf6_1, powerStart: 3, powerLevels: 3, dst2: buf6_2, distance: 0.6f);
-			bufTrack.free(buf3);       // Consumed
+			mSteps ~= b.makeList1(  buf9_2, 2, out buf11_1);
+			mSteps ~= b.makePoints(buf11_1);
 
-			// Split again.
-			buf9_1 := bufTrack.get();  // Produce
-			buf9_2 := bufTrack.get();  // Produce
-			mSteps ~= newList2Step(p: this, src: buf6_1, dst1: buf9_1, powerStart: 6, powerLevels: 3, dst2: buf9_2, distance: 0.2f);
-			bufTrack.free(buf6_1);     // Consumed
-
-			// Which should be cubes and which should be 
-			buf11_1 := bufTrack.get(); // Produce
-			buf11_2 := bufTrack.get(); // Produce
-			mSteps ~= newList2Step(p: this, src: buf9_1, dst1: buf11_1, powerStart: 9, powerLevels: 2, dst2: buf11_2, distance: 0.03f);
-			bufTrack.free(buf9_1);     // Consumed
-
-			// Do the first drawing steps.
-			mSteps ~= newCubesStep(p: this, src: buf11_1, powerStart: 11);
-			bufTrack.free(buf11_1);    // Consumed
-			mSteps ~= newPointsStep(p: this, src: buf11_2, powerStart: 11);
-			bufTrack.free(buf11_2);    // Consumed
-			// For more drawing.
-			buf11_1 = bufTrack.get(); // Produce
-			mSteps ~= newList1Step(p: this, src: buf9_2, dst: buf11_1, powerStart: 9, powerLevels: 2);
-			bufTrack.free(buf9_2);    // Consumed
-
-			// More points.
-			mSteps ~= newPointsStep(p: this, src: buf11_1, powerStart: 11);
-			bufTrack.free(buf11_1);   // Consumed
-
-			// Get the second part of the first split.
-			buf8 := bufTrack.get();   // Produce
-			mSteps ~= newList1Step(p: this, src: buf6_2, dst: buf8, powerStart: 6, powerLevels: 2);
-			bufTrack.free(buf6_2);      // Consumed
-
-			buf10 := bufTrack.get();  // Produce
-			mSteps ~= newList1Step(p: this, src: buf8, dst: buf10, powerStart: 8, powerLevels: 2);
-			bufTrack.free(buf8);      // Consumed
-
-			// Final draw call.
-			mSteps ~= newPointsStep(p: this, src: buf10, powerStart: 10);
-			bufTrack.free(buf10);     // Consumed
+			mSteps ~= b.makeList1(buf6_2, 2, out  buf8);
+			mSteps ~= b.makeList1(  buf8, 2, out buf10);
+			mSteps ~= b.makePoints(buf10);
 		} else {
 			// Setup the pipeline steps.
 			mSteps ~= newInitStep(p:     this,         dst:  0);
