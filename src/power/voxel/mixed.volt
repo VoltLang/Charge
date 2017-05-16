@@ -28,7 +28,7 @@ public:
 	{
 		matrix: math.Matrix4x4f;
 		planes: math.Planef[4];
-		camPosition: math.Point3f; pad: f32;
+		camPosition: math.Point3f; frame: u32;
 	}
 
 
@@ -37,37 +37,7 @@ public:
 
 
 protected:
-	static class VoxelBuffer
-	{
-		bufferSource: u32;
-		bufferDst1: u32;
-		bufferDst2: u32;
-		distance: f32;
 
-		dispatchShader: GfxShader;
-		drawShader: GfxShader;
-	}
-
-	static class DrawPass
-	{
-		bufferSource: u32;
-		powerStart: u32;
-		powerNum: u32;
-
-		dispatchShader: GfxShader;
-		drawShader: GfxShader;
-	}
-
-	static struct PassInfo
-	{
-		powerStart: u32;
-		powerNum: u32;
-		bufSrc: u32;
-		bufDst1: u32;
-		bufDst2: u32;
-		distance: f32;
-		draw: bool;
-	}
 
 	mXShift, mYShift, mZShift: u32;
 	mShaderStore: GfxShader[string];
@@ -82,13 +52,14 @@ protected:
 	mAtomicBuffer: GLuint;
 	mIndirectBuffer: GLuint;
 	mOutputBuffers: GLuint[];
+	mSteps: Step[];
 
 
 public:
 	this(octTexture: GLuint, ref create: CreateInput)
 	{
-		counters = new Counters("initial", "list1", "trace1", "list2", "trace2");
 
+/*
 		{
 			test: GLint;
 			glGetIntegerv(GL_MAX_COMPUTE_ATOMIC_COUNTERS, &test);
@@ -99,26 +70,48 @@ public:
 			io.writefln("GL_MAX_COMBINED_ATOMIC_COUNTERS: %s", test);
 		}
 
+		{
+			test: math.Matrix4x4d;
+			test = input.camMVP;
+			test.inverse();
+			p1 := math.Point3f.opCall(0.f, 0.f,  1.f);
+			p2 := math.Point3f.opCall(0.f, 0.f, -1.f);
+			p1 = test / p1;
+			p2 = test / p2;
+			io.writefln("far  %s", p1.toString());
+			io.writefln("near %s", p2.toString());
+			io.writefln("plane near (%s %s %s) %s", frustum.p[5].a, frustum.p[5].b, frustum.p[5].c, frustum.p[5].d);
+			io.writefln("plane far  (%s %s %s) %s", frustum.p[4].a, frustum.p[4].b, frustum.p[4].c, frustum.p[4].d);
+			io.output.flush();
+		}
+*/
+	
 		mXShift = create.xShift;
 		mYShift = create.yShift;
 		mZShift = create.zShift;
 
 		// Premake the shaders.
-		makeComputeDispatchShader(0, 4);
-		makeComputeDispatchShader(1, 4);
-		makeComputeDispatchShader(2, 4);
-		makeComputeDispatchShader(3, 4);
-		makeElementsDispatchShader(0, 4);
-		makeArrayDispatchShader(0, 4);
-		makeListShader(0, 1, 2, 0, 3, 0.0f);
-		makeListShader(1, 0, 3, 3, 2, 0.0f);
-		makeListShader(0, 1, 2, 5, 2, 0.1f);
-		makeListShader(1, 0, 3, 7, 3, 0.0f);
-		makeListShader(2, 0, 3, 7, 2, 0.0f);
-		makeElementsShader(0, 11, 0);
-		makeElementsShader(0, 10, 1);
-		makeElementsShader(0, 9, 2);
-		makePointsShader(0, 11);
+		makeComputeDispatchShader(0, BufferCommandId);
+		makeComputeDispatchShader(1, BufferCommandId);
+		makeComputeDispatchShader(2, BufferCommandId);
+		makeComputeDispatchShader(3, BufferCommandId);
+		makeElementsDispatchShader(0, BufferCommandId);
+		makeArrayDispatchShader(0, BufferCommandId);
+
+		// Setup the pipeline steps.
+		mSteps ~= newInitStep(p: this, dst: 0);
+		mSteps ~= newListStep(p: this, src: 0, dst1: 1, powerStart: 0, powerLevels: 3);
+		mSteps ~= newListStep(p: this, src: 1, dst1: 0, powerStart: 3, powerLevels: 2);
+		mSteps ~= newListStep(p: this, src: 0, dst1: 1, powerStart: 5, powerLevels: 2, dst2: 2, distance: 0.1f);
+		mSteps ~= newListStep(p: this, src: 1, dst1: 0, powerStart: 7, powerLevels: 3);
+		mSteps ~= newElementsStep(p: this, src: 0, powerStart: 10, powerLevels: 1);
+		mSteps ~= newListStep(p: this, src: 2, dst1: 0, powerStart: 7, powerLevels: 2);
+		mSteps ~= newElementsStep(p: this, src: 0, powerStart:  9, powerLevels: 2);
+		names: string[];
+		foreach (i, step; mSteps) {
+			names ~= step.name;
+		}
+		counters = new Counters(names);
 
 		// Setup the texture.
 		mOctTexture = octTexture;
@@ -143,7 +136,7 @@ public:
 		glNamedBufferStorage(mIndirectBuffer, 4 * 16, null, GL_DYNAMIC_STORAGE_BIT);
 
 		// Create the storage for the voxel lists.
-		mOutputBuffers = new GLuint[](4);
+		mOutputBuffers = new GLuint[](BufferNum);
 		glCreateBuffers(cast(GLint)mOutputBuffers.length, mOutputBuffers.ptr);
 		foreach (i, ref buf; mOutputBuffers) {
 			glNamedBufferStorage(mOutputBuffers[i], 0x800_0000, null, GL_DYNAMIC_STORAGE_BIT);
@@ -166,162 +159,51 @@ public:
 		state.planes[1].setFrom(ref frustum.p[1]);
 		state.planes[2].setFrom(ref frustum.p[2]);
 		state.planes[3].setFrom(ref frustum.p[3]);
+		state.frame = input.frame;
 
-/*
-		test: math.Matrix4x4d;
-		test = input.camMVP;
-		test.inverse();
-		p1 := math.Point3f.opCall(0.f, 0.f,  1.f);
-		p2 := math.Point3f.opCall(0.f, 0.f, -1.f);
-		p1 = test / p1;
-		p2 = test / p2;
-		io.writefln("far  %s", p1.toString());
-		io.writefln("near %s", p2.toString());
-		io.writefln("plane near (%s %s %s) %s", frustum.p[5].a, frustum.p[5].b, frustum.p[5].c, frustum.p[5].d);
-		io.writefln("plane far  (%s %s %s) %s", frustum.p[4].a, frustum.p[4].b, frustum.p[4].c, frustum.p[4].d);
-		io.output.flush();
-*/
 
 		glCheckError();
 		glBindTextureUnit(0, mOctTexture);
 
+		// Rest the atomic buffer.
 		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 
+		// Bind the special buffers.
 		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, mAtomicBuffer);
 		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, mIndirectBuffer);
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, mIndirectBuffer);
 
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mOutputBuffers[0]);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mOutputBuffers[1]);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mOutputBuffers[2]);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, mOutputBuffers[3]);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, mIndirectBuffer);
+		// Bind the output/input buffers for the shaders.
+		foreach (id, buf; mOutputBuffers) {
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, cast(GLuint)id, buf);
+		}
+		// Bind the special indirect buffer as a output buffer as well.
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BufferCommandId, mIndirectBuffer);
 
+		// Bind the elements vao so we can access the indicies.
 		glBindVertexArray(mElementsVAO);
 
 		glCheckError();
 
-		counters.start(0);
-		initConfig(dst: 0, frame: input.frame);
-		runListShader(ref state, 0, 1, 2, 0, 3, 0.0f);
-		runListShader(ref state, 1, 0, 3, 3, 2, 0.0f);
-		runListShader(ref state, 0, 1, 2, 5, 2, 0.1f);
-		counters.stop(0);
+		// Dispatch the entire pipeline.
+		foreach (i, step; mSteps) {
+			counters.start(i);
+			step.run(ref state);
+			counters.stop(i);
+		}
 
-		counters.start(1);
-		runListShader(ref state, 1, 0, 3, 7, 3, 0.0f);
-		counters.stop(1);
-
-		counters.start(2);
-		runElementShader(ref state, 0, 10, 1);
-		counters.stop(2);
-
-
-		counters.start(3);
-		runListShader(ref state, 2, 0, 3, 7, 2, 0.0f);
-		counters.stop(3);
-
-		counters.start(4);
-		runElementShader(ref state, 0, 9, 2);
-		counters.stop(4);
-
-
+		// Restore all state.
 		glBindVertexArray(0);
 
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, 0);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, 0);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BufferCommandId, mIndirectBuffer);
+		foreach (id, buf; mOutputBuffers) {
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, cast(GLuint)id, 0);
+		}
 
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
 		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
 		glCheckError();
-	}
-
-	fn initConfig(dst: u32, frame: u32)
-	{
-		one := 1;
-		offset := cast(GLintptr)(dst * 4);
-		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
-		glNamedBufferSubData(mAtomicBuffer, offset, 4, cast(void*)&one);
-		glNamedBufferSubData(mOutputBuffers[dst], 0, 16, cast(void*)[0, 0, frame, 0].ptr);
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
-		                GL_SHADER_STORAGE_BARRIER_BIT);
-	}
-
-	fn runComputeDispatch(src: u32)
-	{
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
-		s := makeComputeDispatchShader(src, 4);
-		s.bind();
-		glDispatchCompute(1u, 1u, 1u);
-	}
-
-	fn runListShader(ref state: DrawState, src: u32, dst1: u32, dst2: u32,
-	                 powerStart: u32, powerLevels: u32, dist: f32)
-	{
-		// Setup the indirect buffer first.
-		runComputeDispatch(src);
-
-		s := makeListShader(src, dst1, dst2, powerStart, powerLevels, dist);
-		s.bind();
-		s.float3("cameraPos".ptr, state.camPosition.ptr);
-		s.matrix4("matrix", 1, false, ref state.matrix);
-		s.float4("planes".ptr, 4, &state.planes[0].a);
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
-		                GL_SHADER_STORAGE_BARRIER_BIT |
-		                GL_COMMAND_BARRIER_BIT);
-		glDispatchComputeIndirect(0);
-	}
-
-	fn runElementsDispatch(src: u32)
-	{
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
-		s := makeElementsDispatchShader(src, 4);
-		s.bind();
-		glDispatchCompute(1u, 1u, 1u);
-	}
-
-	fn runArrayDispatch(src: u32)
-	{
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
-		s := makeArrayDispatchShader(src, 4);
-		s.bind();
-		glDispatchCompute(1u, 1u, 1u);
-	}
-
-	fn runElementShader(ref state: DrawState, src: u32,
-	                    powerStart: u32, powerLevels: u32)
-	{
-		runElementsDispatch(src);
-
-		s := makeElementsShader(src, powerStart, powerLevels);
-		s.bind();
-		s.float3("cameraPos".ptr, state.camPosition.ptr);
-		s.matrix4("matrix", 1, false, ref state.matrix);
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
-		                GL_SHADER_STORAGE_BARRIER_BIT |
-		                GL_COMMAND_BARRIER_BIT);
-		glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, null);
-	}
-
-	fn runPointsShader(ref state: DrawState, src: u32,
-	                    powerStart: u32)
-	{
-		runArrayDispatch(src);
-
-		s := makePointsShader(src, powerStart);
-		s.bind();
-		s.float3("cameraPos".ptr, state.camPosition.ptr);
-		s.matrix4("matrix", 1, false, ref state.matrix);
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
-		                GL_SHADER_STORAGE_BARRIER_BIT |
-		                GL_COMMAND_BARRIER_BIT);
-		glEnable(GL_PROGRAM_POINT_SIZE);
-		glDrawArraysIndirect(GL_POINTS, null);
-		glDisable(GL_PROGRAM_POINT_SIZE);
 	}
 
 	fn debugCounter(src: u32) u32
@@ -525,5 +407,177 @@ private:
 		s := new GfxShader(name, vert, null, frag);
 		mShaderStore[name] = s;
 		return s;
+	}
+}
+
+
+/*
+ *
+ * Steps code.
+ *
+ */
+
+enum BufferNum = 4;
+enum GLuint BufferCommandId = BufferNum; // Buffer ids start at zero.
+
+fn newInitStep(p: Mixed = null, dst: u32 = 0) InitStep
+{
+	return new InitStep(p, dst);
+}
+
+fn newListStep(p: Mixed = null, src: u32 = 0, dst1: u32 = 0, dst2: u32 = 0,
+	     powerStart: u32 = 0, powerLevels: u32 = 0, distance: f32 = 0.0f) ListStep
+{
+	return new ListStep(p, src, dst1, dst2, powerStart, powerLevels, distance);
+}
+
+fn newElementsStep(p: Mixed, src: u32, powerStart: u32 = 0, powerLevels: u32 = 0) ElementsStep
+{
+	return new ElementsStep(p, src, powerStart, powerLevels);
+}
+
+fn newPointsStep(p: Mixed, src: u32, powerStart: u32 = 0) PointsStep
+{
+	return new PointsStep(p, src, powerStart);
+}
+
+fn newCubesStep(p: Mixed, src: u32, powerStart: u32 = 0) ElementsStep
+{
+	return new ElementsStep(p, src, powerStart, 0);
+}
+
+
+static abstract class Step
+{
+	name: string;
+	abstract fn run(ref state: Mixed.DrawState);
+}
+
+class InitStep : Step
+{
+public:
+	p: Mixed;
+	dst: u32;
+
+
+public:
+	this(p: Mixed, dst: u32)
+	{
+		this.name = "init";
+		this.p = p;
+		this.dst = dst;
+	}
+
+	override fn run(ref state: Mixed.DrawState)
+	{
+		frame := state.frame;
+		one := 1;
+		offset := cast(GLintptr)(dst * 4);
+
+		glClearNamedBufferData(p.mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glNamedBufferSubData(p.mAtomicBuffer, offset, 4, cast(void*)&one);
+		glNamedBufferSubData(p.mOutputBuffers[dst], 0, 16, cast(void*)[0, 0, frame, 0].ptr);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+		                GL_SHADER_STORAGE_BARRIER_BIT);
+	}
+}
+
+static class ListStep : Step
+{
+public:
+	dispatchShader: GfxShader;
+	listShader: GfxShader;
+
+
+public:
+	this(p: Mixed, src: u32, dst1: u32, dst2: u32,
+	     powerStart: u32, powerLevels: u32, distance: f32)
+	{
+		this.name = "list";
+
+		dispatchShader =  p.makeComputeDispatchShader(src, BufferCommandId);
+		listShader = p.makeListShader(src, dst1, dst2, powerStart, powerLevels, distance);
+	}
+
+	override fn run(ref state: Mixed.DrawState)
+	{
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+		dispatchShader.bind();
+		glDispatchCompute(1u, 1u, 1u);
+
+		listShader.bind();
+		listShader.float3("cameraPos".ptr, state.camPosition.ptr);
+		listShader.matrix4("matrix", 1, false, ref state.matrix);
+		listShader.float4("planes".ptr, 4, &state.planes[0].a);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+		                GL_SHADER_STORAGE_BARRIER_BIT |
+		                GL_COMMAND_BARRIER_BIT);
+		glDispatchComputeIndirect(0);
+	}
+}
+
+static class ElementsStep : Step
+{
+public:
+	dispatchShader: GfxShader;
+	drawShader: GfxShader;
+
+
+public:
+	this(p: Mixed, src: u32, powerStart: u32, powerLevels: u32)
+	{
+		this.name = powerLevels == 0 ? "cubes" : "raycube";
+
+		dispatchShader =  p.makeElementsDispatchShader(src, BufferCommandId);
+		drawShader = p.makeElementsShader(src, powerStart, powerLevels);
+	}
+
+	override fn run(ref state: Mixed.DrawState)
+	{
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+		dispatchShader.bind();
+		glDispatchCompute(1u, 1u, 1u);
+
+		drawShader.bind();
+		drawShader.float3("cameraPos".ptr, state.camPosition.ptr);
+		drawShader.matrix4("matrix", 1, false, ref state.matrix);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+		                GL_SHADER_STORAGE_BARRIER_BIT |
+		                GL_COMMAND_BARRIER_BIT);
+		glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, null);
+	}
+}
+
+static class PointsStep : Step
+{
+public:
+	dispatchShader: GfxShader;
+	drawShader: GfxShader;
+
+
+public:
+	this(p: Mixed, src: u32, powerStart: u32)
+	{
+		this.name = "points";
+
+		dispatchShader =  p.makeArrayDispatchShader(src, BufferCommandId);
+		drawShader = p.makePointsShader(src, powerStart);
+	}
+
+	override fn run(ref state: Mixed.DrawState)
+	{
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+		dispatchShader.bind();
+		glDispatchCompute(1u, 1u, 1u);
+
+		drawShader.bind();
+		drawShader.float3("cameraPos".ptr, state.camPosition.ptr);
+		drawShader.matrix4("matrix", 1, false, ref state.matrix);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+		                GL_SHADER_STORAGE_BARRIER_BIT |
+		                GL_COMMAND_BARRIER_BIT);
+		glEnable(GL_PROGRAM_POINT_SIZE);
+		glDrawArraysIndirect(GL_POINTS, null);
+		glDisable(GL_PROGRAM_POINT_SIZE);
 	}
 }
