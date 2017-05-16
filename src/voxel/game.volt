@@ -47,7 +47,7 @@ public:
 		}
 
 		// First try a magica voxel level.
-		if (!loadMagica(filename, out frames, out data) &&
+		if (!loadFile(filename, out frames, out data) &&
 		    !genFlat(out frames, out data)) {
 			c.panic("Could not load or generate a level");
 		}
@@ -55,7 +55,14 @@ public:
 		push(new RayTracer(this, frames, data));
 	}
 
-	fn loadMagica(filename: string, out frames: u32[], out data: void[]) bool
+
+	/*
+	 *
+	 * Our own methods and helpers..
+	 *
+	 */
+
+	fn loadFile(filename: string, out frames: u32[], out data: void[]) bool
 	{
 		if (!isFile(filename)) {
 			return false;
@@ -64,6 +71,15 @@ public:
 		// Load the file.
 		fileData := cast(void[])read(filename);
 
+		if (magica.isMagicaFile(fileData)) {
+			return loadMagica(fileData, out frames, out data);
+		}
+
+		return false;
+	}
+
+	fn loadMagica(fileData: void[], out frames: u32[], out data: void[]) bool
+	{
 		// Reserve the first index.
 		ib: InputBuffer;
 		ib.setup(1);
@@ -92,11 +108,7 @@ public:
 		return true;
 	}
 
-	/*
-	 *
-	 * Our own methods and helpers..
-	 *
-	 */
+
 
 	/// Absolute minimum required.
 	fn checkVersion() bool

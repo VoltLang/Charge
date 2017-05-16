@@ -15,6 +15,18 @@ import voxel.svo;
 import voxel.svo.buddy : nextHighestPowerOfTwo, sizeToOrder;
 
 
+fn isMagicaFile(fileData: void[]) bool
+{
+	if (fileData.length <= typeid(Header).size) {
+		return false;
+	}
+
+	h := cast(Header*)fileData.ptr;
+
+	return h.check();
+}
+
+
 final class Loader
 {
 private:
@@ -206,10 +218,24 @@ private:
 
 private:
 
+enum Magic   = 0x20584f56;
+enum Version = 0x00000096;
+
 struct Header
 {
-	char[4] magic;
-	u32 ver;
+public:
+	char[4] magicStr;
+	char[4] verStr;
+
+
+public:
+	fn check() bool
+	{
+		return magic == 0x20584f56 && ver == 0x00000096;
+	}
+
+	@property fn magic() u32 { return *cast(u32*)magicStr.ptr; }
+	@property fn ver() u32 { return *cast(u32*)verStr.ptr; }
 }
 
 struct Chunk
