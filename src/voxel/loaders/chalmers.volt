@@ -79,7 +79,7 @@ final class Loader
 		c.xShift = 2;
 		c.yShift = 0;
 		c.zShift = 1;
-		c.numLevels = sizeToOrder(h.resolution);
+		c.numLevels = sizeToOrder(cast(u32)h.resolution);
 
 		// These just reference the input data directly.
 		frames = h.frames;
