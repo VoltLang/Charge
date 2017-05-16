@@ -25,7 +25,8 @@ import voxel.loaders.magica;
 class RayTracer : Viewer
 {
 public:
-	mixed: Mixed;
+	mixeds: Mixed[];
+	mixedId: u32;
 	frame: u32;
 	frames: u32[];
 	animate: bool;
@@ -54,7 +55,11 @@ public:
 		glCreateTextures(GL_TEXTURE_BUFFER, 1, &octTexture);
 		glTextureBuffer(octTexture, GL_R32UI, octBuffer);
 
-		mixed = new Mixed(octTexture, ref state);
+		mixeds = [
+			new Mixed(octTexture, ref state),
+			new Mixed(octTexture, ref state, true)
+		];
+
 
 		// Set the starting position.
 		resetPosition(1);
@@ -112,6 +117,13 @@ public:
 		}
 	}
 
+	fn switchRenderer()
+	{
+		if ((mixedId += 1) >= mixeds.length) {
+			mixedId = 0;
+		}
+	}
+
 
 	/*
 	 *
@@ -125,7 +137,11 @@ public:
 
 		if (octTexture) { glDeleteTextures(1, &octTexture); octTexture = 0; }
 		if (octBuffer) { glDeleteBuffers(1, &octBuffer); octBuffer = 0; }
-		if (mixed !is null) { mixed.close(); mixed = null; }
+		foreach (ref m; mixeds) {
+			m.close();
+			m = null;
+		}
+		mixeds = null;
 	}
 
 	override fn keyDown(device: CtlKeyboard, keycode: int)
@@ -134,7 +150,7 @@ public:
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			resetPosition(keycode - '0');
 			break;
-		case 'm': /*useSVO = !useSVO;*/ break;
+		case 'm': switchRenderer(); break;
 		case 't': animate = !animate; break;
 		case 'y': stepFrame(); break;
 		default: super.keyDown(device, keycode);
@@ -181,9 +197,7 @@ public:
 		state.cullPos = cullPosition;
 		state.cullMVP.setToMultiply(ref proj, ref cull);
 
-		if (true) {
-			mixed.draw(ref state);
-		}
+		mixeds[mixedId].draw(ref state);
 
 		// Check for last frames query.
 		checkQuery(t);
@@ -197,9 +211,7 @@ public:
 		sink := ss.sink;
 
 		sink.format("Info:\n");
-		if (true) {
-			mixed.counters.print(sink);
-		}
+		mixeds[mixedId].counters.print(sink);
 		sink.format("Resolution: %sx%s\n", t.width, t.height);
 		sink.format(`w a s d - move camera
 1 2 3 4 5 6 - reset position

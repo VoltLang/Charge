@@ -18,6 +18,37 @@ import power.voxel.instance;
 static import voxel.gfx.input;
 
 
+@mangledName("llvm.cttz.i32")
+fn countTrailingZeros(bits: u32, isZeroUndef: bool) u32;
+
+struct BufferTracker
+{
+	bits: u32;
+	numFree: u32;
+
+	fn setup(num: u32)
+	{
+		numFree = num;
+		foreach (i; 0 .. num) {
+			bits |= (1 << i);
+		}
+	}
+
+	fn get() u32
+	{
+		assert(numFree > 0);
+		index := countTrailingZeros(bits, true);
+		bits = bits ^ (1 << index);
+		return index;
+	}
+
+	fn free(index: u32)
+	{
+		numFree++;
+		bits |= 1 << index;
+	}
+}
+
 class Mixed
 {
 public:
@@ -56,7 +87,7 @@ protected:
 
 
 public:
-	this(octTexture: GLuint, ref create: CreateInput)
+	this(octTexture: GLuint, ref create: CreateInput, bool test = false)
 	{
 
 /*
@@ -98,15 +129,74 @@ public:
 		makeElementsDispatchShader(0, BufferCommandId);
 		makeArrayDispatchShader(0, BufferCommandId);
 
-		// Setup the pipeline steps.
-		mSteps ~= newInitStep(p:     this,         dst:  0);
-		mSteps ~= newList1Step(p:    this, src: 0, dst:  1, powerStart:  0, powerLevels: 3);
-		mSteps ~= newList1Step(p:    this, src: 1, dst:  0, powerStart:  3, powerLevels: 2);
-		mSteps ~= newList2Step(p:    this, src: 0, dst1: 1, powerStart:  5, powerLevels: 2, dst2: 2, distance: 0.1f);
-		mSteps ~= newList1Step(p:    this, src: 1, dst:  0, powerStart:  7, powerLevels: 3);
-		mSteps ~= newElementsStep(p: this, src: 0,          powerStart: 10, powerLevels: 1);
-		mSteps ~= newList1Step(p:    this, src: 2, dst:  0, powerStart:  7, powerLevels: 2);
-		mSteps ~= newElementsStep(p: this, src: 0,          powerStart:  9, powerLevels: 2);
+		bufTrack: BufferTracker;
+		bufTrack.setup(BufferNum);
+
+		if (test) {
+			// Setup the pipeline steps.
+			buf0 := bufTrack.get();    // Produce
+			mSteps ~= newInitStep(p: this, dst: buf0);
+
+			// First pass
+			buf3 := bufTrack.get();    // Produce
+			mSteps ~= newList1Step(p: this, src: buf0, dst: buf3, powerStart: 0, powerLevels: 3);
+			bufTrack.free(buf0);       // Consumed
+
+			// Split between far and near.
+			buf6_1 := bufTrack.get();  // Produce
+			buf6_2 := bufTrack.get();  // Produce
+			mSteps ~= newList2Step(p: this, src: buf3, dst1: buf6_1, powerStart: 3, powerLevels: 3, dst2: buf6_2, distance: 0.6f);
+			bufTrack.free(buf3);       // Consumed
+
+			// Split again.
+			buf9_1 := bufTrack.get();  // Produce
+			buf9_2 := bufTrack.get();  // Produce
+			mSteps ~= newList2Step(p: this, src: buf6_1, dst1: buf9_1, powerStart: 6, powerLevels: 3, dst2: buf9_2, distance: 0.2f);
+			bufTrack.free(buf6_1);     // Consumed
+
+			// Which should be cubes and which should be 
+			buf11_1 := bufTrack.get(); // Produce
+			buf11_2 := bufTrack.get(); // Produce
+			mSteps ~= newList2Step(p: this, src: buf9_1, dst1: buf11_1, powerStart: 9, powerLevels: 2, dst2: buf11_2, distance: 0.03f);
+			bufTrack.free(buf9_1);     // Consumed
+
+			// Do the first drawing steps.
+			mSteps ~= newCubesStep(p: this, src: buf11_1, powerStart: 11);
+			bufTrack.free(buf11_1);    // Consumed
+			mSteps ~= newPointsStep(p: this, src: buf11_2, powerStart: 11);
+			bufTrack.free(buf11_2);    // Consumed
+			// For more drawing.
+			buf11_1 = bufTrack.get(); // Produce
+			mSteps ~= newList1Step(p: this, src: buf9_2, dst: buf11_1, powerStart: 9, powerLevels: 2);
+			bufTrack.free(buf9_2);    // Consumed
+
+			// More points.
+			mSteps ~= newPointsStep(p: this, src: buf11_1, powerStart: 11);
+			bufTrack.free(buf11_1);   // Consumed
+
+			// Get the second part of the first split.
+			buf8 := bufTrack.get();   // Produce
+			mSteps ~= newList1Step(p: this, src: buf6_2, dst: buf8, powerStart: 6, powerLevels: 2);
+			bufTrack.free(buf6_2);      // Consumed
+
+			buf10 := bufTrack.get();  // Produce
+			mSteps ~= newList1Step(p: this, src: buf8, dst: buf10, powerStart: 8, powerLevels: 2);
+			bufTrack.free(buf8);      // Consumed
+
+			// Final draw call.
+			mSteps ~= newPointsStep(p: this, src: buf10, powerStart: 10);
+			bufTrack.free(buf10);     // Consumed
+		} else {
+			// Setup the pipeline steps.
+			mSteps ~= newInitStep(p:     this,         dst:  0);
+			mSteps ~= newList1Step(p:    this, src: 0, dst:  1, powerStart:  0, powerLevels: 3);
+			mSteps ~= newList1Step(p:    this, src: 1, dst:  0, powerStart:  3, powerLevels: 2);
+			mSteps ~= newList2Step(p:    this, src: 0, dst1: 1, powerStart:  5, powerLevels: 2, dst2: 2, distance: 0.1f);
+			mSteps ~= newList1Step(p:    this, src: 1, dst:  0, powerStart:  7, powerLevels: 3);
+			mSteps ~= newElementsStep(p: this, src: 0,          powerStart: 10, powerLevels: 1);
+			mSteps ~= newList1Step(p:    this, src: 2, dst:  0, powerStart:  7, powerLevels: 2);
+			mSteps ~= newElementsStep(p: this, src: 0,          powerStart:  9, powerLevels: 2);
+		}
 		names: string[];
 		foreach (i, step; mSteps) {
 			names ~= step.name;
@@ -417,7 +507,7 @@ private:
  *
  */
 
-enum BufferNum = 4;
+enum BufferNum = 6;
 enum GLuint BufferCommandId = BufferNum; // Buffer ids start at zero.
 
 fn newInitStep(p: Mixed = null, dst: u32) InitStep
