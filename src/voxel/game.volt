@@ -17,6 +17,7 @@ import charge.game.scene.background;
 import voxel.viewer;
 import voxel.svo;
 import voxel.loaders;
+import voxel.gfx.input;
 import gen = voxel.svo.gen;
 
 
@@ -46,13 +47,16 @@ public:
 			filename = args[1];
 		}
 
+		// State to give to the renderers.
+		state: Create;
+
 		// First try a magica voxel level.
-		if (!loadFile(filename, out frames, out data) &&
-		    !genFlat(out frames, out data)) {
+		if (!loadFile(filename, out state, out frames, out data) &&
+		    !genFlat(out state, out frames, out data)) {
 			c.panic("Could not load or generate a level");
 		}
 
-		push(new RayTracer(this, frames, data));
+		push(new RayTracer(this, ref state, frames, data));
 	}
 
 
@@ -62,7 +66,7 @@ public:
 	 *
 	 */
 
-	fn loadFile(filename: string, out frames: u32[], out data: void[]) bool
+	fn loadFile(filename: string, out c: Create, out frames: u32[], out data: void[]) bool
 	{
 		if (!isFile(filename)) {
 			return false;
@@ -72,14 +76,20 @@ public:
 		fileData := cast(void[])read(filename);
 
 		if (magica.isMagicaFile(fileData)) {
-			return loadMagica(fileData, out frames, out data);
+			return loadMagica(fileData, out c, out frames, out data);
 		}
 
 		return false;
 	}
 
-	fn loadMagica(fileData: void[], out frames: u32[], out data: void[]) bool
+	fn loadMagica(fileData: void[], out c: Create, out frames: u32[], out data: void[]) bool
 	{
+		// Setup the state.
+		c.xShift = XShift;
+		c.yShift = YShift;
+		c.zShift = ZShift;
+		c.numLevels = 11;
+
 		// Reserve the first index.
 		ib: InputBuffer;
 		ib.setup(1);
@@ -91,8 +101,14 @@ public:
 		return l.loadFileFromData(fileData, out frames, out data);
 	}
 
-	fn genFlat(out frames: u32[], out data: void[]) bool
+	fn genFlat(out c: Create, out frames: u32[], out data: void[]) bool
 	{
+		// Setup the state.
+		c.xShift = XShift;
+		c.yShift = YShift;
+		c.zShift = ZShift;
+		c.numLevels = 11;
+
 		// Reserve the first index.
 		ib: InputBuffer;
 		ib.setup(1);

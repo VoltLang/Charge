@@ -18,14 +18,13 @@ import power.voxel.mixed;
 import power.experiments.viewer;
 
 import voxel.svo;
+import voxel.gfx.input;
 import voxel.loaders.magica;
 
 
 class RayTracer : Viewer
 {
 public:
-	useSVO: bool;
-	svo: SVO;
 	mixed: Mixed;
 	frame: u32;
 	frames: u32[];
@@ -44,7 +43,7 @@ public:
 
 
 public:
-	this(g: GameSceneManager, frames: u32[], data: void[])
+	this(g: GameSceneManager, ref state: Create, frames: u32[], data: void[])
 	{
 		super(g);
 		this.frames = frames;
@@ -55,13 +54,7 @@ public:
 		glCreateTextures(GL_TEXTURE_BUFFER, 1, &octTexture);
 		glTextureBuffer(octTexture, GL_R32UI, octBuffer);
 
-		create: Mixed.CreateInput;
-		create.xShift = XShift;
-		create.yShift = YShift;
-		create.zShift = ZShift;
-
-		svo = new SVO(octTexture);
-		mixed = new Mixed(octTexture, ref create);
+		mixed = new Mixed(octTexture, ref state);
 
 		// Set the starting position.
 		resetPosition(1);
@@ -132,7 +125,7 @@ public:
 
 		if (octTexture) { glDeleteTextures(1, &octTexture); octTexture = 0; }
 		if (octBuffer) { glDeleteBuffers(1, &octBuffer); octBuffer = 0; }
-		if (svo !is null) { svo.close(); svo = null; }
+		if (mixed !is null) { mixed.close(); mixed = null; }
 	}
 
 	override fn keyDown(device: CtlKeyboard, keycode: int)
@@ -141,7 +134,7 @@ public:
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			resetPosition(keycode - '0');
 			break;
-		case 'm': useSVO = !useSVO; break;
+		case 'm': /*useSVO = !useSVO;*/ break;
 		case 't': animate = !animate; break;
 		case 'y': stepFrame(); break;
 		default: super.keyDown(device, keycode);
@@ -172,31 +165,23 @@ public:
 		glUseProgram(0);
 
 
-		view: math.Matrix4x4d;
-		view.setToLookFrom(ref camPosition, ref camRotation);
-
 		proj: math.Matrix4x4d;
 		t.setMatrixToProjection(ref proj, 45.f, 0.0001f, 256.f);
 
+		view: math.Matrix4x4d;
+		view.setToLookFrom(ref camPosition, ref camRotation);
 
-		if (useSVO) {
-			temp: math.Matrix4x4f;
-			temp.setToMultiplyAndTranspose(ref proj, ref view);
+		cull: math.Matrix4x4d;
+		cull.setToLookFrom(ref cullPosition, ref cullRotation);
 
-			svo.draw(ref camPosition, ref temp);
-		} else {
-			cull: math.Matrix4x4d;
-			cull.setToLookFrom(ref cullPosition, ref cullRotation);
+		state: Mixed.DrawInput;
+		state.frame = frames[frame];
+		state.camPos = camPosition;
+		state.camMVP.setToMultiply(ref proj, ref view);
+		state.cullPos = cullPosition;
+		state.cullMVP.setToMultiply(ref proj, ref cull);
 
-			state: Mixed.DrawInput;
-			state.frame = frames[frame];
-
-			state.camPos = camPosition;
-			state.camMVP.setToMultiply(ref proj, ref view);
-
-			state.cullPos = cullPosition;
-			state.cullMVP.setToMultiply(ref proj, ref cull);
-
+		if (true) {
 			mixed.draw(ref state);
 		}
 
@@ -212,9 +197,7 @@ public:
 		sink := ss.sink;
 
 		sink.format("Info:\n");
-		if (useSVO) {
-			svo.counters.print(sink);
-		} else {
+		if (true) {
 			mixed.counters.print(sink);
 		}
 		sink.format("Resolution: %sx%s\n", t.width, t.height);
