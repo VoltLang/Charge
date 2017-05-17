@@ -571,11 +571,13 @@ public:
 		one := 1;
 		offset := cast(GLintptr)(dst * 4);
 
+		glClearNamedBufferData(state.commandBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glClearNamedBufferData(state.atomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glNamedBufferSubData(state.atomicBuffer, offset, 4, cast(void*)&one);
 		glNamedBufferSubData(state.buffers[dst], 0, 16, cast(void*)[0, 0, frame, 0].ptr);
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
-		                GL_SHADER_STORAGE_BARRIER_BIT);
+		                GL_SHADER_STORAGE_BARRIER_BIT |
+		                GL_COMMAND_BARRIER_BIT);
 	}
 }
 
