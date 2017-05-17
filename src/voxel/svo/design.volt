@@ -15,3 +15,13 @@ enum ZShift = 2;
 /**
  * @}
  */
+
+/**
+ * Constants used in the rendering pipeline.
+ * @{
+ */
+enum BufferNum = 6;
+enum u32 BufferCommandId = BufferNum; // Buffer ids start at zero.
+/**
+ * @}
+ */
