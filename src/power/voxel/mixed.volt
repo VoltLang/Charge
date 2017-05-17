@@ -69,7 +69,7 @@ public:
 		// Setup the pipeline steps.
 		dst = tracker.get(); // Produce
 		endLevelOfBuf[dst] = 0;
-		return newInitStep(p, dst);
+		return new InitStep(p, dst);
 	}
 
 	fn makeList1(src: u32, powerLevels: u32, out dst: u32) ListStep
@@ -80,7 +80,7 @@ public:
 		dst = tracker.get(); // Produce
 		tracker.free(src);   // Consume
 		endLevelOfBuf[dst] = powerStart + powerLevels;
-		return newList2Step(p, src, dst, 0, powerStart, powerLevels, 0.0f);
+		return new ListStep(p, src, dst, 0, powerStart, powerLevels, 0.0f);
 	}
 
 	fn makeList2(src: u32, powerLevels: u32, distance: f32,
@@ -94,21 +94,21 @@ public:
 		tracker.free(src);    // Consume
 		endLevelOfBuf[dst1] = powerStart + powerLevels;
 		endLevelOfBuf[dst2] = powerStart + powerLevels;
-		return newList2Step(p, src, dst1, dst2, powerStart, powerLevels, distance);
+		return new ListStep(p, src, dst1, dst2, powerStart, powerLevels, distance);
 	}
 
 	fn makeCubes(src: u32) ElementsStep
 	{
 		powerStart := endLevelOfBuf[src];
 		tracker.free(src); // Consume
-		return newCubesStep(p, src, powerStart);
+		return new ElementsStep(p, src, powerStart, 0);
 	}
 
 	fn makePoints(src: u32) PointsStep
 	{
 		powerStart := endLevelOfBuf[src];
 		tracker.free(src); // Consume
-		return newPointsStep(p, src, powerStart);
+		return new PointsStep(p, src, powerStart);
 	}
 }
 
@@ -216,14 +216,14 @@ public:
 			mSteps ~= b.makePoints(buf10);
 		} else {
 			// Setup the pipeline steps.
-			mSteps ~= newInitStep(p:     this,         dst:  0);
-			mSteps ~= newList1Step(p:    this, src: 0, dst:  1, powerStart:  0, powerLevels: 3);
-			mSteps ~= newList1Step(p:    this, src: 1, dst:  0, powerStart:  3, powerLevels: 2);
-			mSteps ~= newList2Step(p:    this, src: 0, dst1: 1, powerStart:  5, powerLevels: 2, dst2: 2, distance: 0.1f);
-			mSteps ~= newList1Step(p:    this, src: 1, dst:  0, powerStart:  7, powerLevels: 3);
-			mSteps ~= newElementsStep(p: this, src: 0,          powerStart: 10, powerLevels: 1);
-			mSteps ~= newList1Step(p:    this, src: 2, dst:  0, powerStart:  7, powerLevels: 2);
-			mSteps ~= newElementsStep(p: this, src: 0,          powerStart:  9, powerLevels: 2);
+			mSteps ~= new InitStep(    this, 0);
+			mSteps ~= new ListStep(    this, 0, 1, 0, 0, 3, 0.0f);
+			mSteps ~= new ListStep(    this, 1, 0, 0, 3, 2, 0.0f);
+			mSteps ~= new ListStep(    this, 0, 1, 2, 5, 2, 0.1f);
+			mSteps ~= new ListStep(    this, 1, 0, 0, 7, 3, 0.0f);
+			mSteps ~= new ElementsStep(this, 0,      10, 1);
+			mSteps ~= new ListStep(    this, 2, 0, 0, 7, 2, 0.0f);
+			mSteps ~= new ElementsStep(this, 0,       9, 2);
 		}
 		names: string[];
 		foreach (i, step; mSteps) {
@@ -538,39 +538,8 @@ private:
 enum BufferNum = 6;
 enum GLuint BufferCommandId = BufferNum; // Buffer ids start at zero.
 
-fn newInitStep(p: Mixed = null, dst: u32) InitStep
-{
-	return new InitStep(p, dst);
-}
 
-fn newList1Step(p: Mixed, src: u32, dst: u32,
-                powerStart: u32, powerLevels: u32) ListStep
-{
-	return new ListStep(p, src, dst, 0, powerStart, powerLevels, 0.0f);
-}
-fn newList2Step(p: Mixed, src: u32, dst1: u32, dst2: u32,
-                powerStart: u32, powerLevels: u32, distance: f32) ListStep
-{
-	return new ListStep(p, src, dst1, dst2, powerStart, powerLevels, distance);
-}
-
-fn newElementsStep(p: Mixed, src: u32, powerStart: u32, powerLevels: u32) ElementsStep
-{
-	return new ElementsStep(p, src, powerStart, powerLevels);
-}
-
-fn newPointsStep(p: Mixed, src: u32, powerStart: u32) PointsStep
-{
-	return new PointsStep(p, src, powerStart);
-}
-
-fn newCubesStep(p: Mixed, src: u32, powerStart: u32) ElementsStep
-{
-	return new ElementsStep(p, src, powerStart, 0);
-}
-
-
-static abstract class Step
+abstract class Step
 {
 	name: string;
 	abstract fn run(ref state: Mixed.DrawState);
@@ -605,7 +574,7 @@ public:
 	}
 }
 
-static class ListStep : Step
+class ListStep : Step
 {
 public:
 	dispatchShader: GfxShader;
@@ -639,7 +608,7 @@ public:
 	}
 }
 
-static class ElementsStep : Step
+class ElementsStep : Step
 {
 public:
 	dispatchShader: GfxShader;
@@ -671,7 +640,7 @@ public:
 	}
 }
 
-static class PointsStep : Step
+class PointsStep : Step
 {
 public:
 	dispatchShader: GfxShader;
