@@ -14,9 +14,13 @@ import math = charge.math;
 import voxel.svo.util;
 import voxel.svo.design;
 import voxel.svo.shaders;
+import voxel.svo.pipeline;
 
 
-struct DrawState
+/**
+ * The state that is passed to each step when we are running the pipeline.
+ */
+struct StepState
 {
 	matrix: math.Matrix4x4f;
 	planes: math.Planef[4];
@@ -120,7 +124,7 @@ public:
 
 
 public:
-	abstract fn run(ref state: DrawState);
+	abstract fn run(ref state: StepState);
 }
 
 /**
@@ -139,7 +143,7 @@ public:
 		this.dst = dst;
 	}
 
-	override fn run(ref state: DrawState)
+	override fn run(ref state: StepState)
 	{
 		frame := state.frame;
 		one := 1;
@@ -180,7 +184,7 @@ public:
 		listShader = s.makeListShader(src, dst1, dst2, powerStart, powerLevels, distance);
 	}
 
-	override fn run(ref state: DrawState)
+	override fn run(ref state: StepState)
 	{
 
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -217,7 +221,7 @@ public:
 		drawShader = s.makeElementsShader(src, powerStart, powerLevels);
 	}
 
-	override fn run(ref state: DrawState)
+	override fn run(ref state: StepState)
 	{
 
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -253,7 +257,7 @@ public:
 		drawShader = s.makePointsShader(src, powerStart);
 	}
 
-	override fn run(ref state: DrawState)
+	override fn run(ref state: StepState)
 	{
 
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);

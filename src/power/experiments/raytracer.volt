@@ -13,7 +13,6 @@ import charge.game;
 
 import math = charge.math;
 
-import power.util.counters;
 import power.voxel.svo;
 import power.voxel.mixed;
 import power.experiments.viewer;

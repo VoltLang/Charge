@@ -17,7 +17,6 @@ import charge.game.scene.background;
 import voxel.viewer;
 import voxel.svo;
 import voxel.loaders;
-import voxel.gfx.input;
 import gen = voxel.svo.gen;
 
 

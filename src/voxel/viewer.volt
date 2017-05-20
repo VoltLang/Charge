@@ -12,21 +12,16 @@ import charge.game;
 
 import math = charge.math;
 
-import power.util.counters;
-import power.voxel.svo;
-import power.voxel.mixed;
 import power.experiments.viewer;
 
 import voxel.svo;
-import voxel.gfx.input;
-import voxel.loaders.magica;
 
 
 class RayTracer : Viewer
 {
 public:
-	mixeds: Mixed[];
-	mixedId: u32;
+	pipes: Pipeline[];
+	pipeId: u32;
 	frame: u32;
 	frames: u32[];
 	animate: bool;
@@ -55,9 +50,9 @@ public:
 		glCreateTextures(GL_TEXTURE_BUFFER, 1, &octTexture);
 		glTextureBuffer(octTexture, GL_R32UI, octBuffer);
 
-		mixeds = [
-			new Mixed(octTexture, ref state),
-			new Mixed(octTexture, ref state, true)
+		pipes = [
+			new Pipeline(octTexture, ref state, false),
+			new Pipeline(octTexture, ref state, true)
 		];
 
 
@@ -119,8 +114,8 @@ public:
 
 	fn switchRenderer()
 	{
-		if ((mixedId += 1) >= mixeds.length) {
-			mixedId = 0;
+		if ((pipeId += 1) >= pipes.length) {
+			pipeId = 0;
 		}
 	}
 
@@ -137,11 +132,11 @@ public:
 
 		if (octTexture) { glDeleteTextures(1, &octTexture); octTexture = 0; }
 		if (octBuffer) { glDeleteBuffers(1, &octBuffer); octBuffer = 0; }
-		foreach (ref m; mixeds) {
+		foreach (ref m; pipes) {
 			m.close();
 			m = null;
 		}
-		mixeds = null;
+		pipes = null;
 	}
 
 	override fn keyDown(device: CtlKeyboard, keycode: int)
@@ -190,14 +185,14 @@ public:
 		cull: math.Matrix4x4d;
 		cull.setToLookFrom(ref cullPosition, ref cullRotation);
 
-		state: Mixed.DrawInput;
+		state: Draw;
 		state.frame = frames[frame];
 		state.camPos = camPosition;
 		state.camMVP.setToMultiply(ref proj, ref view);
 		state.cullPos = cullPosition;
 		state.cullMVP.setToMultiply(ref proj, ref cull);
 
-		mixeds[mixedId].draw(ref state);
+		pipes[pipeId].draw(ref state);
 
 		// Check for last frames query.
 		checkQuery(t);
@@ -211,7 +206,7 @@ public:
 		sink := ss.sink;
 
 		sink.format("Info:\n");
-		mixeds[mixedId].counters.print(sink);
+		pipes[pipeId].counters.print(sink);
 		sink.format("Resolution: %sx%s\n", t.width, t.height);
 		sink.format(`w a s d - move camera
 1 2 3 4 5 6 - reset position

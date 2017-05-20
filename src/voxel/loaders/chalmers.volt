@@ -8,7 +8,7 @@ module voxel.loaders.chalmers;
 import io = watt.io;
 
 import voxel.svo.buddy : sizeToOrder;
-import voxel.gfx.input;
+import voxel.svo.design;
 
 
 fn isChalmersDag(fileData: void[]) bool

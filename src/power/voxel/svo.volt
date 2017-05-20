@@ -11,7 +11,6 @@ import charge.sys.resource;
 
 import math = charge.math;
 
-import power.util.counters;
 import power.voxel.dag;
 import power.voxel.instance;
 
@@ -46,11 +45,10 @@ fn calcNumMorton(dim: i32) i32
 class SVO
 {
 public:
-	counters: Counters;
+	counters: GfxCounters;
 
 
 protected:
-	mCounters: Counters;
 	mVbo: DagBuffer;
 	mOccludeBuf: OccludeBuffer;
 	mInstanceBuf: InstanceBuffer;
@@ -88,7 +86,7 @@ protected:
 public:
 	this(octTexture: GLuint)
 	{
-		counters = new Counters("feedback", "occlude", "prune", "trace");
+		counters = new GfxCounters("feedback", "occlude", "prune", "trace");
 
 		mVoxelPower = 11;
 		mOccludePower = 5;
