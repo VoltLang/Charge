@@ -145,13 +145,21 @@ public:
 		one := 1;
 		offset := cast(GLintptr)(dst * 4);
 
+		// Make sure memory is all in place.
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+//		                GL_SHADER_STORAGE_BARRIER_BIT |
+//		                GL_COMMAND_BARRIER_BIT);
+
 		glClearNamedBufferData(state.commandBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glClearNamedBufferData(state.atomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glNamedBufferSubData(state.atomicBuffer, offset, 4, cast(void*)&one);
 		glNamedBufferSubData(state.buffers[dst], 0, 16, cast(void*)[0, 0, frame, 0].ptr);
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
-		                GL_SHADER_STORAGE_BARRIER_BIT |
-		                GL_COMMAND_BARRIER_BIT);
+
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+//		                GL_SHADER_STORAGE_BARRIER_BIT |
+//		                GL_COMMAND_BARRIER_BIT);
 	}
 }
 
@@ -174,7 +182,9 @@ public:
 
 	override fn run(ref state: DrawState)
 	{
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		dispatchShader.bind();
 		glDispatchCompute(1u, 1u, 1u);
 
@@ -182,9 +192,11 @@ public:
 		listShader.float3("cameraPos".ptr, state.camPosition.ptr);
 		listShader.matrix4("matrix", 1, false, ref state.matrix);
 		listShader.float4("planes".ptr, 4, &state.planes[0].a);
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
-		                GL_SHADER_STORAGE_BARRIER_BIT |
-		                GL_COMMAND_BARRIER_BIT);
+
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+//		                GL_SHADER_STORAGE_BARRIER_BIT |
+//		                GL_COMMAND_BARRIER_BIT);
 		glDispatchComputeIndirect(0);
 	}
 }
@@ -207,16 +219,20 @@ public:
 
 	override fn run(ref state: DrawState)
 	{
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		dispatchShader.bind();
 		glDispatchCompute(1u, 1u, 1u);
 
 		drawShader.bind();
 		drawShader.float3("cameraPos".ptr, state.camPosition.ptr);
 		drawShader.matrix4("matrix", 1, false, ref state.matrix);
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
-		                GL_SHADER_STORAGE_BARRIER_BIT |
-		                GL_COMMAND_BARRIER_BIT);
+
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+//		                GL_SHADER_STORAGE_BARRIER_BIT |
+//		                GL_COMMAND_BARRIER_BIT);
 		glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, null);
 	}
 }
@@ -239,16 +255,20 @@ public:
 
 	override fn run(ref state: DrawState)
 	{
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		dispatchShader.bind();
 		glDispatchCompute(1u, 1u, 1u);
 
 		drawShader.bind();
 		drawShader.float3("cameraPos".ptr, state.camPosition.ptr);
 		drawShader.matrix4("matrix", 1, false, ref state.matrix);
-		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
-		                GL_SHADER_STORAGE_BARRIER_BIT |
-		                GL_COMMAND_BARRIER_BIT);
+
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+//		                GL_SHADER_STORAGE_BARRIER_BIT |
+//		                GL_COMMAND_BARRIER_BIT);
 		glEnable(GL_PROGRAM_POINT_SIZE);
 		glDrawArraysIndirect(GL_POINTS, null);
 		glDisable(GL_PROGRAM_POINT_SIZE);
