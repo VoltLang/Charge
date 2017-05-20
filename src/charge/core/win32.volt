@@ -85,60 +85,6 @@ public:
 		}
 	}
 
-	fn close()
-	{
-		if (closeDg !is null) {
-			closeDg();
-		}
-	}
-
-	override fn loop() i32
-	{
-		now: long = GetTickCount();
-		step: long = 10;
-		where: long = now;
-		last: long = now;
-
-		done := false;
-		msg: MSG;
-		while (!done) {
-			now = GetTickCount();
-			while (where < now) {
-				if (PeekMessageA(&msg, null, 0, 0, PM_REMOVE)) {
-					done = msg.message == WM_QUIT;
-					if (!done) {
-						TranslateMessage(&msg);
-						DispatchMessageA(&msg);
-					} else {
-						close();
-						return 0;
-					}
-				}
-
-				logicDg();
-
-				where = where + step;
-			}
-
-			if (done) {
-				continue;
-			}
-
-			renderDg();
-			SwapBuffers(hDC);
-
-			diff := (step + where) - now;
-			idleDg(diff);
-
-			diff = (step + where) - GetTickCount();
-			if (diff > 0) {
-				Sleep(cast(DWORD)diff);
-			}
-		}
-		close();
-		return 0;
-	}
-
 	override fn panic(message: string)
 	{
 		io.writefln("PANIC: %s", message);
@@ -207,10 +153,57 @@ public:
 		mode = this.windowMode;
 	}
 
-
 	override fn screenShot()
 	{
 		assert(false);
+	}
+
+
+	/*
+	 *
+	 * Loop functions from common.
+	 *
+	 */
+
+
+
+
+protected:
+	override fn getTicks() long
+	{
+		return GetTickCount();
+	}
+
+	override fn doInput()
+	{
+		msg: MSG;
+		if (PeekMessageA(&msg, null, 0, 0, PM_REMOVE) != 0) {
+			if (msg.message != WM_QUIT) {
+				TranslateMessage(&msg);
+				DispatchMessageA(&msg);
+			} else {
+				mRunning = false;
+				return;
+			}
+		}
+	}
+
+	override fn doRenderAndSwap()
+	{
+		renderDg();
+		SwapBuffers(hDC);
+	}
+
+	override fn doSleep(diff: long)
+	{
+		Sleep(cast(DWORD)diff);
+	}
+
+	override fn doClose()
+	{
+		if (closeDg !is null) {
+			closeDg();
+		}
 	}
 
 

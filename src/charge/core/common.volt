@@ -59,7 +59,56 @@ protected:
 	renderDg: dg();
 	idleDg: dg(long);
 
+	// Used for looping.
+	mRunning: bool;
+
+
 public:
+	override fn loop() i32
+	{
+		now: long = getTicks();
+		step: long = 10;
+		where: long = now;
+		last: long = now;
+		changed: bool;
+
+		while (mRunning) {
+			now = getTicks();
+
+			doInput();
+
+			while (where < now) {
+				doInput();
+
+				logicDg();
+
+				where = where + step;
+				changed = true;
+			}
+
+			if (!mRunning) {
+				break;
+			}
+
+			if (changed) {
+				doRenderAndSwap();
+				changed = false;
+			}
+
+			diff := (step + where) - now;
+			idleDg(diff);
+
+			diff = (step + where) - getTicks();
+			if (diff > 0) {
+				doSleep(diff);
+			}
+		}
+
+		doClose();
+
+		return 0;
+	}
+
 	override fn setIdle(dgt: dg(long)) {
 		if (dgt is null) {
 			idleDg = defaultIdle;
@@ -148,6 +197,7 @@ protected:
 	this(coreFlag flags)
 	{
 		super(flags);
+		this.mRunning = true;
 
 		setRender(null);
 		setLogic(null);
@@ -169,6 +219,26 @@ protected:
 		}
 	}
 
+
+	/*
+	 *
+	 * Common loop functions.
+	 *
+	 */
+
+	abstract fn getTicks() long;
+	abstract fn doInput();
+	abstract fn doRenderAndSwap();
+	abstract fn doSleep(diff: long);
+	abstract fn doClose();
+
+
+	/*
+	 *
+	 * Other helpers.
+	 *
+	 */
+
 	fn notLoaded(mask: coreFlag, name: string)
 	{
 /+
@@ -179,6 +249,7 @@ protected:
 		}
 +/
 	}
+
 
 	/*
 	 *

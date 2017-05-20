@@ -80,8 +80,6 @@ private:
 	glu: Library;
 	sdl: Library;
 
-	running: bool;
-
 	/* name of libraries to load */
 	version (Windows) {
 		enum string[] libSDLname = ["SDL.dll"];
@@ -117,33 +115,6 @@ public:
 
 		foreach (initFunc; initFuncs) {
 			initFunc();
-		}
-	}
-
-	fn close()
-	{
-		if (closeDg !is null) {
-			closeDg();
-		}
-
-		foreach (closeFunc; closeFuncs) {
-			closeFunc();
-		}
-
-		saveSettings();
-
-/+
-		Pool().clean();
-+/
-
-		closeSfx();
-		closePhy();
-
-		if (gfxLoaded) {
-			closeGfx();
-		}
-		if (noVideo) {
-			closeNoGfx();
 		}
 	}
 
@@ -218,89 +189,49 @@ public:
 	 *
 	 */
 
+	version (Emscripten) {
+		extern(C) global fn loopCb()
+		{
+			event: SDL_Event;
+			quitSet: bool;
 
-version (Emscripten) {
-
-	extern(C) global fn loopCb()
-	{
-		event: SDL_Event;
-		quitSet: bool;
-
-		while (SDL_PollEvent(&event)) {
-			if (cast(int)event.type == SDL_QUIT) {
-				quitSet = true;
-				break;
-			} else if (cast(int)event.type == SDL_KEYDOWN) {
-				quitSet = true;
-				break;
-			}
-		}
-
-		if (quitSet) {
-			emscripten_cancel_main_loop();
-			(cast(CoreSDL)instance).close();
-			return;
-		}
-
-		if (instance.renderDg !is null) {
-			instance.renderDg();
-			SDL_GL_SwapWindow(window);
-		}
-	}
-
-	override fn loop() int
-	{
-		emscripten_set_main_loop(loopCb, 0, 0);
-		return -1;
-	}
-
-} else {
-
-	override fn loop() int
-	{
-		now: long = SDL_GetTicks();
-		step: long = 10;
-		where: long = now;
-		last: long = now;
-
-		keypress: int = 0;
-
-		changed: bool; //< Tracks if should render
-		while (running) {
-			now = SDL_GetTicks();
-
-			doInput();
-
-			while (where < now) {
-				doInput();
-				logicDg();
-
-				where = where + step;
-				changed = true;
+			while (SDL_PollEvent(&event)) {
+				if (cast(int)event.type == SDL_QUIT) {
+					quitSet = true;
+					break;
+				} else if (cast(int)event.type == SDL_KEYDOWN) {
+					quitSet = true;
+					break;
+				}
 			}
 
-			if (changed) {
-				renderDg();
+			if (quitSet) {
+				emscripten_cancel_main_loop();
+				(cast(CoreSDL)instance).close();
+				return;
+			}
+
+			if (instance.renderDg !is null) {
+				instance.renderDg();
 				SDL_GL_SwapWindow(window);
-				changed = true;
-			}
-
-			diff := (step + where) - now;
-			idleDg(diff);
-
-			// Do the sleep now if there is time left.
-			diff = (step + where) - SDL_GetTicks();
-			if (diff > 0) {
-				SDL_Delay(cast(uint)diff);
 			}
 		}
 
-		close();
-
-		return 0;
+		override fn loop() i32
+		{
+			emscripten_set_main_loop(loopCb, 0, 0);
+			return -1;
+		}
 	}
 
-	fn doInput()
+
+protected:
+	override fn getTicks() long
+	{
+		return SDL_GetTicks();
+	}
+
+	override fn doInput()
 	{
 		e: SDL_Event;
 
@@ -421,6 +352,44 @@ version (Emscripten) {
 			default:
 				break;
 			}
+		}
+	}
+
+	override fn doRenderAndSwap()
+	{
+		renderDg();
+		SDL_GL_SwapWindow(window);
+	}
+
+	override fn doSleep(diff: long)
+	{
+		SDL_Delay(cast(uint)diff);
+	}
+
+	override fn doClose()
+	{
+		if (closeDg !is null) {
+			closeDg();
+		}
+
+		foreach (closeFunc; closeFuncs) {
+			closeFunc();
+		}
+
+		saveSettings();
+
+/+
+		Pool().clean();
++/
+
+		closeSfx();
+		closePhy();
+
+		if (gfxLoaded) {
+			closeGfx();
+		}
+		if (noVideo) {
+			closeNoGfx();
 		}
 	}
 }
