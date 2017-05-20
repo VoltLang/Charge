@@ -51,8 +51,8 @@ public:
 		glTextureBuffer(octTexture, GL_R32UI, octBuffer);
 
 		pipes = [
-			new Pipeline(octTexture, ref state, false),
-			new Pipeline(octTexture, ref state, true)
+			new Pipeline(octTexture, ref state, Pipeline.Kind.Raycube),
+			new Pipeline(octTexture, ref state, Pipeline.Kind.CubePoint),
 		];
 
 
@@ -213,8 +213,8 @@ public:
 o - AA (%s)
 t - animate (%s)
 y - step frame (#%s)
-m - switch renderer
-l - lock culling (%s)`, mUseAA, animate, frame, mLockCull);
+m - switch renderer (%s)
+l - lock culling (%s)`, mUseAA, animate, frame, pipes[pipeId].name, mLockCull);
 		updateText(ss.toString());
 	}
 }

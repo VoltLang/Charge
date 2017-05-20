@@ -32,7 +32,15 @@ struct Draw
 class Pipeline
 {
 public:
+	enum Kind
+	{
+		Raycube,
+		CubePoint,
+	}
+
+public:
 	counters: GfxCounters;
+	name: string;
 
 
 protected:
@@ -49,41 +57,22 @@ protected:
 
 
 public:
-	this(octTexture: GLuint, ref create: Create, bool test)
+	this(octTexture: GLuint, ref create: Create, kind: Kind)
 	{
 		store := getStore(create.xShift, create.yShift, create.zShift);
 		b := new StepsBuilder(store);
 
-		if (test) {
-			buf0, buf3, buf6_1, buf6_2: u32;
-			buf9_1, buf9_2, buf11_1, buf11_2: u32;
-			buf8, buf10: u32;
-
-			mSteps ~= b.makeInit(                     out    buf0);
-			mSteps ~= b.makeList1(    buf0, 3,        out    buf3);
-			mSteps ~= b.makeList2(    buf3, 3,  0.6f, out  buf6_1, out  buf6_2);
-			mSteps ~= b.makeList2(  buf6_1, 3,  0.2f, out  buf9_1, out  buf9_2);
-			mSteps ~= b.makeList2(  buf9_1, 2, 0.03f, out buf11_1, out buf11_2);
-			mSteps ~= b.makeCubes( buf11_1);
-			mSteps ~= b.makePoints(buf11_2);
-
-			mSteps ~= b.makeList1(  buf9_2, 2, out buf11_1);
-			mSteps ~= b.makePoints(buf11_1);
-
-			mSteps ~= b.makeList1(buf6_2, 2, out  buf8);
-			mSteps ~= b.makeList1(  buf8, 2, out buf10);
-			mSteps ~= b.makePoints(buf10);
-		} else {
-			// Setup the pipeline steps.
-			mSteps ~= new InitStep(         0);
-			mSteps ~= new ListStep(    b.s, 0, 1, 0, 0, 3, 0.0f);
-			mSteps ~= new ListStep(    b.s, 1, 0, 0, 3, 2, 0.0f);
-			mSteps ~= new ListStep(    b.s, 0, 1, 2, 5, 2, 0.1f);
-			mSteps ~= new ListStep(    b.s, 1, 0, 0, 7, 3, 0.0f);
-			mSteps ~= new ElementsStep(b.s, 0,      10, 1);
-			mSteps ~= new ListStep(    b.s, 2, 0, 0, 7, 2, 0.0f);
-			mSteps ~= new ElementsStep(b.s, 0,       9, 2);
+		final switch (kind) with (Kind) {
+		case CubePoint:
+			name = "cubepoints";
+			makeCubePointPipeline(b);
+			break;
+		case Raycube:
+			name = "raycubes";
+			makeRaycubePipeline(b);
+			break;
 		}
+
 		names: string[];
 		foreach (i, step; mSteps) {
 			names ~= step.name;
@@ -116,7 +105,42 @@ public:
 		}
 	}
 
-	void close()
+	fn makeCubePointPipeline(b: StepsBuilder)
+	{
+		buf0, buf3, buf6_1, buf6_2: u32;
+		buf9_1, buf9_2, buf11_1, buf11_2: u32;
+		buf8, buf10: u32;
+
+		mSteps ~= b.makeInit(                     out    buf0);
+		mSteps ~= b.makeList1(    buf0, 3,        out    buf3);
+		mSteps ~= b.makeList2(    buf3, 3,  0.6f, out  buf6_1, out  buf6_2);
+		mSteps ~= b.makeList2(  buf6_1, 3,  0.2f, out  buf9_1, out  buf9_2);
+		mSteps ~= b.makeList2(  buf9_1, 2, 0.03f, out buf11_1, out buf11_2);
+		mSteps ~= b.makeCubes( buf11_1);
+		mSteps ~= b.makePoints(buf11_2);
+
+		mSteps ~= b.makeList1(  buf9_2, 2, out buf11_1);
+		mSteps ~= b.makePoints(buf11_1);
+
+		mSteps ~= b.makeList1(buf6_2, 2, out  buf8);
+		mSteps ~= b.makeList1(  buf8, 2, out buf10);
+		mSteps ~= b.makePoints(buf10);
+	}
+
+	fn makeRaycubePipeline(b: StepsBuilder)
+	{
+		// Setup the pipeline steps.
+		mSteps ~= new InitStep(         0);
+		mSteps ~= new ListStep(    b.s, 0, 1, 0, 0, 3, 0.0f);
+		mSteps ~= new ListStep(    b.s, 1, 0, 0, 3, 2, 0.0f);
+		mSteps ~= new ListStep(    b.s, 0, 1, 2, 5, 2, 0.1f);
+		mSteps ~= new ListStep(    b.s, 1, 0, 0, 7, 3, 0.0f);
+		mSteps ~= new ElementsStep(b.s, 0,      10, 1);
+		mSteps ~= new ListStep(    b.s, 2, 0, 0, 7, 2, 0.0f);
+		mSteps ~= new ElementsStep(b.s, 0,       9, 2);
+	}
+
+	fn close()
 	{
 	}
 

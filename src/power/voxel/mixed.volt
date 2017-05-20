@@ -16,6 +16,6 @@ public:
 public:
 	this(octTexture: GLuint, ref create: Create)
 	{
-		super(octTexture, ref create, false);
+		super(octTexture, ref create, Pipeline.Kind.Raycube);
 	}
 }
