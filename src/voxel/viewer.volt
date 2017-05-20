@@ -51,8 +51,9 @@ public:
 		glTextureBuffer(octTexture, GL_R32UI, octBuffer);
 
 		pipes = [
-			new Pipeline(octTexture, ref state, Pipeline.Kind.Raycube),
 			new Pipeline(octTexture, ref state, Pipeline.Kind.CubePoint),
+			new Pipeline(octTexture, ref state, Pipeline.Kind.Points),
+			new Pipeline(octTexture, ref state, Pipeline.Kind.Raycube),
 		];
 
 

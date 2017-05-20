@@ -37,6 +37,7 @@ public:
 	{
 		Raycube,
 		CubePoint,
+		Points,
 	}
 
 public:
@@ -64,6 +65,10 @@ public:
 		b := new StepsBuilder(store);
 
 		final switch (kind) with (Kind) {
+		case Points:
+			name = "points";
+			makePointsPipeline(b);
+			break;
 		case CubePoint:
 			name = "cubepoints";
 			makeCubePointPipeline(b);
@@ -104,6 +109,18 @@ public:
 		foreach (buf; mOutputBuffers) {
 			glNamedBufferStorage(buf, 0x800_0000, null, GL_DYNAMIC_STORAGE_BIT);
 		}
+	}
+
+	fn makePointsPipeline(b: StepsBuilder)
+	{
+		buf0, buf3, buf6, buf9, buf11: u32;
+
+		mSteps ~= b.makeInit(           out    buf0);
+		mSteps ~= b.makeList1( buf0, 3, out    buf3);
+		mSteps ~= b.makeList1( buf3, 3, out    buf6);
+		mSteps ~= b.makeList1( buf6, 3, out    buf9);
+		mSteps ~= b.makeList1( buf9, 2, out    buf11);
+		mSteps ~= b.makePoints(buf11);
 	}
 
 	fn makeCubePointPipeline(b: StepsBuilder)
