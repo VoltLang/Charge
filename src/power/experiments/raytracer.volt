@@ -221,13 +221,14 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glUseProgram(0);
+		fov := 45.0f;
 
 
 		view: math.Matrix4x4d;
 		view.setToLookFrom(ref camPosition, ref camRotation);
 
 		proj: math.Matrix4x4d;
-		t.setMatrixToProjection(ref proj, 45.f, 0.0001f, 256.f);
+		t.setMatrixToProjection(ref proj, fov, 0.0001f, 256.f);
 
 
 		if (useSVO) {
@@ -240,6 +241,9 @@ public:
 			cull.setToLookFrom(ref cullPosition, ref cullRotation);
 
 			state: Mixed.DrawInput;
+			state.targetWidth = t.width;
+			state.targetHeight = t.height;
+			state.fov = fov;
 			state.frame = frames[frame];
 
 			state.camPos = camPosition;

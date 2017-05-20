@@ -25,6 +25,7 @@ struct StepState
 	matrix: math.Matrix4x4f;
 	planes: math.Planef[4];
 	camPosition: math.Point3f; frame: u32;
+	pointScale: f32;
 
 	// State for helpers not shaders.
 	buffers: GLuint[BufferNum];
@@ -268,6 +269,7 @@ public:
 		drawShader.bind();
 		drawShader.float3("cameraPos".ptr, state.camPosition.ptr);
 		drawShader.matrix4("matrix", 1, false, ref state.matrix);
+		drawShader.float1("pointScale".ptr, state.pointScale);
 
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 //		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |

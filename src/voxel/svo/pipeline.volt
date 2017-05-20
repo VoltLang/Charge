@@ -4,6 +4,7 @@ module voxel.svo.pipeline;
 
 import watt.text.string;
 import watt.text.format;
+import watt.math.floating;
 import io = watt.io;
 
 import math = charge.math;
@@ -23,7 +24,7 @@ struct Draw
 	cullMVP: math.Matrix4x4d;
 	camPos: math.Point3f; pad0: f32;
 	cullPos: math.Point3f; pad1: f32;
-	frame, pad2, pad3, pad4: u32;
+	frame, targetWidth, targetHeight: u32; fov: f32;
 }
 
 /**
@@ -148,6 +149,8 @@ public:
 	{
 		frustum: math.Frustum;
 		frustum.setFromUntransposedGL(ref input.cullMVP);
+		height := cast(f64)input.targetHeight;
+		fov := cast(f64)input.fov;
 
 		state: StepState;
 		state.matrix.setToAndTranspose(ref input.camMVP);
@@ -160,6 +163,8 @@ public:
 		state.buffers = mOutputBuffers;
 		state.atomicBuffer = mAtomicBuffer;
 		state.commandBuffer = mIndirectBuffer;
+		state.pointScale = cast(f32)
+			(height / (2.0 * tan(radians(fov) / 2.0)));
 
 
 		glCheckError();
