@@ -26,3 +26,4 @@ public import charge.gfx.timer :
 public import charge.gfx.bitmapfont :
 	GfxBitmapState = BitmapState, gfxBuildVertices = buildVertices,
 	gfxBitmapTexture = bitmapTexture;
+public import charge.gfx.sync : GfxSync = Sync;
