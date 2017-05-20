@@ -100,7 +100,6 @@ public:
 	this(opts: CoreOptions)
 	{
 		this.opts = opts;
-		this.running = true;
 		super(opts.flags);
 
 		loadLibraries();
@@ -240,7 +239,7 @@ protected:
 		while(SDL_PollEvent(&e)) {
 			switch (e.type) {
 			case SDL_QUIT:
-				running = false;
+				mRunning = false;
 				break;
 
 			case SDL_WINDOWEVENT:
@@ -392,7 +391,7 @@ protected:
 			closeNoGfx();
 		}
 	}
-}
+
 
 private:
 	/*
