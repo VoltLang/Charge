@@ -9,6 +9,46 @@ import voxel.svo.design;
 import voxel.svo.input;
 
 
+/*
+ * Generates a single voxel at origin (0, 0, 0).
+ */
+struct OneGen
+{
+public:
+	enum Max = 32;
+
+private:
+	t: Input2Cubed;
+	pos: u32[Max];
+
+
+public:
+	/**
+	 * Generate a completely flat white surface.
+	 */
+	fn gen(ref ib: InputBuffer, levels: u32) u32
+	{
+		assert(levels < Max);
+
+		count: u32;
+
+		// Initial bits.
+		t.set(0, 0, 0, 0xff_ff_ff_ff);
+		pos[count] = ib.compressAndAdd(ref t);
+		t.reset();
+
+		foreach (i; 1 .. levels) {
+			targetPos := pos[count++];
+
+			t.set(0, 0, 0, targetPos);
+			pos[count] = ib.compressAndAdd(ref t);
+			t.reset();
+		}
+
+		return pos[count];
+	}
+}
+
 struct FlatGen
 {
 public:

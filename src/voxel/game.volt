@@ -52,7 +52,7 @@ public:
 
 		// First try a magica voxel level.
 		if (!loadFile(filename, out state, out frames, out data) &&
-		    !genFlat(out state, out frames, out data)) {
+		    !doGen(filename, out state, out frames, out data)) {
 			c.panic("Could not load or generate a level");
 		}
 
@@ -122,7 +122,42 @@ public:
 		return l.loadFileFromData(fileData, out c, out frames, out data);
 	}
 
-	fn genFlat(out c: Create, out frames: u32[], out data: void[]) bool
+	fn doGen(arg: string, out c: Create, out frames: u32[], out data: void[]) bool
+	{
+		switch (arg) {
+		case "--gen-one":
+			return genOne(out c, out frames, out data);
+		case "--gen-flat", "--gen-flat-y":
+			return genFlatY(out c, out frames, out data);
+		default:
+			return genFlatY(out c, out frames, out data);
+		}
+	}
+
+	fn genOne(out c: Create, out frames: u32[], out data: void[]) bool
+	{
+		// Setup the state.
+		c.xShift = XShift;
+		c.yShift = YShift;
+		c.zShift = ZShift;
+		c.numLevels = 11;
+
+		// Reserve the first index.
+		ib: InputBuffer;
+		ib.setup(1);
+
+		// Load parse the file.
+		og: OneGen;
+
+		// Only one frame.
+		frames = new u32[](1);
+		frames[0] = og.gen(ref ib, 11);
+
+		data = ib.getData();
+		return true;
+	}
+
+	fn genFlatY(out c: Create, out frames: u32[], out data: void[]) bool
 	{
 		// Setup the state.
 		c.xShift = XShift;
