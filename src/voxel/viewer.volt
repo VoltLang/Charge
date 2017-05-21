@@ -2,6 +2,7 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module voxel.viewer;
 
+import watt.math.floating;
 import watt.text.sink;
 import watt.text.format;
 import io = watt.io;
@@ -102,6 +103,18 @@ public:
 			mCamHeading = 0.f;
 			mCamPitch = 0.f;
 			camPosition = math.Point3f.opCall(0.20f, 0.20f, 1.0f);
+			break;
+		case 9:
+			// Test
+			mCamHeading = PIf;
+			mCamPitch = 0.f;
+			camPosition = math.Point3f.opCall(0.0f, 0.0f, -0.940017f);
+			break;
+		case 0:
+			// Origin
+			mCamHeading = 0.f;
+			mCamPitch = 0.f;
+			camPosition = math.Point3f.opCall(0.0f, 0.0f, 0.0f);
 			break;
 		}
 	}
