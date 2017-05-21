@@ -7,7 +7,7 @@
 #define CUBE_POWER POWER_START
 #define DIVISOR (1 << CUBE_POWER)
 #define DIVISOR_INV (1.0 / DIVISOR)
-#define POINT_SIZE (DIVISOR_INV * 1.414)
+#define POINT_SIZE (DIVISOR_INV * 1.414213562373095 + (DIVISOR_INV / 32.0))
 
 
 layout (location = 0) out vec3 outPosition;
