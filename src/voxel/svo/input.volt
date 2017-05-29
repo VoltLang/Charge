@@ -17,11 +17,91 @@ struct Input8Cubed = mixin InputDefinition!(3);
 /// Buddy allocator for the InputBuffer.
 struct InputBuddy = mixin BuddyDefinition!(5u, 16u, u32);
 
+/// Select the default input buffer.
+alias InputBuffer = EditableBuffer;
+
+/// Linear buffer for filling up voxel data.
+struct LinearBuffer
+{
+private:
+	mMap: u32[const(u32)[]];
+	mData: u32[];
+	mNumData: u32;
+
+
+public:
+	fn setup(numReserved: u32)
+	{
+		mNumData = numReserved;
+		mData = new u32[](InputBuddy.numBitsInOrder(0));
+	}
+
+	/**
+	 * Returns the entire data buffer as void array.
+	 */
+	fn getData() void[]
+	{
+		return cast(void[])(mData[0 .. mNumData]);
+	}
+
+	/**
+	 * Adds a Input and does a very simple compression suited 
+	 */
+	fn compressAndAdd(ref box: Input2Cubed) u32
+	{
+		buf: u32[Input2Cubed.ElementsNum + 1];
+		count: u32;
+
+		buf[count++] = box.u.flags[0];
+
+		foreach (i; 0 .. Input2Cubed.ElementsNum) {
+			if (box.getBit(i)) {
+				buf[count++] = box.data[i];
+			}
+		}
+
+		return add(buf[0 .. count]);
+	}
+
+	/**
+	 * Small helper to add a single u32 value.
+	 */
+	fn add(v: u32) u32
+	{
+		buf: u32[1]; buf[0] = v;
+		return add(buf[..]);
+	}
+
+	/**
+	 * Adds data into the buffer and returns the index to it.
+	 *
+	 * If there is data inside of the buffer that matches the
+	 * contents, it will point to it instead.
+	 */
+	fn add(data: scope const(u32)[]) u32
+	{
+		// Is there a cache of the data.
+		r := data in mMap;
+		if (r !is null) {
+			return *r;
+		}
+
+		// Grab the next free memory from the buffer.
+		pos := mNumData;
+		mNumData += cast(u32)data.length;
+		internal := mData[pos .. pos + data.length];
+		internal[..] = data;
+		mMap[internal] = pos;
+
+		return pos;
+	}
+}
+
 /**
  * Caching input buffer to build SVOs, is more designed for live updating
  * then space size, so wastes memory.
  */
-struct InputBuffer
+struct EditableBuffer
 {
 private:
 	struct Entry
@@ -35,6 +115,7 @@ private:
 	mMap: Entry[const(u32)[]];
 	mBuddy: InputBuddy;
 	mData: u32[];
+	mMaxSize: u32;
 
 
 public:
@@ -56,7 +137,7 @@ public:
 	 */
 	fn getData() void[]
 	{
-		return cast(void[])mData;
+		return cast(void[])mData[0 .. mMaxSize];
 	}
 
 	/**
@@ -103,11 +184,17 @@ public:
 
 		// Grab memory from the buddy allocator.
 		order := sizeToOrder(data.length);
+
 		pos := cast(u32)mBuddy.alloc(order) * (1u << order);
 		internal := mData[pos .. pos + data.length];
 		internal[..] = data;
 		e: Entry = { pos, order };
 		mMap[internal] = e;
+
+		endSize := pos + cast(u32)data.length;
+		if (endSize > mMaxSize) {
+			mMaxSize = endSize;
+		}
 
 		return pos;
 	}
