@@ -1,4 +1,4 @@
-// Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
+// Copyright © 2016-2017, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module voxel.svo.pipeline;
 
@@ -39,6 +39,7 @@ public:
 		CubePoint,
 		Points,
 	}
+
 
 public:
 	counters: GfxCounters;
@@ -167,7 +168,7 @@ public:
 		frustum: math.Frustum;
 		frustum.setFromUntransposedGL(ref input.cullMVP);
 		height := cast(f64)input.targetHeight;
-		fov := cast(f64)input.fov;
+		fov := radians(cast(f64)input.fov);
 
 		state: StepState;
 		state.matrix.setToAndTranspose(ref input.camMVP);
@@ -181,7 +182,7 @@ public:
 		state.atomicBuffer = mAtomicBuffer;
 		state.commandBuffer = mIndirectBuffer;
 		state.pointScale = cast(f32)
-			(height / (2.0 * tan(radians(fov) / 2.0)));
+			(height / (2.0 * tan(fov / 2.0)));
 
 
 		glCheckError();
