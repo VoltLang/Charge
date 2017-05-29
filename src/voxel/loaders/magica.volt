@@ -209,7 +209,9 @@ private:
 	fn newInput() u32
 	{
 		if (mNum >= mArr.length) {
-			mArr ~= new Input2Cubed[](256);
+			old := mArr;
+			mArr = new Input2Cubed[](old.length + 256);
+			mArr[0 .. old.length] = old[];
 		}
 		return mNum++;
 	}
