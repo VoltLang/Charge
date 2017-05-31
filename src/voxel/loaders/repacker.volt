@@ -63,17 +63,18 @@ fn repackFrom(ref dst: Input8Cubed, arr: scope Input2Cubed[], start: u32)
 	}
 }
 
-struct MyPacker = mixin Packer!(8, Input2Cubed, Input4Cubed);
+/// Example custom packer.
+struct MyPacker = mixin CustomPacker!(8, Input2Cubed, Input4Cubed);
 
 /**
- * WIP custamizable packer.
+ * Custamizable packer.
  */
-struct Packer!(totalLevels: u32, TOP, BOTTOM)
+struct CustomPacker!(totalLevels: u32, TOP, BOTTOM)
 {
 public:
 	alias NumLevels = totalLevels;
-	alias TopType = Input2Cubed; // TODO workaround bug
-	alias BottomType = Input4Cubed; // TODO workaround bug.
+	alias TopType = TOP;
+	alias BottomType = BOTTOM;
 
 	enum u32 TopNum = TopType.ElementsNum;
 	enum u32 TopMask = TopNum - 1;
@@ -83,12 +84,13 @@ public:
 	enum u32 BottomMask = BottomNum - 1;
 	enum u32 BottomLevels = BottomType.Pow;
 
-	static assert ((NumLevels - BottomLevels) % TopLevels == 0);
+	
 	static assert (is(TopType == TOP));
 	static assert (is(BottomType == BOTTOM));
 
 
 private:
+	mLevels: u32;
 	mTop: TopType[];
 	mTopNum: u32;
 	mBottom: BottomType[];
@@ -96,13 +98,24 @@ private:
 
 
 public:
-	fn setup()
+	fn setup(levels: u32)
 	{
-
+		mLevels = levels;
 		mTop = new TopType[](256);
 		mBottom = new BottomType[](32);
 		mTopNum = 1;
 		mBottomNum = 0;
+
+		assert((mLevels - BottomLevels) % TopLevels == 0);
+	}
+
+	fn add(x: u32, y: u32, z: u32, val: u32)
+	{
+		morton := cast(u32)(
+			math.encode_component_3(x, XShift) |
+			math.encode_component_3(y, YShift) |
+			math.encode_component_3(z, ZShift));
+		add(morton, val);
 	}
 
 	fn add(morton: u32, value: u32)
@@ -110,14 +123,10 @@ public:
 		// First is always at zero.
 		dst: u32 = 0;
 
-		// 1000 -> 0001 3
-		// 0100 -> 0001 2
-		// 0010 -> 0001 1
-		// 0001 -> 0001 0
+		for (level := mLevels; level > BottomType.Pow; level -= TopLevels) {
 
-		for (level := NumLevels - BottomType.Pow; level > 0; level -= TopType.Pow) {
-			shift := level * NumDim;
-			index := (morton >> shift) % TopMask;
+			shift := (level - 1) * NumDim;
+			index := (morton >> shift) % TopNum;
 
 			if (mTop[dst].getBit(index)) {
 				dst = mTop[dst].data[index];
@@ -125,18 +134,23 @@ public:
 			}
 
 			// Add a new Input and sett a pointer to it in the tree.
-			newIndex: u32;
-			if (level == BottomType.Pow) {
-				newIndex = newTop();
+			newValue: u32;
+			if ((level - TopType.Pow) > BottomType.Pow) {
+				newValue = newTop();
 			} else {
-				newIndex = newBottom();
+				newValue = newBottom();
 			}
 
-			mTop[dst].set(index, newIndex);
-			dst = newIndex;
+			mTop[dst].set(index, newValue);
+			dst = newValue;
 		}
 
-		mTop[dst].set(morton & BottomMask, value);
+		mBottom[dst].set(morton % BottomNum, value);
+	}
+
+	fn toBuffer(ref ib: InputBuffer) u32
+	{
+		return decent(ref ib, 0, mLevels);
 	}
 
 
@@ -151,7 +165,7 @@ private:
 		ptr := &mTop[index];
 
 		// Translate indicies.
-		foreach (i; 0u .. 8u) {
+		foreach (i; 0u .. TopNum) {
 			if (!ptr.getBit(i)) {
 				continue;
 			}
@@ -169,7 +183,7 @@ private:
 		if (mTopNum >= mTop.length) {
 			old := mTop;
 			mTop = new TopType[](old.length + 256);
-			mTop[0 .. old.length] = old[];
+			mTop[0 .. old.length] = old[..];
 		}
 		return mTopNum++;
 	}
@@ -179,7 +193,7 @@ private:
 		if (mBottomNum >= mBottom.length) {
 			old := mBottom;
 			mBottom = new BottomType[](old.length + 256);
-			mBottom[0 .. old.length] = old[];
+			mBottom[0 .. old.length] = old[..];
 		}
 		return mBottomNum++;
 	}
