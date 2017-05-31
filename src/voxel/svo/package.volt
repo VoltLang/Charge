@@ -4,5 +4,6 @@ module voxel.svo;
 
 public import voxel.svo.gen;
 public import voxel.svo.input;
+public import voxel.svo.packer;
 public import voxel.svo.design;
 public import voxel.svo.pipeline;
