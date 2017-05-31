@@ -7,3 +7,4 @@ module voxel.loaders;
 
 public import magica = voxel.loaders.magica;
 public import chalmers = voxel.loaders.chalmers;
+public import repacker = voxel.loaders.repacker;
