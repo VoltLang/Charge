@@ -70,10 +70,10 @@ uvec4 unpack_16_16_16_16(uint data1, uint data2)
 
 uint calcAddress(uint select, uint node, uint offset)
 {
-	int bits = int(select + 1);
+	int bits = int(select);
 	uint toCount = bitfieldExtract(node, 0, bits);
 	uint address = bitCount(toCount);
-	return address + offset;
+	return address + offset + bitfieldExtract(node, 16, 16);
 }
 
 void main(void)

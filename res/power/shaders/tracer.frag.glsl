@@ -40,10 +40,10 @@ void rayAABBTest(vec3 rayDir, vec3 aabbMin, vec3 aabbMax,
 
 int calcAddress(uint select, uint node, int offset)
 {
-	int bits = int(select + 1);
+	int bits = int(select);
 	uint toCount = bitfieldExtract(node, 0, bits);
 	int address = int(bitCount(toCount));
-	return address + int(offset);
+	return address + offset + int(bitfieldExtract(node, 16, 16));
 }
 
 void main(void)

@@ -55,7 +55,7 @@ public:
 		buf: u32[Input2Cubed.ElementsNum + 1];
 		count: u32;
 
-		buf[count++] = box.u.flags[0];
+		buf[count++] = (1u << 16u) | box.u.flags[0];
 
 		foreach (i; 0 .. Input2Cubed.ElementsNum) {
 			if (box.getBit(i)) {
