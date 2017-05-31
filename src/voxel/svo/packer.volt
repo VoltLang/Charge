@@ -131,8 +131,8 @@ private:
 	fn decent(ref ib: InputBuffer, index: u32, level: u32) u32
 	{
 		// Final bottom level.
-		if (level <= ArrLevels) {
-			return ib.compressAndAdd(ref mArr[index]);
+		if (level <= Input4Cubed.Pow) {
+			return finalLevels(ref ib, index);
 		}
 
 		ptr := &mArr[index];
@@ -149,6 +149,27 @@ private:
 		}
 
 		return ib.compressAndAdd(ref *ptr);
+	}
+
+	fn finalLevels(ref ib: InputBuffer, index: u32) u32
+	{
+		large: Input4Cubed;
+		large.repackFrom(mArr, index);
+
+		ptr := &mArr[index];
+
+		// Translate indicies.
+		foreach (i; 0u .. ArrNum) {
+			if (!ptr.getBit(i)) {
+				continue;
+			}
+
+			d := ptr.data[i];
+			r := ib.compressAndAdd(ref mArr[d]);
+			ptr.set(i, r);
+		}
+
+		return ib.compressAndAdd(ref *ptr, ref large);
 	}
 
 	fn newArr() u32
