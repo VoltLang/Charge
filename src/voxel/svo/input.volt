@@ -91,8 +91,48 @@ public:
 				continue;
 			}
 
-			// Add the value to the packed struct.
+			// Add the bit and value to the packed struct.
+			packed[flagIndex] |= 1 << (i % 16);
 			packed[num++] = box.data[i];
+		}
+
+		return base.add(packed[0 .. num]);
+	}
+
+	/**
+	 * Adds a Input and does a very simple compression suited
+	 * for rendering on the GPU.
+	 */
+	fn compressAndAdd(ref box2: Input2Cubed, ref box4: Input4Cubed) u32
+	{
+		// Reserve the start of the packed values for flags.
+		num := 5u;
+		packed: u32[1 + 8 + 4 + 64];
+
+		packed[0] = (num << 16u) | box2.u.flags[0];
+
+		foreach (i; 0 .. Input2Cubed.ElementsNum) {
+			if (box2.getBit(i)) {
+				packed[num++] = box2.data[i];
+			}
+		}
+
+		foreach (i; 0u .. Input4Cubed.ElementsNum) {
+
+			flagIndex := (i / 16u) + 1;
+
+			// Write the offset for the values here.
+			if (i % 16 == 0) {
+				packed[flagIndex] |= num << 16u;
+			}
+
+			if (!box4.getBit(i)) {
+				continue;
+			}
+
+			// Add the value to the packed struct.
+			packed[flagIndex] |= 1 << (i % 16);
+			packed[num++] = box4.data[i];
 		}
 
 		return base.add(packed[0 .. num]);
