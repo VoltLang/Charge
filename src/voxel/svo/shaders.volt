@@ -86,6 +86,18 @@ public:
 		return new ListStep(s, src, dst, 0, powerStart, powerLevels, 0.0f);
 	}
 
+	fn makeListDouble(src: u32, out dst: u32) ListDoubleStep
+	{
+		powerLevels := 2u;
+		powerStart := endLevelOfBuf[src];
+
+		// Track used buffers and level they produce.
+		dst = tracker.get(); // Produce
+		tracker.free(src);   // Consume
+		endLevelOfBuf[dst] = powerStart + powerLevels;
+		return new ListDoubleStep(s, src, dst, 0, powerStart);
+	}
+
 	fn makeList2(src: u32, powerLevels: u32, distance: f32,
 	             out dst1: u32, out dst2: u32) ListStep
 	{
@@ -183,6 +195,43 @@ public:
 
 		dispatchShader = s.makeComputeDispatchShader(src, BufferCommandId);
 		listShader = s.makeListShader(src, dst1, dst2, powerStart, powerLevels, distance);
+	}
+
+	override fn run(ref state: StepState)
+	{
+
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+		dispatchShader.bind();
+		glDispatchCompute(1u, 1u, 1u);
+
+		listShader.bind();
+		listShader.float3("cameraPos".ptr, state.camPosition.ptr);
+		listShader.matrix4("matrix", 1, false, ref state.matrix);
+		listShader.float4("planes".ptr, 4, &state.planes[0].a);
+
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+//		                GL_SHADER_STORAGE_BARRIER_BIT |
+//		                GL_COMMAND_BARRIER_BIT);
+		glDispatchComputeIndirect(0);
+	}
+}
+
+class ListDoubleStep : Step
+{
+public:
+	dispatchShader: GfxShader;
+	listShader: GfxShader;
+
+
+public:
+	this(s: ShaderStore, src: u32, dst1: u32, dst2: u32, powerStart: u32)
+	{
+		this.name = "list";
+
+		dispatchShader = s.makeComputeDispatchShader(src, BufferCommandId);
+		listShader = s.makeListDoubleShader(src, dst1, dst2, powerStart);
 	}
 
 	override fn run(ref state: StepState)
@@ -385,6 +434,27 @@ public:
 		if (dist > 0.0001) {
 			comp = replace(comp, "#undef LIST_DO_TAG", "#define LIST_DO_TAG");
 		}
+		s := new GfxShader(name, comp);
+		mShaderStore[name] = s;
+		return s;
+	}
+
+	fn makeListDoubleShader(src: u32, dst1: u32, dst2: u32, powerStart: u32) GfxShader
+	{
+		name := format("svo.list-double (src: %s, dst1: %s, dst2: %s, powerStart: %s)",
+			src, dst1, dst2, powerStart);
+		if (s := name in mShaderStore) {
+			return *s;
+		}
+
+		comp := cast(string)import("voxel/list-double.comp.glsl");
+		comp = replace(comp, "%X_SHIFT%", format("%s", mXShift));
+		comp = replace(comp, "%Y_SHIFT%", format("%s", mYShift));
+		comp = replace(comp, "%Z_SHIFT%", format("%s", mZShift));
+		comp = replace(comp, "%VOXEL_SRC%", format("%s", src));
+		comp = replace(comp, "%VOXEL_DST1%", format("%s", dst1));
+		comp = replace(comp, "%VOXEL_DST2%", format("%s", dst2));
+		comp = replace(comp, "%POWER_START%", format("%s", powerStart));
 		s := new GfxShader(name, comp);
 		mShaderStore[name] = s;
 		return s;
