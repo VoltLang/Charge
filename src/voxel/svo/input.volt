@@ -14,14 +14,91 @@ struct Input2Cubed = mixin InputDefinition!(1);
 struct Input4Cubed = mixin InputDefinition!(2);
 struct Input8Cubed = mixin InputDefinition!(3);
 
+/// Select the default input buffer.
+alias InputBuffer = LinearBuffer;
+
+/// Linear adding comrpessing buffer.
+struct LinearBuffer = mixin CompressingBuffer!(LinearAdder);
+
+/// Buddy based adding comrpessing buffer.
+struct BuddyBuffer = mixin CompressingBuffer!(BuddyAdder);
+
 /// Buddy allocator for the InputBuffer.
 struct InputBuddy = mixin BuddyDefinition!(5u, 16u, u32);
 
-/// Select the default input buffer.
-alias InputBuffer = EditableBuffer;
+/**
+ * Helper struct that holds common code to compress InputXCubed data.
+ */
+struct CompressingBuffer!(Base)
+{
+public:
+	base: Base;
+
+
+public:
+	fn setup(numReserved: u32)
+	{
+		base.setup(numReserved);
+	}
+
+	fn getData() void[]
+	{
+		return base.getData();
+	}
+
+	/**
+	 * Adds a Input and does a very simple compression suited
+	 * for rendering on the GPU.
+	 */
+	fn compressAndAdd(ref box: Input2Cubed) u32
+	{
+		buf: u32[Input2Cubed.ElementsNum + 1];
+		count: u32;
+
+		buf[count++] = box.u.flags[0];
+
+		foreach (i; 0 .. Input2Cubed.ElementsNum) {
+			if (box.getBit(i)) {
+				buf[count++] = box.data[i];
+			}
+		}
+
+		return base.add(buf[0 .. count]);
+	}
+
+	/**
+	 * Adds a Input and does a very simple compression suited
+	 * for rendering on the GPU.
+	 */
+	fn compressAndAdd(ref box: Input4Cubed) u32
+	{
+		// Reserve the start of the packed values for flags.
+		num := 4u;
+		packed: u32[4 + 64];
+
+		foreach (i; 0u .. 64u) {
+
+			flagIndex := i / 16u;
+
+			// Write the offset for the values here.
+			if (i % 16 == 0) {
+				packed[flagIndex] |= num << 16u;
+			}
+
+			if (!box.getBit(i)) {
+				continue;
+			}
+
+			// Add the value to the packed struct.
+			packed[num++] = box.data[i];
+		}
+
+		return base.add(packed[0 .. num]);
+	}
+}
 
 /// Linear buffer for filling up voxel data.
-struct LinearBuffer
+struct LinearAdder
 {
 private:
 	mMap: u32[const(u32)[]];
@@ -42,25 +119,6 @@ public:
 	fn getData() void[]
 	{
 		return cast(void[])(mData[0 .. mNumData]);
-	}
-
-	/**
-	 * Adds a Input and does a very simple compression suited 
-	 */
-	fn compressAndAdd(ref box: Input2Cubed) u32
-	{
-		buf: u32[Input2Cubed.ElementsNum + 1];
-		count: u32;
-
-		buf[count++] = box.u.flags[0];
-
-		foreach (i; 0 .. Input2Cubed.ElementsNum) {
-			if (box.getBit(i)) {
-				buf[count++] = box.data[i];
-			}
-		}
-
-		return add(buf[0 .. count]);
 	}
 
 	/**
@@ -101,7 +159,7 @@ public:
  * Caching input buffer to build SVOs, is more designed for live updating
  * then space size, so wastes memory.
  */
-struct EditableBuffer
+struct BuddyAdder
 {
 private:
 	struct Entry
@@ -138,25 +196,6 @@ public:
 	fn getData() void[]
 	{
 		return cast(void[])mData[0 .. mMaxSize];
-	}
-
-	/**
-	 * Adds a Input and does a very simple compression suited 
-	 */
-	fn compressAndAdd(ref box: Input2Cubed) u32
-	{
-		buf: u32[Input2Cubed.ElementsNum + 1];
-		count: u32;
-
-		buf[count++] = box.u.flags[0];
-
-		foreach (i; 0 .. Input2Cubed.ElementsNum) {
-			if (box.getBit(i)) {
-				buf[count++] = box.data[i];
-			}
-		}
-
-		return add(buf[0 .. count]);
 	}
 
 	/**
