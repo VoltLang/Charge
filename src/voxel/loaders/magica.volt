@@ -30,17 +30,14 @@ fn isMagicaFile(fileData: void[]) bool
 final class Loader
 {
 private:
-	mArr: Input2Cubed[];
-	mNum: u32;
+	mPacker: Packer;
 	mLevels: u32;
 
 
 public:
 	this()
 	{
-		mArr = new Input2Cubed[](256);
-		mNum = 1;
-		mLevels = 8;
+
 	}
 
 	fn loadFileFromData(fileData: void[], out frames: u32[], out data: void[]) bool
@@ -124,6 +121,9 @@ public:
 			p.add(v.x, v.z, v.y);
 		}
 
+		// Setup the packer.
+		mPacker.setup(mLevels);
+
 		added: u32; pruned: u32;
 		foreach (v; voxels) {
 			if (p.shouldPrune(v.x, v.z, v.y)) {
@@ -132,8 +132,8 @@ public:
 			}
 			added++;
 
-			color := colors[v.c-1];
-			add(v.x, v.z, v.y, color);
+			color := *cast(u32*)&colors[v.c-1];
+			mPacker.add(v.x, v.z, v.y, color);
 		}
 
 		return true;
@@ -141,7 +141,7 @@ public:
 
 	fn toBuffer(ref ib: InputBuffer, totalLevels: u32, repeat: bool) u32
 	{
-		ret := decent(ref ib, 0, mLevels - 1);
+		ret := mPacker.toBuffer(ref ib);
 
 		foreach (i; 0 .. totalLevels - mLevels) {
 			tmp: Input2Cubed;
@@ -154,66 +154,7 @@ public:
 			ret = ib.compressAndAdd(ref tmp);
 		}
 
-		io.output.flush();
 		return ret;
-	}
-
-
-private:
-	fn decent(ref ib: InputBuffer, index: u32, level: u32) u32
-	{
-		// Colors
-		if (level == 0) {
-			return ib.compressAndAdd(ref mArr[index]);
-		}
-
-		ptr := mArr[index];
-		old := ptr;
-
-		// Translate indicies.
-		foreach (i; 0u .. 8u) {
-			if (!ptr.getBit(i)) {
-				continue;
-			}
-
-			d := ptr.data[i];
-			r := decent(ref ib, d, level - 1);
-			ptr.set(i, r);
-		}
-
-		return ib.compressAndAdd(ref ptr);
-	}
-
-	fn add(x: u8, y: u8, z: u8, c: math.Color4b)
-	{
-		// First is always at zero.
-		dst: u32 = 0;
-
-		foreach (level; 0u .. mLevels - 1) {
-			shift := mLevels - 1 - level;
-			index := Input2Cubed.indexOf(x >> shift, y >> shift, z >> shift);
-			if (mArr[dst].getBit(index)) {
-				dst = mArr[dst].data[index];
-				continue;
-			}
-
-			// Add a new Input and sett a pointer to it in the tree.
-			newIndex := newInput();
-			mArr[dst].set(index, newIndex);
-			dst = newIndex;
-		}
-
-		mArr[dst].set(x, y, z, *cast(u32*)&c);
-	}
-
-	fn newInput() u32
-	{
-		if (mNum >= mArr.length) {
-			old := mArr;
-			mArr = new Input2Cubed[](old.length + 256);
-			mArr[0 .. old.length] = old[];
-		}
-		return mNum++;
 	}
 }
 
