@@ -120,7 +120,7 @@ public:
 		mSteps ~= b.makeList1( buf0, 3, out    buf3);
 		mSteps ~= b.makeList1( buf3, 3, out    buf6);
 		mSteps ~= b.makeList1( buf6, 3, out    buf9);
-		mSteps ~= b.makeList1( buf9, 2, out    buf11);
+		mSteps ~= b.makeListDouble( buf9, out    buf11);
 		mSteps ~= b.makePoints(buf11);
 	}
 
