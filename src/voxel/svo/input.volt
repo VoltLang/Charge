@@ -34,6 +34,28 @@ struct InputBuddy = mixin BuddyDefinition!(5u, 16u, u32);
 struct CompressingBuffer!(Base)
 {
 public:
+	enum u32 BitsPerFlag = 16u;
+	enum u32 FlagsNum2 = FlagsNum2Cubed;
+	enum u32 FlagsNum4 = FlagsNum2And4;
+	enum u32 FlagsNum8 = FlagsNum2And8;
+	enum u32 FlagsNum2And4 = FlagsNum2Cubed + FlagsNum4Cubed;
+	enum u32 FlagsNum2And8 = FlagsNum2Cubed + FlagsNum8Cubed;
+
+	enum u32 MaxNum2 = FlagsNum2Cubed + Input2Cubed.ElementsNum;
+	enum u32 MaxNum4 = MaxNum2And4;
+	enum u32 MaxNum2And4 = FlagsNum2Cubed + Input2Cubed.ElementsNum +
+	                       FlagsNum4Cubed + Input4Cubed.ElementsNum;
+	enum u32 MaxNum2And8 = FlagsNum2Cubed + Input2Cubed.ElementsNum +
+	                       FlagsNum8Cubed + Input8Cubed.ElementsNum;
+
+
+private:
+	enum u32 FlagsNum2Cubed = 1u;
+	enum u32 FlagsNum4Cubed = Input4Cubed.ElementsNum / BitsPerFlag;
+	enum u32 FlagsNum8Cubed = Input8Cubed.ElementsNum / BitsPerFlag;
+
+
+public:
 	base: Base;
 
 
@@ -52,49 +74,28 @@ public:
 	 * Adds a Input and does a very simple compression suited
 	 * for rendering on the GPU.
 	 */
-	fn compressAndAdd(ref box: Input2Cubed) u32
+	fn compressAndAdd(ref box2: Input2Cubed) u32
 	{
-		buf: u32[Input2Cubed.ElementsNum + 1];
-		count: u32;
+		// Reserve the start of the packed values for flags.
+		num := FlagsNum2Cubed;
+		packed: u32[MaxNum2];
 
-		buf[count++] = (1u << 16u) | box.u.flags[0];
+		num = add(packed, ref box2, num);
 
-		foreach (i; 0 .. Input2Cubed.ElementsNum) {
-			if (box.getBit(i)) {
-				buf[count++] = box.data[i];
-			}
-		}
-
-		return base.add(buf[0 .. count]);
+		return base.add(packed[0 .. num]);
 	}
 
 	/**
 	 * Adds a Input and does a very simple compression suited
 	 * for rendering on the GPU.
 	 */
-	fn compressAndAdd(ref box: Input4Cubed) u32
+	fn compressAndAdd(ref box4: Input4Cubed) u32
 	{
 		// Reserve the start of the packed values for flags.
-		num := 4u;
-		packed: u32[4 + 64];
+		num := FlagsNum4;
+		packed: u32[MaxNum4];
 
-		foreach (i; 0u .. 64u) {
-
-			flagIndex := i / 16u;
-
-			// Write the offset for the values here.
-			if (i % 16 == 0) {
-				packed[flagIndex] |= num << 16u;
-			}
-
-			if (!box.getBit(i)) {
-				continue;
-			}
-
-			// Add the bit and value to the packed struct.
-			packed[flagIndex] |= 1 << (i % 16);
-			packed[num++] = box.data[i];
-		}
+		num = add(packed, ref box4, num);
 
 		return base.add(packed[0 .. num]);
 	}
@@ -106,9 +107,35 @@ public:
 	fn compressAndAdd(ref box2: Input2Cubed, ref box4: Input4Cubed) u32
 	{
 		// Reserve the start of the packed values for flags.
-		num := 5u;
-		packed: u32[1 + 8 + 4 + 64];
+		num := FlagsNum2And4;
+		packed: u32[MaxNum2And4];
 
+		num = add(packed, ref box2, num);
+		num = add(packed, ref box4, num);
+
+		return base.add(packed[0 .. num]);
+	}
+
+	/**
+	 * Adds a Input and does a very simple compression suited
+	 * for rendering on the GPU.
+	 */
+	fn compressAndAdd(ref box2: Input2Cubed, ref box8: Input8Cubed) u32
+	{
+		// Reserve the start of the packed values for flags.
+		num := FlagsNum2And8;
+		packed: u32[MaxNum2And8];
+
+		num = add(packed, ref box2, num);
+		num = add(packed, ref box8, num);
+
+		return base.add(packed[0 .. num]);
+	}
+
+
+private:
+	static fn add(packed: scope u32[], ref box2: Input2Cubed, num: u32) u32
+	{
 		packed[0] = (num << 16u) | box2.u.flags[0];
 
 		foreach (i; 0 .. Input2Cubed.ElementsNum) {
@@ -117,13 +144,18 @@ public:
 			}
 		}
 
+		return num;
+	}
+
+	static fn add(packed: scope u32[], ref box4: Input4Cubed, num: u32) u32
+	{
 		foreach (i; 0u .. Input4Cubed.ElementsNum) {
 
-			flagIndex := (i / 16u) + 1;
+			flagIndex := (i / BitsPerFlag) + FlagsNum2Cubed;
 
 			// Write the offset for the values here.
-			if (i % 16 == 0) {
-				packed[flagIndex] |= num << 16u;
+			if (i % BitsPerFlag == 0) {
+				packed[flagIndex] |= num << BitsPerFlag;
 			}
 
 			if (!box4.getBit(i)) {
@@ -131,11 +163,34 @@ public:
 			}
 
 			// Add the value to the packed struct.
-			packed[flagIndex] |= 1 << (i % 16);
+			packed[flagIndex] |= 1 << (i % BitsPerFlag);
 			packed[num++] = box4.data[i];
 		}
 
-		return base.add(packed[0 .. num]);
+		return num;
+	}
+
+	static fn add(packed: scope  u32[], ref box8: Input8Cubed, num: u32) u32
+	{
+		foreach (i; 0u .. Input8Cubed.ElementsNum) {
+
+			flagIndex := (i / BitsPerFlag) + FlagsNum2Cubed;
+
+			// Write the offset for the values here.
+			if (i % BitsPerFlag == 0) {
+				packed[flagIndex] |= num << BitsPerFlag;
+			}
+
+			if (!box8.getBit(i)) {
+				continue;
+			}
+
+			// Add the value to the packed struct.
+			packed[flagIndex] |= 1 << (i % BitsPerFlag);
+			packed[num++] = box8.data[i];
+		}
+
+		return num;
 	}
 }
 
