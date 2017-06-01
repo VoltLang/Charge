@@ -3,6 +3,7 @@
 module voxel.game;
 
 import core.exception;
+import core.rt.format;
 
 import io = watt.io;
 import watt.io.file;
@@ -55,8 +56,11 @@ public:
 			c.panic("Could not load or generate a level");
 		}
 
-		io.writefln("svo: %s (x: %s, y: %s, z: %s)", state.numLevels,
-		            state.xShift, state.yShift, state.zShift);
+		io.output.writef("svo: %s (x: %s, y: %s, z: %s) size: ",
+			state.numLevels, state.xShift, state.yShift, state.zShift);
+		vrt_format_readable_size(io.output.write, data.length);
+		io.output.writefln("");
+		io.output.flush();
 		push(new RayTracer(this, ref state, frames, data));
 	}
 
