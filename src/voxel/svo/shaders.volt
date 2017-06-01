@@ -228,7 +228,7 @@ public:
 public:
 	this(s: ShaderStore, src: u32, dst1: u32, dst2: u32, powerStart: u32)
 	{
-		this.name = "list";
+		this.name = "double";
 
 		dispatchShader = s.makeComputeDispatchShader(src, BufferCommandId);
 		listShader = s.makeListDoubleShader(src, dst1, dst2, powerStart);
