@@ -47,22 +47,22 @@ struct SDL_Finger
 
 /* Function prototypes */
 
-/**
+/*!
  *  \brief Get the number of registered touch devices.
  */
 int SDL_GetNumTouchDevices();
 
-/**
+/*!
  *  \brief Get the touch ID with the given index, or 0 if the index is invalid.
  */
 SDL_TouchID SDL_GetTouchDevice(int index);
 
-/**
+/*!
  *  \brief Get the number of active fingers for a given touch device.
  */
 int SDL_GetNumTouchFingers(SDL_TouchID touchID);
 
-/**
+/*!
  *  \brief Get the finger object of the given touch, with the given index.
  */
 SDL_Finger * SDL_GetTouchFinger(SDL_TouchID touchID, int index);

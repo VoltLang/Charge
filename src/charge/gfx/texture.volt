@@ -1,6 +1,6 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/licence.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for Texture(s).
  */
 module charge.gfx.texture;
@@ -14,7 +14,7 @@ import charge.sys.resource;
 import charge.gfx.gl;
 
 
-/**
+/*!
  * Base texture class.
  */
 class Texture : Resource

@@ -5,7 +5,7 @@ module voxel.svo.util;
 import watt.math.floating;
 
 
-/**
+/*!
  * A helper struct to get the distance that a
  * Voxel of a given level is one pixel large.
  */

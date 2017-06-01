@@ -100,7 +100,7 @@ public import lib.sdl2.video;
 
 /* As of version 0.5, SDL is loaded dynamically into the application */
 
-/**
+/*!
  *  \name SDL_INIT_*
  *
  *  These are the flags which may be passed to SDL_Init().  You should
@@ -121,24 +121,24 @@ enum SDL_INIT_EVERYTHING = (
             );
 /* */
 
-/**
+/*!
  *  This function initializes  the subsystems specified by \c flags
  *  Unless the ::SDL_INIT_NOPARACHUTE flag is set, it will install cleanup
  *  signal handlers for some commonly ignored fatal signals (like SIGSEGV).
  */
  int  SDL_Init(Uint32 flags);
 
-/**
+/*!
  *  This function initializes specific SDL subsystems
  */
  int  SDL_InitSubSystem(Uint32 flags);
 
-/**
+/*!
  *  This function cleans up specific SDL subsystems
  */
  void  SDL_QuitSubSystem(Uint32 flags);
 
-/**
+/*!
  *  This function returns a mask of the specified subsystems which have
  *  previously been initialized.
  *
@@ -146,7 +146,7 @@ enum SDL_INIT_EVERYTHING = (
  */
  Uint32  SDL_WasInit(Uint32 flags);
 
-/**
+/*!
  *  This function cleans up all initialized subsystems. You should
  *  call it upon all exit conditions.
  */

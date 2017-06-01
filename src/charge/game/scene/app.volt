@@ -1,6 +1,6 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for SceneManagerApp base classes.
  */
 module charge.game.scene.app;
@@ -12,7 +12,7 @@ import charge.game.app;
 import charge.game.scene.scene;
 
 
-/**
+/*!
  * Base class for games wishing to use Scenes, implements
  * most if not all needed SceneManager functions needed.
  */

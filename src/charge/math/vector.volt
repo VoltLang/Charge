@@ -1,6 +1,6 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for Vector3f.
  */
 module charge.math.vector;
@@ -10,7 +10,7 @@ import watt.text.format;
 import charge.math.point;
 
 
-/**
+/*!
  * Vector in a 3D space. Charge follows the OpenGL convetion for axis
  * so Y+ is up, X+ is right and Z- is forward.
  *

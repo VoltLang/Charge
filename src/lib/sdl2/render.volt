@@ -51,7 +51,7 @@ import lib.sdl2.video;
 import lib.sdl2.surface;
 import lib.sdl2.blendmode;
 
-/**
+/*!
  *  \brief Flags used when creating a rendering context
  */
 alias SDL_RendererFlags = int;
@@ -66,7 +66,7 @@ enum : SDL_RendererFlags
                                                      rendering to texture */
 }
 
-/**
+/*!
  *  \brief Information on the capabilities of a render driver or context.
  */
 struct SDL_RendererInfo
@@ -79,7 +79,7 @@ struct SDL_RendererInfo
     int max_texture_height;     /*< The maximimum texture height */
 }
 
-/**
+/*!
  *  \brief The access pattern allowed for a texture.
  */
 alias SDL_TextureAccess = int;
@@ -90,7 +90,7 @@ enum : SDL_TextureAccess
     SDL_TEXTUREACCESS_TARGET     /*< Texture can be used as a render target */
 }
 
-/**
+/*!
  *  \brief The texture channel modulation used in SDL_RenderCopy().
  */
 alias SDL_TextureModulate = int;
@@ -101,7 +101,7 @@ enum : SDL_TextureModulate
     SDL_TEXTUREMODULATE_ALPHA = 0x00000002     /*< srcA = srcA * alpha */
 }
 
-/**
+/*!
  *  \brief Flip constants for SDL_RenderCopyEx
  */
 alias SDL_RendererFlip = int;
@@ -112,12 +112,12 @@ enum : SDL_RendererFlip
     SDL_FLIP_VERTICAL = 0x00000002     /*< flip vertically */
 }
 
-/**
+/*!
  *  \brief A structure representing rendering state
  */
 struct SDL_Renderer {}
 
-/**
+/*!
  *  \brief An efficient driver-specific representation of pixel data
  */
 struct SDL_Texture {}
@@ -125,7 +125,7 @@ struct SDL_Texture {}
 
 /* Function prototypes */
 
-/**
+/*!
  *  \brief Get the number of 2D rendering drivers available for the current
  *         display.
  *
@@ -138,7 +138,7 @@ struct SDL_Texture {}
  */
  int  SDL_GetNumRenderDrivers();
 
-/**
+/*!
  *  \brief Get information about a specific 2D rendering driver for the current
  *         display.
  *
@@ -153,7 +153,7 @@ struct SDL_Texture {}
  int  SDL_GetRenderDriverInfo(int index,
                                                     SDL_RendererInfo * info);
 
-/**
+/*!
  *  \brief Create a window and default renderer
  *
  *  \param width    The width of the window
@@ -169,7 +169,7 @@ struct SDL_Texture {}
                                 SDL_Window **window, SDL_Renderer **renderer);
 
 
-/**
+/*!
  *  \brief Create a 2D rendering context for a window.
  *
  *  \param window The window where rendering is displayed.
@@ -186,7 +186,7 @@ struct SDL_Texture {}
  SDL_Renderer *  SDL_CreateRenderer(SDL_Window * window,
                                                int index, Uint32 flags);
 
-/**
+/*!
  *  \brief Create a 2D software rendering context for a surface.
  *
  *  \param surface The surface where rendering is done.
@@ -198,24 +198,24 @@ struct SDL_Texture {}
  */
  SDL_Renderer *  SDL_CreateSoftwareRenderer(SDL_Surface * surface);
 
-/**
+/*!
  *  \brief Get the renderer associated with a window.
  */
  SDL_Renderer *  SDL_GetRenderer(SDL_Window * window);
 
-/**
+/*!
  *  \brief Get information about a rendering context.
  */
  int  SDL_GetRendererInfo(SDL_Renderer * renderer,
                                                 SDL_RendererInfo * info);
 
-/**
+/*!
  *  \brief Get the output size of a rendering context.
  */
  int  SDL_GetRendererOutputSize(SDL_Renderer * renderer,
                                                       int *w, int *h);
 
-/**
+/*!
  *  \brief Create a texture for a rendering context.
  *
  *  \param renderer The renderer.
@@ -237,7 +237,7 @@ struct SDL_Texture {}
                                                         int access, int w,
                                                         int h);
 
-/**
+/*!
  *  \brief Create a texture from an existing surface.
  *
  *  \param renderer The renderer.
@@ -252,7 +252,7 @@ struct SDL_Texture {}
  */
  SDL_Texture *  SDL_CreateTextureFromSurface(SDL_Renderer * renderer, SDL_Surface * surface);
 
-/**
+/*!
  *  \brief Query the attributes of a texture
  *
  *  \param texture A texture to be queried.
@@ -269,7 +269,7 @@ struct SDL_Texture {}
                                              Uint32 * format, int *access,
                                              int *w, int *h);
 
-/**
+/*!
  *  \brief Set an additional color value used in render copy operations.
  *
  *  \param texture The texture to update.
@@ -286,7 +286,7 @@ struct SDL_Texture {}
                                                    Uint8 r, Uint8 g, Uint8 b);
 
 
-/**
+/*!
  *  \brief Get the additional color value used in render copy operations.
  *
  *  \param texture The texture to query.
@@ -302,7 +302,7 @@ struct SDL_Texture {}
                                                    Uint8 * r, Uint8 * g,
                                                    Uint8 * b);
 
-/**
+/*!
  *  \brief Set an additional alpha value used in render copy operations.
  *
  *  \param texture The texture to update.
@@ -316,7 +316,7 @@ struct SDL_Texture {}
  int  SDL_SetTextureAlphaMod(SDL_Texture * texture,
                                                    Uint8 alpha);
 
-/**
+/*!
  *  \brief Get the additional alpha value used in render copy operations.
  *
  *  \param texture The texture to query.
@@ -329,7 +329,7 @@ struct SDL_Texture {}
  int  SDL_GetTextureAlphaMod(SDL_Texture * texture,
                                                    Uint8 * alpha);
 
-/**
+/*!
  *  \brief Set the blend mode used for texture copy operations.
  *
  *  \param texture The texture to update.
@@ -346,7 +346,7 @@ struct SDL_Texture {}
  int  SDL_SetTextureBlendMode(SDL_Texture * texture,
                                                     SDL_BlendMode blendMode);
 
-/**
+/*!
  *  \brief Get the blend mode used for texture copy operations.
  *
  *  \param texture   The texture to query.
@@ -359,7 +359,7 @@ struct SDL_Texture {}
  int  SDL_GetTextureBlendMode(SDL_Texture * texture,
                                                     SDL_BlendMode *blendMode);
 
-/**
+/*!
  *  \brief Update the given texture rectangle with new pixel data.
  *
  *  \param texture   The texture to update
@@ -376,7 +376,7 @@ struct SDL_Texture {}
                                               const SDL_Rect * rect,
                                               const void *pixels, int pitch);
 
-/**
+/*!
  *  \brief Lock a portion of the texture for write-only pixel access.
  *
  *  \param texture   The texture to lock for access, which was created with
@@ -395,14 +395,14 @@ struct SDL_Texture {}
                                             const SDL_Rect * rect,
                                             void **pixels, int *pitch);
 
-/**
+/*!
  *  \brief Unlock a texture, uploading the changes to video memory, if needed.
  *
  *  \sa SDL_LockTexture()
  */
  void  SDL_UnlockTexture(SDL_Texture * texture);
 
-/**
+/*!
  * \brief Determines whether a window supports the use of render targets
  *
  * \param renderer The renderer that will be checked
@@ -411,7 +411,7 @@ struct SDL_Texture {}
  */
  SDL_bool  SDL_RenderTargetSupported(SDL_Renderer *renderer);
 
-/**
+/*!
  * \brief Set a texture as the current rendering target.
  *
  * \param renderer The renderer.
@@ -424,7 +424,7 @@ struct SDL_Texture {}
  int  SDL_SetRenderTarget(SDL_Renderer *renderer,
                                                 SDL_Texture *texture);
 
-/**
+/*!
  * \brief Get the current render target or NULL for the default render target.
  *
  * \return The current render target
@@ -433,7 +433,7 @@ struct SDL_Texture {}
  */
  SDL_Texture *  SDL_GetRenderTarget(SDL_Renderer *renderer);
 
-/**
+/*!
  *  \brief Set device independent resolution for rendering
  *
  *  \param renderer The renderer for which resolution should be set.
@@ -458,7 +458,7 @@ struct SDL_Texture {}
  */
  int  SDL_RenderSetLogicalSize(SDL_Renderer * renderer, int w, int h);
 
- /**
+ /*!
  *  \brief Set whether to force integer scales for resolution-independent rendering
  *
  *  \param renderer The renderer for which integer scaling should be set.
@@ -473,7 +473,7 @@ struct SDL_Texture {}
 int SDL_RenderSetIntegerScale(SDL_Renderer * renderer,
                                                       SDL_bool enable);
 
-/**
+/*!
  *  \brief Get whether integer scales are forced for resolution-independent rendering
  *
  *  \param renderer The renderer from which integer scaling should be queried.
@@ -482,7 +482,7 @@ int SDL_RenderSetIntegerScale(SDL_Renderer * renderer,
  */
 SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
 
-/**
+/*!
  *  \brief Get device independent resolution for rendering
  *
  *  \param renderer The renderer from which resolution should be queried.
@@ -493,7 +493,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  */
  void  SDL_RenderGetLogicalSize(SDL_Renderer * renderer, int *w, int *h);
 
-/**
+/*!
  *  \brief Set the drawing area for rendering on the current target.
  *
  *  \param renderer The renderer for which the drawing area should be set.
@@ -511,7 +511,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  int  SDL_RenderSetViewport(SDL_Renderer * renderer,
                                                   const SDL_Rect * rect);
 
-/**
+/*!
  *  \brief Get the drawing area for the current target.
  *
  *  \sa SDL_RenderSetViewport()
@@ -519,7 +519,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  void  SDL_RenderGetViewport(SDL_Renderer * renderer,
                                                    SDL_Rect * rect);
 
-/**
+/*!
  *  \brief Set the clip rectangle for the current target.
  *
  *  \param renderer The renderer for which clip rectangle should be set.
@@ -533,7 +533,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  int  SDL_RenderSetClipRect(SDL_Renderer * renderer,
                                                   const SDL_Rect * rect);
 
-/**
+/*!
  *  \brief Get the clip rectangle for the current target.
  *
  *  \param renderer The renderer from which clip rectangle should be queried.
@@ -545,7 +545,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  void  SDL_RenderGetClipRect(SDL_Renderer * renderer,
                                                    SDL_Rect * rect);
 
-/**
+/*!
  *  \brief Set the drawing scale for rendering on the current target.
  *
  *  \param renderer The renderer for which the drawing scale should be set.
@@ -566,7 +566,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  int  SDL_RenderSetScale(SDL_Renderer * renderer,
                                                float scaleX, float scaleY);
 
-/**
+/*!
  *  \brief Get the drawing scale for the current target.
  *
  *  \param renderer The renderer from which drawing scale should be queried.
@@ -578,7 +578,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  void  SDL_RenderGetScale(SDL_Renderer * renderer,
                                                float *scaleX, float *scaleY);
 
-/**
+/*!
  *  \brief Set the color used for drawing operations (Rect, Line and Clear).
  *
  *  \param renderer The renderer for which drawing color should be set.
@@ -594,7 +594,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
                                            Uint8 r, Uint8 g, Uint8 b,
                                            Uint8 a);
 
-/**
+/*!
  *  \brief Get the color used for drawing operations (Rect, Line and Clear).
  *
  *  \param renderer The renderer from which drawing color should be queried.
@@ -610,7 +610,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
                                            Uint8 * r, Uint8 * g, Uint8 * b,
                                            Uint8 * a);
 
-/**
+/*!
  *  \brief Set the blend mode used for drawing operations (Fill and Line).
  *
  *  \param renderer The renderer for which blend mode should be set.
@@ -626,7 +626,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  int  SDL_SetRenderDrawBlendMode(SDL_Renderer * renderer,
                                                        SDL_BlendMode blendMode);
 
-/**
+/*!
  *  \brief Get the blend mode used for drawing operations.
  *
  *  \param renderer The renderer from which blend mode should be queried.
@@ -639,7 +639,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  int  SDL_GetRenderDrawBlendMode(SDL_Renderer * renderer,
                                                        SDL_BlendMode *blendMode);
 
-/**
+/*!
  *  \brief Clear the current rendering target with the drawing color
  *
  *  This function clears the entire rendering target, ignoring the viewport.
@@ -648,7 +648,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  */
  int  SDL_RenderClear(SDL_Renderer * renderer);
 
-/**
+/*!
  *  \brief Draw a point on the current rendering target.
  *
  *  \param renderer The renderer which should draw a point.
@@ -660,7 +660,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  int  SDL_RenderDrawPoint(SDL_Renderer * renderer,
                                                 int x, int y);
 
-/**
+/*!
  *  \brief Draw multiple points on the current rendering target.
  *
  *  \param renderer The renderer which should draw multiple points.
@@ -673,7 +673,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
                                                  const SDL_Point * points,
                                                  int count);
 
-/**
+/*!
  *  \brief Draw a line on the current rendering target.
  *
  *  \param renderer The renderer which should draw a line.
@@ -687,7 +687,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  int  SDL_RenderDrawLine(SDL_Renderer * renderer,
                                                int x1, int y1, int x2, int y2);
 
-/**
+/*!
  *  \brief Draw a series of connected lines on the current rendering target.
  *
  *  \param renderer The renderer which should draw multiple lines.
@@ -700,7 +700,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
                                                 const SDL_Point * points,
                                                 int count);
 
-/**
+/*!
  *  \brief Draw a rectangle on the current rendering target.
  *
  *  \param renderer The renderer which should draw a rectangle.
@@ -711,7 +711,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  int  SDL_RenderDrawRect(SDL_Renderer * renderer,
                                                const SDL_Rect * rect);
 
-/**
+/*!
  *  \brief Draw some number of rectangles on the current rendering target.
  *
  *  \param renderer The renderer which should draw multiple rectangles.
@@ -724,7 +724,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
                                                 const SDL_Rect * rects,
                                                 int count);
 
-/**
+/*!
  *  \brief Fill a rectangle on the current rendering target with the drawing color.
  *
  *  \param renderer The renderer which should fill a rectangle.
@@ -736,7 +736,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  int  SDL_RenderFillRect(SDL_Renderer * renderer,
                                                const SDL_Rect * rect);
 
-/**
+/*!
  *  \brief Fill some number of rectangles on the current rendering target with the drawing color.
  *
  *  \param renderer The renderer which should fill multiple rectangles.
@@ -749,7 +749,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
                                                 const SDL_Rect * rects,
                                                 int count);
 
-/**
+/*!
  *  \brief Copy a portion of the texture to the current rendering target.
  *
  *  \param renderer The renderer which should copy parts of a texture.
@@ -766,7 +766,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
                                            const SDL_Rect * srcrect,
                                            const SDL_Rect * dstrect);
 
-/**
+/*!
  *  \brief Copy a portion of the source texture to the current rendering target, rotating it by angle around the given center
  *
  *  \param renderer The renderer which should copy parts of a texture.
@@ -789,7 +789,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
                                            const SDL_Point *center,
                                            const SDL_RendererFlip flip);
 
-/**
+/*!
  *  \brief Read pixels from the current rendering target.
  *
  *  \param renderer The renderer from which pixels should be read.
@@ -809,12 +809,12 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
                                                  Uint32 format,
                                                  void *pixels, int pitch);
 
-/**
+/*!
  *  \brief Update the screen with rendering performed.
  */
  void  SDL_RenderPresent(SDL_Renderer * renderer);
 
-/**
+/*!
  *  \brief Destroy the specified texture.
  *
  *  \sa SDL_CreateTexture()
@@ -822,7 +822,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  */
  void  SDL_DestroyTexture(SDL_Texture * texture);
 
-/**
+/*!
  *  \brief Destroy the rendering context for a window and free associated
  *         textures.
  *
@@ -831,7 +831,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  void  SDL_DestroyRenderer(SDL_Renderer * renderer);
 
 
-/**
+/*!
  *  \brief Bind the texture to the current OpenGL/ES/ES2 context for use with
  *         OpenGL instructions.
  *
@@ -843,7 +843,7 @@ SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer * renderer);
  */
  int  SDL_GL_BindTexture(SDL_Texture *texture, float *texw, float *texh);
 
-/**
+/*!
  *  \brief Unbind a texture from the current OpenGL/ES/ES2 context.
  *
  *  \param texture  The SDL texture to unbind

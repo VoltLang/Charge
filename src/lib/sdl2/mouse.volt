@@ -34,7 +34,7 @@ import lib.sdl2.surface;
 
 struct SDL_Cursor {}   /* Implementation dependent */
 
-/**
+/*!
  * \brief Cursor types for SDL_CreateSystemCursor.
  */
 alias SDL_SystemCursor = int;
@@ -58,12 +58,12 @@ enum : SDL_SystemCursor
 /* Function prototypes */
 
 version (!Windows) {
-/**
+/*!
  *  \brief Get the window which currently has mouse focus.
  */
 SDL_Window *  SDL_GetMouseFocus();
 
-/**
+/*!
  *  \brief Retrieve the current state of the mouse.
  *
  *  The current button state is returned as a button bitmask, which can
@@ -73,7 +73,7 @@ SDL_Window *  SDL_GetMouseFocus();
  */
 Uint32  SDL_GetMouseState(int *x, int *y);
 
-/**
+/*!
  *  \brief Retrieve the relative state of the mouse.
  *
  *  The current button state is returned as a button bitmask, which can
@@ -82,7 +82,7 @@ Uint32  SDL_GetMouseState(int *x, int *y);
  */
 Uint32  SDL_GetRelativeMouseState(int *x, int *y);
 
-/**
+/*!
  *  \brief Moves the mouse to the given position within the window.
  *
  *  \param window The window to move the mouse into, or NULL for the current mouse focus
@@ -94,7 +94,7 @@ Uint32  SDL_GetRelativeMouseState(int *x, int *y);
 void  SDL_WarpMouseInWindow(SDL_Window * window,
                                                    int x, int y);
 
-/**
+/*!
  *  \brief Set relative mouse mode.
  *
  *  \param enabled Whether or not to enable relative mode
@@ -112,14 +112,14 @@ void  SDL_WarpMouseInWindow(SDL_Window * window,
  */
 int  SDL_SetRelativeMouseMode(SDL_bool enabled);
 
-/**
+/*!
  *  \brief Query whether relative mouse mode is enabled.
  *
  *  \sa SDL_SetRelativeMouseMode()
  */
 SDL_bool  SDL_GetRelativeMouseMode();
 
-/**
+/*!
  *  \brief Create a cursor, using the specified bitmap data and
  *         mask (in MSB format).
  *
@@ -142,7 +142,7 @@ SDL_Cursor * SDL_CreateCursor(const Uint8 * data,
                                                      int w, int h, int hot_x,
                                                      int hot_y);
 
-/**
+/*!
  *  \brief Create a color cursor.
  *
  *  \sa SDL_FreeCursor()
@@ -151,36 +151,36 @@ SDL_Cursor * SDL_CreateColorCursor(SDL_Surface *surface,
                                                           int hot_x,
                                                           int hot_y);
 
-/**
+/*!
  *  \brief Create a system cursor.
  *
  *  \sa SDL_FreeCursor()
  */
 SDL_Cursor * SDL_CreateSystemCursor(SDL_SystemCursor id);
 
-/**
+/*!
  *  \brief Set the active cursor.
  */
 void  SDL_SetCursor(SDL_Cursor * cursor);
 
-/**
+/*!
  *  \brief Return the active cursor.
  */
 SDL_Cursor * SDL_GetCursor();
 
-/**
+/*!
  *  \brief Return the default cursor.
  */
 SDL_Cursor * SDL_GetDefaultCursor();
 
-/**
+/*!
  *  \brief Frees a cursor created with SDL_CreateCursor().
  *
  *  \sa SDL_CreateCursor()
  */
 void  SDL_FreeCursor(SDL_Cursor * cursor);
 
-/**
+/*!
  *  \brief Toggle whether or not the cursor is shown.
  *
  *  \param toggle 1 to show the cursor, 0 to hide it, -1 to query the current
@@ -192,7 +192,7 @@ int  SDL_ShowCursor(int toggle);
 
 }  // version (!Windows)
 
-/**
+/*!
  *  Used as a mask when testing buttons in buttonstate.
  *   - Button 1:  Left mouse button
  *   - Button 2:  Middle mouse button

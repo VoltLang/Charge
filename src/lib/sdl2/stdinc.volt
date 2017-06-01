@@ -22,13 +22,13 @@ module lib.sdl2.stdinc;
 extern (C):
 version (!Windows):
 
-/**
+/*!
  *  \file SDL_stdinc.h
  *
  *  This is a general header that includes C language support.
  */
 
-/**
+/*!
  *  \name Basic data types
  */
 /* */
@@ -40,36 +40,36 @@ enum
 	SDL_TRUE = 1
 }
 
-/**
+/*!
  * \brief A signed 8-bit integer type.
  */
 alias Sint8 = byte;
-/**
+/*!
  * \brief An unsigned 8-bit integer type.
  */
 alias Uint8 = ubyte;
-/**
+/*!
  * \brief A signed 16-bit integer type.
  */
 alias Sint16 = short;
-/**
+/*!
  * \brief An unsigned 16-bit integer type.
  */
 alias Uint16 = ushort;
-/**
+/*!
  * \brief A signed 32-bit integer type.
  */
 alias Sint32 = int;
-/**
+/*!
  * \brief An unsigned 32-bit integer type.
  */
 alias Uint32 = uint;
 
-/**
+/*!
  * \brief A signed 64-bit integer type.
  */
 alias Sint64 = long;
-/**
+/*!
  * \brief An unsigned 64-bit integer type.
  */
 alias Uint64 = ulong;

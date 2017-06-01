@@ -1,6 +1,6 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for CoreWin32.
  */
 module charge.core.win32;
@@ -397,7 +397,7 @@ private:
 		return;  // TODO: Crashes without this.
 	}
 
-	/// Correctly kill the window.
+	//! Correctly kill the window.
 	fn killGlWindow()
 	{
 		if (hRC !is null) {

@@ -37,7 +37,7 @@ enum SDL_NONSHAPEABLE_WINDOW = -1;
 enum SDL_INVALID_SHAPE_ARGUMENT = -2;
 enum SDL_WINDOW_LACKS_SHAPE = -3;
 
-/**
+/*!
  *  \brief Create a window that can be shaped with the specified position, dimensions, and flags.
  *
  *  \param title The title of the window, in UTF-8 encoding.
@@ -59,7 +59,7 @@ enum SDL_WINDOW_LACKS_SHAPE = -3;
  */
  SDL_Window *  SDL_CreateShapedWindow(const char *title,uint x,uint y,uint w,uint h,Uint32 flags);
 
-/**
+/*!
  * \brief Return whether the given window is a shaped window.
  *
  * \param window The window to query for being shaped.
@@ -69,7 +69,7 @@ enum SDL_WINDOW_LACKS_SHAPE = -3;
  */
  SDL_bool  SDL_IsShapedWindow(const SDL_Window *window);
 
-/** \brief An enum denoting the specific type of contents present in an SDL_WindowShapeParams union. */
+/*! \brief An enum denoting the specific type of contents present in an SDL_WindowShapeParams union. */
 alias WindowShapeMode = int;
 enum : WindowShapeMode {
     /* \brief The default mode, a binarized alpha cutoff of 1. */
@@ -87,22 +87,22 @@ bool SDL_SHAPEMODEALPHA(WindowShapeMode mode)
 	return mode == ShapeModeDefault || mode == ShapeModeBinarizeAlpha || mode == ShapeModeReverseBinarizeAlpha;
 }
 
-/** \brief A union containing parameters for shaped windows. */
+/*! \brief A union containing parameters for shaped windows. */
 union SDL_WindowShapeParams {
-    /** \brief a cutoff alpha value for binarization of the window shape's alpha channel. */
+    /*! \brief a cutoff alpha value for binarization of the window shape's alpha channel. */
     Uint8 binarizationCutoff;
     SDL_Color colorKey;
 }
 
-/** \brief A struct that tags the SDL_WindowShapeParams union with an enum describing the type of its contents. */
+/*! \brief A struct that tags the SDL_WindowShapeParams union with an enum describing the type of its contents. */
 struct SDL_WindowShapeMode {
-    /** \brief The mode of these window-shape parameters. */
+    /*! \brief The mode of these window-shape parameters. */
     WindowShapeMode mode;
-    /** \brief Window-shape parameters. */
+    /*! \brief Window-shape parameters. */
     SDL_WindowShapeParams parameters;
 }
 
-/**
+/*!
  * \brief Set the shape and parameters of a shaped window.
  *
  * \param window The shaped window whose parameters should be set.
@@ -117,7 +117,7 @@ struct SDL_WindowShapeMode {
  */
  int  SDL_SetWindowShape(SDL_Window *window,SDL_Surface *shape,SDL_WindowShapeMode *shape_mode);
 
-/**
+/*!
  * \brief Get the shape parameters of a shaped window.
  *
  * \param window The shaped window whose parameters should be retrieved.

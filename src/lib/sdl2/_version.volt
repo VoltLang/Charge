@@ -44,9 +44,9 @@ import lib.sdl2.stdinc;
  */
 struct SDL_version
 {
-    Uint8 major;        /**< major version */
-    Uint8 minor;        /**< minor version */
-    Uint8 patch;        /**< update version */
+    Uint8 major;        /*!< major version */
+    Uint8 minor;        /*!< minor version */
+    Uint8 patch;        /*!< update version */
 }
 
 /* Printable format: "%d.%d.%d", MAJOR, MINOR, PATCHLEVEL
@@ -55,7 +55,7 @@ enum SDL_MAJOR_VERSION = 2;
 enum SDL_MINOR_VERSION = 0;
 enum SDL_PATCHLEVEL = 5;
 
-/**
+/*!
  *  \brief Get the version of SDL that is linked against your program.
  *
  *  If you are linking to SDL dynamically, then it is possible that the
@@ -81,7 +81,7 @@ enum SDL_PATCHLEVEL = 5;
  */
 void  SDL_GetVersion(SDL_version * ver);
 
-/**
+/*!
  *  \brief Get the code revision of SDL that is linked against your program.
  *
  *  Returns an arbitrary string (a hash value) uniquely identifying the
@@ -90,7 +90,7 @@ void  SDL_GetVersion(SDL_version * ver);
  */
 const char * SDL_GetRevision();
 
-/**
+/*!
  *  \brief Get the revision number of SDL that is linked against your program.
  *
  *  Returns a number uniquely identifying the exact revision of the SDL

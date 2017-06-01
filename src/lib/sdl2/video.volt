@@ -33,7 +33,7 @@ import lib.sdl2.pixels;
 import lib.sdl2.rect;
 import lib.sdl2.surface;
 
-/**
+/*!
  *  \brief  The structure that defines a display mode
  *
  *  \sa SDL_GetNumDisplayModes()
@@ -84,7 +84,7 @@ struct SDL_Window
 {
 }
 
-/**
+/*!
  *  \brief The flags on a window
  *
  *  \sa SDL_GetWindowFlags()
@@ -113,7 +113,7 @@ enum : SDL_WindowFlags
 	SDL_WINDOW_POPUP_MENU = 0x00080000
 }
 
-/**
+/*!
  *  \brief Used to indicate that you don't care what the window position is.
  */
 enum SDL_WINDOWPOS_UNDEFINED_MASK = 0x1FFF0000;
@@ -121,7 +121,7 @@ int SDL_WINDOWPOS_UNDEFINED_DISPLAY(int X) { return SDL_WINDOWPOS_UNDEFINED_MASK
 @property int SDL_WINDOWPOS_UNDEFINED() { return SDL_WINDOWPOS_UNDEFINED_DISPLAY(0); }
 bool SDL_WINDOWPOS_ISUNDEFINED(int X) { return (cast(u32)X & 0xFFFF0000) == SDL_WINDOWPOS_UNDEFINED_MASK; }
 
-/**
+/*!
  *  \brief Used to indicate that the window position should be centered.
  */
 enum SDL_WINDOWPOS_CENTERED_MASK = 0x2FFF0000;
@@ -129,7 +129,7 @@ int SDL_WINDOWPOS_CENTERED_DISPLAY(int X) { return SDL_WINDOWPOS_CENTERED_MASK |
 enum SDL_WINDOWPOS_CENTERED = SDL_WINDOWPOS_CENTERED_MASK;
 bool SDL_WINDOWPOS_ISCENTERED(int X) { return (cast(u32)X & 0xFFFF0000) == SDL_WINDOWPOS_CENTERED_MASK; }
 
-/**
+/*!
  *  \brief Event subtype for window events
  */
 alias SDL_WindowEventID = int;
@@ -158,12 +158,12 @@ enum : SDL_WindowEventID
 	SDL_WINDOWEVENT_HIT_TEST,
 }
 
-/**
+/*!
  *  \brief An opaque handle to an OpenGL context.
  */
 alias SDL_GLContext = void*;
 
-/**
+/*!
  *  \brief OpenGL configuration attributes
  */
 alias SDL_GLattr = int;
@@ -214,14 +214,14 @@ enum : SDL_GLcontextFlag
 
 /* Function prototypes */
 
-/**
+/*!
  *  \brief Get the number of video drivers compiled into SDL
  *
  *  \sa SDL_GetVideoDriver()
  */
 int SDL_GetNumVideoDrivers();
 
-/**
+/*!
  *  \brief Get the name of a built in video driver.
  *
  *  \note The video drivers are presented in the order in which they are
@@ -231,7 +231,7 @@ int SDL_GetNumVideoDrivers();
  */
 const char * SDL_GetVideoDriver(int index);
 
-/**
+/*!
  *  \brief Initialize the video subsystem, optionally specifying a video driver.
  *
  *  \param driver_name Initialize a specific driver by name, or NULL for the
@@ -247,7 +247,7 @@ const char * SDL_GetVideoDriver(int index);
  */
 int SDL_VideoInit(const char *driver_name);
 
-/**
+/*!
  *  \brief Shuts down the video subsystem.
  *
  *  This function closes all windows, and restores the original video mode.
@@ -256,7 +256,7 @@ int SDL_VideoInit(const char *driver_name);
  */
 void SDL_VideoQuit();
 
-/**
+/*!
  *  \brief Returns the name of the currently initialized video driver.
  *
  *  \return The name of the current video driver or NULL if no driver
@@ -267,14 +267,14 @@ void SDL_VideoQuit();
  */
 const char * SDL_GetCurrentVideoDriver();
 
-/**
+/*!
  *  \brief Returns the number of available video displays.
  *
  *  \sa SDL_GetDisplayBounds()
  */
 int SDL_GetNumVideoDisplays();
 
-/**
+/*!
  *  \brief Get the name of a display in UTF-8 encoding
  *
  *  \return The name of a display, or NULL for an invalid display index.
@@ -283,7 +283,7 @@ int SDL_GetNumVideoDisplays();
  */
 const char * SDL_GetDisplayName(int displayIndex);
 
-/**
+/*!
  *  \brief Get the desktop area represented by a display, with the primary
  *		 display located at 0,0
  *
@@ -293,7 +293,7 @@ const char * SDL_GetDisplayName(int displayIndex);
  */
 int SDL_GetDisplayBounds(int displayIndex, SDL_Rect * rect);
 
-/**
+/*!
  *  \brief Get the usable desktop area represented by a display, with the
  *         primary display located at 0,0
  *
@@ -312,14 +312,14 @@ int SDL_GetDisplayBounds(int displayIndex, SDL_Rect * rect);
  */
 int SDL_GetDisplayUsableBounds(int displayIndex, SDL_Rect * rect);
 
-/**
+/*!
  *  \brief Returns the number of available display modes.
  *
  *  \sa SDL_GetDisplayMode()
  */
 int SDL_GetNumDisplayModes(int displayIndex);
 
-/**
+/*!
  *  \brief Fill in information about a specific display mode.
  *
  *  \note The display modes are sorted in this priority:
@@ -333,18 +333,18 @@ int SDL_GetNumDisplayModes(int displayIndex);
 int SDL_GetDisplayMode(int displayIndex, int modeIndex,
 											   SDL_DisplayMode * mode);
 
-/**
+/*!
  *  \brief Fill in information about the desktop display mode.
  */
 int SDL_GetDesktopDisplayMode(int displayIndex, SDL_DisplayMode * mode);
 
-/**
+/*!
  *  \brief Fill in information about the current display mode.
  */
 int SDL_GetCurrentDisplayMode(int displayIndex, SDL_DisplayMode * mode);
 
 
-/**
+/*!
  *  \brief Get the closest match to the requested display mode.
  *
  *  \param displayIndex The index of display from which mode should be queried.
@@ -367,7 +367,7 @@ int SDL_GetCurrentDisplayMode(int displayIndex, SDL_DisplayMode * mode);
  */
 SDL_DisplayMode * SDL_GetClosestDisplayMode(int displayIndex, const SDL_DisplayMode * mode, SDL_DisplayMode * closest);
 
-/**
+/*!
  *  \brief Get the display index associated with a window.
  *
  *  \return the display index of the display containing the center of the
@@ -375,7 +375,7 @@ SDL_DisplayMode * SDL_GetClosestDisplayMode(int displayIndex, const SDL_DisplayM
  */
 int SDL_GetWindowDisplayIndex(SDL_Window * window);
 
-/**
+/*!
  *  \brief Set the display mode used when a fullscreen window is visible.
  *
  *  By default the window's dimensions and the desktop format and refresh rate
@@ -393,7 +393,7 @@ int SDL_SetWindowDisplayMode(SDL_Window * window,
 													 const SDL_DisplayMode
 														 * mode);
 
-/**
+/*!
  *  \brief Fill in information about the display mode used when a fullscreen
  *		 window is visible.
  *
@@ -403,12 +403,12 @@ int SDL_SetWindowDisplayMode(SDL_Window * window,
 int SDL_GetWindowDisplayMode(SDL_Window * window,
 													 SDL_DisplayMode * mode);
 
-/**
+/*!
  *  \brief Get the pixel format associated with the window.
  */
 Uint32 SDL_GetWindowPixelFormat(SDL_Window * window);
 
-/**
+/*!
  *  \brief Create a window with the specified position, dimensions, and flags.
  *
  *  \param title The title of the window, in UTF-8 encoding.
@@ -432,7 +432,7 @@ SDL_Window * SDL_CreateWindow(const char *title,
 													  int x, int y, int w,
 													  int h, Uint32 flags);
 
-/**
+/*!
  *  \brief Create an SDL window from an existing native window.
  *
  *  \param data A pointer to driver-dependent window creation data
@@ -443,22 +443,22 @@ SDL_Window * SDL_CreateWindow(const char *title,
  */
 SDL_Window * SDL_CreateWindowFrom(const void *data);
 
-/**
+/*!
  *  \brief Get the numeric ID of a window, for logging purposes.
  */
 Uint32 SDL_GetWindowID(SDL_Window * window);
 
-/**
+/*!
  *  \brief Get a window from a stored ID, or NULL if it doesn't exist.
  */
 SDL_Window * SDL_GetWindowFromID(Uint32 id);
 
-/**
+/*!
  *  \brief Get the window flags.
  */
 Uint32 SDL_GetWindowFlags(SDL_Window * window);
 
-/**
+/*!
  *  \brief Set the title of a window, in UTF-8 format.
  *
  *  \sa SDL_GetWindowTitle()
@@ -466,14 +466,14 @@ Uint32 SDL_GetWindowFlags(SDL_Window * window);
 void SDL_SetWindowTitle(SDL_Window * window,
 												const char *title);
 
-/**
+/*!
  *  \brief Get the title of a window, in UTF-8 format.
  *
  *  \sa SDL_SetWindowTitle()
  */
 const char * SDL_GetWindowTitle(SDL_Window * window);
 
-/**
+/*!
  *  \brief Set the icon for a window.
  *
  *  \param window The window for which the icon should be set.
@@ -482,7 +482,7 @@ const char * SDL_GetWindowTitle(SDL_Window * window);
 void SDL_SetWindowIcon(SDL_Window * window,
 											   SDL_Surface * icon);
 
-/**
+/*!
  *  \brief Associate an arbitrary named pointer with a window.
  *
  *  \param window   The window to associate with the pointer.
@@ -499,7 +499,7 @@ void* SDL_SetWindowData(SDL_Window * window,
 												const char *name,
 												void *userdata);
 
-/**
+/*!
  *  \brief Retrieve the data pointer associated with a window.
  *
  *  \param window   The window to query.
@@ -512,7 +512,7 @@ void* SDL_SetWindowData(SDL_Window * window,
 void * SDL_GetWindowData(SDL_Window * window,
 												const char *name);
 
-/**
+/*!
  *  \brief Set the position of a window.
  *
  *  \param window   The window to reposition.
@@ -528,7 +528,7 @@ void * SDL_GetWindowData(SDL_Window * window,
 void SDL_SetWindowPosition(SDL_Window * window,
 												   int x, int y);
 
-/**
+/*!
  *  \brief Get the position of a window.
  *
  *  \param window   The window to query.
@@ -540,7 +540,7 @@ void SDL_SetWindowPosition(SDL_Window * window,
 void SDL_GetWindowPosition(SDL_Window * window,
 												   int *x, int *y);
 
-/**
+/*!
  *  \brief Set the size of a window's client area.
  *
  *  \param window   The window to resize.
@@ -555,7 +555,7 @@ void SDL_GetWindowPosition(SDL_Window * window,
 void SDL_SetWindowSize(SDL_Window * window, int w,
 											   int h);
 
-/**
+/*!
  *  \brief Get the size of a window's client area.
  *
  *  \param window   The window to query.
@@ -567,7 +567,7 @@ void SDL_SetWindowSize(SDL_Window * window, int w,
 void SDL_GetWindowSize(SDL_Window * window, int *w,
 											   int *h);
 
-/**
+/*!
  *  \brief Get the size of a window's borders (decorations) around the client area.
  *
  *  \param window The window to query.
@@ -584,7 +584,7 @@ void SDL_GetWindowSize(SDL_Window * window, int *w,
  */
 int SDL_GetWindowBordersSize(SDL_Window* window, int* top, int* left, int* bottom, int* right);
 
-/**
+/*!
  *  \brief Set the minimum size of a window's client area.
  *
  *  \param window	The window to set a new minimum size.
@@ -600,7 +600,7 @@ int SDL_GetWindowBordersSize(SDL_Window* window, int* top, int* left, int* botto
 void SDL_SetWindowMinimumSize(SDL_Window * window,
 													  int min_w, int min_h);
 
-/**
+/*!
  *  \brief Get the minimum size of a window's client area.
  *
  *  \param window   The window to query.
@@ -613,7 +613,7 @@ void SDL_SetWindowMinimumSize(SDL_Window * window,
 void SDL_GetWindowMinimumSize(SDL_Window * window,
 													  int *w, int *h);
 
-/**
+/*!
  *  \brief Set the maximum size of a window's client area.
  *
  *  \param window	The window to set a new maximum size.
@@ -629,7 +629,7 @@ void SDL_GetWindowMinimumSize(SDL_Window * window,
 void SDL_SetWindowMaximumSize(SDL_Window * window,
 													  int max_w, int max_h);
 
-/**
+/*!
  *  \brief Get the maximum size of a window's client area.
  *
  *  \param window   The window to query.
@@ -642,7 +642,7 @@ void SDL_SetWindowMaximumSize(SDL_Window * window,
 void SDL_GetWindowMaximumSize(SDL_Window * window,
 													  int *w, int *h);
 
-/**
+/*!
  *  \brief Set the border state of a window.
  *
  *  This will add or remove the window's SDL_WINDOW_BORDERLESS flag and
@@ -659,7 +659,7 @@ void SDL_GetWindowMaximumSize(SDL_Window * window,
 void SDL_SetWindowBordered(SDL_Window * window,
 												   SDL_bool bordered);
 
-/**
+/*!
  *  \brief Set the user-resizable state of a window.
  *
  *  This will add or remove the window's SDL_WINDOW_RESIZABLE flag and
@@ -675,40 +675,40 @@ void SDL_SetWindowBordered(SDL_Window * window,
  */
 void SDL_SetWindowResizable(SDL_Window* window, SDL_bool resizable);
 
-/**
+/*!
  *  \brief Show a window.
  *
  *  \sa SDL_HideWindow()
  */
 void SDL_ShowWindow(SDL_Window * window);
 
-/**
+/*!
  *  \brief Hide a window.
  *
  *  \sa SDL_ShowWindow()
  */
 void SDL_HideWindow(SDL_Window * window);
 
-/**
+/*!
  *  \brief Raise a window above other windows and set the input focus.
  */
 void SDL_RaiseWindow(SDL_Window * window);
 
-/**
+/*!
  *  \brief Make a window as large as possible.
  *
  *  \sa SDL_RestoreWindow()
  */
 void SDL_MaximizeWindow(SDL_Window * window);
 
-/**
+/*!
  *  \brief Minimize a window to an iconic representation.
  *
  *  \sa SDL_RestoreWindow()
  */
 void SDL_MinimizeWindow(SDL_Window * window);
 
-/**
+/*!
  *  \brief Restore the size and position of a minimized or maximized window.
  *
  *  \sa SDL_MaximizeWindow()
@@ -716,7 +716,7 @@ void SDL_MinimizeWindow(SDL_Window * window);
  */
 void SDL_RestoreWindow(SDL_Window * window);
 
-/**
+/*!
  *  \brief Set a window's fullscreen state.
  *
  *  \return 0 on success, or -1 if setting the display mode failed.
@@ -727,7 +727,7 @@ void SDL_RestoreWindow(SDL_Window * window);
 int SDL_SetWindowFullscreen(SDL_Window * window,
 													Uint32 flags);
 
-/**
+/*!
  *  \brief Get the SDL surface associated with the window.
  *
  *  \return The window's framebuffer surface, or NULL on error.
@@ -742,7 +742,7 @@ int SDL_SetWindowFullscreen(SDL_Window * window,
  */
 SDL_Surface * SDL_GetWindowSurface(SDL_Window * window);
 
-/**
+/*!
  *  \brief Copy the window surface to the screen.
  *
  *  \return 0 on success, or -1 on error.
@@ -752,7 +752,7 @@ SDL_Surface * SDL_GetWindowSurface(SDL_Window * window);
  */
 int SDL_UpdateWindowSurface(SDL_Window * window);
 
-/**
+/*!
  *  \brief Copy a number of rectangles on the window surface to the screen.
  *
  *  \return 0 on success, or -1 on error.
@@ -764,7 +764,7 @@ int SDL_UpdateWindowSurfaceRects(SDL_Window * window,
 														 const SDL_Rect * rects,
 														 int numrects);
 
-/**
+/*!
  *  \brief Set a window's input grab mode.
  *
  *  \param window The window for which the input grab mode should be set.
@@ -775,7 +775,7 @@ int SDL_UpdateWindowSurfaceRects(SDL_Window * window,
 void SDL_SetWindowGrab(SDL_Window * window,
 											   SDL_bool grabbed);
 
-/**
+/*!
  *  \brief Get a window's input grab mode.
  *
  *  \return This returns SDL_TRUE if input is grabbed, and SDL_FALSE otherwise.
@@ -784,7 +784,7 @@ void SDL_SetWindowGrab(SDL_Window * window,
  */
 SDL_bool SDL_GetWindowGrab(SDL_Window * window);
 
-/**
+/*!
  *  \brief Set the brightness (gamma correction) for a window.
  *
  *  \return 0 on success, or -1 if setting the brightness isn't supported.
@@ -794,7 +794,7 @@ SDL_bool SDL_GetWindowGrab(SDL_Window * window);
  */
 int SDL_SetWindowBrightness(SDL_Window * window, float brightness);
 
-/**
+/*!
  *  \brief Get the brightness (gamma correction) for a window.
  *
  *  \return The last brightness value passed to SDL_SetWindowBrightness()
@@ -803,7 +803,7 @@ int SDL_SetWindowBrightness(SDL_Window * window, float brightness);
  */
 float SDL_GetWindowBrightness(SDL_Window * window);
 
-/**
+/*!
  *  \brief Set the opacity for a window
  *
  *  \param window The window which will be made transparent or opaque
@@ -816,7 +816,7 @@ float SDL_GetWindowBrightness(SDL_Window * window);
  */
 int SDL_SetWindowOpacity(SDL_Window * window, float opacity);
 
-/**
+/*!
  *  \brief Get the opacity of a window.
  *
  *  If transparency isn't supported on this platform, opacity will be reported
@@ -831,7 +831,7 @@ int SDL_SetWindowOpacity(SDL_Window * window, float opacity);
  */
 int SDL_GetWindowOpacity(SDL_Window * window, float * out_opacity);
 
-/**
+/*!
  *  \brief Sets the window as a modal for another window (TODO: reconsider this function and/or its name)
  *
  *  \param modal_window The window that should be modal
@@ -841,7 +841,7 @@ int SDL_GetWindowOpacity(SDL_Window * window, float * out_opacity);
  */
 int SDL_SetWindowModalFor(SDL_Window * modal_window, SDL_Window * parent_window);
 
-/**
+/*!
  *  \brief Explicitly sets input focus to the window.
  *
  *  You almost certainly want SDL_RaiseWindow() instead of this function. Use
@@ -856,7 +856,7 @@ int SDL_SetWindowModalFor(SDL_Window * modal_window, SDL_Window * parent_window)
 int SDL_SetWindowInputFocus(SDL_Window * window);
 
 
-/**
+/*!
  *  \brief Set the gamma ramp for a window.
  *
  *  \param window The window for which the gamma ramp should be set.
@@ -879,7 +879,7 @@ int SDL_SetWindowGammaRamp(SDL_Window * window,
 												   const Uint16 * green,
 												   const Uint16 * blue);
 
-/**
+/*!
  *  \brief Get the gamma ramp for a window.
  *
  *  \param window The window from which the gamma ramp should be queried.
@@ -899,13 +899,13 @@ int SDL_GetWindowGammaRamp(SDL_Window * window,
 												   Uint16 * green,
 												   Uint16 * blue);
 
-/**
+/*!
  *  \brief Destroy a window.
  */
 void SDL_DestroyWindow(SDL_Window * window);
 
 
-/**
+/*!
  *  \brief Returns whether the screensaver is currently enabled (default on).
  *
  *  \sa SDL_EnableScreenSaver()
@@ -913,7 +913,7 @@ void SDL_DestroyWindow(SDL_Window * window);
  */
 SDL_bool SDL_IsScreenSaverEnabled();
 
-/**
+/*!
  *  \brief Allow the screen to be blanked by a screensaver
  *
  *  \sa SDL_IsScreenSaverEnabled()
@@ -921,7 +921,7 @@ SDL_bool SDL_IsScreenSaverEnabled();
  */
 void SDL_EnableScreenSaver();
 
-/**
+/*!
  *  \brief Prevent the screen from being blanked by a screensaver
  *
  *  \sa SDL_IsScreenSaverEnabled()
@@ -930,12 +930,12 @@ void SDL_EnableScreenSaver();
 void SDL_DisableScreenSaver();
 
 
-/**
+/*!
  *  \name OpenGL support functions
  */
 /* */
 
-/**
+/*!
  *  \brief Dynamically load an OpenGL library.
  *
  *  \param path The platform dependent OpenGL library name, or NULL to open the
@@ -955,36 +955,36 @@ void SDL_DisableScreenSaver();
  */
 int SDL_GL_LoadLibrary(const char *path);
 
-/**
+/*!
  *  \brief Get the address of an OpenGL function.
  */
 void * SDL_GL_GetProcAddress(const char *proc);
 
-/**
+/*!
  *  \brief Unload the OpenGL library previously loaded by SDL_GL_LoadLibrary().
  *
  *  \sa SDL_GL_LoadLibrary()
  */
 void SDL_GL_UnloadLibrary();
 
-/**
+/*!
  *  \brief Return true if an OpenGL extension is supported for the current
  *		 context.
  */
 SDL_bool SDL_GL_ExtensionSupported(const char
 														   *extension);
 
-/**
+/*!
  *  \brief Set an OpenGL window attribute before window creation.
  */
 int SDL_GL_SetAttribute(SDL_GLattr attr, int value);
 
-/**
+/*!
  *  \brief Get the actual value for an attribute from the current context.
  */
 int SDL_GL_GetAttribute(SDL_GLattr attr, int *value);
 
-/**
+/*!
  *  \brief Create an OpenGL context for use with an OpenGL window, and make it
  *		 current.
  *
@@ -993,7 +993,7 @@ int SDL_GL_GetAttribute(SDL_GLattr attr, int *value);
 SDL_GLContext SDL_GL_CreateContext(SDL_Window *
 														   window);
 
-/**
+/*!
  *  \brief Set up an OpenGL context for rendering into an OpenGL window.
  *
  *  \note The context must have been created with a compatible window.
@@ -1001,17 +1001,17 @@ SDL_GLContext SDL_GL_CreateContext(SDL_Window *
 int SDL_GL_MakeCurrent(SDL_Window * window,
 											   SDL_GLContext context);
 
-/**
+/*!
  *  \brief Get the currently active OpenGL window.
  */
 SDL_Window* SDL_GL_GetCurrentWindow();
 
-/**
+/*!
  *  \brief Get the currently active OpenGL context.
  */
 SDL_GLContext SDL_GL_GetCurrentContext();
 
-/**
+/*!
  *  \brief Set the swap interval for the current OpenGL context.
  *
  *  \param interval 0 for immediate updates, 1 for updates synchronized with the
@@ -1025,7 +1025,7 @@ SDL_GLContext SDL_GL_GetCurrentContext();
  */
 int SDL_GL_SetSwapInterval(int interval);
 
-/**
+/*!
  *  \brief Get the swap interval for the current OpenGL context.
  *
  *  \return 0 if there is no vertical retrace synchronization, 1 if the buffer
@@ -1038,13 +1038,13 @@ int SDL_GL_SetSwapInterval(int interval);
  */
 int SDL_GL_GetSwapInterval();
 
-/**
+/*!
  * \brief Swap the OpenGL buffers for a window, if double-buffering is
  *		supported.
  */
 void SDL_GL_SwapWindow(SDL_Window * window);
 
-/**
+/*!
  *  \brief Delete an OpenGL context.
  *
  *  \sa SDL_GL_CreateContext()

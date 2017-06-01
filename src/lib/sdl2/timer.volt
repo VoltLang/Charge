@@ -31,29 +31,29 @@ version (!Windows):
 import lib.sdl2.stdinc;
 import lib.sdl2.error;
 
-/**
+/*!
  * \brief Get the number of milliseconds since the SDL library initialization.
  *
  * \note This value wraps if the program runs for more than ~49 days.
  */
 Uint32  SDL_GetTicks();
 
-/**
+/*!
  * \brief Get the current value of the high resolution counter
  */
 Uint64  SDL_GetPerformanceCounter();
 
-/**
+/*!
  * \brief Get the count per second of the high resolution counter
  */
 Uint64  SDL_GetPerformanceFrequency();
 
-/**
+/*!
  * \brief Wait a specified number of milliseconds before returning.
  */
 void  SDL_Delay(Uint32 ms);
 
-/**
+/*!
  *  Function prototype for the timer callback function.
  *
  *  The callback function is passed the current timer interval and returns
@@ -63,12 +63,12 @@ void  SDL_Delay(Uint32 ms);
  */
 alias SDL_TimerCallback = Uint32 function(Uint32, void*);
 
-/**
+/*!
  * Definition of the timer ID type.
  */
 alias SDL_TimerID = int;
 
-/**
+/*!
  * \brief Add a new timer to the pool of timers already running.
  *
  * \return A timer ID, or NULL when an error occurs.
@@ -77,7 +77,7 @@ SDL_TimerID  SDL_AddTimer(Uint32 interval,
                                                  SDL_TimerCallback callback,
                                                  void *param);
 
-/**
+/*!
  * \brief Remove a timer knowing its ID.
  *
  * \return A boolean value indicating success or failure.

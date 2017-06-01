@@ -8,7 +8,7 @@ import charge.gfx;
 import math = charge.math;
 
 
-/**
+/*!
  * VBO used for boxed base voxels.
  */
 class DagBuffer : GfxBuffer

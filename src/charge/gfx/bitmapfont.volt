@@ -8,7 +8,7 @@ import charge.gfx.draw;
 import charge.gfx.texture;
 
 
-/**
+/*!
  * Texture that can be used for fonts.
  */
 global bitmapTexture: Texture2D;
@@ -25,7 +25,7 @@ struct BitmapState
 enum tabSize = 4;
 
 
-/**
+/*!
  * Computes the size of the bounding box for the given text.
  */
 fn buildSize(ref s: BitmapState, text: scope const(ubyte)[],
@@ -58,7 +58,7 @@ fn buildSize(ref s: BitmapState, text: scope const(ubyte)[],
 	height = cast(uint)((y + 1) * s.glyphHeight);
 }
 
-/**
+/*!
  * Builds the vertices in builder of the given text.
  * Uses quads, so for vertices per glyph.
  */

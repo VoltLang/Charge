@@ -11,7 +11,7 @@ struct InstanceData
 	position, offset: uint;
 }
 
-/**
+/*!
  * VBO with no per vertex data but instead per instance data.
  */
 class InstanceBuffer : GfxBuffer
@@ -64,7 +64,7 @@ struct VisibilityData
 	visibile: int;
 }
 
-/**
+/*!
  * VBO with no per vertex data but instead per instance data.
  */
 class OccludeBuffer : Resource

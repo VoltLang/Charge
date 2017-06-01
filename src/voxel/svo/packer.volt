@@ -1,6 +1,6 @@
 // Copyright © 2016-2017, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Code for packing voxels into a oct-tree.
  */
 module voxel.svo.packer;
@@ -60,7 +60,7 @@ fn repackFrom(ref dst: Input8Cubed, arr: scope Input2Cubed[], start: u32)
 	}
 }
 
-/**
+/*!
  * Packer to randomly add voxels to and then compact into a input buffer.
  */
 struct Packer
@@ -183,10 +183,10 @@ private:
 	}
 }
 
-/// Example custom packer.
+//! Example custom packer.
 struct MyPacker = mixin CustomPacker!(8, Input2Cubed, Input4Cubed);
 
-/**
+/*!
  * Custamizable packer.
  */
 struct CustomPacker!(totalLevels: u32, TOP, BOTTOM)

@@ -10,7 +10,7 @@ import charge.sys.resource;
 import charge.math.color;
 
 
-/**
+/*!
  * VBO used for 2D drawing operations.
  */
 class DrawBuffer : Buffer
@@ -44,7 +44,7 @@ protected:
 }
 
 
-/**
+/*!
  * Shader to be used with the vertex format in this file.
  *
  * It has one shader uniform called 'matrix' that is the.
@@ -52,7 +52,7 @@ protected:
 global drawShader: Shader;
 
 
-/**
+/*!
  * Vertex format.
  */
 struct DrawVertex

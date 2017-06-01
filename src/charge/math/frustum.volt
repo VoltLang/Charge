@@ -1,6 +1,6 @@
 // Copyright © 2011-2017, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for Frustum and Plane.
  */
 module charge.math.frustum;
@@ -10,7 +10,7 @@ import watt.text.format;
 import charge.math.matrix;
 
 
-/**
+/*!
  * 3D Plane uses single precision.
  *
  * @ingroup Math
@@ -36,7 +36,7 @@ public:
 	}
 }
 
-/**
+/*!
  * 3D Plane used by the Frustum struct, double precision.
  *
  * @ingroup Math
@@ -63,7 +63,7 @@ public:
 	}
 }
 
-/**
+/*!
  * Viewing frustum struct for use when doing Frustum
  * culling in the rendering pipeline.
  *

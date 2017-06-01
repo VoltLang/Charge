@@ -43,17 +43,17 @@ enum SDL_RWOPS_JNIFILE   = 3;   /* Android asset */
 enum SDL_RWOPS_MEMORY    = 4;   /* Memory stream */
 enum SDL_RWOPS_MEMORY_RO = 5;   /* Read-Only memory stream */
 
-/**
+/*!
  * This is the read/write operation structure -- very basic.
  */
 struct SDL_RWops
 {
-    /**
+    /*!
      *  Return the size of the file in this rwops, or -1 if unknown
      */
     Sint64 function(SDL_RWops*) size;
 
-    /**
+    /*!
      *  Seek to \c offset relative to \c whence, one of stdio's whence values:
      *  RW_SEEK_SET, RW_SEEK_CUR, RW_SEEK_END
      *
@@ -61,7 +61,7 @@ struct SDL_RWops
      */
     Sint64 function(SDL_RWops*, Sint64, int) seek;
 
-    /**
+    /*!
      *  Read up to \c maxnum objects each of size \c size from the data
      *  stream to the area pointed at by \c ptr.
      *
@@ -69,7 +69,7 @@ struct SDL_RWops
      */
     size_t function(SDL_RWops*, void*, size_t, size_t) read;
 
-    /**
+    /*!
      *  Write exactly \c num objects each of size \c size from the area
      *  pointed at by \c ptr to data stream.
      *
@@ -77,7 +77,7 @@ struct SDL_RWops
      */
     size_t function(SDL_RWops*, const(void)*, size_t, size_t) write;
 
-    /**
+    /*!
      *  Close and free an allocated SDL_RWops structure.
      *
      *  \return 0 if successful or -1 on write error when flushing data.
@@ -89,7 +89,7 @@ struct SDL_RWops
 }
 
 
-/**
+/*!
  *  \name RWFrom functions
  *
  *  Functions to create SDL_RWops structures from various data streams.
@@ -112,11 +112,11 @@ struct SDL_RWops
  SDL_RWops * SDL_AllocRW();
  void  SDL_FreeRW(SDL_RWops * area);
 
-enum RW_SEEK_SET = 0;       /**< Seek from the beginning of data */
-enum RW_SEEK_CUR = 1;      /**< Seek relative to current read point */
-enum RW_SEEK_END = 2;       /**< Seek relative to the end of data */
+enum RW_SEEK_SET = 0;       /*!< Seek from the beginning of data */
+enum RW_SEEK_CUR = 1;      /*!< Seek relative to current read point */
+enum RW_SEEK_END = 2;       /*!< Seek relative to the end of data */
 
-/**
+/*!
  *  \name Read/write macros
  *
  *  Macros to easily read and write from an SDL_RWops structure.
@@ -125,7 +125,7 @@ enum RW_SEEK_END = 2;       /**< Seek relative to the end of data */
 /* *//*Read/write macros*/
 
 
-/**
+/*!
  *  \name Read endian functions
  *
  *  Read an item of the specified endianness and return in native format.
@@ -140,7 +140,7 @@ enum RW_SEEK_END = 2;       /**< Seek relative to the end of data */
  Uint64  SDL_ReadBE64(SDL_RWops * src);
 /* *//*Read endian functions*/
 
-/**
+/*!
  *  \name Write endian functions
  *
  *  Write an item of native format to the specified endianness.

@@ -34,7 +34,7 @@ import lib.sdl2.rect;
 import lib.sdl2.blendmode;
 import lib.sdl2.rwops;
 
-/**
+/*!
  *  \name Surface flags
  *
  *  These are the currently supported flags for the ::SDL_Surface.
@@ -49,12 +49,12 @@ enum SDL_RLEACCEL = 0x00000002;
 enum SDL_DONTFREE = 0x00000004;
 /* *//*Surface flags*/
 
-/**
+/*!
  *  Evaluates to true if the surface needs to be locked before access.
  */
 @property bool SDL_MUSTLOCK(SDL_Surface* s) { return (s.flags & SDL_RLEACCEL) != 0; }
 
-/**
+/*!
  * \brief A collection of pixels used in software blitting.
  *
  * \note  This structure should be treated as read-only, except for \c pixels,
@@ -68,30 +68,30 @@ struct SDL_Surface
     int pitch;                  /*< Read-only */
     void *pixels;               /*< Read-write */
 
-    /** Application data associated with the surface */
+    /*! Application data associated with the surface */
     void *userdata;             /*< Read-write */
 
-    /** information needed for surfaces requiring locks */
+    /*! information needed for surfaces requiring locks */
     int locked;                 /*< Read-only */
     void *lock_data;            /*< Read-only */
 
-    /** clipping information */
+    /*! clipping information */
     SDL_Rect clip_rect;         /*< Read-only */
 
-    /** info for fast blit mapping to other surfaces */
+    /*! info for fast blit mapping to other surfaces */
     void *map;    /*< Private */
 
-    /** Reference count -- used when freeing surface */
+    /*! Reference count -- used when freeing surface */
     int refcount;               /*< Read-mostly */
 }
 
-/**
+/*!
  * \brief The type of function used for surface blitting functions.
  */
 alias SDL_blit = int function(SDL_Surface * src, SDL_Rect * srcrect,
                          SDL_Surface * dst, SDL_Rect * dstrect);
 
-/**
+/*!
  *  Allocate and free an RGB surface.
  *
  *  If the depth is 4 or 8 bits, an empty palette is allocated for the surface.
@@ -127,7 +127,7 @@ SDL_Surface * SDL_CreateRGBSurfaceWithFormatFrom
     (void *pixels, int width, int height, int depth, int pitch, Uint32 format);
  void  SDL_FreeSurface(SDL_Surface * surface);
 
-/**
+/*!
  *  \brief Set the palette used by a surface.
  *
  *  \return 0, or -1 if the surface format doesn't use a palette.
@@ -137,7 +137,7 @@ SDL_Surface * SDL_CreateRGBSurfaceWithFormatFrom
  int  SDL_SetSurfacePalette(SDL_Surface * surface,
                                                   SDL_Palette * palette);
 
-/**
+/*!
  *  \brief Sets up a surface for directly accessing the pixels.
  *
  *  Between calls to SDL_LockSurface() / SDL_UnlockSurface(), you can write
@@ -157,10 +157,10 @@ SDL_Surface * SDL_CreateRGBSurfaceWithFormatFrom
  *  \sa SDL_UnlockSurface()
  */
  int  SDL_LockSurface(SDL_Surface * surface);
-/** \sa SDL_LockSurface() */
+/*! \sa SDL_LockSurface() */
  void  SDL_UnlockSurface(SDL_Surface * surface);
 
-/**
+/*!
  *  Load a surface from a seekable SDL data stream (memory or file).
  *
  *  If \c freesrc is non-zero, the stream will be closed after being read.
@@ -172,7 +172,7 @@ SDL_Surface * SDL_CreateRGBSurfaceWithFormatFrom
  SDL_Surface * SDL_LoadBMP_RW(SDL_RWops * src,
                                                     int freesrc);
 
-/**
+/*!
  *  Load a surface from a file.
  *
  *  Convenience macro.
@@ -182,7 +182,7 @@ SDL_Surface* SDL_LoadBMP(const(char)* s)
     return SDL_LoadBMP_RW(SDL_RWFromFile(s, "rb".ptr), 1);
 }
 
-/**
+/*!
  *  Save a surface to a seekable SDL data stream (memory or file).
  *
  *  If \c freedst is non-zero, the stream will be closed after being written.
@@ -192,7 +192,7 @@ SDL_Surface* SDL_LoadBMP(const(char)* s)
  int  SDL_SaveBMP_RW
     (SDL_Surface * surface, SDL_RWops * dst, int freedst);
 
-/**
+/*!
  *  Save a surface to a file.
  *
  *  Convenience macro.
@@ -202,7 +202,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
     return SDL_SaveBMP_RW(surface, SDL_RWFromFile(s, "wb".ptr), 1);
 }
 
-/**
+/*!
  *  \brief Sets the RLE acceleration hint for a surface.
  *
  *  \return 0 on success, or -1 if the surface is not valid
@@ -213,7 +213,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
  int  SDL_SetSurfaceRLE(SDL_Surface * surface,
                                               int flag);
 
-/**
+/*!
  *  \brief Sets the color key (transparent pixel) in a blittable surface.
  *
  *  \param surface The surface to update
@@ -227,7 +227,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
  int  SDL_SetColorKey(SDL_Surface * surface,
                                             int flag, Uint32 key);
 
-/**
+/*!
  *  \brief Gets the color key (transparent pixel) in a blittable surface.
  *
  *  \param surface The surface to update
@@ -240,7 +240,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
  int  SDL_GetColorKey(SDL_Surface * surface,
                                             Uint32 * key);
 
-/**
+/*!
  *  \brief Set an additional color value used in blit operations.
  *
  *  \param surface The surface to update.
@@ -256,7 +256,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
                                                    Uint8 r, Uint8 g, Uint8 b);
 
 
-/**
+/*!
  *  \brief Get the additional color value used in blit operations.
  *
  *  \param surface The surface to query.
@@ -272,7 +272,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
                                                    Uint8 * r, Uint8 * g,
                                                    Uint8 * b);
 
-/**
+/*!
  *  \brief Set an additional alpha value used in blit operations.
  *
  *  \param surface The surface to update.
@@ -285,7 +285,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
  int  SDL_SetSurfaceAlphaMod(SDL_Surface * surface,
                                                    Uint8 alpha);
 
-/**
+/*!
  *  \brief Get the additional alpha value used in blit operations.
  *
  *  \param surface The surface to query.
@@ -298,7 +298,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
  int  SDL_GetSurfaceAlphaMod(SDL_Surface * surface,
                                                    Uint8 * alpha);
 
-/**
+/*!
  *  \brief Set the blend mode used for blit operations.
  *
  *  \param surface The surface to update.
@@ -311,7 +311,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
  int  SDL_SetSurfaceBlendMode(SDL_Surface * surface,
                                                     SDL_BlendMode blendMode);
 
-/**
+/*!
  *  \brief Get the blend mode used for blit operations.
  *
  *  \param surface   The surface to query.
@@ -324,7 +324,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
  int  SDL_GetSurfaceBlendMode(SDL_Surface * surface,
                                                     SDL_BlendMode *blendMode);
 
-/**
+/*!
  *  Sets the clipping rectangle for the destination surface in a blit.
  *
  *  If the clip rectangle is NULL, clipping will be disabled.
@@ -340,7 +340,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
  SDL_bool  SDL_SetClipRect(SDL_Surface * surface,
                                                  const SDL_Rect * rect);
 
-/**
+/*!
  *  Gets the clipping rectangle for the destination surface in a blit.
  *
  *  \c rect must be a pointer to a valid rectangle which will be filled
@@ -349,7 +349,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
  void  SDL_GetClipRect(SDL_Surface * surface,
                                              SDL_Rect * rect);
 
-/**
+/*!
  *  Creates a new surface of the specified format, and then copies and maps
  *  the given surface to it so the blit of the converted surface will be as
  *  fast as possible.  If this function fails, it returns NULL.
@@ -364,7 +364,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
  SDL_Surface * SDL_ConvertSurfaceFormat
     (SDL_Surface * src, Uint32 pixel_format, Uint32 flags);
 
-/**
+/*!
  * \brief Copy a block of pixels of one format to another format
  *
  *  \return 0 on success, or -1 if there was an error
@@ -375,7 +375,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
                                               Uint32 dst_format,
                                               void * dst, int dst_pitch);
 
-/**
+/*!
  *  Performs a fast fill of the given rectangle with \c color.
  *
  *  If \c rect is NULL, the whole surface will be filled with \c color.
@@ -390,7 +390,7 @@ int SDL_SaveBMP(SDL_Surface* surface, const(char)* s)
  int  SDL_FillRects
     (SDL_Surface * dst, const SDL_Rect * rects, int count, Uint32 color);
 
-/**
+/*!
  *  Performs a fast blit from the source surface to the destination surface.
  *
  *  This assumes that the source and destination rectangles are
@@ -454,7 +454,7 @@ int SDL_BlitSurface(SDL_Surface* a, const SDL_Rect* b, SDL_Surface* c, SDL_Rect*
     return SDL_UpperBlit(a, b, c, d);
 }
 
-/**
+/*!
  *  This is the public blit function, SDL_BlitSurface(), and it performs
  *  rectangle validation and clipping before passing it to SDL_LowerBlit()
  */
@@ -462,7 +462,7 @@ int SDL_BlitSurface(SDL_Surface* a, const SDL_Rect* b, SDL_Surface* c, SDL_Rect*
     (SDL_Surface * src, const SDL_Rect * srcrect,
      SDL_Surface * dst, SDL_Rect * dstrect);
 
-/**
+/*!
  *  This is a semi-private blit function and it performs low-level surface
  *  blitting only.
  */
@@ -470,7 +470,7 @@ int SDL_BlitSurface(SDL_Surface* a, const SDL_Rect* b, SDL_Surface* c, SDL_Rect*
     (SDL_Surface * src, SDL_Rect * srcrect,
      SDL_Surface * dst, SDL_Rect * dstrect);
 
-/**
+/*!
  *  \brief Perform a fast, low quality, stretch blit between two surfaces of the
  *         same pixel format.
  *
@@ -486,7 +486,7 @@ int SDL_BlitScaled(SDL_Surface* a, const SDL_Rect* b, SDL_Surface* c, SDL_Rect* 
     return SDL_UpperBlitScaled(a, b, c, d);
 }
 
-/**
+/*!
  *  This is the public scaled blit function, SDL_BlitScaled(), and it performs
  *  rectangle validation and clipping before passing it to SDL_LowerBlitScaled()
  */
@@ -494,7 +494,7 @@ int SDL_BlitScaled(SDL_Surface* a, const SDL_Rect* b, SDL_Surface* c, SDL_Rect* 
     (SDL_Surface * src, const SDL_Rect * srcrect,
     SDL_Surface * dst, SDL_Rect * dstrect);
 
-/**
+/*!
  *  This is a semi-private blit function and it performs low-level surface
  *  scaled blitting only.
  */

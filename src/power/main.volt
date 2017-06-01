@@ -49,7 +49,7 @@ public:
 	 *
 	 */
 
-	/// Absolute minimum required.
+	//! Absolute minimum required.
 	fn checkVersion()
 	{
 		// For texture functions.

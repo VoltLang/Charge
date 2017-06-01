@@ -42,14 +42,14 @@ import core.varargs;
 
 import lib.sdl2.stdinc;
 
-/**
+/*!
  *  \brief The maximum size of a log message
  *
  *  Messages longer than the maximum size will be truncated
  */
 enum SDL_MAX_LOG_MESSAGE = 4096;
 
-/**
+/*!
  *  \brief The predefined log categories
  *
  *  By default the application category is enabled at the INFO level,
@@ -92,7 +92,7 @@ enum
     SDL_LOG_CATEGORY_CUSTOM
 }
 
-/**
+/*!
  *  \brief The predefined log priorities
  */
 alias SDL_LogPriority = int;
@@ -108,89 +108,89 @@ enum : SDL_LogPriority
 }
 
 
-/**
+/*!
  *  \brief Set the priority of all log categories
  */
 void SDL_LogSetAllPriority(SDL_LogPriority priority);
 
-/**
+/*!
  *  \brief Set the priority of a particular log category
  */
 void SDL_LogSetPriority(int category,
                                                 SDL_LogPriority priority);
 
-/**
+/*!
  *  \brief Get the priority of a particular log category
  */
 SDL_LogPriority SDL_LogGetPriority(int category);
 
-/**
+/*!
  *  \brief Reset all priorities to default.
  *
  *  \note This is called in SDL_Quit().
  */
 void SDL_LogResetPriorities();
 
-/**
+/*!
  *  \brief Log a message with SDL_LOG_CATEGORY_APPLICATION and SDL_LOG_PRIORITY_INFO
  */
 void SDL_Log(const char *fmt, ...);
 
-/**
+/*!
  *  \brief Log a message with SDL_LOG_PRIORITY_VERBOSE
  */
 void SDL_LogVerbose(int category, const char *fmt, ...);
 
-/**
+/*!
  *  \brief Log a message with SDL_LOG_PRIORITY_DEBUG
  */
 void SDL_LogDebug(int category, const char *fmt, ...);
 
-/**
+/*!
  *  \brief Log a message with SDL_LOG_PRIORITY_INFO
  */
 void SDL_LogInfo(int category, const char *fmt, ...);
 
-/**
+/*!
  *  \brief Log a message with SDL_LOG_PRIORITY_WARN
  */
 void SDL_LogWarn(int category, const char *fmt, ...);
 
-/**
+/*!
  *  \brief Log a message with SDL_LOG_PRIORITY_ERROR
  */
 void SDL_LogError(int category, const char *fmt, ...);
 
-/**
+/*!
  *  \brief Log a message with SDL_LOG_PRIORITY_CRITICAL
  */
 void SDL_LogCritical(int category, const char *fmt, ...);
 
-/**
+/*!
  *  \brief Log a message with the specified category and priority.
  */
 void SDL_LogMessage(int category,
                                             SDL_LogPriority priority,
                                             const char *fmt, ...);
 
-/**
+/*!
  *  \brief Log a message with the specified category and priority.
  */
 void SDL_LogMessageV(int category,
                                              SDL_LogPriority priority,
                                              const char *fmt, va_list ap);
 
-/**
+/*!
  *  \brief The prototype for the log output function
  */
 alias SDL_LogOutputFunction = void function(void*, int, SDL_LogPriority, const(char)*);
 
-/**
+/*!
  *  \brief Get the current log output function.
  */
 void SDL_LogGetOutputFunction(SDL_LogOutputFunction *callback, void **userdata);
 
-/**
+/*!
  *  \brief This function allows you to replace the default log output
  *         function with one of your own.
  */

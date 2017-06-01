@@ -1,6 +1,6 @@
 // Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for calculating a average over time.
  */
 module charge.math.average;

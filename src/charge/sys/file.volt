@@ -1,6 +1,6 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for Resource and Pool.
  */
 module charge.sys.file;
@@ -15,7 +15,7 @@ import charge.sys.memory;
 import charge.sys.resource;
 
 
-/**
+/*!
  * A single File from the file system or a zip file.
  *
  * Right now very stupid.

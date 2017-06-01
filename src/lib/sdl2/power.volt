@@ -31,7 +31,7 @@ version (!Windows):
 
 import lib.sdl2.stdinc;
 
-/**
+/*!
  *  \brief The basic state for the system's power supply.
  */
 alias SDL_PowerState = int;
@@ -45,7 +45,7 @@ enum : SDL_PowerState
 }
 
 
-/**
+/*!
  *  \brief Get the current power supply details.
  *
  *  \param secs Seconds of battery life left. You can pass a NULL here if

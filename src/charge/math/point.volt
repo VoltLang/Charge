@@ -1,6 +1,6 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for Point3f.
  */
 module charge.math.point;
@@ -9,7 +9,7 @@ import watt.text.format;
 import charge.math.vector;
 
 
-/**
+/*!
  * Point in 3D space.
  *
  * @ingroup Math

@@ -1,6 +1,6 @@
 // Copyright © 2016-2017, Jakob Bornecrantz.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * A simple buddy allocator, only does tracking of which blocks are free
  */
 module voxel.svo.buddy;
@@ -36,7 +36,7 @@ fn orderToSize(order: u8) size_t
 }
 
 
-/**
+/*!
  * Buddy allocator template with adjustable size and internal element
  * representation.
  */

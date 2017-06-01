@@ -1,6 +1,6 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for Resource and Pool.
  */
 module charge.sys.resource;
@@ -10,7 +10,7 @@ import core.typeinfo;
 import charge.sys.memory;
 
 
-/**
+/*!
  * Reference base class for all Resources.
  *
  * @ingroup Resource
@@ -85,7 +85,7 @@ public:
 }
 
 
-/**
+/*!
  * Pool for named resources.
  *
  * @ingroup Resource

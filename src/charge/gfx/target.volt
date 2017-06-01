@@ -1,6 +1,6 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/licence.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for Target(s), that is FBO's and DefaultTarget.
  */
 module charge.gfx.target;
@@ -13,7 +13,7 @@ import charge.math.matrix;
 
 import watt.io;
 
-/**
+/*!
  * Base texture class.
  */
 abstract class Target : Resource

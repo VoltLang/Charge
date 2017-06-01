@@ -1,6 +1,6 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for Matrix4x4d.
  */
 module charge.math.matrix;
@@ -136,7 +136,7 @@ public:
 		u.a[15] = 1.0;
 	}
 
-	/**
+	/*!
 	 * Sets the matrix to a lookAt matrix looking at eye + rot * forward.
 	 *
 	 * Similar to gluLookAt.
@@ -173,7 +173,7 @@ public:
 		u.m[3][3] = 1.0;
 	}
 
-	/**
+	/*!
 	 * Sets the matrix to the same as gluPerspective does.
 	 */
 	fn setToPerspective(fovy: f64, aspect: f64, near: f64, far: f64)

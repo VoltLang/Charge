@@ -1,7 +1,7 @@
 // See copyright just below.
 module charge.license;
 
-/**
+/*!
  * This is the license for Charge.
  */
 enum string license = `

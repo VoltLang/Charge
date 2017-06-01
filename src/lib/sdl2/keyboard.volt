@@ -34,7 +34,7 @@ import lib.sdl2.keycode;
 import lib.sdl2.video;
 import lib.sdl2.rect;
 
-/**
+/*!
  *  \brief The SDL keysym structure, used in key events.
  *
  *  \note  If you are looking for translated character input, see the ::SDL_TEXTINPUT event.
@@ -49,12 +49,12 @@ struct SDL_Keysym
 
 /* Function prototypes */
 
-/**
+/*!
  *  \brief Get the window which currently has keyboard focus.
  */
 SDL_Window *  SDL_GetKeyboardFocus();
 
-/**
+/*!
  *  \brief Get a snapshot of the current state of the keyboard.
  *
  *  \param numkeys if non-NULL, receives the length of the returned array.
@@ -71,19 +71,19 @@ SDL_Window *  SDL_GetKeyboardFocus();
  */
 const Uint8 * SDL_GetKeyboardState(int *numkeys);
 
-/**
+/*!
  *  \brief Get the current key modifier state for the keyboard.
  */
 SDL_Keymod  SDL_GetModState();
 
-/**
+/*!
  *  \brief Set the current key modifier state for the keyboard.
  *
  *  \note This does not change the keyboard state, only the key modifier flags.
  */
 void  SDL_SetModState(SDL_Keymod modstate);
 
-/**
+/*!
  *  \brief Get the key code corresponding to the given scancode according
  *         to the current keyboard layout.
  *
@@ -93,7 +93,7 @@ void  SDL_SetModState(SDL_Keymod modstate);
  */
 SDL_Keycode  SDL_GetKeyFromScancode(SDL_Scancode scancode);
 
-/**
+/*!
  *  \brief Get the scancode corresponding to the given key code according to the
  *         current keyboard layout.
  *
@@ -103,7 +103,7 @@ SDL_Keycode  SDL_GetKeyFromScancode(SDL_Scancode scancode);
  */
 SDL_Scancode  SDL_GetScancodeFromKey(SDL_Keycode key);
 
-/**
+/*!
  *  \brief Get a human-readable name for a scancode.
  *
  *  \return A pointer to the name for the scancode.
@@ -114,7 +114,7 @@ SDL_Scancode  SDL_GetScancodeFromKey(SDL_Keycode key);
  */
 const char * SDL_GetScancodeName(SDL_Scancode scancode);
 
-/**
+/*!
  *  \brief Get a scancode from a human-readable name
  *
  *  \return scancode, or SDL_SCANCODE_UNKNOWN if the name wasn't recognized
@@ -123,7 +123,7 @@ const char * SDL_GetScancodeName(SDL_Scancode scancode);
  */
 SDL_Scancode  SDL_GetScancodeFromName(const char *name);
 
-/**
+/*!
  *  \brief Get a human-readable name for a key.
  *
  *  \return A pointer to a UTF-8 string that stays valid at least until the next
@@ -135,7 +135,7 @@ SDL_Scancode  SDL_GetScancodeFromName(const char *name);
  */
 const char * SDL_GetKeyName(SDL_Keycode key);
 
-/**
+/*!
  *  \brief Get a key code from a human-readable name
  *
  *  \return key code, or SDLK_UNKNOWN if the name wasn't recognized
@@ -144,7 +144,7 @@ const char * SDL_GetKeyName(SDL_Keycode key);
  */
 SDL_Keycode  SDL_GetKeyFromName(const char *name);
 
-/**
+/*!
  *  \brief Start accepting Unicode text input events.
  *         This function will show the on-screen keyboard if supported.
  *
@@ -154,7 +154,7 @@ SDL_Keycode  SDL_GetKeyFromName(const char *name);
  */
 void  SDL_StartTextInput();
 
-/**
+/*!
  *  \brief Return whether or not Unicode text input events are enabled.
  *
  *  \sa SDL_StartTextInput()
@@ -162,7 +162,7 @@ void  SDL_StartTextInput();
  */
 SDL_bool  SDL_IsTextInputActive();
 
-/**
+/*!
  *  \brief Stop receiving any text input events.
  *         This function will hide the on-screen keyboard if supported.
  *
@@ -171,7 +171,7 @@ SDL_bool  SDL_IsTextInputActive();
  */
 void  SDL_StopTextInput();
 
-/**
+/*!
  *  \brief Set the rectangle used to type Unicode text inputs.
  *         This is used as a hint for IME and on-screen keyboard placement.
  *
@@ -179,7 +179,7 @@ void  SDL_StopTextInput();
  */
 void  SDL_SetTextInputRect(SDL_Rect *rect);
 
-/**
+/*!
  *  \brief Returns whether the platform has some screen keyboard support.
  *
  *  \return SDL_TRUE if some keyboard support is available else SDL_FALSE.
@@ -190,7 +190,7 @@ void  SDL_SetTextInputRect(SDL_Rect *rect);
  */
 SDL_bool  SDL_HasScreenKeyboardSupport();
 
-/**
+/*!
  *  \brief Returns whether the screen keyboard is shown for given window.
  *
  *  \param window The window for which screen keyboard should be queried.

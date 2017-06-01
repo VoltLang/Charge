@@ -45,7 +45,7 @@ struct SDL_assert_data
 
 alias SDL_AssertionHandler = SDL_assert_state function(in SDL_assert_data*, void*);
 
-/**
+/*!
  *  \brief Set an application-defined assertion handler.
  *
  *  This allows an app to show its own assertion UI and/or force the
@@ -69,7 +69,7 @@ void  SDL_SetAssertionHandler(
                                             SDL_AssertionHandler handler,
                                             void *userdata);
 
-/**
+/*!
  *  \brief Get a list of all assertion failures.
  *
  *  Get all assertions triggered since last call to SDL_ResetAssertionReport(),
@@ -93,7 +93,7 @@ void  SDL_SetAssertionHandler(
  */
 const SDL_assert_data *  SDL_GetAssertionReport();
 
-/**
+/*!
  *  \brief Reset the list of all assertion failures.
  *
  *  Reset list of all assertions triggered.

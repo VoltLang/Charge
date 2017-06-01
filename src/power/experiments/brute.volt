@@ -39,13 +39,13 @@ public:
 	queryInFlight: bool;
 
 
-	/**
+	/*!
 	 * For ray tracing.
 	 * @{
 	 */
 	octBuffer: GLuint;
 	octTexture: GLuint;
-	/**
+	/*!
 	 * @}
 	 */
 
@@ -254,7 +254,7 @@ struct IndirectData
 	baseInstance: GLuint;
 }
 
-/**
+/*!
  * Inderect buffer used for drawing.
  */
 class IndirectBuffer : Resource
@@ -310,7 +310,7 @@ struct InstanceData
 	position, offset: u32;
 }
 
-/**
+/*!
  * VBO used for boxed base voxels.
  */
 class DagBuffer : GfxBuffer

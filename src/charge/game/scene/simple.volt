@@ -1,6 +1,6 @@
 // Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for SimpleScene, helper default implementation.
  */
 module charge.game.scene.simple;
@@ -10,7 +10,7 @@ import charge.gfx;
 import charge.game.scene.scene;
 
 
-/**
+/*!
  * Helper that, implements all of the functions on Scene.
  */
 abstract class SimpleScene : Scene

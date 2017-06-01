@@ -32,21 +32,21 @@ import lib.sdl2.stdinc;
 
 /* Function prototypes */
 
-/**
+/*!
  * \brief Put UTF-8 text into the clipboard
  *
  * \sa SDL_GetClipboardText()
  */
 int SDL_SetClipboardText(const char *text);
 
-/**
+/*!
  * \brief Get UTF-8 text from the clipboard, which must be freed with SDL_free()
  *
  * \sa SDL_SetClipboardText()
  */
 char * SDL_GetClipboardText();
 
-/**
+/*!
  * \brief Returns a flag indicating whether the clipboard exists and contains a text string that is non-empty
  *
  * \sa SDL_GetClipboardText()

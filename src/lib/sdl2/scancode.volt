@@ -29,7 +29,7 @@ extern (C):
 
 import lib.sdl2.stdinc;
 
-/**
+/*!
  *  \brief The SDL keyboard scancode representation.
  *
  *  Values of this type are used to represent keyboard keys, among other places

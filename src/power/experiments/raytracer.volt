@@ -87,13 +87,13 @@ public:
 	animate: bool;
 
 
-	/**
+	/*!
 	 * For ray tracing.
 	 * @{
 	 */
 	octBuffer: GLuint;
 	octTexture: GLuint;
-	/**
+	/*!
 	 * @}
 	 */
 

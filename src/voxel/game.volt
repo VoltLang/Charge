@@ -179,7 +179,7 @@ public:
 		return true;
 	}
 
-	/// Absolute minimum required.
+	//! Absolute minimum required.
 	fn checkVersion() bool
 	{
 		// Need OpenGL 4.5 now.

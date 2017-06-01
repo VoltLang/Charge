@@ -41,7 +41,7 @@ version (!Windows):
 
 import lib.sdl2.stdinc;
 
-/**
+/*!
  *  \brief  A variable controlling how 3D acceleration is used to accelerate the SDL screen surface.
  *
  *  SDL can try to accelerate the SDL screen surface by using streaming
@@ -58,7 +58,7 @@ import lib.sdl2.stdinc;
  */
 enum SDL_HINT_FRAMEBUFFER_ACCELERATION = "SDL_FRAMEBUFFER_ACCELERATION";
 
-/**
+/*!
  *  \brief  A variable specifying which render driver to use.
  *
  *  If the application doesn't pick a specific renderer to use, this variable
@@ -77,7 +77,7 @@ enum SDL_HINT_FRAMEBUFFER_ACCELERATION = "SDL_FRAMEBUFFER_ACCELERATION";
  */
 enum SDL_HINT_RENDER_DRIVER = "SDL_RENDER_DRIVER";
 
-/**
+/*!
  *  \brief  A variable controlling whether the OpenGL render driver uses shaders if they are available.
  *
  *  This variable can be set to the following values:
@@ -88,7 +88,7 @@ enum SDL_HINT_RENDER_DRIVER = "SDL_RENDER_DRIVER";
  */
 enum SDL_HINT_RENDER_OPENGL_SHADERS = "SDL_RENDER_OPENGL_SHADERS";
 
-/**
+/*!
  *  \brief  A variable controlling the scaling quality
  *
  *  This variable can be set to the following values:
@@ -100,7 +100,7 @@ enum SDL_HINT_RENDER_OPENGL_SHADERS = "SDL_RENDER_OPENGL_SHADERS";
  */
 enum SDL_HINT_RENDER_SCALE_QUALITY = "SDL_RENDER_SCALE_QUALITY";
 
-/**
+/*!
  *  \brief  A variable controlling whether updates to the SDL screen surface should be synchronized with the vertical refresh, to avoid tearing.
  *
  *  This variable can be set to the following values:
@@ -111,7 +111,7 @@ enum SDL_HINT_RENDER_SCALE_QUALITY = "SDL_RENDER_SCALE_QUALITY";
  */
 enum SDL_HINT_RENDER_VSYNC = "SDL_RENDER_VSYNC";
 
-/**
+/*!
  *  \brief  A variable controlling whether the X11 VidMode extension should be used.
  *
  *  This variable can be set to the following values:
@@ -122,7 +122,7 @@ enum SDL_HINT_RENDER_VSYNC = "SDL_RENDER_VSYNC";
  */
 enum SDL_HINT_VIDEO_X11_XVIDMODE = "SDL_VIDEO_X11_XVIDMODE";
 
-/**
+/*!
  *  \brief  A variable controlling whether the X11 Xinerama extension should be used.
  *
  *  This variable can be set to the following values:
@@ -133,7 +133,7 @@ enum SDL_HINT_VIDEO_X11_XVIDMODE = "SDL_VIDEO_X11_XVIDMODE";
  */
 enum SDL_HINT_VIDEO_X11_XINERAMA = "SDL_VIDEO_X11_XINERAMA";
 
-/**
+/*!
  *  \brief  A variable controlling whether the X11 XRandR extension should be used.
  *
  *  This variable can be set to the following values:
@@ -144,7 +144,7 @@ enum SDL_HINT_VIDEO_X11_XINERAMA = "SDL_VIDEO_X11_XINERAMA";
  */
 enum SDL_HINT_VIDEO_X11_XRANDR = "SDL_VIDEO_X11_XRANDR";
 
-/**
+/*!
  *  \brief  A variable controlling whether grabbing input grabs the keyboard
  *
  *  This variable can be set to the following values:
@@ -155,14 +155,14 @@ enum SDL_HINT_VIDEO_X11_XRANDR = "SDL_VIDEO_X11_XRANDR";
  */
 enum SDL_HINT_GRAB_KEYBOARD = "SDL_GRAB_KEYBOARD";
 
-/**
+/*!
  *  \brief Minimize your SDL_Window if it loses key focus when in Fullscreen mode. Defaults to true.
  *
  */
 enum SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS = "SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS";
 
 
-/**
+/*!
  *  \brief  A variable controlling whether the idle timer is disabled on iOS.
  *
  *  When an iOS app does not receive touches for some time, the screen is
@@ -176,7 +176,7 @@ enum SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS = "SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS";
  */
 enum SDL_HINT_IDLE_TIMER_DISABLED = "SDL_IOS_IDLE_TIMER_DISABLED";
 
-/**
+/*!
  *  \brief  A variable controlling which orientations are allowed on iOS.
  *
  *  In some circumstances it is necessary to be able to explicitly control
@@ -188,7 +188,7 @@ enum SDL_HINT_IDLE_TIMER_DISABLED = "SDL_IOS_IDLE_TIMER_DISABLED";
 enum SDL_HINT_ORIENTATIONS = "SDL_IOS_ORIENTATIONS";
 
 
-/**
+/*!
  *  \brief  A variable that lets you disable the detection and use of Xinput gamepad devices
  *
  *  The variable can be set to the following values:
@@ -198,7 +198,7 @@ enum SDL_HINT_ORIENTATIONS = "SDL_IOS_ORIENTATIONS";
 enum SDL_HINT_XINPUT_ENABLED = "SDL_XINPUT_ENABLED";
 
 
-/**
+/*!
  *  \brief  A variable that lets you manually hint extra gamecontroller db entries
  *
  *  The variable should be newline delimited rows of gamecontroller config data, see SDL_gamecontroller.h
@@ -209,7 +209,7 @@ enum SDL_HINT_XINPUT_ENABLED = "SDL_XINPUT_ENABLED";
 enum SDL_HINT_GAMECONTROLLERCONFIG = "SDL_GAMECONTROLLERCONFIG";
 
 
-/**
+/*!
  *  \brief  A variable that lets you enable joystick (and gamecontroller) events even when your app is in the background.
  *
  * The default value is "0".
@@ -223,7 +223,7 @@ enum SDL_HINT_GAMECONTROLLERCONFIG = "SDL_GAMECONTROLLERCONFIG";
 enum SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS = "SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS";
 
 
-/**
+/*!
  *  \brief If set to 0 then never set the top most bit on a SDL Window, even if the video mode expects it.
  *      This is a debugging aid for developers and not expected to be used by end users. The default is "1"
  *
@@ -235,7 +235,7 @@ enum SDL_HINT_ALLOW_TOPMOST = "SDL_ALLOW_TOPMOST";
 
 
 
-/**
+/*!
  *  \brief  An enumeration of hint priorities
  */
 alias SDL_HintPriority = int;
@@ -247,7 +247,7 @@ enum : SDL_HintPriority
 } 
 
 
-/**
+/*!
  *  \brief Set a hint with a specific priority
  *
  *  The priority controls the behavior when setting a hint that already
@@ -260,7 +260,7 @@ enum : SDL_HintPriority
                                                          const char *value,
                                                          SDL_HintPriority priority);
 
-/**
+/*!
  *  \brief Set a hint with normal priority
  *
  *  \return SDL_TRUE if the hint was set, SDL_FALSE otherwise
@@ -269,21 +269,21 @@ enum : SDL_HintPriority
                                              const char *value);
 
 
-/**
+/*!
  *  \brief Get a hint
  *
  *  \return The string value of a hint variable.
  */
  const char *  SDL_GetHint(const char *name);
 
-/**
+/*!
  *  \brief Get a hint
  *
  *  \return The boolean value of a hint variable.
  */
 SDL_bool SDL_GetHintBoolean(const char *name, SDL_bool default_value);
 
-/**
+/*!
  *  \brief  Clear all hints
  *
  *  This function is called during SDL_Quit() to free stored hints.

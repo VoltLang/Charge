@@ -1,6 +1,6 @@
 // Copyright © 2012-2017, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for syncing with the gpu.
  */
 module charge.gfx.sync;
@@ -8,7 +8,7 @@ module charge.gfx.sync;
 import charge.gfx.gl;
 
 
-/**
+/*!
  * Sync object.
  *
  * Prefix already added.
@@ -20,7 +20,7 @@ private:
 
 
 public:
-	/**
+	/*!
 	 * Insert a sync object into the GPU command stream.
 	 */
 	local fn insert() Sync
@@ -34,7 +34,7 @@ public:
 		return sync;
 	}
 
-	/**
+	/*!
 	 * Sync with the gpu and delete sync object or timeout happens, in milliseconds.
 	 */
 	fn waitAndDelete(ref sync: Sync, timeout: i64) bool
@@ -64,7 +64,7 @@ public:
 		}
 	}
 
-	/**
+	/*!
 	 * Delete a sync object.
 	 */
 	fn close(ref sync: Sync)

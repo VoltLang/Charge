@@ -15,7 +15,7 @@ import voxel.svo.design;
 import voxel.svo.shaders;
 
 
-/**
+/*!
  * Input to the draw call that renders the SVO.
  */
 struct Draw
@@ -27,7 +27,7 @@ struct Draw
 	frame, targetWidth, targetHeight: u32; fov: f32;
 }
 
-/**
+/*!
  * A single SVO rendering pipeline.
  */
 class Pipeline

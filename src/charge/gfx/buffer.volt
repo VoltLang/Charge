@@ -86,7 +86,7 @@ public:
 	}
 }
 
-/**
+/*!
  * Follows the OpenGL spec for input to draw arrays indirection fuctions.
  *
  * glDrawArraysIndirect
@@ -100,7 +100,7 @@ struct IndirectData
 	baseInstance: GLuint;
 }
 
-/**
+/*!
  * Inderect buffer for use with OpenGL darw arrays indirect functions.
  *
  * glDrawArraysIndirect

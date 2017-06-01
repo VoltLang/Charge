@@ -38,7 +38,7 @@ alias SDL_GestureID = Sint64;
 
 /* Function prototypes */
 
-/**
+/*!
  *  \brief Begin Recording a gesture on the specified touch, or all touches (-1)
  *
  *
@@ -46,14 +46,14 @@ alias SDL_GestureID = Sint64;
 int SDL_RecordGesture(SDL_TouchID touchId);
 
 
-/**
+/*!
  *  \brief Save all currently loaded Dollar Gesture templates
  *
  *
  */
 int SDL_SaveAllDollarTemplates(SDL_RWops *src);
 
-/**
+/*!
  *  \brief Save a currently loaded Dollar Gesture template
  *
  *
@@ -61,7 +61,7 @@ int SDL_SaveAllDollarTemplates(SDL_RWops *src);
 int SDL_SaveDollarTemplate(SDL_GestureID gestureId,SDL_RWops *src);
 
 
-/**
+/*!
  *  \brief Load Dollar Gesture templates from a file
  *
  *

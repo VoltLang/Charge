@@ -22,7 +22,7 @@ module lib.sdl2.filesystem;
 extern (C):
 version (!Windows):
 
-/**
+/*!
  * \brief Get the path where the application resides.
  *
  * Get the "base path". This is the directory where the application was run
@@ -47,7 +47,7 @@ version (!Windows):
  */
 char* SDL_GetBasePath();
 
-/**
+/*!
  * \brief Get the user-and-app-specific path where files can be written.
  *
  * Get the "pref dir". This is meant to be where users can write personal

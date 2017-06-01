@@ -1,6 +1,6 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for App base classes.
  */
 module charge.game.app;
@@ -69,7 +69,7 @@ public:
 	abstract fn render(t: Target);
 	abstract fn logic();
 
-	/**
+	/*!
 	 * Idle is a bit missleading name, this function is always called after
 	 * a frame is completed. Time is the difference between when the next
 	 * logic step should happen and the current time, so it can be a

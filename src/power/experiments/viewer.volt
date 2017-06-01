@@ -13,7 +13,7 @@ import charge.sys.resource;
 import math = charge.math;
 
 
-/**
+/*!
  * Helper class if you want to draw a module and some text.
  */
 class Viewer : GameSimpleScene
@@ -30,7 +30,7 @@ public:
 	cullPosition: math.Point3f;
 	cullRotation: math.Quatf;
 
-	/// Text rendering stuff.
+	//! Text rendering stuff.
 	textVbo: GfxDrawBuffer;
 	textBuilder: GfxDrawVertexBuilder;
 	textState: GfxBitmapState;

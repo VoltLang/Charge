@@ -1,6 +1,6 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for CommonCore.
  */
 module charge.core.common;
@@ -30,8 +30,8 @@ protected:
 	ALCdevice* alDevice;
 	ALCcontext* alContext;
 
-	bool odeLoaded; /**< did we load the ODE library */
-	bool openalLoaded; /**< did we load the OpenAL library */
+	bool odeLoaded; /*!< did we load the ODE library */
+	bool openalLoaded; /*!< did we load the OpenAL library */
 +/
 
 	/* name of libraries to load */

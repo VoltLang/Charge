@@ -1,6 +1,6 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file for Quatf.
  */
 module charge.math.quat;
@@ -30,7 +30,7 @@ public:
 		return q;
 	}
 
-	/**
+	/*!
 	 * Convert from Euler (and Tait-Bryan) angles to Quaternion.
 	 *
 	 * Note in charge the Y axis is and Z points out from the screen.
@@ -60,7 +60,7 @@ public:
 		return q;
 	}
 
-	/**
+	/*!
 	 * Return a new quat which is this rotation rotated by the given rotation.
 	 */
 	fn opMul(quat: Quatf) Quatf
@@ -75,7 +75,7 @@ public:
 		return result;
 	}
 
-	/**
+	/*!
 	 * Return a copy of the given vector but rotated by this rotation.
 	 */
 	fn opMul(vec: Vector3f) Vector3f
@@ -92,7 +92,7 @@ public:
 		return v;
 	}
 
-	/**
+	/*!
 	 * Normalize the rotation, often not needed when using only the
 	 * inbuilt functions.
 	 */

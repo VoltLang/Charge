@@ -74,10 +74,10 @@ public:
 	}
 }
 
-/// Quad vbo.
+//! Quad vbo.
 global aaVbo: DrawBuffer;
 
-/// Sampler to use with the shader.
+//! Sampler to use with the shader.
 global aaSampler: GLuint;
 
 

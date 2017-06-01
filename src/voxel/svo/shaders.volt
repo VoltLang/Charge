@@ -17,7 +17,7 @@ import voxel.svo.shaders;
 import voxel.svo.pipeline;
 
 
-/**
+/*!
  * The state that is passed to each step when we are running the pipeline.
  */
 struct StepState
@@ -48,7 +48,7 @@ fn getStore(xShift: u32, yShift: u32, zShift: u32) ShaderStore
 	return store;
 }
 
-/**
+/*!
  * Helper class to build a rendering pipeline.
  */
 class StepsBuilder
@@ -127,7 +127,7 @@ public:
 	}
 }
 
-/**
+/*!
  * Base class for all steps in a rendering pipeline.
  */
 abstract class Step
@@ -140,7 +140,7 @@ public:
 	abstract fn run(ref state: StepState);
 }
 
-/**
+/*!
  * First step of any rendering pipeline.
  */
 class InitStep : Step
@@ -330,7 +330,7 @@ public:
 	}
 }
 
-/**
+/*!
  * Cache shaders so they can be resude between different passes and models.
  */
 class ShaderStore

@@ -1,6 +1,6 @@
 // Copyright © 2016-2017, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Contains variours small svo generators.
  */
 module voxel.svo.gen;
@@ -23,7 +23,7 @@ private:
 
 
 public:
-	/**
+	/*!
 	 * Generate a completely flat white surface.
 	 */
 	fn gen(ref ib: InputBuffer, levels: u32) u32
@@ -60,7 +60,7 @@ private:
 
 
 public:
-	/**
+	/*!
 	 * Generate a completely flat white surface.
 	 */
 	fn genY(ref ib: InputBuffer, levels: u32) u32

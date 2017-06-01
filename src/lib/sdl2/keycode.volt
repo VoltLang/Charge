@@ -31,7 +31,7 @@ import lib.sdl2.stdinc;
 public import lib.sdl2.scancode;
 
 
-/**
+/*!
  *  \brief The SDL virtual key representation.
  *
  *  Values of this type are used to represent keyboard keys using the current
@@ -309,7 +309,7 @@ enum
     SDLK_SLEEP = (SDL_SCANCODE_SLEEP|SDLK_SCANCODE_MASK)
 }
 
-/**
+/*!
  * \brief Enumeration of valid key mods (possibly OR'd together).
  */
 alias SDL_Keymod = int;

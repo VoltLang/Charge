@@ -22,7 +22,7 @@ module lib.sdl2.error;
 extern (C):
 version (!Windows):
 
-/**
+/*!
  *  \file SDL_error.h
  *
  *  Simple error message routines for SDL.

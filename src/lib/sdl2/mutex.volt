@@ -32,20 +32,20 @@ version (!Windows):
 import lib.sdl2.stdinc;
 import lib.sdl2.error;
 
-/**
+/*!
  *  Synchronization functions which can time out return this value
  *  if they time out.
  */
 enum SDL_MUTEX_TIMEDOUT = 1;
 
-/**
+/*!
  *  This is the timeout value which corresponds to never time out.
  */
 @property Uint32 SDL_MUTEX_MAXWAIT() { return cast(Uint32) ~0; }
 
 
 
-/**
+/*!
  *  \name Mutex functions
  */
 /* */
@@ -53,26 +53,26 @@ enum SDL_MUTEX_TIMEDOUT = 1;
 /* The SDL mutex structure, defined in SDL_mutex.c */
 struct SDL_mutex {}
 
-/**
+/*!
  *  Create a mutex, initialized unlocked.
  */
 SDL_mutex * SDL_CreateMutex();
 
-/**
+/*!
  *  Lock the mutex.
  *
  *  \return 0, or -1 on error.
  */
 int  SDL_LockMutex(SDL_mutex * mutex);
 
-/**
+/*!
  *  Try to lock the mutex
  *
  *  \return 0, SDL_MUTEX_TIMEDOUT, or -1 on error
  */
 int  SDL_TryLockMutex(SDL_mutex * mutex);
 
-/**
+/*!
  *  Unlock the mutex.
  *
  *  \return 0, or -1 on error.
@@ -82,7 +82,7 @@ int  SDL_TryLockMutex(SDL_mutex * mutex);
  */
 int  SDL_UnlockMutex(SDL_mutex * mutex);
 
-/**
+/*!
  *  Destroy a mutex.
  */
 void  SDL_DestroyMutex(SDL_mutex * mutex);
@@ -90,7 +90,7 @@ void  SDL_DestroyMutex(SDL_mutex * mutex);
 /* *//*Mutex functions*/
 
 
-/**
+/*!
  *  \name Semaphore functions
  */
 /* */
@@ -98,24 +98,24 @@ void  SDL_DestroyMutex(SDL_mutex * mutex);
 /* The SDL semaphore structure, defined in SDL_sem.c */
 struct SDL_semaphore {}
 
-/**
+/*!
  *  Create a semaphore, initialized with value, returns NULL on failure.
  */
 SDL_semaphore * SDL_CreateSemaphore(Uint32 initial_value);
 
-/**
+/*!
  *  Destroy a semaphore.
  */
 void  SDL_DestroySemaphore(SDL_semaphore* sem);
 
-/**
+/*!
  *  This function suspends the calling thread until the semaphore pointed
  *  to by \c sem has a positive count. It then atomically decreases the
  *  semaphore count.
  */
 int  SDL_SemWait(SDL_semaphore* sem);
 
-/**
+/*!
  *  Non-blocking variant of SDL_SemWait().
  *
  *  \return 0 if the wait succeeds, ::SDL_MUTEX_TIMEDOUT if the wait would
@@ -123,7 +123,7 @@ int  SDL_SemWait(SDL_semaphore* sem);
  */
 int  SDL_SemTryWait(SDL_semaphore* sem);
 
-/**
+/*!
  *  Variant of SDL_SemWait() with a timeout in milliseconds.
  *
  *  \return 0 if the wait succeeds, ::SDL_MUTEX_TIMEDOUT if the wait does not
@@ -134,14 +134,14 @@ int  SDL_SemTryWait(SDL_semaphore* sem);
  */
 int  SDL_SemWaitTimeout(SDL_semaphore* sem, Uint32 ms);
 
-/**
+/*!
  *  Atomically increases the semaphore's count (not blocking).
  *
  *  \return 0, or -1 on error.
  */
 int  SDL_SemPost(SDL_semaphore* sem);
 
-/**
+/*!
  *  Returns the current count of the semaphore.
  */
 Uint32  SDL_SemValue(SDL_semaphore* sem);
@@ -149,7 +149,7 @@ Uint32  SDL_SemValue(SDL_semaphore* sem);
 /* *//*Semaphore functions*/
 
 
-/**
+/*!
  *  \name Condition variable functions
  */
 /* */
@@ -157,7 +157,7 @@ Uint32  SDL_SemValue(SDL_semaphore* sem);
 /* The SDL condition variable structure, defined in SDL_cond.c */
 struct SDL_cond {}
 
-/**
+/*!
  *  Create a condition variable.
  *
  *  Typical use of condition variables:
@@ -187,26 +187,26 @@ struct SDL_cond {}
  */
 SDL_cond * SDL_CreateCond();
 
-/**
+/*!
  *  Destroy a condition variable.
  */
 void  SDL_DestroyCond(SDL_cond * cond);
 
-/**
+/*!
  *  Restart one of the threads that are waiting on the condition variable.
  *
  *  \return 0 or -1 on error.
  */
 int  SDL_CondSignal(SDL_cond * cond);
 
-/**
+/*!
  *  Restart all threads that are waiting on the condition variable.
  *
  *  \return 0 or -1 on error.
  */
 int  SDL_CondBroadcast(SDL_cond * cond);
 
-/**
+/*!
  *  Wait on the condition variable, unlocking the provided mutex.
  *
  *  \warning The mutex must be locked before entering this function!
@@ -217,7 +217,7 @@ int  SDL_CondBroadcast(SDL_cond * cond);
  */
 int  SDL_CondWait(SDL_cond * cond, SDL_mutex * mutex);
 
-/**
+/*!
  *  Waits for at most \c ms milliseconds, and returns 0 if the condition
  *  variable is signaled, ::SDL_MUTEX_TIMEDOUT if the condition is not
  *  signaled in the allotted time, and -1 on error.

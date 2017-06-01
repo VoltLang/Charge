@@ -31,12 +31,12 @@ import lib.sdl2.stdinc;
  */
 enum SDL_CACHELINE_SIZE = 128;
 
-/**
+/*!
  *  This function returns the number of CPU cores available.
  */
 int  SDL_GetCPUCount();
 
-/**
+/*!
  *  This function returns the L1 cache line size of the CPU
  *
  *  This is useful for determining multi-threaded structure padding
@@ -44,47 +44,47 @@ int  SDL_GetCPUCount();
  */
 int  SDL_GetCPUCacheLineSize();
 
-/**
+/*!
  *  This function returns true if the CPU has the RDTSC instruction.
  */
 SDL_bool  SDL_HasRDTSC();
 
-/**
+/*!
  *  This function returns true if the CPU has AltiVec features.
  */
 SDL_bool  SDL_HasAltiVec();
 
-/**
+/*!
  *  This function returns true if the CPU has MMX features.
  */
 SDL_bool  SDL_HasMMX();
 
-/**
+/*!
  *  This function returns true if the CPU has 3DNow! features.
  */
 SDL_bool  SDL_Has3DNow();
 
-/**
+/*!
  *  This function returns true if the CPU has SSE features.
  */
 SDL_bool  SDL_HasSSE();
 
-/**
+/*!
  *  This function returns true if the CPU has SSE2 features.
  */
 SDL_bool  SDL_HasSSE2();
 
-/**
+/*!
  *  This function returns true if the CPU has SSE3 features.
  */
 SDL_bool  SDL_HasSSE3();
 
-/**
+/*!
  *  This function returns true if the CPU has SSE4.1 features.
  */
 SDL_bool  SDL_HasSSE41();
 
-/**
+/*!
  *  This function returns true if the CPU has SSE4.2 features.
  */
 SDL_bool  SDL_HasSSE42();

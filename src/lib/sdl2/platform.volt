@@ -22,13 +22,13 @@ module lib.sdl2.platform;
 extern (C):
 version (!Windows):
 
-/**
+/*!
  *  \file SDL_platform.h
  *
  *  Try to get a standard set of platform defines.
  */
 
-/**
+/*!
  *  \brief Gets the name of the platform.
  */
 const char * SDL_GetPlatform ();

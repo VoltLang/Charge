@@ -1,12 +1,12 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-/**
+/*!
  * Source file containing Core and CoreOptions.
  */
 module charge.core;
 
 
-/**
+/*!
  * Enum for selecting subsystems.
  */
 enum coreFlag
@@ -26,18 +26,18 @@ enum coreWindow
 	Fullscreen,
 }
 
-/**
+/*!
  * Get a new core created with the given flags.
  */
 extern(C) fn chargeCore(opts: CoreOptions) Core;
 
-/**
+/*!
  * Signal a quit a condition, this function mearly pushes
  * a quit event on the event queue and then returns.
  */
 extern(C) fn chargeQuit();
 
-/**
+/*!
  * Options at initialization.
  */
 class CoreOptions
@@ -62,7 +62,7 @@ public:
 	}
 }
 
-/**
+/*!
  * Class holding the entire thing together.
  */
 abstract class Core
@@ -88,12 +88,12 @@ private:
 	global instance: Core;
 
 public:
-	/**
+	/*!
 	 * Return the current core.
 	 */
 	global fn get() Core { return instance; }
 
-	/**
+	/*!
 	 * Sets callback functions.
 	 * @{
 	 */
@@ -101,17 +101,17 @@ public:
 	abstract fn setLogic(dgt: dg());
 	abstract fn setClose(dgt: dg());
 	abstract fn setIdle(dgt: dg(long));
-	/**
+	/*!
 	 * @}
 	 */
 
-	/**
+	/*!
 	 * Main loop functions, you should expect that this function returns.
 	 * Best usage is if you in your main function do this "return c.loop();".
 	 */
 	abstract fn loop() int;
 
-	/**
+	/*!
 	 * Initialize a subsystem. Only a single subsystem can be initialized
 	 * a time. Will throw Exception upon failure.
 	 *
@@ -121,7 +121,7 @@ public:
 	 */
 	abstract fn initSubSystem(flags: coreFlag);
 
-	/**
+	/*!
 	 * These functions are run just after Core is initialize and
 	 * right before Core is closed.
 	 */
@@ -136,7 +136,7 @@ public:
 		}
 	}
 
-	/**
+	/*!
 	 * Display a panic message, usually a dialogue box, then
 	 * calls exit(-1), so this function does not return.
 	 */
@@ -150,7 +150,7 @@ public:
 	 */
 
 
-	/**
+	/*!
 	 * Returns text from the clipboard, should any be in it.
 	 */
 	abstract fn getClipboardText() string;

@@ -25,7 +25,7 @@ version (!Windows):
 import lib.sdl2.stdinc;
 import lib.sdl2.video;
 
-/**
+/*!
  * \brief SDL_MessageBox flags. If supported will display warning icon, etc.
  */
 alias SDL_MessageBoxFlags = int;
@@ -36,7 +36,7 @@ enum : SDL_MessageBoxFlags
     SDL_MESSAGEBOX_INFORMATION  = 0x00000040    /*< informational dialog */
 }
 
-/**
+/*!
  * \brief Flags for SDL_MessageBoxButtonData.
  */
 alias SDL_MessageBoxButtonFlags = int;
@@ -46,7 +46,7 @@ enum : SDL_MessageBoxButtonFlags
     SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT = 0x00000002   /*< Marks the default button when escape is hit */
 }
 
-/**
+/*!
  *  \brief Individual button data.
  */
 struct SDL_MessageBoxButtonData
@@ -56,7 +56,7 @@ struct SDL_MessageBoxButtonData
     const char * text;  /*< The UTF-8 button text */
 }
 
-/**
+/*!
  * \brief RGB value used in a message box color scheme
  */
 struct SDL_MessageBoxColor
@@ -75,7 +75,7 @@ enum : SDL_MessageBoxColorType
     SDL_MESSAGEBOX_COLOR_MAX
 }
 
-/**
+/*!
  * \brief A set of colors to use for message box dialogs
  */
 struct SDL_MessageBoxColorScheme
@@ -83,7 +83,7 @@ struct SDL_MessageBoxColorScheme
     SDL_MessageBoxColor[6] colors;
 }
 
-/**
+/*!
  *  \brief MessageBox structure containing title, text, window, etc.
  */
 struct SDL_MessageBoxData
@@ -99,7 +99,7 @@ struct SDL_MessageBoxData
     const SDL_MessageBoxColorScheme *colorScheme;   /*< ::SDL_MessageBoxColorScheme, can be NULL to use system settings */
 }
 
-/**
+/*!
  *  \brief Create a modal message box.
  *
  *  \param messageboxdata The SDL_MessageBoxData structure with title, text, etc.
@@ -115,7 +115,7 @@ struct SDL_MessageBoxData
  */
  int  SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid);
 
-/**
+/*!
  *  \brief Create a simple modal message box
  *
  *  \param flags    ::SDL_MessageBoxFlags

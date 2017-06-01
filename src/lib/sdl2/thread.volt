@@ -57,7 +57,7 @@ enum {
  */
 alias SDL_ThreadFunction = int function(void *data);
 
-/**
+/*!
  *  Create a thread.
  *
  *   Thread naming is a little complicated: Most systems have very small
@@ -78,7 +78,7 @@ alias SDL_ThreadFunction = int function(void *data);
 SDL_Thread *
 SDL_CreateThread(SDL_ThreadFunction func, const char *name, void *data);
 
-/**
+/*!
  * Get the thread name, as it was specified in SDL_CreateThread().
  *  This function returns a pointer to a UTF-8 string that names the
  *  specified thread, or NULL if it doesn't have a name. This is internal
@@ -87,24 +87,24 @@ SDL_CreateThread(SDL_ThreadFunction func, const char *name, void *data);
  */
 const char * SDL_GetThreadName(SDL_Thread *thread);
 
-/**
+/*!
  *  Get the thread identifier for the current thread.
  */
 SDL_threadID  SDL_ThreadID();
 
-/**
+/*!
  *  Get the thread identifier for the specified thread.
  *
  *  Equivalent to SDL_ThreadID() if the specified thread is NULL.
  */
 SDL_threadID  SDL_GetThreadID(SDL_Thread * thread);
 
-/**
+/*!
  *  Set the priority for the current thread
  */
 int  SDL_SetThreadPriority(SDL_ThreadPriority priority);
 
-/**
+/*!
  *  Wait for a thread to finish.
  *
  *  The return code for the thread function is placed in the area
@@ -112,7 +112,7 @@ int  SDL_SetThreadPriority(SDL_ThreadPriority priority);
  */
 void  SDL_WaitThread(SDL_Thread * thread, int *status);
 
-/**
+/*!
  *  \brief Create an identifier that is globally visible to all threads but refers to data that is thread-specific.
  *
  *  \return The newly created thread local storage identifier, or 0 on error
@@ -144,7 +144,7 @@ void  SDL_WaitThread(SDL_Thread * thread, int *status);
  */
 SDL_TLSID  SDL_TLSCreate();
 
-/**
+/*!
  *  \brief Get the value associated with a thread local storage ID for the current thread.
  *
  *  \param id The thread local storage ID
@@ -156,7 +156,7 @@ SDL_TLSID  SDL_TLSCreate();
  */
 void *  SDL_TLSGet(SDL_TLSID id);
 
-/**
+/*!
  *  \brief Set the value associated with a thread local storage ID for the current thread.
  *
  *  \param id The thread local storage ID

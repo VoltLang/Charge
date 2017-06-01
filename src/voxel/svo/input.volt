@@ -16,19 +16,19 @@ struct Input2Cubed = mixin InputDefinition!(1);
 struct Input4Cubed = mixin InputDefinition!(2);
 struct Input8Cubed = mixin InputDefinition!(3);
 
-/// Select the default input buffer.
+//! Select the default input buffer.
 alias InputBuffer = LinearBuffer;
 
-/// Linear adding comrpessing buffer.
+//! Linear adding comrpessing buffer.
 struct LinearBuffer = mixin CompressingBuffer!(LinearAdder);
 
-/// Buddy based adding comrpessing buffer.
+//! Buddy based adding comrpessing buffer.
 struct BuddyBuffer = mixin CompressingBuffer!(BuddyAdder);
 
-/// Buddy allocator for the InputBuffer.
+//! Buddy allocator for the InputBuffer.
 struct InputBuddy = mixin BuddyDefinition!(5u, 16u, u32);
 
-/**
+/*!
  * Helper struct that holds common code to compress InputXCubed data.
  */
 struct CompressingBuffer!(Base)
@@ -70,7 +70,7 @@ public:
 		return base.getData();
 	}
 
-	/**
+	/*!
 	 * Adds a Input and does a very simple compression suited
 	 * for rendering on the GPU.
 	 */
@@ -85,7 +85,7 @@ public:
 		return base.add(packed[0 .. num]);
 	}
 
-	/**
+	/*!
 	 * Adds a Input and does a very simple compression suited
 	 * for rendering on the GPU.
 	 */
@@ -100,7 +100,7 @@ public:
 		return base.add(packed[0 .. num]);
 	}
 
-	/**
+	/*!
 	 * Adds a Input and does a very simple compression suited
 	 * for rendering on the GPU.
 	 */
@@ -116,7 +116,7 @@ public:
 		return base.add(packed[0 .. num]);
 	}
 
-	/**
+	/*!
 	 * Adds a Input and does a very simple compression suited
 	 * for rendering on the GPU.
 	 */
@@ -194,7 +194,7 @@ private:
 	}
 }
 
-/// Linear buffer for filling up voxel data.
+//! Linear buffer for filling up voxel data.
 struct LinearAdder
 {
 private:
@@ -210,7 +210,7 @@ public:
 		mData = new u32[](InputBuddy.numBitsInOrder(0));
 	}
 
-	/**
+	/*!
 	 * Returns the entire data buffer as void array.
 	 */
 	fn getData() void[]
@@ -218,7 +218,7 @@ public:
 		return cast(void[])(mData[0 .. mNumData]);
 	}
 
-	/**
+	/*!
 	 * Small helper to add a single u32 value.
 	 */
 	fn add(v: u32) u32
@@ -227,7 +227,7 @@ public:
 		return add(buf[..]);
 	}
 
-	/**
+	/*!
 	 * Adds data into the buffer and returns the index to it.
 	 *
 	 * If there is data inside of the buffer that matches the
@@ -252,7 +252,7 @@ public:
 	}
 }
 
-/**
+/*!
  * Caching input buffer to build SVOs, is more designed for live updating
  * then space size, so wastes memory.
  */
@@ -287,7 +287,7 @@ public:
 		mData = new u32[](InputBuddy.numBitsInOrder(0));
 	}
 
-	/**
+	/*!
 	 * Returns the entire data buffer as void array.
 	 */
 	fn getData() void[]
@@ -295,7 +295,7 @@ public:
 		return cast(void[])mData[0 .. mMaxSize];
 	}
 
-	/**
+	/*!
 	 * Small helper to add a single u32 value.
 	 */
 	fn add(v: u32) u32
@@ -304,7 +304,7 @@ public:
 		return add(buf[..]);
 	}
 
-	/**
+	/*!
 	 * Adds data into the buffer and returns the index to it.
 	 *
 	 * If there is data inside of the buffer that matches the

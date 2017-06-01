@@ -32,7 +32,7 @@ import lib.sdl2.stdinc;
 import lib.sdl2.error;
 import lib.sdl2.events;
 
-/**
+/*!
  *  \file SDL_quit.h
  *
  *  An ::SDL_QUIT event is generated when the user tries to close the application

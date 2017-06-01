@@ -63,19 +63,19 @@ protected:
 	mPrune: GfxShader;
 	mTracer: GfxShader;
 
-	/// Total number of levels in the SVO.
+	//! Total number of levels in the SVO.
 	mVoxelPower: i32;
 	mVoxelPowerStr: string;
 
-	/// Number of level that we do occlude tests on.
+	//! Number of level that we do occlude tests on.
 	mOccludePower: i32;
 	mOccludePowerStr: string;
 
-	/// The number of levels that we subdivide.
+	//! The number of levels that we subdivide.
 	mGeomPower: i32;
 	mGeomPowerStr: string;
 
-	/// The number of levels that we trace.
+	//! The number of levels that we trace.
 	mTracePower: i32;
 	mTracePowerStr: string;
 

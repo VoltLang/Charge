@@ -22,13 +22,13 @@ module lib.sdl2.blendmode;
 extern (C):
 version (!Windows):
 
-/**
+/*!
  *  \file SDL_blendmode.h
  *
  *  Header file declaring the SDL_BlendMode enumeration
  */
 
-/**
+/*!
  *  \brief The blend mode used in SDL_RenderCopy() and drawing operations.
  */
 alias SDL_BlendMode = int;

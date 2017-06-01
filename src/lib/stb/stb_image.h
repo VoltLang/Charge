@@ -416,7 +416,7 @@ extern "C" {
 #define STBIDEF extern
 #endif
 
-//////////////////////////////////////////////////////////////////////////////
+//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!
 //
 // PRIMARY API - works on images of any type
 //
@@ -518,7 +518,7 @@ STBIDEF int   stbi_zlib_decode_noheader_buffer(char *obuffer, int olen, const ch
 
 //
 //
-////   end header file   /////////////////////////////////////////////////////
+//!/   end header file   //!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//
 #endif // STBI_INCLUDE_STB_IMAGE_H
 
 #ifdef STB_IMAGE_IMPLEMENTATION
@@ -738,7 +738,7 @@ static int stbi__sse2_available()
 #define STBI_SIMD_ALIGN(type, name) type name
 #endif
 
-///////////////////////////////////////////////
+//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//
 //
 //  stbi__context struct and start_xxx functions
 
@@ -1196,7 +1196,7 @@ STBIDEF void   stbi_hdr_to_ldr_gamma(float gamma) { stbi__h2l_gamma_i = 1/gamma;
 STBIDEF void   stbi_hdr_to_ldr_scale(float scale) { stbi__h2l_scale_i = 1/scale; }
 
 
-//////////////////////////////////////////////////////////////////////////////
+//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!
 //
 // Common code used by all image loaders
 //
@@ -1321,7 +1321,7 @@ static stbi__uint32 stbi__get32le(stbi__context *s)
 #define STBI__BYTECAST(x)  ((stbi_uc) ((x) & 255))  // truncate int to byte without warnings
 
 
-//////////////////////////////////////////////////////////////////////////////
+//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!
 //
 //  generic converter from built-in img_n to req_comp
 //    individual types do this automatically as much as possible (e.g. jpeg
@@ -1428,7 +1428,7 @@ static stbi_uc *stbi__hdr_to_ldr(float   *data, int x, int y, int comp)
 }
 #endif
 
-//////////////////////////////////////////////////////////////////////////////
+//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!//!
 //
 //  "baseline" JPEG/JFIF decoder
 //

@@ -35,7 +35,7 @@ import lib.sdl2.mutex;
 import lib.sdl2.thread;
 import lib.sdl2.rwops;
 
-/**
+/*!
  *  \brief Audio format flags.
  *
  *  These are what the 16 bits in SDL_AudioFormat currently mean...
@@ -57,7 +57,7 @@ import lib.sdl2.rwops;
  */
 alias SDL_AudioFormat = Uint16;
 
-/**
+/*!
  *  \name Audio flags
  */
 /* */
@@ -74,7 +74,7 @@ bool SDL_AUDIO_ISINT(int x) { return !SDL_AUDIO_ISFLOAT(x); }
 bool SDL_AUDIO_ISLITTLEENDIAN(int x) { return !SDL_AUDIO_ISBIGENDIAN(x); }
 bool SDL_AUDIO_ISUNSIGNED(int x) { return !SDL_AUDIO_ISSIGNED(x); }
 
-/**
+/*!
  *  \name Audio format flags
  *
  *  Defaults to LSB byte order.
@@ -90,7 +90,7 @@ enum AUDIO_U16 = AUDIO_U16LSB;
 enum AUDIO_S16 = AUDIO_S16LSB;
 /* */
 
-/**
+/*!
  *  \name int32 support
  */
 /* */
@@ -99,7 +99,7 @@ enum AUDIO_S32MSB = 0x9020  /*< As above, but big-endian byte order */;
 enum AUDIO_S32 = AUDIO_S32LSB;
 /* */
 
-/**
+/*!
  *  \name float32 support
  */
 /* */
@@ -108,7 +108,7 @@ enum AUDIO_F32MSB = 0x9120  /*< As above, but big-endian byte order */;
 enum AUDIO_F32 = AUDIO_F32LSB;
 /* */
 
-/**
+/*!
  *  \name Native audio byte ordering
  */
 /* */
@@ -125,7 +125,7 @@ enum AUDIO_F32SYS = AUDIO_F32MSB;
 }
 /* */
 
-/**
+/*!
  *  \name Allow change flags
  *
  *  Which audio format changes are allowed when opening a device.
@@ -139,7 +139,7 @@ enum SDL_AUDIO_ALLOW_ANY_CHANGE = (SDL_AUDIO_ALLOW_FREQUENCY_CHANGE|SDL_AUDIO_AL
 
 /* *//*Audio flags*/
 
-/**
+/*!
  *  This function is called when the audio device needs more data.
  *
  *  \param userdata An application-specific parameter saved in
@@ -153,18 +153,18 @@ enum SDL_AUDIO_ALLOW_ANY_CHANGE = (SDL_AUDIO_ALLOW_FREQUENCY_CHANGE|SDL_AUDIO_AL
 alias SDL_AudioCallback = void function(void *userdata, Uint8 * stream,
                                             int len);
 
-/**
+/*!
  *  The calculated values in this structure are calculated by SDL_OpenAudio().
  */
 struct SDL_AudioSpec
 {
-    int freq;                   /**< DSP frequency -- samples per second */
-    SDL_AudioFormat format;     /**< Audio data format */
-    Uint8 channels;             /**< Number of channels: 1 mono, 2 stereo */
-    Uint8 silence;              /**< Audio buffer silence value (calculated) */
-    Uint16 samples;             /**< Audio buffer size in samples (power of 2) */
-    Uint16 padding;             /**< Necessary for some compile environments */
-    Uint32 size;                /**< Audio buffer size in bytes (calculated) */
+    int freq;                   /*!< DSP frequency -- samples per second */
+    SDL_AudioFormat format;     /*!< Audio data format */
+    Uint8 channels;             /*!< Number of channels: 1 mono, 2 stereo */
+    Uint8 silence;              /*!< Audio buffer silence value (calculated) */
+    Uint16 samples;             /*!< Audio buffer size in samples (power of 2) */
+    Uint16 padding;             /*!< Necessary for some compile environments */
+    Uint32 size;                /*!< Audio buffer size in bytes (calculated) */
     SDL_AudioCallback callback;
     void *userdata;
 }
@@ -172,7 +172,7 @@ struct SDL_AudioSpec
 alias SDL_AudioFilter = void function(void * cvt,
                                           SDL_AudioFormat format);
 
-/**
+/*!
  *  A structure to hold a set of audio conversion filters and buffers.
  */
 struct SDL_AudioCVT
@@ -193,7 +193,7 @@ struct SDL_AudioCVT
 
 /* Function prototypes */
 
-/**
+/*!
  *  \name Driver discovery functions
  *
  *  These functions return the list of built in audio drivers, in the
@@ -204,7 +204,7 @@ int  SDL_GetNumAudioDrivers();
 const char * SDL_GetAudioDriver(int index);
 /* */
 
-/**
+/*!
  *  \name Initialization and cleanup
  *
  *  \internal These functions are used internally, and should not be used unless
@@ -216,13 +216,13 @@ int  SDL_AudioInit(const char *driver_name);
 void  SDL_AudioQuit();
 /* */
 
-/**
+/*!
  *  This function returns the name of the current audio driver, or NULL
  *  if no driver has been initialized.
  */
 const char * SDL_GetCurrentAudioDriver();
 
-/**
+/*!
  *  This function opens the audio device with the desired parameters, and
  *  returns 0 if successful, placing the actual hardware parameters in the
  *  structure pointed to by \c obtained.  If \c obtained is NULL, the audio
@@ -267,7 +267,7 @@ const char * SDL_GetCurrentAudioDriver();
 int  SDL_OpenAudio(SDL_AudioSpec * desired,
                                           SDL_AudioSpec * obtained);
 
-/**
+/*!
  *  SDL Audio Device IDs.
  *
  *  A successful call to SDL_OpenAudio() is always device id 1, and legacy
@@ -278,7 +278,7 @@ int  SDL_OpenAudio(SDL_AudioSpec * desired,
  */
 alias SDL_AudioDeviceID = Uint32;
 
-/**
+/*!
  *  Get the number of available devices exposed by the current driver.
  *  Only valid after a successfully initializing the audio subsystem.
  *  Returns -1 if an explicit list of devices can't be determined; this is
@@ -292,7 +292,7 @@ alias SDL_AudioDeviceID = Uint32;
  */
 int  SDL_GetNumAudioDevices(int iscapture);
 
-/**
+/*!
  *  Get the human-readable name of a specific audio device.
  *  Must be a value between 0 and (number of audio devices-1).
  *  Only valid after a successfully initializing the audio subsystem.
@@ -309,7 +309,7 @@ const char * SDL_GetAudioDeviceName(int index,
                                                            int iscapture);
 
 
-/**
+/*!
  *  Open a specific audio device. Passing in a device name of NULL requests
  *  the most reasonable default (and is equivalent to calling SDL_OpenAudio()).
  *
@@ -335,7 +335,7 @@ SDL_AudioDeviceID  SDL_OpenAudioDevice(const char
 
 
 
-/**
+/*!
  *  \name Audio state
  *
  *  Get the current audio state.
@@ -354,7 +354,7 @@ SDL_AudioStatus
 SDL_GetAudioDeviceStatus(SDL_AudioDeviceID dev);
 /* *//*Audio State*/
 
-/**
+/*!
  *  \name Pause audio functions
  *
  *  These functions pause and unpause the audio callback processing.
@@ -369,7 +369,7 @@ void  SDL_PauseAudioDevice(SDL_AudioDeviceID dev,
                                                   int pause_on);
 /* *//*Pause audio functions*/
 
-/**
+/*!
  *  This function loads a WAVE from the data source, automatically freeing
  *  that source if \c freesrc is non-zero.  For example, to load a WAVE file,
  *  you could do:
@@ -395,12 +395,12 @@ SDL_AudioSpec * SDL_LoadWAV_RW(SDL_RWops * src,
                                                       Uint32 * audio_len);
 
 
-/**
+/*!
  *  This function frees data previously allocated with SDL_LoadWAV_RW()
  */
 void  SDL_FreeWAV(Uint8 * audio_buf);
 
-/**
+/*!
  *  This function takes a source format and rate and a destination format
  *  and rate, and initializes the \c cvt structure with information needed
  *  by SDL_ConvertAudio() to convert a buffer of audio data from one format
@@ -417,7 +417,7 @@ int  SDL_BuildAudioCVT(SDL_AudioCVT * cvt,
                                               Uint8 dst_channels,
                                               int dst_rate);
 
-/**
+/*!
  *  Once you have initialized the \c cvt structure using SDL_BuildAudioCVT(),
  *  created an audio buffer \c cvt->buf, and filled it with \c cvt->len bytes of
  *  audio data in the source format, this function will convert it in-place
@@ -430,7 +430,7 @@ int  SDL_BuildAudioCVT(SDL_AudioCVT * cvt,
 int  SDL_ConvertAudio(SDL_AudioCVT * cvt);
 
 enum SDL_MIX_MAXVOLUME = 128;
-/**
+/*!
  *  This takes two audio buffers of the playing audio format and mixes
  *  them, performing addition, volume adjustment, and overflow clipping.
  *  The volume ranges from 0 - 128, and should be set to ::SDL_MIX_MAXVOLUME
@@ -440,7 +440,7 @@ enum SDL_MIX_MAXVOLUME = 128;
 void  SDL_MixAudio(Uint8 * dst, const Uint8 * src,
                                           Uint32 len, int volume);
 
-/**
+/*!
  *  This works like SDL_MixAudio(), but you specify the audio format instead of
  *  using the format of audio device 1. Thus it can be used when no audio
  *  device is open at all.
@@ -450,7 +450,7 @@ void  SDL_MixAudioFormat(Uint8 * dst,
                                                 SDL_AudioFormat format,
                                                 Uint32 len, int volume);
 
-/**
+/*!
  *  \name Audio lock functions
  *
  *  The lock manipulated by these functions protects the callback function.
@@ -465,18 +465,18 @@ void  SDL_UnlockAudio();
 void  SDL_UnlockAudioDevice(SDL_AudioDeviceID dev);
 /* *//*Audio lock functions*/
 
-/**
+/*!
  *  This function shuts down audio processing and closes the audio device.
  */
 void  SDL_CloseAudio();
 void  SDL_CloseAudioDevice(SDL_AudioDeviceID dev);
 
-/**
+/*!
  * \return 1 if audio device is still functioning, zero if not, -1 on error.
  */
 int  SDL_AudioDeviceConnected(SDL_AudioDeviceID dev);
 
-/**
+/*!
  *  Queue more audio on non-callback devices.
  *
  *  (If you are looking to retrieve queued audio from a non-callback capture
@@ -517,7 +517,7 @@ int  SDL_AudioDeviceConnected(SDL_AudioDeviceID dev);
  */
 int SDL_QueueAudio(SDL_AudioDeviceID dev, const void *data, Uint32 len);
 
-/**
+/*!
  *  Dequeue more audio on non-callback devices.
  *
  *  (If you are looking to queue audio for output on a non-callback playback
@@ -563,7 +563,7 @@ int SDL_QueueAudio(SDL_AudioDeviceID dev, const void *data, Uint32 len);
  */
  Uint32 SDL_DequeueAudio(SDL_AudioDeviceID dev, void *data, Uint32 len);
  
-/**
+/*!
  *  Get the number of bytes of still-queued audio.
  *
  *  For playback device:
@@ -599,7 +599,7 @@ int SDL_QueueAudio(SDL_AudioDeviceID dev, const void *data, Uint32 len);
  */
 Uint32 SDL_GetQueuedAudioSize(SDL_AudioDeviceID dev);
 
-/**
+/*!
  *  Drop any queued audio data. For playback devices, this is any queued data
  *  still waiting to be submitted to the hardware. For capture devices, this
  *  is any data that was queued by the device that hasn't yet been dequeued by
