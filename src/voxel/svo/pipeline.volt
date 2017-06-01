@@ -130,11 +130,11 @@ public:
 		buf9_1, buf9_2, buf11_1, buf11_2: u32;
 		buf8, buf10: u32;
 
-		mSteps ~= b.makeInit(                     out    buf0);
-		mSteps ~= b.makeList1(    buf0, 3,        out    buf3);
-		mSteps ~= b.makeList2(    buf3, 3,  0.6f, out  buf6_1, out  buf6_2);
-		mSteps ~= b.makeList2(  buf6_1, 3,  0.2f, out  buf9_1, out  buf9_2);
-		mSteps ~= b.makeList2(  buf9_1, 2, 0.03f, out buf11_1, out buf11_2);
+		mSteps ~= b.makeInit(                         out    buf0);
+		mSteps ~= b.makeList1(    buf0, 3,            out    buf3);
+		mSteps ~= b.makeList2(    buf3, 3,      0.6f, out  buf6_1, out  buf6_2);
+		mSteps ~= b.makeList2(  buf6_1, 3,      0.2f, out  buf9_1, out  buf9_2);
+		mSteps ~= b.makeList2(  buf9_1, 2, 0.029376f, out buf11_1, out buf11_2);
 		mSteps ~= b.makeCubes( buf11_1);
 		mSteps ~= b.makePoints(buf11_2);
 
