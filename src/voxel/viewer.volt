@@ -73,9 +73,9 @@ public:
 			camPosition = math.Point3f.opCall(-0.183648f, 0.293329f, -0.172469f);
 			break;
 		case 2:
-			mCamHeading = 0.020998f;
-			mCamPitch = 0.108000f;
-			camPosition = math.Point3f.opCall(0.172619f, 0.120140f, 0.939102f);
+			mCamHeading = -1.979999f;
+			mCamPitch = -0.297000f;
+			camPosition = math.Point3f.opCall(0.091741f, 0.083281f, 0.147087f);
 			break;
 		case 3:
 			// Outside looking down.
@@ -116,6 +116,13 @@ public:
 			mCamPitch = 0.f;
 			camPosition = math.Point3f.opCall(0.0f, 0.0f, 0.0f);
 			break;
+/*
+		case 2:
+			mCamHeading = 0.020998f;
+			mCamPitch = 0.108000f;
+			camPosition = math.Point3f.opCall(0.172619f, 0.120140f, 0.939102f);
+			break;
+*/
 		}
 	}
 
