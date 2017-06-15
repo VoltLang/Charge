@@ -37,7 +37,8 @@ public:
 	{
 		Raycube,
 		CubePoint,
-		Points,
+		Points0,
+		Points1,
 	}
 
 
@@ -66,9 +67,13 @@ public:
 		b := new StepsBuilder(store);
 
 		final switch (kind) with (Kind) {
-		case Points:
+		case Points0:
 			name = "points";
-			makePointsPipeline(b);
+			makePointsPipeline(b, false);
+			break;
+		case Points1:
+			name = "points";
+			makePointsPipeline(b, true);
 			break;
 		case CubePoint:
 			name = "cubepoints";
@@ -112,7 +117,7 @@ public:
 		}
 	}
 
-	fn makePointsPipeline(b: StepsBuilder)
+	fn makePointsPipeline(b: StepsBuilder, dub: bool)
 	{
 		buf0, buf3, buf6, buf9, buf11: u32;
 
@@ -120,7 +125,11 @@ public:
 		mSteps ~= b.makeList1( buf0, 3, out    buf3);
 		mSteps ~= b.makeList1( buf3, 3, out    buf6);
 		mSteps ~= b.makeList1( buf6, 3, out    buf9);
-		mSteps ~= b.makeListDouble( buf9, out    buf11);
+		if (dub) {
+			mSteps ~= b.makeListDouble(buf9, out buf11);
+		} else {
+			mSteps ~= b.makeList1(buf9, 2, out buf11);
+		}
 		mSteps ~= b.makePoints(buf11);
 	}
 
