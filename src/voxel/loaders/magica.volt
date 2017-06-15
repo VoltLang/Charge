@@ -141,20 +141,7 @@ public:
 
 	fn toBuffer(ref ib: InputBuffer, totalLevels: u32, repeat: bool) u32
 	{
-		ret := mPacker.toBuffer(ref ib);
-
-		foreach (i; 0 .. totalLevels - mLevels) {
-			tmp: Input2Cubed;
-			tmp.set(0, 0, 0, ret);
-			if (repeat) {
-				tmp.set(0, 0, 1, ret);
-				tmp.set(1, 0, 1, ret);
-				tmp.set(1, 0, 0, ret);
-			}
-			ret = ib.compressAndAdd(ref tmp);
-		}
-
-		return ret;
+		return mPacker.toBuffer(ref ib, totalLevels, repeat);
 	}
 }
 

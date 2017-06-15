@@ -121,6 +121,31 @@ public:
 		mArr[dst].set(morton % ArrNum, value);
 	}
 
+	/*!
+	 * Compresses the SVO into the given InputBuffer, allows you to add
+	 * extra levels.
+	 */
+	fn toBuffer(ref ib: InputBuffer, totalLevels: u32, repeat: bool) u32
+	{
+		ret := toBuffer(ref ib);
+
+		foreach (i; 0 .. totalLevels - mLevels) {
+			tmp: Input2Cubed;
+			tmp.set(0, 0, 0, ret);
+			if (repeat) {
+				tmp.set(0, 0, 1, ret);
+				tmp.set(1, 0, 1, ret);
+				tmp.set(1, 0, 0, ret);
+			}
+			ret = ib.compressAndAdd(ref tmp);
+		}
+
+		return ret;
+	}
+
+	/*!
+	 * Compresses the SVO into the given InputBuffer.
+	 */
 	fn toBuffer(ref ib: InputBuffer) u32
 	{
 		return decent(ref ib, 0, mLevels);
