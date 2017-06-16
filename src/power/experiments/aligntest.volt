@@ -43,7 +43,7 @@ fn getColor(c: u32) math.Color4b
 		r = g = b = cast(u8)floor(f * 256.f);
 	}
 
-	return math.Color4b.opCall(r, g, b, 255);
+	return math.Color4b.from(r, g, b, 255);
 }
 
 class AlignTest : GameSimpleScene
