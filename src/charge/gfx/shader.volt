@@ -403,7 +403,7 @@ fn printDebug(name: string, shader: GLuint, program: bool, type: string) bool
 			io.error.writef("shader \"%s\" %s status ok!\n%s", name, type, buffer);
 			io.error.flush();
 		} else if (program) {
-			debug writefln("shader \"%s\" %s status ok!", name, type);
+			debug io.error.writefln("shader \"%s\" %s status ok!", name, type);
 			debug io.error.flush();
 		}
 
