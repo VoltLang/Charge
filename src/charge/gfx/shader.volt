@@ -5,7 +5,7 @@
  */
 module charge.gfx.shader;
 
-import watt.io;
+import io = watt.io;
 import lib.gl;
 import charge.math.matrix;
 
@@ -400,27 +400,33 @@ fn printDebug(name: string, shader: GLuint, program: bool, type: string) bool
 	case 1: //GL_TRUE:
 		// Only print warnings from the linking stage.
 		if (length != 0 && program) {
-			writef("shader \"%s\" %s status ok!\n%s", name, type, buffer);
+			io.error.writef("shader \"%s\" %s status ok!\n%s", name, type, buffer);
+			io.error.flush();
 		} else if (program) {
-			writefln("shader \"%s\" %s status ok!", name, type);
+			debug writefln("shader \"%s\" %s status ok!", name, type);
+			debug io.error.flush();
 		}
 
 		return true;
 
 	case 0: //GL_FALSE:
 		if (length != 0) {
-			writef("shader \"%s\" %s status ok!\n%s", name, type, buffer);
+			io.error.writef("shader \"%s\" %s status error!\n%s", name, type, buffer);
+			io.error.flush();
 		} else if (program) {
-			writefln("shader \"%s\" %s status ok!", name, type);
+			io.error.writefln("shader \"%s\" %s status error!", name, type);
+			io.error.flush();
 		}
 
 		return false;
 
 	default:
 		if (length != 0) {
-			writef("shader \"%s\" %s status %s\n%s", name, type, status, buffer);
+			io.error.writef("shader \"%s\" %s status %s\n%s", name, type, status, buffer);
+			io.error.flush();
 		} else if (program) {
-			writefln("shader \"%s\" %s status %s", name, type, status);
+			io.error.writefln("shader \"%s\" %s status %s", name, type, status);
+			io.error.flush();
 		}
 
 		return false;
