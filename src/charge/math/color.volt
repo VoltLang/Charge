@@ -24,14 +24,14 @@ public:
 
 
 public:
-	global fn opCall(r: u8, g: u8, b: u8, a: u8) Color4b
+	global fn from(r: u8, g: u8, b: u8, a: u8) Color4b
 	{
 		res: Color4b = {r, g, b, a};
 		return res;
 	}
 
 	//! Converts a little endian RGBA value to little endian ABGR.
-	global fn opCall(value: u32) Color4b
+	global fn fromRGBA(value: u32) Color4b
 	{
 		// Little endian RGBA value.
 		res: Color4b = {
@@ -43,10 +43,17 @@ public:
 		return res;
 	}
 
+	//! Read a little endian ABGR.
+	global fn fromABGR(value: u32) Color4b
+	{
+		// Little endian RGBA value.
+		return *cast(Color4b*)&value;
+	}
+
 	fn modulate(c: Color4b)
 	{
-		c1 := Color4f.opCall(this);
-		c2 := Color4f.opCall(c);
+		c1 := Color4f.from(this);
+		c2 := Color4f.from(c);
 
 		r = cast(u8)(c1.r * c2.r * 255);
 		g = cast(u8)(c1.g * c2.g * 255);
@@ -56,8 +63,8 @@ public:
 
 	fn blend(c: Color4b)
 	{
-		c1 := Color4f.opCall(this);
-		c2 := Color4f.opCall(c);
+		c1 := Color4f.from(this);
+		c2 := Color4f.from(c);
 
 		alpha := c2.a;
 		alpha_minus_one := 1.0f - c2.a;
@@ -72,9 +79,19 @@ public:
 	{
 		return format("(%s, %s, %s, %s)", r, g, b, a);
 	}
-/+
-	inout(u8)* ptr() @property inout { return &r; }
-+/
+
+	fn toABGR() u32
+	{
+		return *cast(u32*)&this;
+	}
+
+	fn toRGBA() u32
+	{
+		return (cast(u32)r << 24u) |
+		       (cast(u32)g << 16u) |
+		       (cast(u32)b <<  8u) |
+		       (cast(u32)a <<  0u);
+	}
 }
 
 
@@ -86,25 +103,28 @@ public:
 	global White: const(Color3f) = {1.0f, 1.0f, 1.0f};
 	global Black: const(Color3f) = {0.0f, 0.0f, 0.0f};
 
+
 public:
-	global fn opCall(r: f32, g: f32, b: f32) Color3f
+	global fn from(r: f32, g: f32, b: f32) Color3f
 	{
 		res: Color3f = {r, g, b};
 		return res;
 	}
 
-	global fn opCall(c: Color4b) Color3f
+	global fn from(c: Color4b) Color3f
 	{
-		return Color3f.opCall(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f);
+		return Color3f.from(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f);
 	}
 
 	fn toString() string
 	{
 		return format("(%s, %s, %s)", r, g, b);
 	}
-/+
-	inout(f32)* ptr() @property inout { return &r; }
-+/
+
+	@property fn ptr() f32*
+	{
+		return &r;
+	}
 }
 
 
@@ -118,27 +138,22 @@ public:
 
 
 public:
-	global fn opCall() Color4f
+	global fn from(c: Color4b) Color4f
 	{
-		return Black;
+		return Color4f.from(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
 	}
 
-	global fn opCall(c: Color4b) Color4f
+	global fn from(c: Color3f) Color4f
 	{
-		return Color4f.opCall(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
+		return Color4f.from(c.r, c.g, c.b, 1.0f);
 	}
 
-	global fn opCall(c: Color3f) Color4f
+	global fn from(r: f32, g: f32, b: f32) Color4f
 	{
-		return Color4f.opCall(c.r, c.g, c.b, 1.0f);
+		return Color4f.from(r, g, b, 1.0f);
 	}
 
-	global fn opCall(r: f32, g: f32, b: f32) Color4f
-	{
-		return Color4f.opCall(r, g, b, 1.0f);
-	}
-
-	global fn opCall(r: f32, g: f32, b: f32, a: f32) Color4f
+	global fn from(r: f32, g: f32, b: f32, a: f32) Color4f
 	{
 		res: Color4f = {r, g, b, a};
 		return res;
@@ -180,7 +195,9 @@ public:
 		       ((cast(u32)(b * 255.0f) & 0xff) <<  8u) |
 		       ((cast(u32)(a * 255.0f) & 0xff) <<  0u);
 	}
-/+
-	inout(f32)* ptr() @property inout { return &r; }
-+/
+
+	@property fn ptr() f32*
+	{
+		return &r;
+	}
 }
