@@ -8,6 +8,12 @@ module charge.math.color;
 import watt.text.format;
 
 
+/*!
+ * A color value with 8 bits of unsigned values per channel.
+ *
+ * Is layed out in memory in r, g, b, a order. For little endian machines this
+ * means that reading the color as a u32 it will return it in ABGR form.
+ */
 struct Color4b
 {
 public:
@@ -16,6 +22,7 @@ public:
 	global White: const(Color4b) = {255, 255, 255, 255};
 	global Black: const(Color4b) = {  0,   0,   0, 255};
 
+
 public:
 	global fn opCall(r: u8, g: u8, b: u8, a: u8) Color4b
 	{
@@ -23,8 +30,10 @@ public:
 		return res;
 	}
 
-	global fn opCall(value: uint) Color4b
+	//! Converts a little endian RGBA value to little endian ABGR.
+	global fn opCall(value: u32) Color4b
 	{
+		// Little endian RGBA value.
 		res: Color4b = {
 			cast(u8)((value >> 24) & 0xff),
 			cast(u8)((value >> 16) & 0xff),
@@ -107,6 +116,7 @@ public:
 	global White: const(Color4f) = {1.0f, 1.0f, 1.0f, 1.0f};
 	global Black: const(Color4f) = {0.0f, 0.0f, 0.0f, 1.0f};
 
+
 public:
 	global fn opCall() Color4f
 	{
@@ -134,9 +144,41 @@ public:
 		return res;
 	}
 
+	fn opAddAssign(c: Color4b)
+	{
+		r += c.r * (1.0f / 255.0f);
+		g += c.g * (1.0f / 255.0f);
+		b += c.b * (1.0f / 255.0f);
+		a += c.a * (1.0f / 255.0f);
+	}
+
+	fn opMulAssign(f: f32)
+	{
+		r *= f;
+		g *= f;
+		b *= f;
+		a *= f;
+	}
+
 	fn toString() string
 	{
 		return format("(%s, %s, %s, %s)", r, g, b, a);
+	}
+
+	fn toABGR() u32
+	{
+		return ((cast(u32)(r * 255.0f) & 0xff) <<  0u) |
+		       ((cast(u32)(g * 255.0f) & 0xff) <<  8u) |
+		       ((cast(u32)(b * 255.0f) & 0xff) << 16u) |
+		       ((cast(u32)(a * 255.0f) & 0xff) << 24u);
+	}
+
+	fn toRGBA() u32
+	{
+		return ((cast(u32)(r * 255.0f) & 0xff) << 24u) |
+		       ((cast(u32)(g * 255.0f) & 0xff) << 16u) |
+		       ((cast(u32)(b * 255.0f) & 0xff) <<  8u) |
+		       ((cast(u32)(a * 255.0f) & 0xff) <<  0u);
 	}
 /+
 	inout(f32)* ptr() @property inout { return &r; }
