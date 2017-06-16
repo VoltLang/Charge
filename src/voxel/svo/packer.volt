@@ -60,6 +60,32 @@ fn repackFrom(ref dst: Input8Cubed, arr: scope Input2Cubed[], start: u32)
 	}
 }
 
+fn genMipmap(ref src: Input2Cubed) u32
+{
+	color: math.Color4f;
+	count: u32;
+
+	foreach (i; 0 .. Input2Cubed.ElementsNum) {
+		if (!src.getBit(i)) {
+			continue;
+		}
+
+		from := cast(u8*)&src.data[i];
+		color.r += cast(f32)from[3] * (1.0f / 255.0f);
+		color.g += cast(f32)from[2] * (1.0f / 255.0f);
+		color.b += cast(f32)from[1] * (1.0f / 255.0f);
+		color.a += cast(f32)from[0] * (1.0f / 255.0f);
+		count++;
+	}
+
+	if (!count) {
+		return 0;
+	}
+
+	color *= 1.0f / count;
+	return color.toRGBA();
+}
+
 /*!
  * Packer to randomly add voxels to and then compact into a input buffer.
  */
@@ -70,6 +96,7 @@ public:
 	enum u32 ArrNum = ArrType.ElementsNum;
 	enum u32 ArrMask = ArrNum - 1;
 	enum u32 ArrLevels = ArrType.Pow;
+	enum u32 ColorLevelStart = Input4Cubed.Pow + 3;
 
 
 private:
@@ -156,8 +183,9 @@ private:
 	fn decent(ref ib: InputBuffer, index: u32, level: u32) u32
 	{
 		// Final bottom level.
-		if (level <= Input4Cubed.Pow) {
-			return finalLevels(ref ib, index);
+		if (level <= ColorLevelStart) {
+			dummy: ArrType;
+			return decent(ref ib, ref dummy, index, level);
 		}
 
 		ptr := &mArr[index];
@@ -176,6 +204,45 @@ private:
 		return ib.compressAndAdd(ref *ptr);
 	}
 
+	fn decent(ref ib: InputBuffer, ref outColors: ArrType,
+	          index: u32, level: u32) u32
+	{
+		ptr := &mArr[index];
+		if (level <= ArrType.Pow) {
+			outColors = *ptr;
+			return ib.compressAndAdd(ref *ptr);
+		}
+
+		// Colors
+		large: Input4Cubed;
+		colors: ArrType;
+
+		// Translate indicies.
+		foreach (i; 0u .. ArrNum) {
+			if (!ptr.getBit(i)) {
+				continue;
+			}
+
+			d := ptr.data[i];
+			r := decent(ref ib, ref colors, d, level - 1);
+			ptr.set(i, r);
+
+			// Set the colors in the large.
+			foreach (j; 0u .. 8u) {
+				if (!colors.getBit(j)) {
+					continue;
+				}
+
+				morton := (i << 3) + j;
+				large.set(morton, colors.data[j]);
+			}
+
+			outColors.set(i, genMipmap(ref colors));
+		}
+
+		return ib.compressAndAdd(ref *ptr, ref large);
+	}
+
 	fn finalLevels(ref ib: InputBuffer, index: u32) u32
 	{
 		large: Input4Cubed;
@@ -190,6 +257,7 @@ private:
 			}
 
 			d := ptr.data[i];
+			// Compress and add the color.
 			r := ib.compressAndAdd(ref mArr[d]);
 			ptr.set(i, r);
 		}
