@@ -58,4 +58,21 @@ void main(void)
 	outPosition = pos;
 	gl_Position = matrix * vec4(pos, 1.0);
 	gl_PointSize = (pointScale * POINT_SIZE) / gl_Position.w;
+
+/*
+#define RED vec4(255.0, 0, 0, 255.0)
+#define BLUE vec4(0, 0, 255.0, 255.0)
+#define GREEN vec4(0, 255.0, 0, 255.0)
+#define PURPLE vec4(255.0, 0.0, 255.0, 255.0)
+#define FACTOR 0.99
+
+	vec4 c = unpackUnorm4x8(inColor);
+	if (gl_PointSize < 1.0) {
+		outColor = packUnorm4x8(mix(GREEN, c, FACTOR));
+	} else if (gl_PointSize > 2.0) {
+		outColor = packUnorm4x8(mix(RED, c, FACTOR));
+	} else if (gl_PointSize > 1.0) {
+		outColor = packUnorm4x8(mix(PURPLE, c, FACTOR));
+	}
+*/
 }
