@@ -11,6 +11,7 @@ import math = charge.math;
 
 import charge.gfx;
 
+import voxel.svo.util;
 import voxel.svo.design;
 import voxel.svo.shaders;
 
@@ -193,6 +194,15 @@ public:
 		state.pointScale = cast(f32)
 			(height / (2.0 * tan(fov / 2.0)));
 
+/*
+		dist: VoxelDistanceFinder;
+		dist.setup(fov, input.targetHeight, input.targetWidth);
+		io.error.writefln("#############");
+		io.error.writefln("%s", dist.getDistance(10));
+		io.error.writefln("%s", dist.getDistance(11));
+		io.error.writefln("\n\n");
+		io.error.flush();
+*/
 
 		glCheckError();
 		glBindTextureUnit(0, mOctTexture);
