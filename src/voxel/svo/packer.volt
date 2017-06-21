@@ -103,6 +103,8 @@ private:
 	mLevels: u32;
 	mArr: ArrType[];
 	mArrNum: u32;
+	mCache: u32[u32];
+	mCacheColor: Input2Cubed[u32];
 
 
 public:
@@ -111,6 +113,15 @@ public:
 		mLevels = levels;
 		mArr = new ArrType[](256);
 		mArrNum = 1;
+
+		assert(mLevels % ArrLevels == 0);
+	}
+
+	fn setup(levels: u32, arr: ArrType[])
+	{
+		mLevels = levels;
+		mArr = arr;
+		mArrNum = cast(u32)arr.length;
 
 		assert(mLevels % ArrLevels == 0);
 	}
@@ -197,11 +208,18 @@ private:
 			}
 
 			d := ptr.data[i];
-			r := decent(ref ib, d, level - ArrLevels);
-			ptr.set(i, r);
+			result: u32;
+			if (cache := d in mCache) {
+				result = *cache;
+			} else {
+				result = decent(ref ib, d, level - ArrLevels);
+			}
+			ptr.set(i, result);
 		}
 
-		return ib.compressAndAdd(ref *ptr);
+		ret := ib.compressAndAdd(ref *ptr);
+		mCache[index] = ret;
+		return ret;
 	}
 
 	fn decent(ref ib: InputBuffer, ref outColors: ArrType,
@@ -223,9 +241,17 @@ private:
 				continue;
 			}
 
+
 			d := ptr.data[i];
-			r := decent(ref ib, ref colors, d, level - 1);
-			ptr.set(i, r);
+			result: u32;
+			if (cache := d in mCache) {
+				result = *cache;
+				colors = mCacheColor[d];
+			} else {
+				result = decent(ref ib, ref colors, d, level - 1);
+			}
+
+			ptr.set(i, result);
 
 			// Set the colors in the large.
 			foreach (j; 0u .. 8u) {
@@ -240,7 +266,10 @@ private:
 			outColors.set(i, genMipmap(ref colors));
 		}
 
-		return ib.compressAndAdd(ref *ptr, ref large);
+		ret := ib.compressAndAdd(ref *ptr, ref large);
+		mCache[index] = ret;
+		mCacheColor[index] = outColors;
+		return ret;
 	}
 
 	fn finalLevels(ref ib: InputBuffer, index: u32) u32

@@ -7,6 +7,7 @@ module voxel.svo.gen;
 
 import voxel.svo.design;
 import voxel.svo.input;
+import voxel.svo.packer;
 
 
 /*
@@ -17,35 +18,33 @@ struct OneGen
 public:
 	enum Max = 32;
 
+
 private:
 	t: Input2Cubed;
-	pos: u32[Max];
+	mArr: Input2Cubed[Max];
 
 
 public:
 	/*!
-	 * Generate a completely flat white surface.
+	 * Generate a single white voxel at origin.
 	 */
 	fn gen(ref ib: InputBuffer, levels: u32) u32
 	{
 		assert(levels < Max);
 
-		count: u32;
-
 		// Initial bits.
-		t.set(0, 0, 0, 0xff_ff_ff_ff);
-		pos[count] = ib.compressAndAdd(ref t);
-		t.reset();
+		mArr[levels-1].set(0, 0, 0, 0xff_ff_ff_ff);
 
 		foreach (i; 1 .. levels) {
-			targetPos := pos[count++];
+			targetPos := levels - i;
+			arrPos := levels - i - 1;
 
-			t.set(0, 0, 0, targetPos);
-			pos[count] = ib.compressAndAdd(ref t);
-			t.reset();
+			mArr[arrPos].set(0, 0, 0, targetPos);
 		}
 
-		return pos[count];
+		packer: Packer;
+		packer.setup(11, mArr[0 .. levels]);
+		return packer.toBuffer(ref ib);
 	}
 }
 
@@ -54,9 +53,10 @@ struct FlatGen
 public:
 	enum Max = 32;
 
+
 private:
 	t: Input2Cubed;
-	pos: u32[Max];
+	mArr: Input2Cubed[Max];
 
 
 public:
@@ -67,27 +67,24 @@ public:
 	{
 		assert(levels < Max);
 
-		count: u32;
-
 		// Initial bits.
-		t.set(0, 1, 0, 0xff_ff_ff_ff);
-		t.set(1, 1, 0, 0xff_ff_ff_ff);
-		t.set(1, 1, 1, 0xff_ff_ff_ff);
-		t.set(0, 1, 1, 0xff_ff_ff_ff);
-		pos[count] = ib.compressAndAdd(ref t);
-		t.reset();
+		mArr[levels-1].set(0, 1, 0, 0xff_ff_ff_ff);
+		mArr[levels-1].set(1, 1, 0, 0xff_ff_ff_ff);
+		mArr[levels-1].set(1, 1, 1, 0xff_ff_ff_ff);
+		mArr[levels-1].set(0, 1, 1, 0xff_ff_ff_ff);
 
 		foreach (i; 1 .. levels) {
-			targetPos := pos[count++];
+			targetPos := levels - i;
+			arrPos := levels - i - 1;
 
-			t.set(0, 0, 0, targetPos);
-			t.set(1, 0, 0, targetPos);
-			t.set(1, 0, 1, targetPos);
-			t.set(0, 0, 1, targetPos);
-			pos[count] = ib.compressAndAdd(ref t);
-			t.reset();
+			mArr[arrPos].set(0, 0, 0, targetPos);
+			mArr[arrPos].set(1, 0, 0, targetPos);
+			mArr[arrPos].set(1, 0, 1, targetPos);
+			mArr[arrPos].set(0, 0, 1, targetPos);
 		}
 
-		return pos[count];
+		packer: Packer;
+		packer.setup(11, mArr[0 .. levels]);
+		return packer.toBuffer(ref ib);
 	}
 }
