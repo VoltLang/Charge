@@ -21,6 +21,7 @@ layout (binding = VOXEL_SRC, std430) buffer BufferIn
 	uint inData[];
 };
 
+
 uvec4 unpack_2_10_10_10(uint data)
 {
 	return uvec4(

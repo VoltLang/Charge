@@ -166,9 +166,9 @@ public:
 		mSteps ~= new ListStep(    b.s, 1, 0, 0, 3, 2, 0.0f);
 		mSteps ~= new ListStep(    b.s, 0, 1, 2, 5, 2, 0.1f);
 		mSteps ~= new ListStep(    b.s, 1, 0, 0, 7, 3, 0.0f);
-		mSteps ~= new ElementsStep(b.s, 0,      10, 1);
+		mSteps ~= new RayStep(b.s, 0,      10, 1);
 		mSteps ~= new ListStep(    b.s, 2, 0, 0, 7, 2, 0.0f);
-		mSteps ~= new ElementsStep(b.s, 0,       9, 2);
+		mSteps ~= new RayStep(b.s, 0,       9, 2);
 	}
 
 	fn close()

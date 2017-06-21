@@ -112,11 +112,11 @@ public:
 		return new ListStep(s, src, dst1, dst2, powerStart, powerLevels, distance);
 	}
 
-	fn makeCubes(src: u32) ElementsStep
+	fn makeCubes(src: u32) CubeStep
 	{
 		powerStart := endLevelOfBuf[src];
 		tracker.free(src); // Consume
-		return new ElementsStep(s, src, powerStart, 0);
+		return new CubeStep(s, src, powerStart);
 	}
 
 	fn makePoints(src: u32) PointsStep
@@ -199,7 +199,6 @@ public:
 
 	override fn run(ref state: StepState)
 	{
-
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 //		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		dispatchShader.bind();
@@ -236,7 +235,6 @@ public:
 
 	override fn run(ref state: StepState)
 	{
-
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 //		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		dispatchShader.bind();
@@ -255,7 +253,42 @@ public:
 	}
 }
 
-class ElementsStep : Step
+class CubeStep : Step
+{
+public:
+	dispatchShader: GfxShader;
+	drawShader: GfxShader;
+
+
+public:
+	this(s: ShaderStore, src: u32, powerStart: u32)
+	{
+		this.name = "cubes";
+
+		dispatchShader = s.makeElementsDispatchShader(src, BufferCommandId);
+		drawShader = s.makeCubesShader(src, powerStart);
+	}
+
+	override fn run(ref state: StepState)
+	{
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+		dispatchShader.bind();
+		glDispatchCompute(1u, 1u, 1u);
+
+		drawShader.bind();
+		drawShader.float3("cameraPos".ptr, state.camPosition.ptr);
+		drawShader.matrix4("matrix", 1, false, ref state.matrix);
+
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+//		                GL_SHADER_STORAGE_BARRIER_BIT |
+//		                GL_COMMAND_BARRIER_BIT);
+		glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, null);
+	}
+}
+
+class RayStep : Step
 {
 public:
 	dispatchShader: GfxShader;
@@ -265,10 +298,10 @@ public:
 public:
 	this(s: ShaderStore, src: u32, powerStart: u32, powerLevels: u32)
 	{
-		this.name = powerLevels == 0 ? "cubes" : "raycube";
+		this.name = "ray";
 
 		dispatchShader = s.makeElementsDispatchShader(src, BufferCommandId);
-		drawShader = s.makeElementsShader(src, powerStart, powerLevels);
+		drawShader = s.makeRayShader(src, powerStart, powerLevels);
 	}
 
 	override fn run(ref state: StepState)
@@ -451,23 +484,50 @@ public:
 		return s;
 	}
 
-	fn makeElementsShader(src: u32, powerStart: u32, powerLevels: u32) GfxShader
+	fn makeCubesShader(src: u32, powerStart: u32) GfxShader
 	{
-		suffix := powerLevels == 0 ? "cubes" : "tracer";
-		name := format("svo.%s (src: %s, start: %s, levels: %s)",
-			suffix, src, powerStart, powerLevels);
+		name := format("svo.cubes (src: %s, start: %s)",
+			src, powerStart);
 		if (s := name in mShaderStore) {
 			return *s;
 		}
 
-		vert := cast(string)import("power/shaders/tracer.vert.glsl");
+		vert := cast(string)import("voxel/ray.vert.glsl");
+		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
+		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
+		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
+		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
+		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
+		vert = replace(vert, "%POWER_LEVELS%", "0");
+		frag := cast(string)import("voxel/ray.frag.glsl");
+		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
+		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
+		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
+		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
+		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
+		frag = replace(frag, "%POWER_LEVELS%", "0");
+
+		s := new GfxShader(name, vert, null, frag);
+		mShaderStore[name] = s;
+		return s;
+	}
+
+	fn makeRayShader(src: u32, powerStart: u32, powerLevels: u32) GfxShader
+	{
+		name := format("svo.ray (src: %s, start: %s, levels: %s)",
+			src, powerStart, powerLevels);
+		if (s := name in mShaderStore) {
+			return *s;
+		}
+
+		vert := cast(string)import("voxel/ray.vert.glsl");
 		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
 		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
 		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
 		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
 		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
 		vert = replace(vert, "%POWER_LEVELS%", format("%s", powerLevels));
-		frag := cast(string)import("power/shaders/tracer.frag.glsl");
+		frag := cast(string)import("voxel/ray.frag.glsl");
 		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
 		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
 		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
