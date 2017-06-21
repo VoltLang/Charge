@@ -38,6 +38,15 @@ struct PackedData
 }
 */
 
+uint packRGB565(uint color)
+{
+	//uint ret = 0;
+	//ret = bitfieldInsert(ret, ,  0, 5);
+	uint ret = bitfieldInsert(color >>  3, color >> 10,  5, 6);
+	ret = bitfieldInsert(ret, color >> 19, 11, 5);
+	return ret;
+}
+
 void main(void)
 {
 	// The morton value for this position.
@@ -68,7 +77,15 @@ void main(void)
 	uint dataOffset = packedOffset + offset +
 		bitCount(bitfieldExtract(bits, 0, int(select)));
 	uint data = texelFetch(octree, int(dataOffset)).r;
+	//data = data >> ((dataOffset & 1) << 4);
 
+
+#if 0
+	packedPos1 = bitfieldInsert(packedPos1, gl_LocalInvocationID.x,  0,  2);
+	packedPos1 = bitfieldInsert(packedPos1, gl_LocalInvocationID.y, 16,  2);
+	packedPos2 = bitfieldInsert(packedPos2, gl_LocalInvocationID.z,  0,  2);
+	packedPos2 = bitfieldInsert(packedPos2,       packRGB565(data), 16, 16);
+#elif 0
 	packedPos1 = bitfieldInsert(packedPos1,
 		bitfieldExtract(morton, X_SHIFT + 3, 1),  1, 1);
 	packedPos1 = bitfieldInsert(packedPos1,
@@ -81,6 +98,22 @@ void main(void)
 		bitfieldExtract(morton, Y_SHIFT, 1), 16, 1);
 	packedPos2 = bitfieldInsert(packedPos2,
 		bitfieldExtract(morton, Z_SHIFT, 1),  0, 1);
+	packedPos2 = bitfieldInsert(packedPos2,
+		packRGB565(data), 16, 16);
+#else
+	packedPos1 = bitfieldInsert(packedPos1,
+		bitfieldExtract(morton, X_SHIFT + 3, 1),  1, 1);
+	packedPos1 = bitfieldInsert(packedPos1,
+		bitfieldExtract(morton, Y_SHIFT + 3, 1), 17, 1);
+	packedPos2 = bitfieldInsert(packedPos2,
+		bitfieldExtract(morton, Z_SHIFT + 3, 1),  1, 1);
+	packedPos1 = bitfieldInsert(packedPos1,
+		bitfieldExtract(morton, X_SHIFT, 1),  0, 1);
+	packedPos1 = bitfieldInsert(packedPos1,
+		bitfieldExtract(morton, Y_SHIFT, 1), 16, 1);
+	packedPos2 = bitfieldInsert(packedPos2,
+		bitfieldExtract(morton, Z_SHIFT, 1),  0, 1);
+#endif
 
 	uint index = atomicCounterIncrement(counter[VOXEL_DST1]) * 3;
 	outData1[index + 0] = packedPos1;

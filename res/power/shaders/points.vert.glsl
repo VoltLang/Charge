@@ -22,6 +22,7 @@ layout (binding = VOXEL_SRC, std430) buffer BufferIn
 	uint inData[];
 };
 
+
 uvec4 unpack_2_10_10_10(uint data)
 {
 	return uvec4(
@@ -40,21 +41,32 @@ uvec4 unpack_16_16_16_16(uint data1, uint data2)
 		(data2 >> 16) & 0xFFFF);
 }
 
+uint unpack_RGB565(uint data)
+{
+	uint ret = 0;
+	ret = bitfieldInsert(ret,
+		bitfieldExtract(data,  0+0, 5),  0+3, 5);
+	ret = bitfieldInsert(ret,
+		bitfieldExtract(data,  5+0, 6),  8+2, 6);
+	ret = bitfieldInsert(ret,
+		bitfieldExtract(data, 11+0, 5), 16+3, 5);
+	return ret;
+}
+
 void main(void)
 {
 	uint index = gl_VertexID * 3;
-
-	uint inPos1 = inData[index + 0];
-	uint inPos2 =  inData[index + 1];
-	uint inColor = inData[index + 2];
+	uint inData1 = inData[index + 0];
+	uint inData2 = inData[index + 1];
+	uint inData3 = inData[index + 2];
 
 	// Extrat the positions.
-	uvec3 upos = unpack_16_16_16_16(inPos1, inPos2).xyz;
+	uvec4 upos = unpack_16_16_16_16(inData1, inData2);
 
 	// Generate a position in the middle of the voxel.
-	vec3 pos = vec3(upos) * DIVISOR_INV + DIVISOR_INV / 2.0;
+	vec3 pos = vec3(upos.xyz) * DIVISOR_INV + DIVISOR_INV / 2.0;
 
-	outColor = inColor;
+	outColor = inData3;
 	outPosition = pos;
 	gl_Position = matrix * vec4(pos, 1.0);
 	gl_PointSize = (pointScale * POINT_SIZE) / gl_Position.w;
