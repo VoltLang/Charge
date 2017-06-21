@@ -205,7 +205,6 @@ public:
 		io.error.writefln("\n\n");
 		io.error.flush();
 */
-
 		glCheckError();
 		glBindTextureUnit(0, mOctTexture);
 
@@ -228,6 +227,9 @@ public:
 		glBindVertexArray(mElementsVAO);
 
 		glCheckError();
+
+		// Completely sync with the GPU, for timing.
+		glFinish();
 
 		// Dispatch the entire pipeline.
 		foreach (i, step; mSteps) {
