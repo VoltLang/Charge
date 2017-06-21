@@ -144,17 +144,17 @@ public:
 
 		mSteps ~= b.makeInit(                         out    buf0);
 		mSteps ~= b.makeList1(    buf0, 3,            out    buf3);
-		mSteps ~= b.makeList2(    buf3, 3,      0.6f, out  buf6_1, out  buf6_2);
-		mSteps ~= b.makeList2(  buf6_1, 3,      0.2f, out  buf9_1, out  buf9_2);
+		mSteps ~= b.makeList2(    buf3, 3, 3.160798f, out  buf6_1, out  buf6_2);
+		mSteps ~= b.makeList2(  buf6_1, 3, 1.580399f, out  buf9_1, out  buf9_2);
 		mSteps ~= b.makeList2(  buf9_1, 2, 0.029376f, out buf11_1, out buf11_2);
 		mSteps ~= b.makeCubes( buf11_1);
 		mSteps ~= b.makePoints(buf11_2);
 
-		mSteps ~= b.makeList1(  buf9_2, 2, out buf11_1);
+		mSteps ~= b.makeListDouble(buf9_2, out buf11_1);
 		mSteps ~= b.makePoints(buf11_1);
 
 		mSteps ~= b.makeList1(buf6_2, 2, out  buf8);
-		mSteps ~= b.makeList1(  buf8, 2, out buf10);
+		mSteps ~= b.makeListDouble(buf8, out buf10);
 		mSteps ~= b.makePoints(buf10);
 	}
 
