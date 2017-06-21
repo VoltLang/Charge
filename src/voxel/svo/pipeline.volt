@@ -36,10 +36,11 @@ class Pipeline
 public:
 	enum Kind
 	{
-		Raycube,
-		CubePoint,
 		Points0,
 		Points1,
+		Raycube,
+		CubePoint,
+		Num,
 	}
 
 
@@ -84,6 +85,7 @@ public:
 			name = "raycubes";
 			makeRaycubePipeline(b);
 			break;
+		case Num: assert(false);
 		}
 
 		names: string[];
@@ -114,7 +116,7 @@ public:
 		// Create the storage for the voxel lists.
 		glCreateBuffers(cast(GLint)mOutputBuffers.length, mOutputBuffers.ptr);
 		foreach (buf; mOutputBuffers) {
-			glNamedBufferStorage(buf, 0x800_0000, null, GL_DYNAMIC_STORAGE_BIT);
+			glNamedBufferStorage(buf, 0x0800_0000, null, GL_DYNAMIC_STORAGE_BIT);
 		}
 	}
 

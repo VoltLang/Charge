@@ -51,12 +51,9 @@ public:
 		glCreateTextures(GL_TEXTURE_BUFFER, 1, &octTexture);
 		glTextureBuffer(octTexture, GL_R32UI, octBuffer);
 
-		pipes = [
-			new Pipeline(octTexture, ref state, Pipeline.Kind.Points0),
-			new Pipeline(octTexture, ref state, Pipeline.Kind.Points1),
-			new Pipeline(octTexture, ref state, Pipeline.Kind.CubePoint),
-			new Pipeline(octTexture, ref state, Pipeline.Kind.Raycube),
-		];
+		for (i: i32; i < Pipeline.Kind.Num; i++) {
+			pipes ~= new Pipeline(octTexture, ref state, i);
+		}
 
 		// Set the starting position.
 		resetPosition(1);
