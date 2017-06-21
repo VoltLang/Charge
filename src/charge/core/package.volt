@@ -78,6 +78,8 @@ public:
 
 	flags: coreFlag;
 	resizeSupported: bool;
+	verbosePrinting: bool;
+
 
 protected:
 	static initFuncs: fn()[] ;
