@@ -87,11 +87,12 @@ protected:
 private:
 	global instance: Core;
 
+
 public:
 	/*!
 	 * Return the current core.
 	 */
-	global fn get() Core { return instance; }
+	final global fn get() Core { return instance; }
 
 	/*!
 	 * Sets callback functions.
