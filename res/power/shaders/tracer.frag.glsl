@@ -1,7 +1,7 @@
 #version 450 core
 
-#define POWER_START %%
-#define POWER_LEVELS %%
+#define POWER_START %POWER_START%
+#define POWER_LEVELS %POWER_LEVELS%
 #define SPLIT_SIZE (1.0 / (1 << POWER_START))
 
 #define VOXEL_POWER (POWER_START + POWER_LEVELS)

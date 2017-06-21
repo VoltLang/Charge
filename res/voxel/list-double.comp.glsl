@@ -18,6 +18,7 @@ layout (binding = 0) uniform atomic_uint counter[8];
 uniform vec4 planes[8];
 uniform vec3 cameraPos;
 
+
 layout (binding = VOXEL_SRC, std430) buffer BufferIn
 {
 	uint inData[];

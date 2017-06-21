@@ -1,8 +1,8 @@
 #version 450 core
 
-#define VOXEL_SRC %%
-#define POWER_START %%
-#define POWER_LEVELS %%
+#define VOXEL_SRC %VOXEL_SRC%
+#define POWER_START %POWER_START%
+#define POWER_LEVELS %POWER_LEVELS%
 
 #define CUBE_POWER POWER_START
 #define DIVISOR (1 << CUBE_POWER)

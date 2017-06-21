@@ -362,12 +362,9 @@ public:
 			return *s;
 		}
 
-		indSrcStr := format("#define INDIRECT_SRC %s", src);
-		indDstStr := format("#define INDIRECT_DST %s", dst);
-
 		comp := cast(string)import("power/shaders/indirect-dispatch.comp.glsl");
-		comp = replace(comp, "#define INDIRECT_SRC %%", indSrcStr);
-		comp = replace(comp, "#define INDIRECT_DST %%", indDstStr);
+		comp = replace(comp, "%INDIRECT_SRC%", format("%s", src));
+		comp = replace(comp, "%INDIRECT_DST%", format("%s", dst));
 
 		s := new GfxShader(name, comp);
 		mShaderStore[name] = s;
@@ -381,12 +378,9 @@ public:
 			return *s;
 		}
 
-		indSrcStr := format("#define INDIRECT_SRC %s", src);
-		indDstStr := format("#define INDIRECT_DST %s", dst);
-
 		comp := cast(string)import("power/shaders/indirect-elements.comp.glsl");
-		comp = replace(comp, "#define INDIRECT_SRC %%", indSrcStr);
-		comp = replace(comp, "#define INDIRECT_DST %%", indDstStr);
+		comp = replace(comp, "%INDIRECT_SRC%", format("%s", src));
+		comp = replace(comp, "%INDIRECT_DST%", format("%s", dst));
 
 		s := new GfxShader(name, comp);
 		mShaderStore[name] = s;
@@ -400,12 +394,9 @@ public:
 			return *s;
 		}
 
-		indSrcStr := format("#define INDIRECT_SRC %s", src);
-		indDstStr := format("#define INDIRECT_DST %s", dst);
-
 		comp := cast(string)import("power/shaders/indirect-array.comp.glsl");
-		comp = replace(comp, "#define INDIRECT_SRC %%", indSrcStr);
-		comp = replace(comp, "#define INDIRECT_DST %%", indDstStr);
+		comp = replace(comp, "%INDIRECT_SRC%", format("%s", src));
+		comp = replace(comp, "%INDIRECT_DST%", format("%s", dst));
 
 		s := new GfxShader(name, comp);
 		mShaderStore[name] = s;
@@ -469,24 +460,20 @@ public:
 			return *s;
 		}
 
-		voxelSrcStr := format("#define VOXEL_SRC %s", src);
-		powerStartStr := format("#define POWER_START %s", powerStart);
-		powerLevelsStr := format("#define POWER_LEVELS %s", powerLevels);
-
 		vert := cast(string)import("power/shaders/tracer.vert.glsl");
 		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
 		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
 		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
-		vert = replace(vert, "#define VOXEL_SRC %%", voxelSrcStr);
-		vert = replace(vert, "#define POWER_START %%", powerStartStr);
-		vert = replace(vert, "#define POWER_LEVELS %%", powerLevelsStr);
+		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
+		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
+		vert = replace(vert, "%POWER_LEVELS%", format("%s", powerLevels));
 		frag := cast(string)import("power/shaders/tracer.frag.glsl");
 		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
 		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
 		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
-		frag = replace(frag, "#define VOXEL_SRC %%", voxelSrcStr);
-		frag = replace(frag, "#define POWER_START %%", powerStartStr);
-		frag = replace(frag, "#define POWER_LEVELS %%", powerLevelsStr);
+		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
+		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
+		frag = replace(frag, "%POWER_LEVELS%", format("%s", powerLevels));
 
 		s := new GfxShader(name, vert, null, frag);
 		mShaderStore[name] = s;
@@ -501,21 +488,18 @@ public:
 			return *s;
 		}
 
-		voxelSrcStr := format("#define VOXEL_SRC %s", src);
-		powerStartStr := format("#define POWER_START %s", powerStart);
-
 		vert := cast(string)import("power/shaders/points.vert.glsl");
 		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
 		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
 		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
-		vert = replace(vert, "#define VOXEL_SRC %%", voxelSrcStr);
-		vert = replace(vert, "#define POWER_START %%", powerStartStr);
+		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
+		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
 		frag := cast(string)import("power/shaders/points.frag.glsl");
 		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
 		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
 		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
-		frag = replace(frag, "#define VOXEL_SRC %%", voxelSrcStr);
-		frag = replace(frag, "#define POWER_START %%", powerStartStr);
+		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
+		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
 
 		s := new GfxShader(name, vert, null, frag);
 		mShaderStore[name] = s;
