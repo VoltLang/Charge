@@ -125,6 +125,13 @@ public:
 		tracker.free(src); // Consume
 		return new PointsStep(s, src, powerStart);
 	}
+
+	fn makeRayDouble(src: u32) RayDoubleStep
+	{
+		powerStart := endLevelOfBuf[src];
+		tracker.free(src); // Consume
+		return new RayDoubleStep(s, src, powerStart);
+	}
 }
 
 /*!
@@ -306,7 +313,41 @@ public:
 
 	override fn run(ref state: StepState)
 	{
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+		dispatchShader.bind();
+		glDispatchCompute(1u, 1u, 1u);
 
+		drawShader.bind();
+		drawShader.float3("cameraPos".ptr, state.camPosition.ptr);
+		drawShader.matrix4("matrix", 1, false, ref state.matrix);
+
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+//		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
+//		                GL_SHADER_STORAGE_BARRIER_BIT |
+//		                GL_COMMAND_BARRIER_BIT);
+		glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, null);
+	}
+}
+
+class RayDoubleStep : Step
+{
+public:
+	dispatchShader: GfxShader;
+	drawShader: GfxShader;
+
+
+public:
+	this(s: ShaderStore, src: u32, powerStart: u32)
+	{
+		this.name = "raydouble";
+
+		dispatchShader = s.makeElementsDispatchShader(src, BufferCommandId);
+		drawShader = s.makeRayDoubleShader(src, powerStart);
+	}
+
+	override fn run(ref state: StepState)
+	{
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 //		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		dispatchShader.bind();
@@ -342,7 +383,6 @@ public:
 
 	override fn run(ref state: StepState)
 	{
-
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 //		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		dispatchShader.bind();
@@ -534,6 +574,33 @@ public:
 		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
 		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
 		frag = replace(frag, "%POWER_LEVELS%", format("%s", powerLevels));
+
+		s := new GfxShader(name, vert, null, frag);
+		mShaderStore[name] = s;
+		return s;
+	}
+
+	fn makeRayDoubleShader(src: u32, powerStart: u32) GfxShader
+	{
+		name := format("svo.ray-double (src: %s, start: %s)",
+			src, powerStart);
+		if (s := name in mShaderStore) {
+			return *s;
+		}
+
+		vert := cast(string)import("voxel/ray.vert.glsl");
+		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
+		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
+		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
+		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
+		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
+
+		frag := cast(string)import("voxel/ray-double.frag.glsl");
+		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
+		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
+		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
+		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
+		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
 
 		s := new GfxShader(name, vert, null, frag);
 		mShaderStore[name] = s;

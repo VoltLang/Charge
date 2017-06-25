@@ -137,6 +137,21 @@ public:
 		mSteps ~= b.makePoints(buf11);
 	}
 
+	fn makeRayDoublePipeline(b: StepsBuilder, old: bool)
+	{
+		buf0, buf3, buf6, buf9: u32;
+
+		mSteps ~= b.makeInit(           out    buf0);
+		mSteps ~= b.makeList1( buf0, 3, out    buf3);
+		mSteps ~= b.makeList1( buf3, 3, out    buf6);
+		mSteps ~= b.makeList1( buf6, 3, out    buf9);
+		if (old) {
+			mSteps ~= new RayStep(b.s, buf9, 9, 2);
+		} else {
+			mSteps ~= b.makeRayDouble(buf9);
+		}
+	}
+
 	fn makeCubePointPipeline(b: StepsBuilder)
 	{
 		buf0, buf3, buf6_1, buf6_2: u32;
