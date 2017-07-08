@@ -108,6 +108,34 @@ public:
 		u.m[3][3] = 1.0;
 	}
 
+	fn setToModel(ref p: Point3f, ref q: Quatf)
+	{
+		qx: f64 = q.x;
+		qy: f64 = q.y;
+		qz: f64 = q.z;
+		qw: f64 = q.w;
+
+		u.m[0][0] = 1 - 2 * qy * qy - 2 * qz * qz;
+		u.m[0][1] =     2 * qx * qy - 2 * qw * qz;
+		u.m[0][2] =     2 * qx * qz + 2 * qw * qy;
+		u.m[0][3] = p.x;
+
+		u.m[1][0] =     2 * qx * qy + 2 * qw * qz;
+		u.m[1][1] = 1 - 2 * qx * qx - 2 * qz * qz;
+		u.m[1][2] =     2 * qy * qz - 2 * qw * qx;
+		u.m[1][3] = p.y;
+
+		u.m[2][0] =     2 * qx * qz - 2 * qw * qy;
+		u.m[2][1] =     2 * qy * qz + 2 * qw * qx;
+		u.m[2][2] = 1 - 2 * qx * qx - 2 * qy * qy;
+		u.m[2][3] = p.z;
+
+		u.m[3][0] = 0.0;
+		u.m[3][1] = 0.0;
+		u.m[3][2] = 0.0;
+		u.m[3][3] = 1.0;
+	}
+
 	fn setToOrtho(left: f64, right: f64,
 	              bottom: f64, top: f64,
 	              nearval: f64, farval: f64)

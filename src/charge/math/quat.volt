@@ -61,6 +61,21 @@ public:
 	}
 
 	/*!
+	 * Return the inverse rotation of this rotation.
+	 */
+	fn inverse() Quatf
+	{
+		result: Quatf;
+
+		result.w = -w;
+		result.x = x;
+		result.y = y;
+		result.z = z;
+
+		return result;
+	}
+
+	/*!
 	 * Return a new quat which is this rotation rotated by the given rotation.
 	 */
 	fn opMul(quat: Quatf) Quatf
@@ -112,5 +127,10 @@ public:
 	const @property fn length() f32
 	{
 		return sqrt(x*x + y*y + z*z + w*w);
+	}
+
+	@property fn ptr() f32*
+	{
+		return cast(f32*)&this;
 	}
 }
