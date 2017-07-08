@@ -112,7 +112,7 @@ void find_coreGL() {
 }
 
 void find_extensionsGL() {
-	GL_AMD_shader_trinary_minmax = has_ext("GL_AMD_shader_trinary_minmax");
+	GL_AMD_shader_atomic_counter_ops = has_ext("GL_AMD_shader_atomic_counter_ops");
 	GL_ARB_ES2_compatibility = has_ext("GL_ARB_ES2_compatibility");
 	GL_ARB_ES3_1_compatibility = has_ext("GL_ARB_ES3_1_compatibility");
 	GL_ARB_ES3_2_compatibility = has_ext("GL_ARB_ES3_2_compatibility");
@@ -120,6 +120,7 @@ void find_extensionsGL() {
 	GL_ARB_explicit_attrib_location = has_ext("GL_ARB_explicit_attrib_location");
 	GL_ARB_sampler_objects = has_ext("GL_ARB_sampler_objects");
 	GL_ARB_shader_atomic_counter_ops = has_ext("GL_ARB_shader_atomic_counter_ops");
+	GL_ARB_shader_ballot = has_ext("GL_ARB_shader_ballot");
 	GL_ARB_texture_storage = has_ext("GL_ARB_texture_storage");
 	return;
 }
@@ -630,6 +631,7 @@ void load_GL_VERSION_4_1(Loader load) {
 	glGenProgramPipelines = cast(typeof(glGenProgramPipelines))load("glGenProgramPipelines");
 	glIsProgramPipeline = cast(typeof(glIsProgramPipeline))load("glIsProgramPipeline");
 	glGetProgramPipelineiv = cast(typeof(glGetProgramPipelineiv))load("glGetProgramPipelineiv");
+	glProgramParameteri = cast(typeof(glProgramParameteri))load("glProgramParameteri");
 	glProgramUniform1i = cast(typeof(glProgramUniform1i))load("glProgramUniform1i");
 	glProgramUniform1iv = cast(typeof(glProgramUniform1iv))load("glProgramUniform1iv");
 	glProgramUniform1f = cast(typeof(glProgramUniform1f))load("glProgramUniform1f");
