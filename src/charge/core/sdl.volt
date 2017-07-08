@@ -10,6 +10,7 @@ import core.exception;
 import core.c.stdio : printf;
 import core.c.stdlib : exit;
 
+import io = watt.io;
 import watt.conv : toStringz;
 import watt.library;
 import watt.text.utf;
@@ -119,7 +120,9 @@ public:
 
 	override fn panic(msg: string)
 	{
-		printf("panic\n".ptr);
+		io.error.writefln("panic");
+		io.error.writefln("%s", msg);
+		io.error.flush();
 		exit(-1);
 	}
 
