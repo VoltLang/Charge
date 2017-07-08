@@ -14,6 +14,7 @@ import charge.gfx;
 import voxel.svo.util;
 import voxel.svo.design;
 import voxel.svo.shaders;
+import voxel.svo.buffers;
 
 
 /*!
@@ -98,7 +99,7 @@ public:
 		mOctTexture = octTexture;
 
 		// Setup a VAO.
-		createIndexBuffer();
+		mIndexBuffer = createIndexBuffer(662230u);
 		glCreateVertexArrays(1, &mElementsVAO);
 		glVertexArrayElementBuffer(mElementsVAO, mIndexBuffer);
 
@@ -260,53 +261,5 @@ public:
 		offset := cast(GLintptr)(src * 4);
 		glGetNamedBufferSubData(mAtomicBuffer, offset, 4, cast(void*)&val); 
 		return val;
-	}
-
-
-private:
-	fn createIndexBuffer()
-	{
-		/*
-		 * bitRakes' tri-strip cube, modified to fit OpenGL.
-		 *
-		 * Its still a bit DXy so backsides of triangles are out.
-		 *
-		 * 6-------2-------3-------7
-		 * |  E __/|\__ A  |  H __/|   
-		 * | __/   |   \__ | __/   |   
-		 * |/   D  |  B   \|/   I  |
-		 * 4-------0-------1-------5
-		 *         |  C __/|
-		 *         | __/   |  Cube = 8 vertices
-		 *         |/   J  |  =================
-		 *         4-------5  Single Strip: 3 2 1 0 4 2 6 3 7 1 5 4 7 6
-		 *         |\__ K  |  12 triangles:     A B C D E F G H I J K L
-		 *         |   \__ |
-		 *         |  L   \|         Left  D+E
-		 *         6-------7        Right  H+I
-		 *         |\__ G  |         Back  K+L
-		 *         |   \__ |        Front  A+B
-		 *         |  F   \|          Top  F+G
-		 *         2-------3       Bottom  C+J
-		 *
-		 */
-
-		num := 662230u*2;
-		//data: u32[] = [3, 2, 1, 0, 4, 2, 6, 3, 7, 1, 5, 4, 7, 6, 6, 3+8];
-		  data: u32[] = [4, 5, 6, 7, 2, 3, 3, 7, 1, 5, 5, 4+8];
-		length := cast(GLsizeiptr)(data.length * num * 4);
-
-		glCreateBuffers(1, &mIndexBuffer);
-		glNamedBufferData(mIndexBuffer, length, null, GL_STATIC_DRAW);
-		ptr := cast(u32*)glMapNamedBuffer(mIndexBuffer, GL_WRITE_ONLY);
-
-		foreach (i; 0 .. num) {
-			foreach (d; data) {
-				*ptr = d + i * 8;
-				ptr++;
-			}
-		}
-
-		glUnmapNamedBuffer(mIndexBuffer);
 	}
 }
