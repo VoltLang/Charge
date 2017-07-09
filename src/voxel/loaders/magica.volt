@@ -29,8 +29,9 @@ fn isMagicaFile(fileData: void[]) bool
 
 final class Loader
 {
-private:
-	mPacker: Packer;
+public:
+	mVoxels: Voxel[];
+	mColors: math.Color4b[];
 	mLevels: u32;
 
 
@@ -61,7 +62,7 @@ public:
 		return true;
 	}
 
-	fn loadFileFromData(data: void[]) bool
+	fn loadFileFromData(data: const(void)[]) bool
 	{
 		ptr := cast(ubyte*)data.ptr;
 		end := cast(ubyte*)data.ptr + data.length;
@@ -121,27 +122,52 @@ public:
 			p.add(v.x, v.z, v.y);
 		}
 
-		// Setup the packer.
-		mPacker.setup(mLevels);
+		// Copy and prune the voxel list.
+		mVoxels = new Voxel[](voxels.length);
 
 		added: u32; pruned: u32;
-		foreach (v; voxels) {
+		foreach (i, v; voxels) {
 			if (p.shouldPrune(v.x, v.z, v.y)) {
 				pruned++;
 				continue;
 			}
-			added++;
 
-			color := *cast(u32*)&colors[v.c-1];
-			mPacker.add(v.x, v.z, v.y, color);
+			mVoxels[added++] = v;
 		}
 
+		mVoxels = mVoxels[0 .. added];
+		mColors = new colors[0 .. $];
 		return true;
 	}
 
 	fn toBuffer(ref ib: InputBuffer, totalLevels: u32, repeat: bool) u32
 	{
-		return mPacker.toBuffer(ref ib, totalLevels, repeat);
+		// Setup the packer.
+		packer: Packer;
+		packer.setup(mLevels);
+
+		foreach (v; mVoxels) {
+			color := *cast(u32*)&mColors[v.c-1];
+			packer.add(v.x, v.z, v.y, color);
+		}
+
+		return packer.toBuffer(ref ib, totalLevels, repeat);
+	}
+
+	fn toBufferXYZ64ABGR32() u32[]
+	{
+		stride := 3u;
+		ret := new u32[](mVoxels.length * stride);
+		foreach (i, v; mVoxels) {
+			color := *cast(u32*)&mColors[v.c-1];
+
+			index := i * stride;
+			ret[index + 0] = v.x | v.z << 16u;
+			ret[index + 1] = v.y |   0 << 16u;
+			ret[index + 2] = color;
+		}
+
+		return ret;
 	}
 }
 
