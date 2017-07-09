@@ -54,11 +54,6 @@ fn glCheckFramebufferError(file: const(char)[] = __FILE__, line: int = __LINE__)
 	watt.io.std.writefln("%s:%s error: %s", file, line, code);
 }
 
-fn max(x: u32, y: u32) u32
-{
-	return x > y ? x : y;
-}
-
 fn log2(x: u32) u32
 {
 	ans: u32 = 0;

@@ -6,7 +6,10 @@
 module charge.gfx.texture;
 
 import core.exception;
+
+import watt.algorithm;
 import watt.text.format;
+
 import lib.stb.image;
 
 import charge.sys.file;
