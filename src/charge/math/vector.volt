@@ -56,7 +56,6 @@ public:
 		return &x;
 	}
 
-
 	fn opAdd(ref pos: Point3f) Point3f
 	{
 		return Point3f.opCall(pos.x + x, pos.y + y, pos.z + z);
@@ -116,11 +115,21 @@ public:
 		return v;
 	}
 
-	fn scale(v: f32)
+	fn opMul(val: f32) Vector3f
 	{
-		x *= v;
-		y *= v;
-		z *= v;
+		v: Vector3f = {
+			x * val,
+			y * val,
+			z * val,
+		};
+		return v;
+	}
+
+	fn scale(val: f32)
+	{
+		x *= val;
+		y *= val;
+		z *= val;
 	}
 
 	fn floor()
