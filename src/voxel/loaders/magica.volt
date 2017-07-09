@@ -132,6 +132,10 @@ public:
 				continue;
 			}
 
+			v.x = cast(u8)(size - 1 - v.x);
+			tmp := v.z;
+			v.z = v.y;
+			v.y = tmp;
 			mVoxels[added++] = v;
 		}
 
@@ -148,7 +152,7 @@ public:
 
 		foreach (v; mVoxels) {
 			color := *cast(u32*)&mColors[v.c-1];
-			packer.add(v.x, v.z, v.y, color);
+			packer.add(v.x, v.y, v.z, color);
 		}
 
 		return packer.toBuffer(ref ib, totalLevels, repeat);
@@ -162,8 +166,8 @@ public:
 			color := *cast(u32*)&mColors[v.c-1];
 
 			index := i * stride;
-			ret[index + 0] = v.x | v.z << 16u;
-			ret[index + 1] = v.y |   0 << 16u;
+			ret[index + 0] = v.x | v.y << 16u;
+			ret[index + 1] = v.z |   0 << 16u;
 			ret[index + 2] = color;
 		}
 
