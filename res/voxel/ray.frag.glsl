@@ -49,11 +49,11 @@ int calcAddress(uint select, uint node, int offset)
 
 void main(void)
 {
-	vec3 rayDir = normalize(inPosition - cameraPos);
-
 #if TRACER_POWER == 0
 	outColor = unpackUnorm4x8(inOffset);
 #else
+	vec3 rayDir = normalize(inPosition - cameraPos);
+
 	// Check for ray components being parallel to axes (i.e. values of 0).
 	const float epsilon = 0.000001;	// Platform dependent value!
 	if (abs(rayDir.x) <= epsilon) rayDir.x = epsilon * sign(rayDir.x);
