@@ -12,7 +12,8 @@ fn loadLibrary() Library
 	return Library.loads([
 		"libopenhmd.0.dylib",
 		"libopenhmd.dylib",
-		"libopenhmd.0.so",
+		"libopenhmd.so.0.0.0",
+		"libopenhmd.so.0",
 		"libopenhmd.so",
 		"OpenHMD.dll"]);
 }
