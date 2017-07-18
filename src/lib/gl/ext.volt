@@ -14,6 +14,7 @@ global bool GL_ARB_sampler_objects;
 global bool GL_ARB_shader_atomic_counter_ops;
 global bool GL_ARB_shader_ballot;
 global bool GL_ARB_texture_storage;
+global bool GL_EXT_texture_filter_anisotropic;
 extern(System) @loadDynamic {
 void glPrimitiveBoundingBoxARB(GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat);
 }

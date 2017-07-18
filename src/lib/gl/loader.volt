@@ -122,6 +122,7 @@ void find_extensionsGL() {
 	GL_ARB_shader_atomic_counter_ops = has_ext("GL_ARB_shader_atomic_counter_ops");
 	GL_ARB_shader_ballot = has_ext("GL_ARB_shader_ballot");
 	GL_ARB_texture_storage = has_ext("GL_ARB_texture_storage");
+	GL_EXT_texture_filter_anisotropic = has_ext("GL_EXT_texture_filter_anisotropic");
 	return;
 }
 
