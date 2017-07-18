@@ -632,5 +632,30 @@ public:
 		mShaderStore[name] = s;
 		return s;
 	}
-}
 
+	fn makeQuadsShader(src: u32, powerStart: u32) GfxShader
+	{
+		name := format("svo.quads (src: %s, start: %s)",
+			src, powerStart);
+		if (s := name in mShaderStore) {
+			return *s;
+		}
+
+		vert := cast(string)import("voxel/quads.vert.glsl");
+		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
+		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
+		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
+		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
+		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
+		frag := cast(string)import("voxel/quads.frag.glsl");
+		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
+		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
+		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
+		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
+		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
+
+		s := new GfxShader(name, vert, null, frag);
+		mShaderStore[name] = s;
+		return s;
+	}
+}
