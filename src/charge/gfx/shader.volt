@@ -176,6 +176,12 @@ final:
 	 * Matrix
 	 */
 
+	fn matrix3(name: const(char)*, count: int, transpose: bool, ref mat: Matrix3x3f)
+	{
+		loc := glGetUniformLocation(id, name);
+		glUniformMatrix3fv(loc, count, transpose, mat.ptr);
+	}
+
 	fn matrix4(name: const(char)*, count: int, transpose: bool, ref mat: Matrix4x4f)
 	{
 		loc := glGetUniformLocation(id, name);
