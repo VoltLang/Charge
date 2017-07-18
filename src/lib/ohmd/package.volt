@@ -111,45 +111,45 @@ enum ohmd_float_value {
 /*! A collection of int value information types used for getting information with ohmd_device_geti(). */
 enum ohmd_int_value {
 	/*! int[1] (get): Physical horizontal resolution of the device screen. */
-	OHMD_SCREEN_HORIZONTAL_RESOLUTION     =  0,
+	SCREEN_HORIZONTAL_RESOLUTION     =  0,
 	/*! int[1] (get): Physical vertical resolution of the device screen. */
-	OHMD_SCREEN_VERTICAL_RESOLUTION       =  1,
+	SCREEN_VERTICAL_RESOLUTION       =  1,
 
 	/*! int[1] (get): Get number of events waiting in digital input event queue. */
-	OHMD_BUTTON_EVENT_COUNT               =  2,
+	BUTTON_EVENT_COUNT               =  2,
 	/*! int[1] (get): Get if the there was an overflow in the event queue causing events to be dropped. */
-	OHMD_BUTTON_EVENT_OVERFLOW            =  3,
+	BUTTON_EVENT_OVERFLOW            =  3,
 	/*! int[1] (get): Get the number of physical digital input buttons on the device. */
-	OHMD_BUTTON_COUNT                     =  4,
+	BUTTON_COUNT                     =  4,
 	/*! int[2] (get): Performs an event pop action. Format: [button_index, button_state], where button_state is either OHMD_BUTTON_DOWN or OHMD_BUTTON_UP */
-	OHMD_BUTTON_POP_EVENT                 =  5,
+	BUTTON_POP_EVENT                 =  5,
 }
 
 /*! A collection of data information types used for setting information with ohmd_set_data(). */
 enum ohmd_data_value {
 	/*! void* (set): Set void* data for use in the internal drivers. */
-	OHMD_DRIVER_DATA		= 0,
+	DRIVER_DATA		= 0,
 	/*!
 	 * ohmd_device_properties* (set):
 	 * Set the device properties based on the ohmd_device_properties struct for use in the internal drivers.
 	 *
 	 * This can be used to fill in information about the device internally, such as Android, or for setting profiles.
 	 **/
-	OHMD_DRIVER_PROPERTIES	= 1,
+	DRIVER_PROPERTIES	= 1,
 }
 
 enum ohmd_int_settings {
 	/*! int[1] (set, default: 1): Set this to 0 to prevent OpenHMD from creating background threads to do automatic device ticking.
 	    Call ohmd_update(); must be called frequently, at least 10 times per second, if the background threads are disabled. */
-	OHMD_IDS_AUTOMATIC_UPDATE = 0,
+	IDS_AUTOMATIC_UPDATE = 0,
 }
 
 /*! Button states for digital input events. */
 enum ohmd_button_state {
 	/*! Button was pressed. */
-	OHMD_BUTTON_DOWN = 0,
+	BUTTON_DOWN = 0,
 	/*! Button was released. */
-	OHMD_BUTTON_UP   = 1
+	BUTTON_UP   = 1
 }
 
 /*! An opaque pointer to a context structure. */
@@ -180,6 +180,12 @@ struct ohmd_device
 	{ return ohmd_device_getf(&this, ohmd_float_value.POSITION_VECTOR, &vec[0]); }
 	fn getf(type: ohmd_float_value, _out: float*) i32
 	{ return ohmd_device_getf(&this, type, _out); }
+	fn setf(type: ohmd_float_value, _in: const(float)*) i32
+	{ return ohmd_device_setf(&this, type, _in); }
+	fn geti(type: ohmd_float_value, _out: int*) i32
+	{ return ohmd_device_geti(&this, type, _out); }
+	fn seti(type: ohmd_float_value, _in: const(int)*) i32
+	{ return ohmd_device_seti(&this, type, _in); }
 }
 
 /*! An opaque pointer to a structure representing arguments for a device. */
