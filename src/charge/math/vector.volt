@@ -21,9 +21,9 @@ struct Vector3f
 public:
 	x, y, z: f32;
 
-	global Up: Vector3f =      { 0.0f, 1.0f,  0.0f};
-//	global const Vector3f Heading = { 0.0f, 0.0f, -1.0f};
-//	global const Vector3f Left =    {-1.0f, 0.0f,  0.0f};
+	global Up: Vector3f =      { 0.0f,  1.0f,  0.0f};
+	global Forward: Vector3f = { 0.0f,  0.0f, -1.0f};
+	global Left: Vector3f =    {-1.0f,  0.0f,  0.0f};
 
 
 public:
@@ -167,6 +167,30 @@ public:
 		return x* vec.x + y* vec.y + z* vec.z;
 	}
 
+	fn toString() string
+	{
+		return format("(%s, %s, %s)", x, y, z);
+	}
+}
+
+
+/*!
+ * Vector in a 3D space. Charge follows the OpenGL convetion for axis
+ * so Y+ is up, X+ is right and Z- is forward.
+ *
+ * @ingroup Math
+ */
+struct Vector3d
+{
+public:
+	x, y, z: f64;
+
+	global Up: Vector3d      = { 0.0,  1.0,  0.0};
+	global Forward: Vector3d = { 0.0,  0.0, -1.0};
+	global Left: Vector3d =    {-1.0,  0.0,  0.0};
+
+
+public:
 	fn toString() string
 	{
 		return format("(%s, %s, %s)", x, y, z);

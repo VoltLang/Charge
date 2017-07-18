@@ -8,7 +8,50 @@ module charge.math.matrix;
 import watt.math : sin, cos, PI, PIf;
 import charge.math.quat;
 import charge.math.point;
+import charge.math.vector;
 
+
+struct Matrix3x3f
+{
+public:
+	a: f32[9];
+
+
+public:
+	fn setToIdentity()
+	{
+		foreach(ref v; a[1 .. $]) {
+			v = 0.f;
+		}
+		a[0] = 1.f;
+		a[4] = 1.f;
+		a[8] = 1.f;
+	}
+
+	fn setTo(ref mat: Matrix3x3d)
+	{
+		foreach (i, ref d; mat.u.a) {
+			a[i] = cast(f32)d;
+		}
+	}
+
+	fn setToAndTranspose(ref mat: Matrix3x3d)
+	{
+		a[0] = cast(f32)mat.u.a[0];
+		a[3] = cast(f32)mat.u.a[1];
+		a[6] = cast(f32)mat.u.a[2];
+
+		a[1] = cast(f32)mat.u.a[3];
+		a[4] = cast(f32)mat.u.a[4];
+		a[7] = cast(f32)mat.u.a[5];
+
+		a[2] = cast(f32)mat.u.a[6];
+		a[5] = cast(f32)mat.u.a[7];
+		a[8] = cast(f32)mat.u.a[8];
+	}
+
+	@property fn ptr() f32* { return a.ptr; }
+}
 
 struct Matrix4x4f
 {
@@ -84,6 +127,89 @@ public:
 	}
 
 	@property fn ptr() f32* { return a.ptr; }
+}
+
+struct Matrix3x3d
+{
+public:
+	union Union {
+		m: f64[3][3];
+		vecs: Vector3d[3];
+		a: f64[9];
+	}
+	u: Union;
+
+
+public:
+	fn setToIdentity()
+	{
+		u.m[0][0] = 1.0;
+		u.m[0][1] = 0.0;
+		u.m[0][2] = 0.0;
+
+		u.m[1][0] = 0.0;
+		u.m[1][1] = 1.0;
+		u.m[1][2] = 0.0;
+
+		u.m[2][0] = 0.0;
+		u.m[2][1] = 0.0;
+		u.m[2][2] = 1.0;
+	}
+
+	fn setTo(ref mat: Matrix4x4d)
+	{
+		u.m[0][0] = mat.u.m[0][0];
+		u.m[0][1] = mat.u.m[0][1];
+		u.m[0][2] = mat.u.m[0][2];
+
+		u.m[1][0] = mat.u.m[1][0];
+		u.m[1][1] = mat.u.m[1][1];
+		u.m[1][2] = mat.u.m[1][2];
+
+		u.m[2][0] = mat.u.m[2][0];
+		u.m[2][1] = mat.u.m[2][1];
+		u.m[2][2] = mat.u.m[2][2];
+	}
+
+	fn setToInverse(ref mat: Matrix4x4d)
+	{
+		this.setTo(ref mat);
+		this.inverseThis();
+	}
+
+	fn inverseThis()
+	{
+		t0 := u.m[1][1] * u.m[2][2] - u.m[2][1] * u.m[1][2];
+		t1 := u.m[2][1] * u.m[0][2] - u.m[0][1] * u.m[2][2];
+		t2 := u.m[0][1] * u.m[1][2] - u.m[1][1] * u.m[0][2];
+
+		t3 := u.m[2][0] * u.m[1][2] - u.m[1][0] * u.m[2][2];
+		t4 := u.m[0][0] * u.m[2][2] - u.m[2][0] * u.m[0][2];
+		t5 := u.m[1][0] * u.m[0][2] - u.m[0][0] * u.m[1][2];
+
+		t6 := u.m[1][0] * u.m[2][1] - u.m[2][0] * u.m[1][1];
+		t7 := u.m[2][0] * u.m[0][1] - u.m[0][0] * u.m[2][1];
+		t8 := u.m[0][0] * u.m[1][1] - u.m[1][0] * u.m[0][1];
+
+		det := u.m[0][0] * t0 + u.m[0][1] * t3 + u.m[0][2] * t6;
+
+		u.a[0] = t0 / det;
+		u.a[1] = t1 / det;
+		u.a[2] = t2 / det;
+		u.a[3] = t3 / det;
+		u.a[4] = t4 / det;
+		u.a[5] = t5 / det;
+		u.a[6] = t6 / det;
+		u.a[7] = t7 / det;
+		u.a[8] = t8 / det;
+	}
+
+	fn toString() string
+	{
+		return u.vecs[0].toString() ~ "\n" ~
+			u.vecs[1].toString() ~ "\n" ~
+			u.vecs[2].toString();
+	}
 }
 
 struct Matrix4x4d
