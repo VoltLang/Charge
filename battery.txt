@@ -4,11 +4,11 @@ watt
 # Extra file needed for compile
 src/charge/sys/memheader.volt
 --if-msvc
--lopengl32.lib
+-lOpenGL32.Lib
 --if-msvc
--luser32.lib
+-lUser32.Lib
 --if-msvc
--lgdi32.lib
+-lGdi32.Lib
 --if-msvc
 src/charge/core/win32.volt
 --if-linux
