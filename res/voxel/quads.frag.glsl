@@ -1,5 +1,9 @@
 #version 450 core
 
+
+#define NORMAL_GET getNormalCube
+#define NORMAL_SAMPLER samplerCube
+
 #define VOXEL_SRC %VOXEL_SRC%
 #define POWER_START %POWER_START%
 
@@ -13,52 +17,39 @@ layout (location = 1) in flat vec3 inMinEdge;
 layout (location = 2) in flat uint inOffset;
 layout (location = 3) in flat vec3 inNormal;
 
-layout (binding = 0) uniform isamplerBuffer octree;
-layout (binding = 1) uniform sampler3D edge;
+layout (binding = 1) uniform NORMAL_SAMPLER sNormal;
 
 layout (location = 0) out vec4 outColor;
 
 uniform vec3 uCameraPos;
-uniform vec3 uLightDirection;
+uniform vec3 uLightNormal;
 uniform mat3 uNormalMatrix;
 
-
-float getEdgeFactorCube()
+vec3 getNormalCube()
 {
 	vec3 edgePos = (inPosition - inMinEdge) * VOXEL_SIZE * 2.0 - 1.0;
-
-	return texture(edge, normalize(edgePos)).r * 0.7;
+	vec3 val = texture(sNormal, edgePos).xyz;
+	return uNormalMatrix * normalize(val * 2.0 - 1.0);
 }
 
-float getEdgeFactor3D()
-{
-	vec3 edgePos = (inPosition - inMinEdge) * VOXEL_SIZE;
-
-	return texture(edge, edgePos).r * 0.7;
-}
-
-vec3 getNormal(out float edgeFactor)
+vec3 getNormal3D()
 {
 	// Sign that is never 0.0
 	vec3 sign = step(0.5, (inPosition - inMinEdge) * VOXEL_SIZE) * 2.0 - 1.0;
 
 	vec3 edgePos = inPosition * VOXEL_SIZE;
-	vec4 val = texture(edge, edgePos);
+	vec4 val = texture(sNormal, edgePos);
 
-	edgeFactor = val.a * 0.01;
 	return uNormalMatrix * normalize(sign * val.xyz);
 }
 
 void main(void)
 {
-	float edgeFactor = 0.0;
-	vec3 normal = getNormal(edgeFactor);
+	vec3 normal = NORMAL_GET();
 	vec3 color = unpackUnorm4x8(inOffset).rgb;
 
-	float nDotL = max(dot(normal.xyz, -uLightDirection), 0.0);
+	float nDotL = max(dot(normal.xyz, -uLightNormal), 0.0);
 	float factor = nDotL * 0.4 + 0.6;
 
-	vec3 edgeColor = mix(color, vec3(1), 0.2);
-
-	outColor = vec4(mix(color * factor, edgeColor, edgeFactor), 1.0);
+	outColor = vec4(color * factor, 1.0);
 }
