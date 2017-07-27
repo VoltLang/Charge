@@ -96,7 +96,7 @@ private final:
 		scope(exit) renderTime.stop();
 +/
 		t := DefaultTarget.opCall();
-		t.bind();
+		t.bindDefault();
 		render(t);
 		// Core swaps default target.
 	}

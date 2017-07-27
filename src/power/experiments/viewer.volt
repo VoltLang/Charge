@@ -140,7 +140,7 @@ public:
 		if (mUseAA) {
 			aa.bind(t);
 			renderScene(aa.fbo);
-			aa.unbindAndDraw(t);
+			aa.resolveToAndBind(t);
 		} else {
 			renderScene(t);
 		}

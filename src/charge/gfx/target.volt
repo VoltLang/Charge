@@ -22,7 +22,6 @@ public:
 	enum string uri = "target://";
 
 	fbo: GLuint;
-	target: GLuint;
 
 	width: uint;
 	height: uint;
@@ -37,15 +36,25 @@ public:
 		}
 	}
 
-	final fn bind()
+	final fn bind(old: Target)
 	{
-		glBindFramebuffer(target, fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glViewport(0, 0, cast(int)width, cast(int)height);
 	}
 
-	final fn unbind()
+	final fn bindAndCopyFrom(src: Target)
 	{
-		glBindFramebuffer(target, 0);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, src.fbo);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+
+		glDrawBuffer(GL_BACK);
+		glBlitFramebuffer(
+			0, 0, cast(GLint)src.width, cast(GLint)src.height,
+			0, 0, cast(GLint)width, cast(GLint)height,
+			GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+		glViewport(0, 0, cast(int)width, cast(int)height);
 	}
 
 	abstract fn setMatrixToOrtho(ref mat: Matrix4x4d);
@@ -59,7 +68,6 @@ protected:
 		this.fbo = fbo;
 		this.width = width;
 		this.height = height;
-		this.target = GL_FRAMEBUFFER;
 
 		super();
 	}
@@ -72,6 +80,12 @@ private:
 
 
 public:
+	final fn bindDefault()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glViewport(0, 0, cast(int)width, cast(int)height);
+	}
+
 	override final fn setMatrixToOrtho(ref mat: Matrix4x4d)
 	{
 		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
