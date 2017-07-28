@@ -31,12 +31,12 @@ public:
 	fn setupFramebuffer(t: Target)
 	{
 		if (fbo !is null &&
-		    (t.width * 2) == fbo.width &&
-		    (t.height * 2) == fbo.height) {
+		    t.width == fbo.width &&
+		    t.height == fbo.height) {
 			return;
 		}
 
 		if (fbo !is null) { fbo.decRef(); fbo = null; }
-		fbo = Framebuffer.make("power/exp/fbo", t.width * 2, t.height * 2);
+		fbo = FramebufferMSAA.make("power/exp/fbo", t.width, t.height, 8);
 	}
 }
