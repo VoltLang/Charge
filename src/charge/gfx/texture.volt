@@ -25,8 +25,8 @@ class Texture : Resource
 public:
 	enum string uri = "tex://";
 
-	id: GLuint;
 	target: GLuint;
+	id: GLuint;
 
 	width: uint;
 	height: uint;
@@ -54,10 +54,10 @@ public:
 
 
 protected:
-	this(GLuint id, GLuint target, uint width, uint height, uint depth)
+	this(GLuint target, GLuint id, uint width, uint height, uint depth)
 	{
-		this.id = id;
 		this.target = target;
+		this.id = id;
 		this.width = width;
 		this.height = height;
 		this.depth = depth;
@@ -87,6 +87,37 @@ public:
 		return makeInternal(name, width, height, levels, GL_ALPHA);
 	}
 
+	global fn makeRGBA8MSAA(name: string, width: uint, height: uint,
+		numSamples: uint) Texture2D
+	{
+		return makeInternalMSAA(name, width, height, numSamples, GL_RGBA8);
+	}
+
+	global fn makeDepth24MSAA(name: string, width: uint, height: uint,
+		numSamples: uint) Texture2D
+	{
+		return makeInternalMSAA(name, width, height, numSamples, GL_DEPTH_COMPONENT24);
+	}
+
+	global fn makeInternalMSAA(name: string, width: uint, height: uint,
+		numSamples: uint, internal: GLuint) Texture2D
+	{
+		x := cast(GLsizei)width;
+		y := cast(GLsizei)height;
+		num := cast(GLsizei)numSamples;
+
+		target: GLuint = GL_TEXTURE_2D_MULTISAMPLE;
+		id: GLuint;
+
+		glGenTextures(1, &id);
+		glBindTexture(target, id);
+		glTexImage2DMultisample(target, num, internal, x, y, false);
+		glBindTexture(target, 0);
+		glCheckError();
+
+		return makeId(name, target, id, width, height);
+	}
+
 	global fn makeInternal(name: string, width: uint, height: uint,
 		levels: uint, internal: GLuint) Texture2D
 	{
@@ -94,8 +125,8 @@ public:
 		y := cast(int)height;
 		lvls := cast(int)levels;
 
-		id: GLuint;
 		target: GLuint = GL_TEXTURE_2D;
+		id: GLuint;
 
 		glGenTextures(1, &id);
 		glBindTexture(target, id);
@@ -103,11 +134,17 @@ public:
 		glBindTexture(target, 0);
 		glCheckError();
 
+		return makeId(name, target, id, width, height);
+	}
+
+	global fn makeId(name: string, target: GLuint, id: GLuint,
+		width: uint, height: uint) Texture2D
+	{
 		dummy: void*;
 		tex := cast(Texture2D)Resource.alloc(typeid(Texture2D),
 		                                         uri, name,
 		                                         0, out dummy);
-		tex.__ctor(id, target, cast(uint) x, cast(uint) y, 1);
+		tex.__ctor(target, id, width, height, 1);
 
 		return tex;
 	}
@@ -155,8 +192,8 @@ public:
 
 
 protected:
-	this(GLuint id, GLuint target, uint width, uint height, uint depth)
+	this(GLuint target, GLuint id, uint width, uint height, uint depth)
 	{
-		super(id, target, width, height, depth);
+		super(target, id, width, height, depth);
 	}
 }

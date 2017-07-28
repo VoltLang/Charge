@@ -36,25 +36,32 @@ public:
 		}
 	}
 
-	final fn bind(old: Target)
+	fn bind(old: Target)
 	{
+		old.unbind();
+
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glViewport(0, 0, cast(int)width, cast(int)height);
 	}
 
-	final fn bindAndCopyFrom(src: Target)
+	fn unbind()
 	{
+
+	}
+
+	fn bindAndCopyFrom(src: Target)
+	{
+		bind(src);
+
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, src.fbo);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
 
 		glDrawBuffer(GL_BACK);
 		glBlitFramebuffer(
 			0, 0, cast(GLint)src.width, cast(GLint)src.height,
 			0, 0, cast(GLint)width, cast(GLint)height,
-			GL_COLOR_BUFFER_BIT, GL_LINEAR);
+			GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
-		glViewport(0, 0, cast(int)width, cast(int)height);
 	}
 
 	abstract fn setMatrixToOrtho(ref mat: Matrix4x4d);
@@ -145,8 +152,14 @@ public:
 public:
 	~this()
 	{
-		if (color !is null) { color.decRef(); color = null; }
-		if (depth !is null) { depth.decRef(); depth = null; }
+		if (color !is null) {
+			color.decRef();
+			color = null;
+		}
+		if (depth !is null) {
+			depth.decRef();
+			depth = null;
+		}
 	}
 
 	override final fn setMatrixToOrtho(ref mat: Matrix4x4d)
@@ -180,6 +193,91 @@ public:
 		glFramebufferTexture2D(
 			GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
 			GL_TEXTURE_2D, depth.id, 0);
+
+		glCheckFramebufferError();
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		dummy: void*;
+		t := cast(Framebuffer)Resource.alloc(typeid(Framebuffer),
+		                                     uri, name,
+		                                     0, out dummy);
+		t.__ctor(fbo, color, depth, width, height);
+
+		return t;
+	}
+
+
+protected:
+	this(GLuint fbo, Texture color, Texture depth, uint width, uint height)
+	{
+		this.color = color;
+		this.depth = depth;
+		super(fbo, width, height);
+	}
+}
+
+class FramebufferMSAA : Target
+{
+public:
+	color: Texture;
+	depth: Texture;
+
+
+public:
+	~this()
+	{
+		if (color !is null) {
+			color.decRef();
+			color = null;
+		}
+		if (depth !is null) {
+			depth.decRef();
+			depth = null;
+		}
+	}
+
+	override fn bind(old: Target)
+	{
+		super.bind(old);
+		glEnable(GL_MULTISAMPLE);
+	}
+
+	override fn unbind()
+	{
+		glDisable(GL_MULTISAMPLE);
+	}
+
+	override final fn setMatrixToOrtho(ref mat: Matrix4x4d)
+	{
+		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
+	}
+
+	override final fn setMatrixToOrtho(ref mat: Matrix4x4d, width: f32, height: f32)
+	{
+		mat.setToOrtho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
+	}
+
+	override final fn setMatrixToProjection(ref mat: Matrix4x4d, fov: f32, near: f32, far: f32)
+	{
+		mat.setToPerspective(fov, cast(f32)width / cast(f32)height, near, far);
+	}
+
+	global fn make(name: string, width: uint, height: uint, samples: uint) Framebuffer
+	{
+		levels: uint = 1;
+
+		color := Texture2D.makeRGBA8MSAA(name, width, height, samples);
+		depth := Texture2D.makeDepth24MSAA(name, width, height, samples);
+
+		fbo: GLuint;
+		glGenFramebuffers(1, &fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+			color.target, color.id, 0);
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+			depth.target, depth.id, 0);
 
 		glCheckFramebufferError();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
