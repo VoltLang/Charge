@@ -446,7 +446,8 @@ private:
 								severity: GLenum, length: GLsizei,
 								msg: const(GLchar*), data: GLvoid*)
 	{
-		printf("#OGL# %.*s\n", length, msg);
+		io.error.writefln("#OGL# %s", msg[0 .. length]);
+		io.error.flush();
 	}
 
 	global extern(Windows) fn wndProc(hWnd: HWND, uMsg: UINT, wParam: WPARAM, lParam: LPARAM) LRESULT
