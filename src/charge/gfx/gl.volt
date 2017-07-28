@@ -8,11 +8,11 @@ static import watt.io.std;
 public import lib.gl;
 
 
-fn glCheckError(file: const(char)[] = __FILE__, line: int = __LINE__)
+fn glCheckError(file: const(char)[] = __FILE__, line: int = __LINE__) bool
 {
 	err := glGetError();
 	if (!err) {
-		return;
+		return false;
 	}
 
 	code: string;
@@ -24,6 +24,7 @@ fn glCheckError(file: const(char)[] = __FILE__, line: int = __LINE__)
 	}
 
 	watt.io.std.writefln("%s:%s error: %s", file, line, code);
+	return true;
 }
 
 fn glCheckFramebufferError(file: const(char)[] = __FILE__, line: int = __LINE__)
