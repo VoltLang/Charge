@@ -13,9 +13,8 @@
 layout (location = 0) out vec3 outPosition;
 layout (location = 1) out flat uint outColor;
 
-uniform mat4 matrix;
-uniform vec3 cameraPos;
-uniform float pointScale;
+uniform mat4 uMatrix;
+uniform float uPointScale;
 
 layout (binding = VOXEL_SRC, std430) buffer BufferIn
 {
@@ -68,8 +67,8 @@ void main(void)
 
 	outColor = inData3;
 	outPosition = pos;
-	gl_Position = matrix * vec4(pos, 1.0);
-	gl_PointSize = (pointScale * POINT_SIZE) / gl_Position.w;
+	gl_Position = uMatrix * vec4(pos, 1.0);
+	gl_PointSize = (uPointScale * POINT_SIZE) / gl_Position.w;
 
 /*
 #define RED vec4(255.0, 0, 0, 255.0)

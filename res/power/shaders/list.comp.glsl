@@ -26,8 +26,8 @@ layout (local_size_x = 64, local_size_y = 8, local_size_z = 1) in;
 layout (binding = 0) uniform usamplerBuffer octree;
 layout (binding = 0) uniform atomic_uint counter[8];
 
-uniform vec4 planes[8];
-uniform vec3 cameraPos;
+uniform vec4 uPlanes[8];
+uniform vec3 uCameraPos;
 
 layout (binding = VOXEL_SRC, std430) buffer BufferIn
 {
@@ -139,7 +139,7 @@ void main(void)
 
 #if POWER_FINAL > 4
 	uint bitsIndex = gl_SubGroupInvocationARB & 0x38;
-	uint b = uint(ballotARB(dot(v, planes[gl_SubGroupInvocationARB & 0x03]) < -invRadii2) >> bitsIndex);
+	uint b = uint(ballotARB(dot(v, uPlanes[gl_SubGroupInvocationARB & 0x03]) < -invRadii2) >> bitsIndex);
 	if ((b & 0x0f) != 0) {
 		return;
 	}
@@ -156,7 +156,7 @@ void main(void)
 	offset = texelFetch(octree, int(offset)).r;
 
 #ifdef LIST_DO_TAG
-	vec3 v1 = v.xyz - cameraPos;
+	vec3 v1 = v.xyz - uCameraPos;
 	float l = dot(v1, v1);
 	if (l > POWER_DISTANCE) {
 		uint index = atomicCounterIncrement(counter[VOXEL_DST2]) * 3;

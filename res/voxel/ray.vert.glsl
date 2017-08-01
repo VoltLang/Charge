@@ -13,8 +13,8 @@ layout (location = 0) out vec3 outPosition;
 layout (location = 1) out flat vec3 outMinEdge;
 layout (location = 2) out flat uint outOffset;
 
-uniform mat4 matrix;
-uniform vec3 cameraPos;
+uniform mat4 uMatrix;
+uniform vec3 uCameraPos;
 
 layout (binding = VOXEL_SRC, std430) buffer BufferIn
 {
@@ -57,9 +57,9 @@ void main(void)
 	// We draw only half a cube and flip the bits in order
 	// to draw the other side, this saves 1/8 shader instances
 	// and half a the triangles (not counting the extra di)
-	uint bits =   (pos.x > cameraPos.x ? 0x01 : 0x00);
-	bits = bits | (pos.y > cameraPos.y ? 0x02 : 0x00);
-	bits = bits | (pos.z > cameraPos.z ? 0x04 : 0x00);
+	uint bits =   (pos.x > uCameraPos.x ? 0x01 : 0x00);
+	bits = bits | (pos.y > uCameraPos.y ? 0x02 : 0x00);
+	bits = bits | (pos.z > uCameraPos.z ? 0x04 : 0x00);
 	bits = gl_VertexID ^ bits;
 
 	outMinEdge = pos;
@@ -71,5 +71,5 @@ void main(void)
 		(bits >> 2) & 0x1) * DIVISOR_INV + pos;
 
 	outPosition = offsetPos;
-	gl_Position = matrix * vec4(offsetPos, 1.0);
+	gl_Position = uMatrix * vec4(offsetPos, 1.0);
 }

@@ -212,9 +212,9 @@ public:
 		glDispatchCompute(1u, 1u, 1u);
 
 		listShader.bind();
-		listShader.float3("cameraPos".ptr, state.camPosition.ptr);
-		listShader.matrix4("matrix", 1, false, ref state.matrix);
-		listShader.float4("planes".ptr, 4, &state.planes[0].a);
+		listShader.float3("uCameraPos".ptr, state.camPosition.ptr);
+		listShader.matrix4("uMatrix", 1, false, ref state.matrix);
+		listShader.float4("uPlanes".ptr, 4, &state.planes[0].a);
 
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 //		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
@@ -248,9 +248,9 @@ public:
 		glDispatchCompute(1u, 1u, 1u);
 
 		listShader.bind();
-		listShader.float3("cameraPos".ptr, state.camPosition.ptr);
-		listShader.matrix4("matrix", 1, false, ref state.matrix);
-		listShader.float4("planes".ptr, 4, &state.planes[0].a);
+		listShader.float3("uCameraPos".ptr, state.camPosition.ptr);
+		listShader.matrix4("uMatrix", 1, false, ref state.matrix);
+		listShader.float4("uPlanes".ptr, 4, &state.planes[0].a);
 
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 //		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
@@ -284,8 +284,8 @@ public:
 		glDispatchCompute(1u, 1u, 1u);
 
 		drawShader.bind();
-		drawShader.float3("cameraPos".ptr, state.camPosition.ptr);
-		drawShader.matrix4("matrix", 1, false, ref state.matrix);
+		drawShader.float3("uCameraPos".ptr, state.camPosition.ptr);
+		drawShader.matrix4("uMatrix", 1, false, ref state.matrix);
 
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 //		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
@@ -319,8 +319,8 @@ public:
 		glDispatchCompute(1u, 1u, 1u);
 
 		drawShader.bind();
-		drawShader.float3("cameraPos".ptr, state.camPosition.ptr);
-		drawShader.matrix4("matrix", 1, false, ref state.matrix);
+		drawShader.float3("uCameraPos".ptr, state.camPosition.ptr);
+		drawShader.matrix4("uMatrix", 1, false, ref state.matrix);
 
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 //		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
@@ -354,8 +354,8 @@ public:
 		glDispatchCompute(1u, 1u, 1u);
 
 		drawShader.bind();
-		drawShader.float3("cameraPos".ptr, state.camPosition.ptr);
-		drawShader.matrix4("matrix", 1, false, ref state.matrix);
+		drawShader.float3("uCameraPos".ptr, state.camPosition.ptr);
+		drawShader.matrix4("uMatrix", 1, false, ref state.matrix);
 
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 //		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |
@@ -389,9 +389,9 @@ public:
 		glDispatchCompute(1u, 1u, 1u);
 
 		drawShader.bind();
-		drawShader.float3("cameraPos".ptr, state.camPosition.ptr);
-		drawShader.matrix4("matrix", 1, false, ref state.matrix);
-		drawShader.float1("pointScale".ptr, state.pointScale);
+		drawShader.float3("uCameraPos".ptr, state.camPosition.ptr);
+		drawShader.matrix4("uMatrix", 1, false, ref state.matrix);
+		drawShader.float1("uPointScale".ptr, state.pointScale);
 
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 //		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT |

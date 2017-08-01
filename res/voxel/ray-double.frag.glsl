@@ -24,7 +24,7 @@ layout (location = 2) in flat uint inOffset;
 layout (binding = 0) uniform isamplerBuffer octree;
 layout (location = 0) out vec4 outColor;
 
-uniform vec3 cameraPos;
+uniform vec3 uCameraPos;
 
 
 void rayAABBTest(vec3 rayDir, vec3 pos, vec3 aabbMin, vec3 aabbMax,
@@ -61,7 +61,7 @@ float getOfPossibleDepth(float d)
 
 void main(void)
 {
-	vec3 rayDir = normalize(inPosition - cameraPos);
+	vec3 rayDir = normalize(inPosition - uCameraPos);
 	vec3 pos = ((inPosition - inMinEdge) * SPLIT_SIZE_INV) * NUM_VOXELS;
 
 	// Check for ray components being parallel to axes (i.e. values of 0).

@@ -22,7 +22,7 @@ layout (location = 2) in flat uint inOffset;
 layout (binding = 0) uniform isamplerBuffer octree;
 layout (location = 0) out vec4 outColor;
 
-uniform vec3 cameraPos;
+uniform vec3 uCameraPos;
 
 
 void rayAABBTest(vec3 rayDir, vec3 aabbMin, vec3 aabbMax,
@@ -52,7 +52,7 @@ void main(void)
 #if TRACER_POWER == 0
 	outColor = unpackUnorm4x8(inOffset);
 #else
-	vec3 rayDir = normalize(inPosition - cameraPos);
+	vec3 rayDir = normalize(inPosition - uCameraPos);
 
 	// Check for ray components being parallel to axes (i.e. values of 0).
 	const float epsilon = 0.000001;	// Platform dependent value!
