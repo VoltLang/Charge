@@ -12,6 +12,8 @@
 #define DIVISOR_INV (1.0 / VOXEL_SIZE)
 
 
+layout (early_fragment_tests) in;
+
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in flat vec3 inMinEdge;
 layout (location = 2) in flat uint inOffset;
@@ -24,6 +26,7 @@ layout (location = 0) out vec4 outColor;
 uniform vec3 uCameraPos;
 uniform vec3 uLightNormal;
 uniform mat3 uNormalMatrix;
+
 
 vec3 getNormalCube()
 {

@@ -13,6 +13,7 @@ layout (location = 1) out flat vec3 outMinEdge;
 layout (location = 2) out flat uint outOffset;
 layout (location = 3) out flat vec3 outNormal;
 
+
 uniform mat4 uMatrix;
 uniform mat3 uNormalMatrix;
 uniform vec3 uCameraPos;

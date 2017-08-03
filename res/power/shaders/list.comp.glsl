@@ -23,6 +23,7 @@ layout (local_size_x = 64, local_size_y = 8, local_size_z = 1) in;
 #error
 #endif
 
+
 layout (binding = 0) uniform usamplerBuffer octree;
 layout (binding = 0) uniform atomic_uint counter[8];
 

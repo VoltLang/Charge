@@ -16,6 +16,10 @@
 #define Z_MUL (1 << Z_SHIFT)
 
 
+#if TRACER_POWER == 0
+layout (early_fragment_tests) in;
+#endif
+
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in flat vec3 inMinEdge;
 layout (location = 2) in flat uint inOffset;

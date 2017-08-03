@@ -10,6 +10,8 @@
 #define Z_SHIFT %Z_SHIFT%
 
 #define LOCAL 4
+
+
 layout (local_size_x = LOCAL, local_size_y = LOCAL, local_size_z = LOCAL) in;
 
 layout (binding = 0) uniform usamplerBuffer octree;
@@ -24,6 +26,7 @@ layout (binding = VOXEL_DST1, std430) buffer BufferOut1
 {
 	uint outData1[];
 };
+
 
 /*
 struct PackedData

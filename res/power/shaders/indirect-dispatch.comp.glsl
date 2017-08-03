@@ -13,9 +13,9 @@
 #error "No atomic ops"
 #endif
 
-
 #define INDIRECT_SRC %INDIRECT_SRC%
 #define INDIRECT_DST %INDIRECT_DST%
+
 
 layout (binding = 0) uniform atomic_uint counter[8];
 
