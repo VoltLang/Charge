@@ -430,12 +430,12 @@ public:
 
 	fn makeComputeDispatchShader(src: u32, dst: u32) GfxShader
 	{
-		name := format("svo.comp-dispatch (src: %s, dst: %s)", src, dst);
+		name := format("svo.dispatch-comp (src: %s, dst: %s)", src, dst);
 		if (s := name in mShaderStore) {
 			return *s;
 		}
 
-		comp := cast(string)import("power/shaders/indirect-dispatch.comp.glsl");
+		comp := cast(string)import("voxel/indirect-dispatch.comp.glsl");
 		comp = replace(comp, "%INDIRECT_SRC%", format("%s", src));
 		comp = replace(comp, "%INDIRECT_DST%", format("%s", dst));
 
@@ -446,12 +446,12 @@ public:
 
 	fn makeElementsDispatchShader(src: u32, dst: u32) GfxShader
 	{
-		name := format("svo.elements-dispatch (src: %s, dst: %s)", src, dst);
+		name := format("svo.dispatch-elements (src: %s, dst: %s)", src, dst);
 		if (s := name in mShaderStore) {
 			return *s;
 		}
 
-		comp := cast(string)import("power/shaders/indirect-elements.comp.glsl");
+		comp := cast(string)import("voxel/indirect-elements.comp.glsl");
 		comp = replace(comp, "%INDIRECT_SRC%", format("%s", src));
 		comp = replace(comp, "%INDIRECT_DST%", format("%s", dst));
 
@@ -462,12 +462,12 @@ public:
 
 	fn makeArrayDispatchShader(src: u32, dst: u32) GfxShader
 	{
-		name := format("svo.array-dispatch (src: %s, dst: %s)", src, dst);
+		name := format("svo.dispatch-array (src: %s, dst: %s)", src, dst);
 		if (s := name in mShaderStore) {
 			return *s;
 		}
 
-		comp := cast(string)import("power/shaders/indirect-array.comp.glsl");
+		comp := cast(string)import("voxel/indirect-array.comp.glsl");
 		comp = replace(comp, "%INDIRECT_SRC%", format("%s", src));
 		comp = replace(comp, "%INDIRECT_DST%", format("%s", dst));
 
@@ -479,13 +479,13 @@ public:
 	fn makeListShader(src: u32, dst1: u32, dst2: u32,
 	                  powerStart: u32, powerLevels: u32, dist: f32) GfxShader
 	{
-		name := format("svo.list (src: %s, dst1: %s, dst2: %s, powerStart: %s, powerLevels: %s, dist: %s)",
+		name := format("svo.walk (src: %s, dst1: %s, dst2: %s, powerStart: %s, powerLevels: %s, dist: %s)",
 			src, dst1, dst2, powerStart, powerLevels, dist);
 		if (s := name in mShaderStore) {
 			return *s;
 		}
 
-		comp := cast(string)import("power/shaders/list.comp.glsl");
+		comp := cast(string)import("voxel/walk-generic.comp.glsl");
 		comp = replace(comp, "%X_SHIFT%", format("%s", mXShift));
 		comp = replace(comp, "%Y_SHIFT%", format("%s", mYShift));
 		comp = replace(comp, "%Z_SHIFT%", format("%s", mZShift));
@@ -505,13 +505,13 @@ public:
 
 	fn makeListDoubleShader(src: u32, dst1: u32, dst2: u32, powerStart: u32) GfxShader
 	{
-		name := format("svo.list-double (src: %s, dst1: %s, dst2: %s, powerStart: %s)",
+		name := format("svo.walk-double (src: %s, dst1: %s, dst2: %s, powerStart: %s)",
 			src, dst1, dst2, powerStart);
 		if (s := name in mShaderStore) {
 			return *s;
 		}
 
-		comp := cast(string)import("voxel/list-double.comp.glsl");
+		comp := cast(string)import("voxel/walk-double.comp.glsl");
 		comp = replace(comp, "%X_SHIFT%", format("%s", mXShift));
 		comp = replace(comp, "%Y_SHIFT%", format("%s", mYShift));
 		comp = replace(comp, "%Z_SHIFT%", format("%s", mZShift));
@@ -526,20 +526,20 @@ public:
 
 	fn makeCubesShader(src: u32, powerStart: u32) GfxShader
 	{
-		name := format("svo.cubes (src: %s, start: %s)",
+		name := format("svo.cube (src: %s, start: %s)",
 			src, powerStart);
 		if (s := name in mShaderStore) {
 			return *s;
 		}
 
-		vert := cast(string)import("voxel/ray.vert.glsl");
+		vert := cast(string)import("voxel/cube.vert.glsl");
 		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
 		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
 		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
 		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
 		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
 		vert = replace(vert, "%POWER_LEVELS%", "0");
-		frag := cast(string)import("voxel/ray.frag.glsl");
+		frag := cast(string)import("voxel/cube-ray.frag.glsl");
 		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
 		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
 		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
@@ -554,20 +554,20 @@ public:
 
 	fn makeRayShader(src: u32, powerStart: u32, powerLevels: u32) GfxShader
 	{
-		name := format("svo.ray (src: %s, start: %s, levels: %s)",
+		name := format("svo.cube-ray (src: %s, start: %s, levels: %s)",
 			src, powerStart, powerLevels);
 		if (s := name in mShaderStore) {
 			return *s;
 		}
 
-		vert := cast(string)import("voxel/ray.vert.glsl");
+		vert := cast(string)import("voxel/cube.vert.glsl");
 		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
 		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
 		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
 		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
 		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
 		vert = replace(vert, "%POWER_LEVELS%", format("%s", powerLevels));
-		frag := cast(string)import("voxel/ray.frag.glsl");
+		frag := cast(string)import("voxel/cube-ray.frag.glsl");
 		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
 		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
 		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
@@ -582,20 +582,20 @@ public:
 
 	fn makeRayDoubleShader(src: u32, powerStart: u32) GfxShader
 	{
-		name := format("svo.ray-double (src: %s, start: %s)",
+		name := format("svo.cube-ray-double (src: %s, start: %s)",
 			src, powerStart);
 		if (s := name in mShaderStore) {
 			return *s;
 		}
 
-		vert := cast(string)import("voxel/ray.vert.glsl");
+		vert := cast(string)import("voxel/cube.vert.glsl");
 		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
 		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
 		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
 		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
 		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
 
-		frag := cast(string)import("voxel/ray-double.frag.glsl");
+		frag := cast(string)import("voxel/cube-ray-double.frag.glsl");
 		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
 		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
 		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
@@ -615,13 +615,13 @@ public:
 			return *s;
 		}
 
-		vert := cast(string)import("power/shaders/points.vert.glsl");
+		vert := cast(string)import("voxel/points.vert.glsl");
 		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
 		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
 		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
 		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
 		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
-		frag := cast(string)import("power/shaders/points.frag.glsl");
+		frag := cast(string)import("voxel/points.frag.glsl");
 		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
 		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
 		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
@@ -641,13 +641,13 @@ public:
 			return *s;
 		}
 
-		vert := cast(string)import("voxel/quads.vert.glsl");
+		vert := cast(string)import("voxel/cube.vert.glsl");
 		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
 		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
 		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
 		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
 		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
-		frag := cast(string)import("voxel/quads.frag.glsl");
+		frag := cast(string)import("voxel/cube-normal.frag.glsl");
 		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
 		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
 		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
