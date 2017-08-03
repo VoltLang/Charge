@@ -37,10 +37,10 @@ class Pipeline
 public:
 	enum Kind
 	{
+		CubePoint,
 		Points0,
 		Points1,
 		Raycube,
-		CubePoint,
 		Num,
 	}
 
