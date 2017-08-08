@@ -18,7 +18,7 @@ import charge.game.scene.background;
 import voxel.viewer;
 import voxel.svo;
 import voxel.loaders;
-import gen = voxel.svo.gen;
+import gen = voxel.generators;
 
 
 class Game : GameSceneManagerApp
@@ -151,7 +151,7 @@ public:
 		ib.setup(1);
 
 		// Load parse the file.
-		og: OneGen;
+		og: gen.OneGen;
 
 		// Only one frame.
 		frames = new u32[](1);
@@ -174,7 +174,7 @@ public:
 		ib.setup(1);
 
 		// Load parse the file.
-		fg: FlatGen;
+		fg: gen.FlatGen;
 
 		// Only one frame.
 		frames = new u32[](1);
