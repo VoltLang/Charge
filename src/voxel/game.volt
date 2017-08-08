@@ -178,7 +178,7 @@ public:
 
 		// Only one frame.
 		frames = new u32[](1);
-		frames[0] = fg.genY(ref ib, 11);
+		frames[0] = fg.genYColored(ref ib, c.numLevels);
 
 		data = ib.getData();
 		return true;
