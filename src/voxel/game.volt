@@ -14,6 +14,7 @@ import charge.core;
 import charge.gfx;
 import charge.game;
 import charge.game.scene.background;
+import charge.util.stopwatch;
 
 import voxel.viewer;
 import voxel.svo;
@@ -26,6 +27,14 @@ class Game : GameSceneManagerApp
 public:
 	this(args: string[])
 	{
+		// Get the runtime startup.
+		rtStart: StopWatch;
+		rtStart.fromInit();
+
+		// Time the core startup.
+		coreStart: StopWatch;
+		coreStart.startAndStop(ref rtStart);
+
 		// First init core.
 		opts := new CoreOptions();
 		opts.title = "Mixed Voxel Rendering";
@@ -34,6 +43,9 @@ public:
 		opts.windowMode = coreWindow.Normal;
 		super(opts);
 
+		// We are now starting the game.
+		gameStart: StopWatch;
+		gameStart.startAndStop(ref coreStart);
 
 		if (!checkVersion()) {
 			chargeQuit();
@@ -57,12 +69,27 @@ public:
 			c.panic("Could not load or generate a level");
 		}
 
+		push(new RayTracer(this, ref state, frames, data));
+
+		// Done with game startup, do some debug prinintg.
+		gameStart.stop();
+
+		// Print out svo info.
 		io.output.writef("svo: %s (x: %s, y: %s, z: %s) size: ",
 			state.numLevels, state.xShift, state.yShift, state.zShift);
 		vrt_format_readable_size(io.output.write, data.length);
 		io.output.writefln("");
 		io.output.flush();
-		push(new RayTracer(this, ref state, frames, data));
+
+		// Do timings
+		rtU := rtStart.microseconds;
+		coreU := coreStart.microseconds;
+		gameU := gameStart.microseconds;
+		io.output.writefln("rt:%7s.%02sms\ncore:%5s.%02sms\ngame:%5s.%02sms",
+			rtU / 1000, (rtU / 10) % 100,
+			coreU / 1000, (coreU / 10) % 100,
+			gameU / 1000, (gameU / 10) % 100);
+		io.output.flush();
 	}
 
 
