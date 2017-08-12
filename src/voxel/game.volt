@@ -69,26 +69,38 @@ public:
 			c.panic("Could not load or generate a level");
 		}
 
-		push(new RayTracer(this, ref state, frames, data));
+		d := new Data(ref state, data);
+		obj := new Entity(d, frames);
+
+		push(new RayTracer(this, d, obj));
 
 		// Done with game startup, do some debug prinintg.
-		gameStart.stop();
+		// We are now starting the game.
+		countStart: StopWatch;
+		countStart.startAndStop(ref gameStart);
+
+		count := d.count(obj, 9);
+
+		countStart.stop();
 
 		// Print out svo info.
 		io.output.writef("svo: %s (x: %s, y: %s, z: %s) size: ",
 			state.numLevels, state.xShift, state.yShift, state.zShift);
 		vrt_format_readable_size(io.output.write, data.length);
 		io.output.writefln("");
+		io.output.writefln("count: %s", count);
 		io.output.flush();
 
 		// Do timings
 		rtU := rtStart.microseconds;
 		coreU := coreStart.microseconds;
 		gameU := gameStart.microseconds;
-		io.output.writefln("rt:%7s.%02sms\ncore:%5s.%02sms\ngame:%5s.%02sms",
+		countU := countStart.microseconds;
+		io.output.writefln("rt:%7s.%02sms\ncore:%5s.%02sms\ngame:%5s.%02sms\ncount:%4s.%02sms",
 			rtU / 1000, (rtU / 10) % 100,
 			coreU / 1000, (coreU / 10) % 100,
-			gameU / 1000, (gameU / 10) % 100);
+			gameU / 1000, (gameU / 10) % 100,
+			countU / 1000, (countU / 10) % 100);
 		io.output.flush();
 	}
 

@@ -15,44 +15,28 @@ import math = charge.math;
 
 import power.experiments.viewer;
 
-import voxel.svo;
+import svo = voxel.svo;
 
 
 class RayTracer : Viewer
 {
 public:
-	pipes: Pipeline[];
+	data: svo.Data;
+	obj: svo.Entity;
+	pipes: svo.Pipeline[];
 	pipeId: u32;
-	frame: u32;
-	frames: u32[];
 	animate: bool;
 
 
-	/*!
-	 * For ray tracing.
-	 * @{
-	 */
-	octBuffer: GLuint;
-	octTexture: GLuint;
-	/*!
-	 * @}
-	 */
-
-
 public:
-	this(g: GameSceneManager, ref state: Create, frames: u32[], data: void[])
+	this(g: GameSceneManager, data: svo.Data, obj: svo.Entity)
 	{
 		super(g);
-		this.frames = frames;
+		this.data = data;
+		this.obj = obj;
 
-		glCreateBuffers(1, &octBuffer);
-		glNamedBufferData(octBuffer, cast(GLsizeiptr)data.length, data.ptr, GL_STATIC_DRAW);
-
-		glCreateTextures(GL_TEXTURE_BUFFER, 1, &octTexture);
-		glTextureBuffer(octTexture, GL_R32UI, octBuffer);
-
-		for (i: i32; i < Pipeline.Kind.Num; i++) {
-			pipes ~= new Pipeline(octTexture, ref state, i);
+		for (i: i32; i < svo.Pipeline.Kind.Num; i++) {
+			pipes ~= new svo.Pipeline(data.texture, ref data.create, i);
 		}
 
 		// Set the starting position.
@@ -123,13 +107,6 @@ public:
 		}
 	}
 
-	fn stepFrame()
-	{
-		if ((frame += 1) >= frames.length) {
-			frame = 0;
-		}
-	}
-
 	fn switchRenderer()
 	{
 		if ((pipeId += 1) >= pipes.length) {
@@ -148,8 +125,6 @@ public:
 	{
 		super.close();
 
-		if (octTexture) { glDeleteTextures(1, &octTexture); octTexture = 0; }
-		if (octBuffer) { glDeleteBuffers(1, &octBuffer); octBuffer = 0; }
 		foreach (ref m; pipes) {
 			m.close();
 			m = null;
@@ -165,7 +140,7 @@ public:
 			break;
 		case 'm': switchRenderer(); break;
 		case 't': animate = !animate; break;
-		case 'y': stepFrame(); break;
+		case 'y': obj.stepFrame(); break;
 		default: super.keyDown(device, keycode);
 		}
 	}
@@ -173,7 +148,7 @@ public:
 	override fn logic()
 	{
 		if (animate) {
-			stepFrame();
+			obj.stepFrame();
 		}
 		super.logic();
 	}
@@ -204,11 +179,11 @@ public:
 		cull: math.Matrix4x4d;
 		cull.setToLookFrom(ref cullPosition, ref cullRotation);
 
-		state: Draw;
+		state: svo.Draw;
 		state.targetWidth = t.width;
 		state.targetHeight = t.height;
 		state.fov = fov;
-		state.frame = frames[frame];
+		state.frame = obj.start;
 		state.camPos = camPosition;
 		state.camMVP.setToMultiply(ref proj, ref view);
 		state.cullPos = cullPosition;
@@ -236,7 +211,7 @@ o - AA (%s)
 t - animate (%s)
 y - step frame (#%s)
 m - switch renderer (%s)
-l - lock culling (%s)`, mUseAA, animate, frame, pipes[pipeId].name, mLockCull);
+l - lock culling (%s)`, mUseAA, animate, obj.frame, pipes[pipeId].name, mLockCull);
 		updateText(ss.toString());
 	}
 }
