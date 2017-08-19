@@ -96,11 +96,11 @@ public:
 		coreU := coreStart.microseconds;
 		gameU := gameStart.microseconds;
 		countU := countStart.microseconds;
-		io.output.writefln("rt:%7s.%02sms\ncore:%5s.%02sms\ngame:%5s.%02sms\ncount:%4s.%02sms",
-			rtU / 1000, (rtU / 10) % 100,
-			coreU / 1000, (coreU / 10) % 100,
-			gameU / 1000, (gameU / 10) % 100,
-			countU / 1000, (countU / 10) % 100);
+		io.output.writefln("rt:%7s.%03sms\ncore:%5s.%03sms\ngame:%5s.%03sms\ncount:%4s.%03sms",
+			rtU / 1000, rtU % 1000,
+			coreU / 1000, coreU % 1000,
+			gameU / 1000, gameU % 1000,
+			countU / 1000, countU % 1000);
 		io.output.flush();
 	}
 
