@@ -27,6 +27,10 @@ public:
 	height: uint;
 
 
+protected:
+	mCopyFilter: GLuint;
+
+
 public:
 	~this()
 	{
@@ -59,7 +63,7 @@ public:
 		glBlitFramebuffer(
 			0, 0, cast(GLint)src.width, cast(GLint)src.height,
 			0, 0, cast(GLint)width, cast(GLint)height,
-			GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			GL_COLOR_BUFFER_BIT, mCopyFilter);
 
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
 	}
@@ -70,11 +74,12 @@ public:
 
 
 protected:
-	this(GLuint fbo, uint width, uint height)
+	this(fbo: GLuint, width: uint, height: uint, copyFilter: GLuint)
 	{
 		this.fbo = fbo;
 		this.width = width;
 		this.height = height;
+		this.mCopyFilter = copyFilter;
 
 		super();
 	}
@@ -138,7 +143,7 @@ public:
 private:
 	this(uint width, uint height)
 	{
-		super(0, width, height);
+		super(0, width, height, GL_LINEAR);
 	}
 }
 
@@ -212,7 +217,7 @@ protected:
 	{
 		this.color = color;
 		this.depth = depth;
-		super(fbo, width, height);
+		super(fbo, width, height, GL_LINEAR);
 	}
 }
 
@@ -297,6 +302,6 @@ protected:
 	{
 		this.color = color;
 		this.depth = depth;
-		super(fbo, width, height);
+		super(fbo, width, height, GL_NEAREST);
 	}
 }

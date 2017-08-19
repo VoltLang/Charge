@@ -8,7 +8,19 @@ import charge.gfx.target;
 struct AA
 {
 public:
+	enum Kind
+	{
+		Invalid,
+		Double,
+		MSAA8,
+	}
+
+	enum DefaultKind = Kind.MSAA8;
+
+public:
 	fbo: Framebuffer;
+	kind: Kind;
+	currentMSAA: u32;
 
 
 public:
@@ -30,13 +42,34 @@ public:
 
 	fn setupFramebuffer(t: Target)
 	{
+		msaa: u32;
+		factor: u32;
+
+		final switch (kind) with (Kind) {
+		case Invalid:
+			kind = DefaultKind;
+			goto case DefaultKind;
+		case Double: factor = 2; break;
+		case MSAA8: factor = 1; msaa = 8; break;
+		}
+
+		width := t.width * factor;
+		height := t.height * factor;
+
 		if (fbo !is null &&
-		    t.width == fbo.width &&
-		    t.height == fbo.height) {
+		    msaa == currentMSAA &&
+		    width == fbo.width &&
+		    height == fbo.height) {
 			return;
 		}
 
 		if (fbo !is null) { fbo.decRef(); fbo = null; }
-		fbo = FramebufferMSAA.make("power/exp/fbo", t.width, t.height, 8);
+		currentMSAA = msaa;
+
+		if (msaa == 0) {
+			fbo = Framebuffer.make("power/exp/fbo", width, height);
+		} else {
+			fbo = FramebufferMSAA.make("power/exp/fbo", width, height, msaa);
+		}
 	}
 }
