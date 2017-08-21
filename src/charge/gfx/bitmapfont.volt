@@ -2,6 +2,8 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.gfx.bitmapfont;
 
+import math = charge.math;
+
 import charge.core;
 import charge.gfx.gl;
 import charge.gfx.draw;
@@ -80,14 +82,36 @@ fn buildVertices(ref s: BitmapState, b: DrawVertexBuilder,
 		default:
 			X := s.offX + x * s.glyphWidth;
 			Y := s.offY + y * s.glyphHeight;
-			buildVertex(ref s, b, X, Y, c);
+			buildVertex(ref s, b, X, Y, c, math.Color4b.White);
 			x++;
 			break;
 		}
 	}
 }
 
-fn buildVertex(ref s: BitmapState, b: DrawVertexBuilder, x: int, y: int, c: ubyte)
+/*!
+ * Builds the vertices in builder of the given text.
+ * Uses quads, so for vertices per glyph.
+ */
+fn buildVerticesGrid(ref s: BitmapState, b: DrawVertexBuilder, stride: u32
+                     data: scope const(u8)[], color: math.Color4b)
+{
+	x, y: int;
+	foreach (c; data) {
+		X := s.offX + x * s.glyphWidth;
+		Y := s.offY + y * s.glyphHeight;
+		buildVertex(ref s, b, X, Y, c, color);
+
+		x++;
+		//y++;
+		if (cast(u32)x == stride) {
+			x = 0;
+			y++;
+		}
+	}
+}
+
+fn buildVertex(ref s: BitmapState, b: DrawVertexBuilder, x: int, y: int, c: ubyte, color: math.Color4b)
 {
 	dstX1 := cast(f32)x;
 	dstY1 := cast(f32)y;
@@ -99,12 +123,12 @@ fn buildVertex(ref s: BitmapState, b: DrawVertexBuilder, x: int, y: int, c: ubyt
 	srcX2 := (1.0f / 16.0f) + srcX1;
 	srcY2 := (1.0f / 16.0f) + srcY1;
 
-	b.add(dstX1, dstY1, srcX1, srcY1);
-	b.add(dstX1, dstY2, srcX1, srcY2);
-	b.add(dstX2, dstY2, srcX2, srcY2);
-	b.add(dstX2, dstY2, srcX2, srcY2);
-	b.add(dstX2, dstY1, srcX2, srcY1);
-	b.add(dstX1, dstY1, srcX1, srcY1);
+	b.add(dstX1, dstY1, srcX1, srcY1, color);
+	b.add(dstX1, dstY2, srcX1, srcY2, color);
+	b.add(dstX2, dstY2, srcX2, srcY2, color);
+	b.add(dstX2, dstY2, srcX2, srcY2, color);
+	b.add(dstX2, dstY1, srcX2, srcY1, color);
+	b.add(dstX1, dstY1, srcX1, srcY1, color);
 }
 
 
