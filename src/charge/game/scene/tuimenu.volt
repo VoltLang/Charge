@@ -5,6 +5,8 @@
  */
 module charge.game.scene.tuimenu;
 
+import watt.algorithm : max;
+
 import math = charge.math;
 
 import charge.gfx.gl;
@@ -30,7 +32,7 @@ import tui = charge.game.tui;
 class TuiWindowScene : SimpleScene
 {
 public:
-	enum HeaderExtra : u32 = 3;
+	enum HeaderExtra : u32 = 5;
 	enum HeaderShadow : u32 = 2;
 	enum BorderSize : u32 = 8;
 
@@ -53,7 +55,7 @@ public:
 	this(g: SceneManager, width: u32, height: u32)
 	{
 		super(g, Type.Menu);
-		headerGrid = new tui.Grid(0, 0);
+		headerGrid = new tui.Grid(1, 1);
 		headerGrid.setGlyphSize(cast(i32)GlyphWidth*2, cast(i32)GlyphHeight*2);
 		grid = new tui.Grid(0, 0);
 		grid.setGlyphSize(cast(i32)GlyphWidth, cast(i32)GlyphHeight);
@@ -71,7 +73,14 @@ public:
 		width += width & 0x1;
 
 		grid.setSize(width, height);
-		headerGrid.setSize(width / 2, 1);
+	}
+
+	fn setHeader(glyphs: scope const(u8)[])
+	{
+		headerGrid.setSize(cast(u32)glyphs.length, 1);
+		foreach (i, glyph; glyphs) {
+			headerGrid.put(cast(i32)i, 0, glyph);
+		}
 	}
 
 	fn getSizeInPixels(out width: u32, out height: u32)
@@ -82,9 +91,9 @@ public:
 		gridWidth, gridHeight: u32;
 		grid.getSizeInPixels(out gridWidth, out gridHeight);
 
-		headerHeight += HeaderExtra; // Add extra pixels at top.
+		headerHeight += HeaderExtra * 2; // Add extra pixels at top.
 
-		width = gridWidth + BorderSize * 2;
+		width = max(headerWidth, gridWidth) + BorderSize * 2;
 		height = gridHeight + headerHeight + BorderSize * 2 + BorderSize;
 	}
 
@@ -128,11 +137,13 @@ private:
 		// Figure out where the header is drawn.
 		headerWidth, headerHeight: u32;
 		headerGrid.getSizeInPixels(out headerWidth, out headerHeight);
-		headerHeight += HeaderExtra; // Add extra pixels at top.
+		headerHeight += HeaderExtra * 2; // Add extra pixels at top.
 
-		headerBoxX := cast(i32)(BorderSize);
-		headerBoxY := cast(i32)(BorderSize);
-		headerX := headerBoxX;
+		headerBoxX := cast(GLint)(BorderSize);
+		headerBoxY := cast(GLint)(BorderSize);
+		headerBoxW := cast(GLsizei)(totalWidth - BorderSize * 2);
+		headerBoxH := cast(GLsizei)(headerHeight);
+		headerX := cast(i32)((totalWidth - BorderSize * 2) / 2 - headerWidth / 2 + BorderSize);
 		headerY := headerBoxY + cast(i32)HeaderExtra;
 		headerShadowX := headerX + cast(i32)HeaderShadow;
 		headerShadowY := headerY + cast(i32)HeaderShadow;
@@ -151,8 +162,7 @@ private:
 			gridBackgroundColor.b,
 			gridBackgroundColor.a);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glScissor(cast(GLint)BorderSize, cast(GLint)BorderSize,
-		          cast(GLsizei)headerWidth, cast(GLsizei)headerHeight);
+		glScissor(headerBoxX, headerBoxY, headerBoxW, headerBoxH);
 		glEnable(GL_SCISSOR_TEST);
 		glClearColor(
 			headerBackgroundColor.r,
