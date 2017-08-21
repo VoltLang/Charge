@@ -4,3 +4,4 @@ module charge.game.tui;
 
 public import charge.game.tui.grid;
 public import charge.game.tui.base;
+public import charge.game.tui.glyphdraw;

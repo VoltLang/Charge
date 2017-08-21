@@ -33,9 +33,7 @@ public:
 		setOffset(0, 0);
 
 		mTextBuilder = new DrawVertexBuilder(0);
-		mTextBuilder.reset(mData.length * 4u);
-		mTextState.glyphWidth = GlyphWidth;
-		mTextState.glyphHeight = GlyphHeight;
+		mTextBuilder.reset(mData.length * 6u);
 		mTextState.buildVerticesGrid(mTextBuilder, mWidth, mData, mColor);
 		mTextVBO = DrawBuffer.make("power/exp/text", mTextBuilder);
 	}
