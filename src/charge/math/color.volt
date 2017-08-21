@@ -92,6 +92,11 @@ public:
 		       (cast(u32)b <<  8u) |
 		       (cast(u32)a <<  0u);
 	}
+
+	fn opEquals(other: Color4b) bool
+	{
+		return other.toABGR() == this.toABGR();
+	}
 }
 
 
