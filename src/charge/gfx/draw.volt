@@ -50,7 +50,8 @@ protected:
  * It has one shader uniform called 'matrix' that is the.
  */
 global drawShader: Shader;
-
+global drawSamplerLinear: GLuint;
+global drawSamplerNearest: GLuint;
 
 /*!
  * Vertex format.
@@ -145,6 +146,13 @@ global this()
 
 fn initDraw()
 {
+	glGenSamplers(1, &drawSamplerLinear); 
+	glSamplerParameteri(drawSamplerLinear, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glSamplerParameteri(drawSamplerLinear, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glGenSamplers(1, &drawSamplerNearest);
+	glSamplerParameteri(drawSamplerNearest, GL_TEXTURE_MIN_FILTER, GL_NEAREST); 
+	glSamplerParameteri(drawSamplerNearest, GL_TEXTURE_MAG_FILTER, GL_NEAREST); 
+
 	drawShader = new Shader("charge.gfx.draw", vertexShaderES,
 	                    fragmentShaderES,
 	                    ["position", "uv", "color"],
@@ -155,6 +163,9 @@ fn closeDraw()
 {
 	drawShader.breakApart();
 	drawShader = null;
+
+	if (drawSamplerLinear) { glDeleteSamplers(1, &drawSamplerLinear); drawSamplerLinear = 0; }
+	if (drawSamplerNearest) { glDeleteSamplers(1, &drawSamplerNearest); drawSamplerNearest = 0; }
 }
 
 enum string vertexShaderES = `

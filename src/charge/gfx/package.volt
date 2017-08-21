@@ -10,21 +10,30 @@ public import charge.gfx.gfx : gfxLoaded;
 public import charge.gfx.aa :
 	GfxAA = AA;
 public import charge.gfx.draw :
-	GfxDrawBuffer = DrawBuffer, GfxDrawVertex = DrawVertex,
-	GfxDrawVertexBuilder = DrawVertexBuilder, gfxDrawShader = drawShader;
+	GfxDrawBuffer = DrawBuffer,
+	GfxDrawVertex = DrawVertex,
+	GfxDrawVertexBuilder = DrawVertexBuilder,
+	gfxDrawShader = drawShader,
+	gfxDrawSamplerLinear = drawSamplerLinear,
+	gfxDrawSamplerNearest = drawSamplerNearest;
 public import charge.gfx.buffer :
-	GfxBuffer = Buffer, GfxBuilder = Builder,
-	GfxIndirectData = IndirectData, GfxIndirectBuffer = IndirectBuffer;
+	GfxBuffer = Buffer,
+	GfxBuilder = Builder,
+	GfxIndirectData = IndirectData,
+	GfxIndirectBuffer = IndirectBuffer;
 public import charge.gfx.shader :
 	GfxShader = Shader;
 public import charge.gfx.target :
-	GfxTarget = Target, GfxFramebuffer = Framebuffer;
+	GfxTarget = Target,
+	GfxFramebuffer = Framebuffer;
 public import charge.gfx.texture :
-	GfxTexture = Texture, GfxTexture2D = Texture2D;
+	GfxTexture = Texture,
+	GfxTexture2D = Texture2D;
 public import charge.gfx.timer :
 	GfxTimer = Timer;
 public import charge.gfx.bitmapfont :
-	GfxBitmapState = BitmapState, gfxBuildVertices = buildVertices,
+	GfxBitmapState = BitmapState,
+	gfxBuildVertices = buildVertices,
 	gfxBitmapTexture = bitmapTexture;
 public import charge.gfx.sync :
 	GfxSync = Sync;
