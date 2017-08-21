@@ -35,7 +35,7 @@ struct StepState
 
 private global voxelShaderStoreStore: ShaderStore[const(u32)[]];
 
-fn getStore(xShift: u32, yShift: u32, zShift: u32) ShaderStore
+fn getStore(xShift: u32, yShift: u32, zShift: u32, isAMD: bool) ShaderStore
 {
 	key := [xShift, yShift, zShift];
 	s := key in voxelShaderStoreStore;
@@ -43,7 +43,7 @@ fn getStore(xShift: u32, yShift: u32, zShift: u32) ShaderStore
 		return *s;
 	}
 
-	store := new ShaderStore(xShift, yShift, zShift);
+	store := new ShaderStore(xShift, yShift, zShift, isAMD);
 	voxelShaderStoreStore[key] = store;
 	return store;
 }
@@ -409,16 +409,18 @@ public:
 class ShaderStore
 {
 protected:
-	mXShift, mYShift, mZShift: u32;
 	mShaderStore: GfxShader[string];
+	mXShift, mYShift, mZShift: u32;
+	mIsAMD: bool;
 
 
 public:
-	this(xShift: u32, yShift: u32, zShift: u32)
+	this(xShift: u32, yShift: u32, zShift: u32, isAMD: bool)
 	{
 		this.mXShift = xShift;
 		this.mYShift = yShift;
 		this.mZShift = zShift;
+		this.mIsAMD = isAMD;
 
 		makeComputeDispatchShader(0, BufferCommandId);
 		makeComputeDispatchShader(1, BufferCommandId);
@@ -436,6 +438,7 @@ public:
 		}
 
 		comp := cast(string)import("voxel/indirect-dispatch.comp.glsl");
+		comp = replaceCommon(comp);
 		comp = replace(comp, "%INDIRECT_SRC%", format("%s", src));
 		comp = replace(comp, "%INDIRECT_DST%", format("%s", dst));
 
@@ -452,6 +455,7 @@ public:
 		}
 
 		comp := cast(string)import("voxel/indirect-elements.comp.glsl");
+		comp = replaceCommon(comp);
 		comp = replace(comp, "%INDIRECT_SRC%", format("%s", src));
 		comp = replace(comp, "%INDIRECT_DST%", format("%s", dst));
 
@@ -468,6 +472,7 @@ public:
 		}
 
 		comp := cast(string)import("voxel/indirect-array.comp.glsl");
+		comp = replaceCommon(comp);
 		comp = replace(comp, "%INDIRECT_SRC%", format("%s", src));
 		comp = replace(comp, "%INDIRECT_DST%", format("%s", dst));
 
@@ -486,9 +491,7 @@ public:
 		}
 
 		comp := cast(string)import("voxel/walk-generic.comp.glsl");
-		comp = replace(comp, "%X_SHIFT%", format("%s", mXShift));
-		comp = replace(comp, "%Y_SHIFT%", format("%s", mYShift));
-		comp = replace(comp, "%Z_SHIFT%", format("%s", mZShift));
+		comp = replaceCommon(comp);
 		comp = replace(comp, "%VOXEL_SRC%", format("%s", src));
 		comp = replace(comp, "%VOXEL_DST1%", format("%s", dst1));
 		comp = replace(comp, "%VOXEL_DST2%", format("%s", dst2));
@@ -512,9 +515,7 @@ public:
 		}
 
 		comp := cast(string)import("voxel/walk-double.comp.glsl");
-		comp = replace(comp, "%X_SHIFT%", format("%s", mXShift));
-		comp = replace(comp, "%Y_SHIFT%", format("%s", mYShift));
-		comp = replace(comp, "%Z_SHIFT%", format("%s", mZShift));
+		comp = replaceCommon(comp);
 		comp = replace(comp, "%VOXEL_SRC%", format("%s", src));
 		comp = replace(comp, "%VOXEL_DST1%", format("%s", dst1));
 		comp = replace(comp, "%VOXEL_DST2%", format("%s", dst2));
@@ -533,16 +534,12 @@ public:
 		}
 
 		vert := cast(string)import("voxel/cube.vert.glsl");
-		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
-		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
-		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
+		vert = replaceCommon(vert);
 		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
 		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
 		vert = replace(vert, "%POWER_LEVELS%", "0");
 		frag := cast(string)import("voxel/cube-ray.frag.glsl");
-		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
-		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
-		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
+		frag = replaceCommon(frag);
 		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
 		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
 		frag = replace(frag, "%POWER_LEVELS%", "0");
@@ -561,16 +558,12 @@ public:
 		}
 
 		vert := cast(string)import("voxel/cube.vert.glsl");
-		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
-		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
-		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
+		vert = replaceCommon(vert);
 		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
 		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
 		vert = replace(vert, "%POWER_LEVELS%", format("%s", powerLevels));
 		frag := cast(string)import("voxel/cube-ray.frag.glsl");
-		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
-		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
-		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
+		frag = replaceCommon(frag);
 		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
 		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
 		frag = replace(frag, "%POWER_LEVELS%", format("%s", powerLevels));
@@ -589,16 +582,12 @@ public:
 		}
 
 		vert := cast(string)import("voxel/cube.vert.glsl");
-		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
-		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
-		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
+		vert = replaceCommon(vert);
 		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
 		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
 
 		frag := cast(string)import("voxel/cube-ray-double.frag.glsl");
-		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
-		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
-		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
+		frag = replaceCommon(frag);
 		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
 		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
 
@@ -616,15 +605,11 @@ public:
 		}
 
 		vert := cast(string)import("voxel/points.vert.glsl");
-		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
-		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
-		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
+		vert = replaceCommon(vert);
 		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
 		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
 		frag := cast(string)import("voxel/points.frag.glsl");
-		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
-		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
-		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
+		frag = replaceCommon(frag);
 		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
 		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
 
@@ -642,20 +627,26 @@ public:
 		}
 
 		vert := cast(string)import("voxel/cube.vert.glsl");
-		vert = replace(vert, "%X_SHIFT%", format("%s", mXShift));
-		vert = replace(vert, "%Y_SHIFT%", format("%s", mYShift));
-		vert = replace(vert, "%Z_SHIFT%", format("%s", mZShift));
+		vert = replaceCommon(vert);
 		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
 		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
 		frag := cast(string)import("voxel/cube-normal.frag.glsl");
-		frag = replace(frag, "%X_SHIFT%", format("%s", mXShift));
-		frag = replace(frag, "%Y_SHIFT%", format("%s", mYShift));
-		frag = replace(frag, "%Z_SHIFT%", format("%s", mZShift));
+		frag = replaceCommon(frag);
 		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
 		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
 
 		s := new GfxShader(name, vert, null, frag);
 		mShaderStore[name] = s;
 		return s;
+	}
+
+private:
+	fn replaceCommon(str: string) string
+	{
+		str = replace(str, "%RENDERER_AMD%", mIsAMD ? "1" : "0");
+		str = replace(str, "%X_SHIFT%", format("%s", mXShift));
+		str = replace(str, "%Y_SHIFT%", format("%s", mYShift));
+		str = replace(str, "%Z_SHIFT%", format("%s", mZShift));
+		return str;
 	}
 }

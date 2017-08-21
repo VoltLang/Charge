@@ -66,7 +66,7 @@ protected:
 public:
 	this(octTexture: GLuint, ref create: Create, kind: Kind)
 	{
-		store := getStore(create.xShift, create.yShift, create.zShift);
+		store := getStore(create.xShift, create.yShift, create.zShift, create.isAMD);
 		b := new StepsBuilder(store);
 
 		final switch (kind) with (Kind) {

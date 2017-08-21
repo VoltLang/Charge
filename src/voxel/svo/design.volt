@@ -35,4 +35,5 @@ struct Create
 {
 	xShift, yShift, zShift: u32;
 	numLevels: u32;
+	isAMD: bool;
 }
