@@ -1,6 +1,6 @@
 // Copyright © 2016-2017, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-module charge.game.tui.menu;
+module charge.game.tui.base;
 
 import charge.game.tui.grid;
 
