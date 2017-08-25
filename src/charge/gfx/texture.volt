@@ -9,6 +9,7 @@ import core.exception;
 
 import watt.algorithm;
 import watt.text.format;
+import watt.math.integer;
 
 import lib.stb.image;
 
