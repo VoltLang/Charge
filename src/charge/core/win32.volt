@@ -21,10 +21,10 @@ import charge.ctl.input;
 import charge.ctl.mouse;
 import charge.ctl.keyboard;
 import charge.ctl.joystick;
+import charge.gfx.gl;
 import charge.gfx.gfx;
 import charge.gfx.target;
 
-import lib.gl;
 import lib.gl.loader;
 import lib.sdl2.keycode;
 import lib.sdl2.mouse;
@@ -259,9 +259,8 @@ private:
 			glDebugMessageCallback(glDebug, cast(void*)this);
 		}
 
-		printf("%s\n".ptr, glGetString(GL_VENDOR));
-		printf("%s\n".ptr, glGetString(GL_VERSION));
-		printf("%s\n".ptr, glGetString(GL_RENDERER));
+		runDetection();
+		printDetection();
 	}
 
 	fn createGlWindow()

@@ -16,6 +16,7 @@ import watt.library;
 import watt.text.utf;
 
 import charge.core;
+import charge.gfx.gl;
 import charge.gfx.gfx;
 import charge.gfx.target;
 import charge.ctl.input;
@@ -26,7 +27,6 @@ import charge.core.common;
 import charge.util.properties;
 
 import lib.sdl2;
-import lib.gl;
 import lib.gl.loader;
 
 version (Emscripten) {
@@ -497,9 +497,9 @@ private:
 			if (GL_VERSION_4_5 && opts.openglDebug) {
 				glDebugMessageCallback(glDebug, cast(void*)this);
 			}
-			printf("%s\n".ptr, glGetString(GL_VENDOR));
-			printf("%s\n".ptr, glGetString(GL_VERSION));
-			printf("%s\n".ptr, glGetString(GL_RENDERER));
+
+			runDetection();
+			printDetection();
 		}
 
 		// Readback size

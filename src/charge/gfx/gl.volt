@@ -5,6 +5,9 @@ module charge.gfx.gl;
 public import lib.gl;
 
 import io = watt.io;
+import watt.conv;
+
+import charge.gfx.gfx;
 
 
 fn glCheckError(loc: string = __LOCATION__) GLuint
@@ -28,7 +31,7 @@ fn glCheckError(loc: string = __LOCATION__) GLuint
 	default: code = new "${err}"; break;
 	}
 
-	io.error.write(new "${loc} error: ${code}");
+	io.error.write(new "${loc} error: ${code}\n");
 	io.error.flush();
 	return err;
 }
@@ -64,7 +67,54 @@ fn glCheckFramebufferError(loc: string = __LOCATION__) GLuint
 		code = new "${status}"; break;
 	}
 
-	io.error.write(new "${loc} error: ${code}");
+	io.error.write(new "${loc} error: ${code}\n");
 	io.error.flush();
 	return status;
+}
+
+fn runDetection()
+{
+	gfxRendererInfo.isGL = true;
+	gfxRendererInfo.glVendor = toString(cast(const(char)*)glGetString(GL_VENDOR));
+	gfxRendererInfo.glVersion = toString(cast(const(char)*)glGetString(GL_VERSION));
+	gfxRendererInfo.glRenderer = toString(cast(const(char)*)glGetString(GL_RENDERER));
+
+	if (gfxRendererInfo.glVendor == "ATI Technologies Inc.") {
+		gfxRendererInfo.isAMD = true;
+		gfxRendererInfo.isConfidentInDetection = true;
+		return;
+	}
+}
+
+fn printDetection()
+{
+	if (!gfxRendererInfo.isGL) {
+		return;
+	}
+
+	io.output.write("Found a OpenGL renderer.\n");
+	io.output.writef("\tVendor:   %s\n", gfxRendererInfo.glVendor);
+	io.output.writef("\tVersion:  %s\n", gfxRendererInfo.glVersion);
+	io.output.writef("\tRenderer: %s\n", gfxRendererInfo.glRenderer);
+	io.output.write("That we ");
+
+	if (gfxRendererInfo.isConfidentInDetection) {
+		io.output.write("know:\n");
+	} else {
+		io.output.write("think:\n");
+	}
+
+	if (gfxRendererInfo.isAMD) {
+		io.output.write("\tis a AMD device\n");
+	}
+	if (gfxRendererInfo.isNVIDIA) {
+		io.output.write("\tis a NVIDIA device\n");
+	}
+	if (gfxRendererInfo.isINTEL) {
+		io.output.write("\tis a INTEL device\n");
+	}
+	if (gfxRendererInfo.isMESA) {
+		io.output.write("\tusing the Mesa driver\n");
+	}
+	io.output.flush();
 }
