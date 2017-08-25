@@ -2,36 +2,42 @@
 // See copyright notice in src/charge/licence.volt (BOOST ver. 1.0).
 module charge.gfx.gl;
 
-static import watt.conv;
-static import watt.io.std;
-
 public import lib.gl;
 
+import io = watt.io;
 
-fn glCheckError(file: const(char)[] = __FILE__, line: int = __LINE__) bool
+
+fn glCheckError(loc: string = __LOCATION__) GLuint
 {
 	err := glGetError();
-	if (!err) {
-		return false;
+	if (err == GL_NO_ERROR) {
+		return err;
 	}
 
 	code: string;
 	switch (err) {
+	case GL_NO_ERROR: code = "GL_NO_ERROR"; break;
 	case GL_INVALID_ENUM: code = "GL_INVALID_ENUM"; break;
-	case GL_INVALID_OPERATION: code = "GL_INVALID_OPERATION"; break;
 	case GL_INVALID_VALUE: code = "GL_INVALID_VALUE"; break;
-	default: code = watt.conv.toString(err); break;
+	case GL_INVALID_OPERATION: code = "GL_INVALID_OPERATION"; break;
+	case GL_INVALID_FRAMEBUFFER_OPERATION: code = "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
+	case GL_OUT_OF_MEMORY: code = "GL_OUT_OF_MEMORY"; break;
+	// Not in core
+	//case GL_STACK_UNDERFLOW: code = "GL_STACK_UNDERFLOW"; break;
+	//case GL_STACK_OVERFLOW: code = "GL_STACK_OVERFLOW"; break;
+	default: code = new "${err}"; break;
 	}
 
-	watt.io.std.writefln("%s:%s error: %s", file, line, code);
-	return true;
+	io.error.write(new "${loc} error: ${code}");
+	io.error.flush();
+	return err;
 }
 
-fn glCheckFramebufferError(file: const(char)[] = __FILE__, line: int = __LINE__)
+fn glCheckFramebufferError(loc: string = __LOCATION__) GLuint
 {
 	status := glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status == GL_FRAMEBUFFER_COMPLETE) {
-		return;
+		return status;
 	}
 
 	code: string;
@@ -55,8 +61,10 @@ fn glCheckFramebufferError(file: const(char)[] = __FILE__, line: int = __LINE__)
 	case GL_FRAMEBUFFER_COMPLETE:
 		code = "GL_FRAMEBUFFER_COMPLETE"; break;
 	default:
-		code = watt.conv.toString(status); break;
+		code = new "${status}"; break;
 	}
 
-	watt.io.std.writefln("%s:%s error: %s", file, line, code);
+	io.error.write(new "${loc} error: ${code}");
+	io.error.flush();
+	return status;
 }
