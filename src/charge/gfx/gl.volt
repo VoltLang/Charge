@@ -84,6 +84,12 @@ fn runDetection()
 		gfxRendererInfo.isConfidentInDetection = true;
 		return;
 	}
+
+	if (gfxRendererInfo.glVendor == "NVIDIA Corporation") {
+		gfxRendererInfo.isNVIDIA = true;
+		gfxRendererInfo.isConfidentInDetection = true;
+		return;
+	}
 }
 
 fn printDetection()
@@ -99,22 +105,22 @@ fn printDetection()
 	io.output.write("That we ");
 
 	if (gfxRendererInfo.isConfidentInDetection) {
-		io.output.write("know:\n");
+		io.output.write("know that:\n");
 	} else {
-		io.output.write("think:\n");
+		io.output.write("think that:\n");
 	}
 
 	if (gfxRendererInfo.isAMD) {
-		io.output.write("\tis a AMD device\n");
+		io.output.write("\tits a AMD device\n");
 	}
 	if (gfxRendererInfo.isNVIDIA) {
-		io.output.write("\tis a NVIDIA device\n");
+		io.output.write("\tits a NVIDIA device\n");
 	}
 	if (gfxRendererInfo.isINTEL) {
-		io.output.write("\tis a INTEL device\n");
+		io.output.write("\tits a INTEL device\n");
 	}
 	if (gfxRendererInfo.isMESA) {
-		io.output.write("\tusing the Mesa driver\n");
+		io.output.write("\tits the Mesa driver\n");
 	}
 	io.output.flush();
 }
