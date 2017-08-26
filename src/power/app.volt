@@ -1,6 +1,6 @@
 // Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
-module power.main;
+module power.app;
 
 import core.exception;
 
@@ -18,7 +18,7 @@ import power.experiments.aligntest;
 import power.experiments.raytracer;
 
 
-class Game : GameSceneManagerApp
+class App : GameSceneManagerApp
 {
 public:
 	this(args: string[])
