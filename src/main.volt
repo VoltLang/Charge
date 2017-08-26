@@ -10,8 +10,8 @@ static import power.app;
 fn main(args: string[]) int
 {
 	//g := new examples.gl.Game(args);
-	//g := new power.app.App(args);
-	g := new voxel.game.Game(args);
+	g := new power.app.App(args);
+	//g := new voxel.game.Game(args);
 
 	return g.c.loop();
 }
