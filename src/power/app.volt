@@ -4,15 +4,11 @@ module power.app;
 
 import core.exception;
 
-import watt.io;
-
-import charge.ctl;
-import charge.sys.resource;
-import charge.core;
 import charge.gfx;
+import charge.core;
 import charge.game;
-import charge.game.scene.background;
 
+import power.menu;
 import power.experiments.brute;
 import power.experiments.aligntest;
 import power.experiments.raytracer;
@@ -33,13 +29,7 @@ public:
 
 		checkVersion();
 
-		if (GL_VERSION_4_5) {
-			push(new RayTracer(this));
-		} else if (GL_VERSION_3_3) {
-			push(new AlignTest(this));
-		} else {
-			throw new Exception("Need at least GL 3.3");
-		}
+		push(new Menu(this));
 	}
 
 
