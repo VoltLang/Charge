@@ -12,14 +12,21 @@ import watt.io;
 
 class Background : Scene
 {
-public:
-	tile: GfxTexture;
-	logo: GfxTexture;
-	buf: GLuint;
-	vao: GLuint;
-	num: GLsizei;
-	width: uint;
-	height: uint;
+protected:
+	mBuf: GLuint;
+	mVao: GLuint;
+	mNum: GLsizei;
+
+	mWidth: uint;
+	mHeight: uint;
+
+	mLogo: GfxTexture;
+	mLogoWidth: uint;
+	mLogoHeight: uint;
+	mTile: GfxTexture;
+	mTileWidth: uint;
+	mTileHeight: uint;
+
 
 public:
 	this(sm: SceneManager, tileName: string, logoName: string)
@@ -27,10 +34,34 @@ public:
 		super(sm, Type.Background);
 
 		if (tileName !is null) {
-			tile = GfxTexture2D.load(Pool.opCall(), tileName);
+			mTile = GfxTexture2D.load(Pool.opCall(), tileName);
 		}
 		if (logoName !is null) {
-			logo = GfxTexture2D.load(Pool.opCall(), logoName);
+			mLogo = GfxTexture2D.load(Pool.opCall(), logoName);
+		}
+	}
+
+	fn setTile(filename: string)
+	{
+		if (mTile !is null) {
+			mTile.decRef();
+			mTile = null;
+		}
+
+		if (filename !is null) {
+			mTile = GfxTexture2D.load(Pool.opCall(), filename);
+		}
+	}
+
+	fn setLogo(filename: string)
+	{
+		if (mLogo !is null) {
+			mLogo.decRef();
+			mLogo = null;
+		}
+
+		if (filename !is null) {
+			mLogo = GfxTexture2D.load(Pool.opCall(), filename);
 		}
 	}
 
@@ -43,32 +74,38 @@ public:
 
 	fn initBuffers(t: GfxTarget)
 	{
-		if (tile is null && logo is null) {
+		if (mTile is null && mLogo is null) {
 			return;
 		}
 
-		if (width == t.width ||
-		    height == t.height) {
+		tW, tH, lW, lH: uint;
+		if (mTile !is null) { tW = mTile.width; tH = mTile.height; }
+		if (mLogo !is null) { lW = mLogo.width; lH = mLogo.height; }
+
+		if (t.width == mWidth && t.height == mHeight &&
+		    tW == mTileWidth && tH == mTileHeight &&
+		    lW == mLogoWidth && lH == mLogoHeight) {
 			return;
 		}
-		width = t.width;
-		height = t.height;
+		mWidth = t.width; mHeight = t.height;
+		mTileWidth = tW; mTileHeight = tH;
+		mLogoWidth = lW; mLogoHeight = lH;
 
 		b := new GfxDrawVertexBuilder(8);
 
 		// Tile vertecies
-		if (tile !is null) {
+		if (mTile !is null) {
 			factor: uint;
 			tileWidth: uint;
 			tileHeight: uint;
-			while (tileWidth < width || tileHeight < height) {
+			while (tileWidth < t.width || tileHeight < t.height) {
 				factor += 2;
-				tileWidth = tile.width * factor;
-				tileHeight = tile.height * factor;
+				tileWidth = mTile.width * factor;
+				tileHeight = mTile.height * factor;
 			}
 
-			tX1 := cast(f32)(width / 2) - cast(f32)(tileWidth / 2);
-			tY1 := cast(f32)(height / 2) - cast(f32)(tileHeight / 2);
+			tX1 := cast(f32)(t.width / 2) - cast(f32)(tileWidth / 2);
+			tY1 := cast(f32)(t.height / 2) - cast(f32)(tileHeight / 2);
 
 			tX2 := tX1 + cast(f32)tileWidth;
 			tY2 := tY1 + cast(f32)tileHeight;
@@ -76,34 +113,34 @@ public:
 
 			b.add(tX1, tY1, 0.0f, 0.0f);
 			b.add(tX2, tY1,    f, 0.0f);
-			b.add(tX2, tY2,    f,    f);
 			b.add(tX1, tY2, 0.0f,    f);
+			b.add(tX2, tY2,    f,    f);
 		}
 
 		// Logo vertecies
-		if (logo !is null) {
-			logoWidth := logo.width;
-			logoHeight := logo.height;
-			while (logoWidth > width || logoHeight > height) {
+		if (mLogo !is null) {
+			logoWidth := mLogo.width;
+			logoHeight := mLogo.height;
+			while (logoWidth > t.width || logoHeight > t.height) {
 				logoWidth /= 2;
 				logoHeight /= 2;
 			}
 
-			lX1 := cast(f32)(width / 2 - logoWidth / 2);
-			lY1 := cast(f32)(height / 2 - logoHeight / 2);
+			lX1 := cast(f32)(t.width / 2 - logoWidth / 2);
+			lY1 := cast(f32)(t.height / 2 - logoHeight / 2);
 			lX2 := lX1 + cast(f32)logoWidth;
 			lY2 := lY1 + cast(f32)logoHeight;
 
 			b.add(lX1, lY1, 0.0f, 0.0f);
 			b.add(lX2, lY1, 1.0f, 0.0f);
-			b.add(lX2, lY2, 1.0f, 1.0f);
 			b.add(lX1, lY2, 0.0f, 1.0f);
+			b.add(lX2, lY2, 1.0f, 1.0f);
 		}
 
-		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
-		if (vao) { glDeleteVertexArrays(1, &vao); vao = 0; }
+		if (mBuf) { glDeleteBuffers(1, &mBuf); mBuf = 0; }
+		if (mVao) { glDeleteVertexArrays(1, &mVao); mVao = 0; }
 
-		b.bake(out vao, out buf, out num);
+		b.bake(out mVao, out mBuf, out mNum);
 		b.close();
 	}
 
@@ -115,10 +152,10 @@ public:
 
 	override fn close()
 	{
-		if (tile !is null) { tile.decRef(); tile = null; }
-		if (logo !is null) { logo.decRef(); logo = null; }
-		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
-		if (vao) { glDeleteVertexArrays(1, &vao); vao = 0; }
+		if (mTile !is null) { mTile.decRef(); mTile = null; }
+		if (mLogo !is null) { mLogo.decRef(); mLogo = null; }
+		if (mBuf) { glDeleteBuffers(1, &mBuf); mBuf = 0; }
+		if (mVao) { glDeleteVertexArrays(1, &mVao); mVao = 0; }
 	}
 
 	override fn logic()
@@ -134,7 +171,7 @@ public:
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		if (tile is null && logo is null) {
+		if (mTile is null && mLogo is null) {
 			return;
 		}
 
@@ -147,23 +184,23 @@ public:
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBindVertexArray(vao);
+		glBindVertexArray(mVao);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		offset: GLint;
-		if (tile !is null) {
-			tile.bind();
+		if (mTile !is null) {
+			mTile.bind();
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-			tile.unbind();
+			mTile.unbind();
 			offset += 4;
 		}
 
-		if (logo !is null) {
-			logo.bind();
+		if (mLogo !is null) {
+			mLogo.bind();
 			glDrawArrays(GL_TRIANGLE_STRIP, offset, 4);
-			logo.unbind();
+			mLogo.unbind();
 		}
 
 		glBindVertexArray(0);
