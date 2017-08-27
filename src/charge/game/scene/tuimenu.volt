@@ -29,7 +29,7 @@ import tui = charge.game.tui;
  *
  * Usefull for implementing menus.
  */
-class TuiWindowScene : SimpleScene
+abstract class TuiWindowScene : SimpleScene
 {
 public:
 	enum HeaderExtra : u32 = 5;
@@ -117,6 +117,10 @@ public:
 		updateTarget(t);
 		mBlitter.blit(t, mTarget.color, posX, posY);
 	}
+
+	abstract fn gridMouseUp(m: Mouse, x: u32, y: u32, button: i32);
+	abstract fn gridMouseDown(m: Mouse, x: u32, y: u32, button: i32);
+	abstract fn gridMouseMove(m: Mouse, x: u32, y: u32);
 
 
 private:

@@ -51,10 +51,20 @@ class Menu : TuiWindowScene
 		}
 	}
 
-	override fn mouseMove(m: CtlMouse, i32, i32)
+	override fn gridMouseMove(m: CtlMouse, x: u32, y: u32)
 	{
-		posX = m.x;
-		posY = m.y;
+		io.output.write(new "${x} ${y}\n");
+		io.output.flush();
+	}
+
+	override fn gridMouseUp(m: CtlMouse, x: u32, y: u32, button: i32)
+	{
+
+	}
+
+	override fn gridMouseDown(m: CtlMouse, x: u32, y: u32, button: i32)
+	{
+
 	}
 
 	override fn render(t: GfxTarget)
