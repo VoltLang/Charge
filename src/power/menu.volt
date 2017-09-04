@@ -9,16 +9,28 @@ import charge.game;
 
 import tui = charge.game.tui;
 
+import power.app;
+
 
 class Menu : tui.MenuScene
 {
-	this(g: GameSceneManager)
-	{
-		voxels := new tui.Button();
-		voxels.str = "Voxels";
-		voxels.pressed = pressedVoxels;
+public:
+	app: App;
 
-		super(g, "Charged Experiments", voxels);
+
+public:
+	this(app: App)
+	{
+		this.app = app;
+		voxelTest := new tui.Button();
+		voxelTest.str = "Voxel Test";
+		voxelTest.pressed = pressedVoxels;
+
+		alignTest := new tui.Button();
+		alignTest.str = "Align Test";
+		alignTest.pressed = pressedAlignTest;
+
+		super(app, "Charged Experiments", voxelTest, alignTest);
 
 		this.quit.pressed = pressedQuit;
 		this.close.pressed = pressedClose;
@@ -28,7 +40,7 @@ class Menu : tui.MenuScene
 
 	fn pressedClose(button: tui.Button)
 	{
-		mManager.closeMe(this);
+		app.closeMe(this);
 	}
 
 	fn pressedQuit(button: tui.Button)
@@ -36,8 +48,15 @@ class Menu : tui.MenuScene
 		chargeQuit();
 	}
 
+	fn pressedAlignTest(button: tui.Button)
+	{
+		app.closeMe(this);
+		app.showAlignTest();
+	}
+
 	fn pressedVoxels(button: tui.Button)
 	{
-		mManager.closeMe(this);
+		app.closeMe(this);
+		app.showVoxelTest();
 	}
 }
