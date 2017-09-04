@@ -52,7 +52,7 @@ public:
 
 
 public:
-	this(g: GameSceneManagerApp, header: string, buttons: scope Button[]...)
+	this(g: GameSceneManager, header: string, buttons: scope Button[]...)
 	{
 		super(g, 1, 1);
 		this.quit = new Button();

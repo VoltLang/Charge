@@ -12,11 +12,12 @@ import tui = charge.game.tui;
 
 class Menu : tui.MenuScene
 {
-	this(g: GameSceneManagerApp)
+	this(g: GameSceneManager)
 	{
 		voxels := new tui.Button();
 		voxels.str = "Voxels";
 		voxels.pressed = pressedVoxels;
+
 		super(g, "Charged Experiments", voxels);
 
 		this.quit.pressed = pressedQuit;

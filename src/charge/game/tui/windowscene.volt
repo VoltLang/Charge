@@ -47,6 +47,7 @@ public:
 	this(g: GameSceneManager, width: u32, height: u32)
 	{
 		super(g, Type.Menu);
+
 		headerGrid = new tui.Grid(1, 1);
 		headerGrid.setGlyphSize(cast(i32)GfxBitmapGlyphWidth*2, cast(i32)GfxBitmapGlyphHeight*2);
 		grid = new tui.Grid(0, 0);
