@@ -1,25 +1,17 @@
 // Copyright © 2011-2017, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 /*!
- * Contains classes and code to create a text-user-interface menu.
+ * Contains classes and code to create a text-user-interface window scene.
  */
-module charge.game.scene.tuimenu;
+module charge.game.tui.windowscene;
 
 import watt.algorithm : max;
 
 import math = charge.math;
 
-import charge.gfx.gl;
-import charge.gfx.draw;
-import charge.gfx.target;
-import charge.gfx.helpers;
-import charge.gfx.texture;
-import charge.gfx.bitmapfont;
-import charge.ctl.mouse;
-import charge.ctl.keyboard;
-import charge.math.matrix;
-import charge.game.scene.scene;
-import charge.game.scene.simple;
+import charge.gfx;
+import charge.ctl;
+import charge.game;
 
 import tui = charge.game.tui;
 
@@ -27,9 +19,9 @@ import tui = charge.game.tui;
 /*!
  * A text-user-interface that draws to a single window on the screen.
  *
- * Usefull for implementing menus.
+ * Usefull for implementing menus, see @ref charge.game.tui.menuscene.
  */
-abstract class TuiWindowScene : SimpleScene
+abstract class WindowScene : GameSimpleScene
 {
 public:
 	enum HeaderExtra : u32 = 5;
@@ -47,18 +39,18 @@ public:
 
 
 protected:
-	mTarget: FramebufferResizer;
-	mBlitter: TextureBlitter;
+	mTarget: GfxFramebufferResizer;
+	mBlitter: GfxTextureBlitter;
 
 
 public:
-	this(g: SceneManager, width: u32, height: u32)
+	this(g: GameSceneManager, width: u32, height: u32)
 	{
 		super(g, Type.Menu);
 		headerGrid = new tui.Grid(1, 1);
-		headerGrid.setGlyphSize(cast(i32)GlyphWidth*2, cast(i32)GlyphHeight*2);
+		headerGrid.setGlyphSize(cast(i32)GfxBitmapGlyphWidth*2, cast(i32)GfxBitmapGlyphHeight*2);
 		grid = new tui.Grid(0, 0);
-		grid.setGlyphSize(cast(i32)GlyphWidth, cast(i32)GlyphHeight);
+		grid.setGlyphSize(cast(i32)GfxBitmapGlyphWidth, cast(i32)GfxBitmapGlyphHeight);
 
 		// Now that the grids are created, set the size.
 		setSize(width, height);
@@ -66,6 +58,69 @@ public:
 		headerBackgroundColor = math.Color4f.from(0.f, 0.f, 1.f, 0.9f);
 		gridBackgroundColor = math.Color4f.from(0.f, 0.f, 0.f, 0.6f);
 	}
+
+
+	/*
+	 *
+	 * Scene functions.
+	 *
+	 */
+
+	override fn close()
+	{
+		mTarget.close();
+		mBlitter.close();
+
+		if (headerGrid !is null) {
+			headerGrid.close();
+			headerGrid = null;
+		}
+		if (grid !is null) {
+			grid.close();
+			grid = null;
+		}
+	}
+
+	override fn mouseDown(m: CtlMouse, button: i32)
+	{
+		x, y: i32;
+		getGridPositionOnScreen(out x, out y);
+		x = m.x - x; y = m.y - y;
+
+		if (x < 0 || y < 0) {
+			return;
+		}
+
+		ux := cast(u32)x / GfxBitmapGlyphWidth;
+		uy := cast(u32)y / GfxBitmapGlyphHeight;
+		if (ux >= grid.width || uy >= grid.height) {
+			return;
+		}
+
+		gridMouseDown(m, ux, uy, button);
+	}
+
+	override fn render(t: GfxTarget)
+	{
+		updateTarget(t);
+		mBlitter.blit(t, mTarget.color, posX, posY);
+	}
+
+
+	/*
+	 *
+	 * Grid functions.
+	 *
+	 */
+
+	fn gridMouseDown(m: CtlMouse, x: u32, y: u32, button: i32) { }
+
+
+	/*
+	 *
+	 * Getters and setter.
+	 *
+	 */
 
 	fn setSize(width: u32, height: u32)
 	{
@@ -97,34 +152,24 @@ public:
 		height = gridHeight + headerHeight + BorderSize * 2 + BorderSize;
 	}
 
-	override fn close()
+	fn getGridPositionOnScreen(out x: i32, out y: i32)
 	{
-		mTarget.close();
-		mBlitter.close();
+		headerWidth, headerHeight: u32;
+		getHeaderSizeInPixels(out headerWidth, out headerHeight);
 
-		if (headerGrid !is null) {
-			headerGrid.close();
-			headerGrid = null;
-		}
-		if (grid !is null) {
-			grid.close();
-			grid = null;
-		}
+		x = posX + cast(i32)(BorderSize);
+		y = posY + cast(i32)(headerHeight + BorderSize + BorderSize);
 	}
 
-	override fn render(t: Target)
+	fn getHeaderSizeInPixels(out w: u32, out h: u32)
 	{
-		updateTarget(t);
-		mBlitter.blit(t, mTarget.color, posX, posY);
+		headerGrid.getSizeInPixels(out w, out h);
+		h += HeaderExtra * 2; // Add extra pixels at top.
 	}
-
-	abstract fn gridMouseUp(m: Mouse, x: u32, y: u32, button: i32);
-	abstract fn gridMouseDown(m: Mouse, x: u32, y: u32, button: i32);
-	abstract fn gridMouseMove(m: Mouse, x: u32, y: u32);
 
 
 private:
-	fn updateTarget(t: Target)
+	fn updateTarget(t: GfxTarget)
 	{
 		if (!grid.isDirty && !headerGrid.isDirty && mTarget.fbo !is null) {
 			return;
@@ -140,8 +185,7 @@ private:
 
 		// Figure out where the header is drawn.
 		headerWidth, headerHeight: u32;
-		headerGrid.getSizeInPixels(out headerWidth, out headerHeight);
-		headerHeight += HeaderExtra * 2; // Add extra pixels at top.
+		getHeaderSizeInPixels(out headerWidth, out headerHeight);
 
 		headerBoxX := cast(GLint)(BorderSize);
 		headerBoxY := cast(GLint)(BorderSize);
@@ -177,7 +221,7 @@ private:
 		glDisable(GL_SCISSOR_TEST);
 
 		// Draw the header.
-		glBindSampler(0, drawSamplerNearest);
+		glBindSampler(0, gfxDrawSamplerNearest);
 		headerGrid.setOffset(headerShadowX, headerShadowY);
 		headerGrid.setColor(math.Color4b.Black);
 		headerGrid.draw(mTarget.fbo);

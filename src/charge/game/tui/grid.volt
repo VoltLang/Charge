@@ -136,6 +136,8 @@ public:
 		glBindVertexArray(0);
 	}
 
+	@property fn width() u32 { return mWidth; }
+	@property fn height() u32 { return mHeight; }
 	@property fn isDirty() bool { return mDirty; }
 
 
