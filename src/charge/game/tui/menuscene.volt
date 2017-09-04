@@ -13,10 +13,10 @@ import charge.game.tui.windowscene;
 class Button
 {
 public:
-	x, y: i32;
-	w, h: u32;
 	pressed: dg(Button);
 	str: string;
+	x, y: i32;
+	w, h: u32;
 
 
 public:
@@ -34,7 +34,7 @@ public:
 class MenuScene : WindowScene
 {
 public:
-	enum TopOffset : u32 = 3u;
+	enum TopOffset : u32 = 0u;
 	enum TotalWidth : u32 = 48u;
 
 	enum ButtonWidth : u32 = TotalWidth - 7u * 2u;
@@ -112,13 +112,7 @@ private:
 	fn doLayout()
 	{
 		width := TotalWidth; 
-		height := TopOffset +
-			ButtonHeight * cast(u32)buttons.length +
-			ButtonVerticalSeperation * cast(u32)buttons.length +
-			ButtonHeight;
-
-		setSize(width, height);
-
+		height := TopOffset;
 		buttonX := cast(i32)(TotalWidth / 2 - ButtonWidth / 2);
 		buttonY := cast(i32)(TopOffset);
 
@@ -127,8 +121,16 @@ private:
 			b.y = buttonY;
 			b.w = ButtonWidth;
 			b.h = ButtonHeight;
-			buttonY += cast(i32)(ButtonHeight + ButtonVerticalSeperation);
+
+			height += ButtonHeight;
+			buttonY += cast(i32)(ButtonHeight);
 		}
+
+		buttonY += ButtonVerticalSeperation;
+		height += ButtonVerticalSeperation;
+		height += ButtonHeight;
+
+		setSize(width, height);
 
 		lastButtonsX1 := cast(i32)((TotalWidth / 2) -
 			(LastButtonWidth * 2 + LastButtonHorizontalSeperation) / 2);
