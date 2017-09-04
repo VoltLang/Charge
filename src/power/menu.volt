@@ -6,74 +6,37 @@ import charge.core;
 import charge.ctl;
 import charge.gfx;
 import charge.game;
-import charge.game.scene.tuimenu;
 
 import tui = charge.game.tui;
 
 
-class Menu : TuiWindowScene
+class Menu : tui.MenuScene
 {
 	this(g: GameSceneManagerApp)
 	{
-		width := 48u;
-		height := 3u + 3u + 1u + 3u;
-		super(g, width, height);
-		buttonWidth := width - 7u * 2u;
-		bottonX := cast(i32)(width / 2 - buttonWidth / 2);
-		bottonY := cast(i32)(height - 3u - 3u - 1u);
+		voxels := new tui.Button();
+		voxels.str = "Voxels";
+		voxels.pressed = pressedVoxels;
+		super(g, "Charged Experiments", voxels);
 
-		setHeader(cast(immutable(u8)[])"Voxel Experiments");
+		this.quit.pressed = pressedQuit;
+		this.close.pressed = pressedClose;
 
-		lastButtonsWidth := 10u;
-		lastButtonsSeparation := 2u;
-		lastButtonsY := cast(i32)(height - 3u);
-		lastButtonsX1 := cast(i32)((width / 2) -
-			(lastButtonsWidth * 2 + lastButtonsSeparation) / 2);
-		lastButtonsX2 := lastButtonsX1 +
-			cast(i32)(lastButtonsWidth + lastButtonsSeparation);
-
-		tui.makeButton(grid, bottonX, bottonY,
-			buttonWidth, false, cast(immutable(u8)[])"Voxels");
-
-		tui.makeButton(grid, lastButtonsX1, lastButtonsY,
-			lastButtonsWidth, false, cast(immutable(u8)[])"Quit");
-		tui.makeButton(grid, lastButtonsX2, lastButtonsY,
-			lastButtonsWidth, false, cast(immutable(u8)[])"Close");
+		setHeader(cast(immutable(u8)[])"Charged Experiments");
 	}
 
-	override fn keyDown(CtlKeyboard, keycode: int)
+	fn pressedClose(button: tui.Button)
 	{
-		switch (keycode) {
-		case 27:
-			mManager.closeMe(this);
-			break;
-		default:
-		}
+		mManager.closeMe(this);
 	}
 
-	override fn gridMouseMove(m: CtlMouse, x: u32, y: u32)
+	fn pressedQuit(button: tui.Button)
 	{
-		io.output.write(new "${x} ${y}\n");
-		io.output.flush();
+		chargeQuit();
 	}
 
-	override fn gridMouseUp(m: CtlMouse, x: u32, y: u32, button: i32)
+	fn pressedVoxels(button: tui.Button)
 	{
-
-	}
-
-	override fn gridMouseDown(m: CtlMouse, x: u32, y: u32, button: i32)
-	{
-
-	}
-
-	override fn render(t: GfxTarget)
-	{
-		width, height: u32;
-		getSizeInPixels(out width, out height);
-
-		this.posX = cast(i32)(t.width / 2 - (width / 2));
-		this.posY = cast(i32)(t.height / 2 - (height / 2));
-		super.render(t);
+		mManager.closeMe(this);
 	}
 }
