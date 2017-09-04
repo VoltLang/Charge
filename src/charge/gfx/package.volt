@@ -33,9 +33,14 @@ public import charge.gfx.timer :
 	GfxTimer = Timer;
 public import charge.gfx.bitmapfont :
 	GfxBitmapState = BitmapState,
+	GfxBitmapGlyphWidth = GlyphWidth,
+	GfxBitmapGlyphHeight = GlyphHeight,
 	gfxBuildVertices = buildVertices,
 	gfxBitmapTexture = bitmapTexture;
 public import charge.gfx.sync :
 	GfxSync = Sync;
 public import charge.gfx.counters :
 	GfxCounters = Counters;
+public import charge.gfx.helpers :
+	GfxTextureBlitter = TextureBlitter,
+	GfxFramebufferResizer = FramebufferResizer;
