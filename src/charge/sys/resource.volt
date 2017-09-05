@@ -19,9 +19,12 @@ abstract class Resource
 {
 public:
 	url: string;
+	name: string;
+
 
 private:
 	mRefcount: int;
+
 
 protected:
 	this()
@@ -32,36 +35,45 @@ protected:
 		Pool.mInstance.resource(this);
 	}
 
+
 	global fn alloc(ti: TypeInfo,
 	                uri: scope const(char)[],
 	                name: scope const(char)[],
 	                extraSize: size_t,
-	                out extraPtr: void*) void*
+	                out extraPtr: void*,
+	                file: const(char)* = __FILE__,
+	                line: uint = __LINE__) void*
 	{
-		sz: size_t = ti.classSize + uri.length + name.length + extraSize;
-		ptr: void* = cMalloc(sz);
+		sz := ti.classSize + uri.length + name.length + extraSize;
+		debug {
+			ptr := cMalloc(sz, file, line);
+		} else {
+			ptr := cMalloc(sz);
+		}
 
-		start: size_t = 0;
-		end: size_t = ti.classSize;
-		ptr[start .. end] = ti.classInit[start .. end];
+		startClass: size_t = 0;
+		endClass: size_t = ti.classSize;
+		ptr[startClass .. endClass] = ti.classInit[startClass .. endClass];
 
-		start = end;
-		end = start + uri.length;
-		ptr[start .. end] = cast(void[])uri;
+		uriStart := endClass;
+		uriEnd := uriStart + uri.length;
+		ptr[uriStart .. uriEnd] = cast(void[])uri;
 
-		start = end;
-		end = start + name.length;
-		ptr[start .. end] = cast(void[])name;
+		nameStart := uriEnd;
+		nameEnd := nameStart + name.length;
+		ptr[nameStart .. nameEnd] = cast(void[])name;
 
 		if (extraSize > 0) {
-			extraPtr = ptr + end;
+			extraPtr = ptr + nameEnd;
 		}
 
 		r := cast(Resource)ptr;
-		r.url = cast(string)ptr[ti.classSize .. end];
+		r.url = cast(string)ptr[uriStart .. nameEnd];
+		r.name = cast(string)ptr[nameStart .. nameEnd];
 
 		return ptr;
 	}
+
 
 public:
 	final fn incRef()
