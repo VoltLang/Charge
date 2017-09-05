@@ -34,8 +34,6 @@ public:
 
 		this.quit.pressed = pressedQuit;
 		this.close.pressed = pressedClose;
-
-		setHeader(cast(immutable(u8)[])"Charged Experiments");
 	}
 
 	fn pressedClose(button: tui.Button)
