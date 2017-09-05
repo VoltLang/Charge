@@ -28,13 +28,35 @@ public:
 	enum string uri = "file://";
 
 	size: size_t;
-	ptr: void*;
+	ptr: immutable(void)*;
 
 
 public:
-	@property fn data() void[]
+	@property fn data() immutable(void)[]
 	{
 		return ptr[0 .. size];
+	}
+
+	/*!
+	 * A file that is created from `import("filename.txt")` import expressions.
+	 */
+	global fn fromImport(filename: string, data: immutable(void)[]) File
+	{
+		dummy: void*;
+		raw := Resource.alloc(typeid(File), uri, filename, 0, out dummy);
+
+		file := cast(File)raw;
+		file.__ctor(data.ptr, data.length);
+
+		return file;
+	}
+
+	/*!
+	 * Same as above, accepts string as that is what ´import("file")´ returns;.
+	 */
+	global fn fromImport(filename: string, data: string) File
+	{
+		return fromImport(filename, cast(immutable(void)[])data);
 	}
 
 	global fn load(filename: string) File
@@ -42,7 +64,6 @@ public:
 		ptr: void*;
 		fp: FILE*;
 		size: size_t;
-
 
 		loadFile(filename, out fp, out size);
 
@@ -58,7 +79,7 @@ public:
 
 		file := cast(File)raw;
 		file.__ctor(ptr, size);
-		
+
 		return file;
 	}
 
@@ -99,7 +120,7 @@ protected:
 		}
 	}
 
-	this(ptr: void*, size: size_t)
+	this(ptr: immutable(void)*, size: size_t)
 	{
 		this.ptr = ptr;
 		this.size = size;
