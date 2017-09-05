@@ -7,6 +7,9 @@ module charge.sys.resource;
 
 import core.typeinfo;
 
+import watt.text.sink : Sink;
+import watt.text.format : format;
+
 import charge.sys.memory;
 
 
@@ -23,6 +26,8 @@ public:
 
 
 private:
+	mNext: Resource;
+	mPrev: Resource;
 	mRefcount: int;
 
 
@@ -34,7 +39,6 @@ protected:
 		Pool.opCall();
 		Pool.mInstance.resource(this);
 	}
-
 
 	global fn alloc(ti: TypeInfo,
 	                uri: scope const(char)[],
@@ -94,6 +98,33 @@ public:
 			Pool.mInstance.mark(this);
 		}
 	}
+
+
+private:
+	fn insert(ref root: Resource)
+	{
+		if (root !is null) {
+			root.mPrev = this;
+			mNext = root;
+		}
+		root = this;
+	}
+
+	fn remove(ref root: Resource)
+	{
+		if (root is this) {
+			root = mNext;
+		}
+		if (mPrev !is null) {
+			mPrev.mNext = mNext;
+		}
+		if (mNext !is null) {
+			mNext.mPrev = mPrev;
+		}
+
+		mPrev = null;
+		mNext = null;
+	}
 }
 
 
@@ -109,9 +140,10 @@ public:
 
 
 private:
-	mMarked: Resource[];
-
 	global mInstance: Pool;
+
+	mAlive: Resource;
+	mMarked: Resource;
 
 
 public:
@@ -129,26 +161,35 @@ public:
 
 	fn collect()
 	{
-		foreach (r; mMarked) {
+		while (mMarked !is null) {
+			r := mMarked;
+			r.remove(ref mMarked);
 			r.__dtor();
 			cFree(cast(void*)r);
 		}
-		mMarked = null;
 	}
 
-	fn clean()
+	fn cleanAndLeakCheck(sink: Sink)
 	{
 		collect();
+
+		r := mAlive;
+		while (r !is null) {
+			format(sink, "%s not collected\n", r.url);
+			r = r.mNext;
+		}
 	}
 
 
 private:
 	final fn mark(r: Resource)
 	{
-		mMarked ~= r;
+		r.remove(ref mAlive);
+		r.insert(ref mMarked);
 	}
 
 	final fn resource(r: Resource)
 	{
+		r.insert(ref mAlive);
 	}
 }
