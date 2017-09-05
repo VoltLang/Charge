@@ -103,6 +103,12 @@ public:
 
 	override fn render(t: GfxTarget)
 	{
+		width, height: u32;
+		getSizeInPixels(out width, out height);
+
+		posX = cast(i32)(t.width / 2 - (width / 2));
+		posY = cast(i32)(t.height / 2 - (height / 2));
+
 		updateTarget(t);
 		mBlitter.blit(t, mTarget.color, posX, posY);
 	}

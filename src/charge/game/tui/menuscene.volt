@@ -97,16 +97,6 @@ public:
 		close.maybeClicked(cast(i32)x, cast(i32)y);
 	}
 
-	override fn render(t: GfxTarget)
-	{
-		width, height: u32;
-		getSizeInPixels(out width, out height);
-
-		this.posX = cast(i32)(t.width / 2 - (width / 2));
-		this.posY = cast(i32)(t.height / 2 - (height / 2));
-		super.render(t);
-	}
-
 
 private:
 	fn doLayout()
