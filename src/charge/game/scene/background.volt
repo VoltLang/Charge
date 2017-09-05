@@ -3,6 +3,7 @@
 module charge.game.scene.background;
 
 import charge.game.scene.scene;
+import charge.sys;
 import charge.gfx;
 import charge.math.matrix;
 import charge.sys.resource;
@@ -29,39 +30,56 @@ protected:
 
 
 public:
-	this(sm: SceneManager, tileName: string, logoName: string)
+	this(sm: SceneManager)
 	{
 		super(sm, Type.Background);
-
-		if (tileName !is null) {
-			mTile = GfxTexture2D.load(Pool.opCall(), tileName);
-		}
-		if (logoName !is null) {
-			mLogo = GfxTexture2D.load(Pool.opCall(), logoName);
-		}
 	}
 
 	fn setTile(filename: string)
+	{
+		if (filename is null) {
+			setTile(cast(SysFile)null);
+			return;
+		}
+
+		if (file := SysFile.load(filename)) {
+			setTile(file);
+		}
+	}
+
+	fn setTile(file: SysFile)
 	{
 		if (mTile !is null) {
 			mTile.decRef();
 			mTile = null;
 		}
 
-		if (filename !is null) {
-			mTile = GfxTexture2D.load(Pool.opCall(), filename);
+		if (file !is null) {
+			mTile = GfxTexture2D.load(file);
 		}
 	}
 
 	fn setLogo(filename: string)
+	{
+		if (filename is null) {
+			setTile(cast(SysFile)null);
+			return;
+		}
+
+		if (file := SysFile.load(filename)) {
+			setLogo(file);
+		}
+	}
+
+	fn setLogo(file: SysFile)
 	{
 		if (mLogo !is null) {
 			mLogo.decRef();
 			mLogo = null;
 		}
 
-		if (filename !is null) {
-			mLogo = GfxTexture2D.load(Pool.opCall(), filename);
+		if (file !is null) {
+			mLogo = GfxTexture2D.load(file);
 		}
 	}
 
