@@ -71,6 +71,7 @@ public:
 	fn close()
 	{
 		if (vbo !is null) { vbo.decRef(); vbo = null; }
+		if (builder !is null) { builder.close(); builder = null; }
 	}
 
 	fn blit(t: Target, texture: Texture, x: i32, y: i32)
