@@ -11,6 +11,7 @@ import core.c.stdio : printf;
 import core.c.stdlib : exit;
 
 import io = watt.io;
+
 import watt.conv : toStringz;
 import watt.library;
 import watt.text.utf;
@@ -23,6 +24,8 @@ import charge.ctl.input;
 import charge.ctl.mouse;
 import charge.ctl.keyboard;
 import charge.ctl.joystick;
+import charge.sys.resource;
+import charge.sys.memheader;
 import charge.core.common;
 import charge.util.properties;
 
@@ -370,9 +373,7 @@ protected:
 
 	override fn doClose()
 	{
-		if (closeDg !is null) {
-			closeDg();
-		}
+		closeDg();
 
 		foreach (closeFunc; closeFuncs) {
 			closeFunc();
@@ -380,9 +381,7 @@ protected:
 
 		saveSettings();
 
-/+
-		Pool().clean();
-+/
+		Pool.opCall().collect();
 
 		closeSfx();
 		closePhy();
@@ -393,6 +392,11 @@ protected:
 		if (noVideo) {
 			closeNoGfx();
 		}
+
+		Pool.opCall().collect();
+
+		cMemoryPrintAll(io.output.write);
+		io.output.flush();
 	}
 
 
