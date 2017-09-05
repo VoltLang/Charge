@@ -8,8 +8,6 @@ version (Windows):
 
 import core.exception;
 
-import core.rt.format;
-
 import core.c.stdio;
 import core.c.stdlib;
 import core.c.string;
@@ -210,15 +208,14 @@ protected:
 	{
 		closeDg();
 
+		foreach (closeFunc; closeFuncs) {
+			closeFunc();
+		}
+
 		Pool.opCall().collect();
 
-		mem := cMemoryUsage();
-		if (mem) {
-			io.output.writef("leaked ");
-			vrt_format_readable_size(io.output.write, mem);
-			io.output.writefln(" of memory");
-			io.output.flush();
-		}
+		cMemoryPrintAll(io.output.write);
+		io.output.flush();
 	}
 
 
