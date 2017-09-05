@@ -32,11 +32,6 @@ import charge.util.properties;
 import lib.sdl2;
 import lib.gl.loader;
 
-version (Emscripten) {
-	extern(C) fn emscripten_set_main_loop(fn(), fps: int, infloop: int);
-	extern(C) fn emscripten_cancel_main_loop();
-}
-
 
 /*
  *
@@ -84,20 +79,6 @@ private:
 	glu: Library;
 	sdl: Library;
 
-	/* name of libraries to load */
-	version (Windows) {
-		enum string[] libSDLname = ["SDL.dll"];
-		enum string[] libGLUname = ["glu32.dll"];
-	} else version (Linux) {
-		enum string[] libSDLname = ["libSDL.so", "libSDL-1.2.so.0"];
-		enum string[] libGLUname = ["libGLU.so", "libGLU.so.1"];
-	} else version (OSX) {
-		enum string[] libSDLname = ["SDL.framework/SDL"];
-		enum string[] libGLUname = ["OpenGL.framework/OpenGL"];
-	} else version (!StaticSDL) {
-		static assert(false);
-	}
-
 	enum gfxFlags = coreFlag.GFX | coreFlag.AUTO;
 
 public:
@@ -106,12 +87,10 @@ public:
 		this.opts = opts;
 		super(opts.flags);
 
-		loadLibraries();
-
 		if (opts.flags & gfxFlags) {
-			initGfx();
+			initWithGfx();
 		} else {
-			initNoGfx();
+			initWithoutGfx();
 		}
 
 		this.input = new InputSDL(0);
@@ -132,22 +111,19 @@ public:
 	override fn getClipboardText() string
 	{
 		if (!gfxLoaded) {
-			throw new Exception("Gfx not initd!");
+			return null;
 		}
 		return null;
 	}
 
 	override fn screenShot()
 	{
-		if (gfxLoaded) {
-			throw new Exception("Gfx not initd!");
-		}
 	}
 
 	override fn resize(w: uint, h: uint, mode: coreWindow)
 	{
 		if (!gfxLoaded) {
-			throw new Exception("Gfx not initd!");
+			return;
 		}
 
 		this.windowMode = mode;
@@ -178,55 +154,13 @@ public:
 	override fn size(out w: uint, out h: uint, out mode: coreWindow)
 	{
 		if (!gfxLoaded) {
-			throw new Exception("Gfx not initd!");
+			return;
 		}
 
 		t := DefaultTarget.opCall();
 		w = t.width;
 		h = t.height;
 		mode = this.windowMode;
-	}
-
-
-	/*
-	 *
-	 * Main loop.
-	 *
-	 */
-
-	version (Emscripten) {
-		extern(C) global fn loopCb()
-		{
-			event: SDL_Event;
-			quitSet: bool;
-
-			while (SDL_PollEvent(&event)) {
-				if (cast(int)event.type == SDL_QUIT) {
-					quitSet = true;
-					break;
-				} else if (cast(int)event.type == SDL_KEYDOWN) {
-					quitSet = true;
-					break;
-				}
-			}
-
-			if (quitSet) {
-				emscripten_cancel_main_loop();
-				(cast(CoreSDL)instance).close();
-				return;
-			}
-
-			if (instance.renderDg !is null) {
-				instance.renderDg();
-				SDL_GL_SwapWindow(window);
-			}
-		}
-
-		override fn loop() i32
-		{
-			emscripten_set_main_loop(loopCb, 0, 0);
-			return -1;
-		}
 	}
 
 
@@ -386,11 +320,10 @@ protected:
 		closeSfx();
 		closePhy();
 
-		if (gfxLoaded) {
-			closeGfx();
-		}
-		if (noVideo) {
-			closeNoGfx();
+		if (opts.flags & gfxFlags) {
+			closeWithGfx();
+		} else {
+			closeWithoutGfx();
 		}
 
 		Pool.opCall().collect();
@@ -403,57 +336,30 @@ protected:
 private:
 	/*
 	 *
-	 * Init and close functions
+	 * Init and close functions without gfx.
 	 *
 	 */
 
-	fn loadLibraries()
-	{
-/*
-		version (!StaticSDL) {
-			version (OSX) {
-/+
-				string[] libSDLnames = [privateFrameworksPath ~ "/" ~ libSDLname[0]] ~ libSDLname;
-+/
-				string[] libSDLnames = libSDLname;
-			} else {
-				string[] libSDLnames = libSDLname;
-			}
 
-			sdl = Library.loads(libSDLnames);
-			if (sdl is null) {
-				printf("Could not load SDL, crashing bye bye!\n");
-			}
-			loadSDL(sdl.symbol);
-		}
-*/
+	fn initWithoutGfx()
+	{
+		SDL_Init(0);
+	}
+
+	fn closeWithoutGfx()
+	{
+		SDL_Quit();
+		noVideo = false;
 	}
 
 
 	/*
 	 *
-	 * Init and close functions for subsystems
+	 * Init and close functions with gfx.
 	 *
 	 */
 
-
-	fn initNoGfx()
-	{
-		noVideo = true;
-		SDL_Init(SDL_INIT_JOYSTICK);
-	}
-
-	fn closeNoGfx()
-	{
-		if (!noVideo) {
-			return;
-		}
-
-		SDL_Quit();
-		noVideo = false;
-	}
-
-	fn initGfx()
+	fn initWithGfx()
 	{
 		SDL_Init(cast(uint)(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK));
 
@@ -527,24 +433,20 @@ private:
 +/
 	}
 
+	fn closeWithGfx()
+	{
+		DefaultTarget.close();
+
+		SDL_Quit();
+		gfxLoaded = false;
+	}
+
 	fn createCoreGL(major: int, minor: int) SDL_GLContext
 	{
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, major);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minor);
 		return SDL_GL_CreateContext(window);
-	}
-
-	fn closeGfx()
-	{
-		if (!gfxLoaded) {
-			return;
-		}
-
-		DefaultTarget.close();
-
-		SDL_Quit();
-		gfxLoaded = false;
 	}
 
 	fn loadFunc(c: string) void*
