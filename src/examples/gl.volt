@@ -47,7 +47,7 @@ public:
 
 		checkVersion();
 
-		tex = GfxTexture2D.load(Pool.opCall(), "res/logo.png");
+		tex = GfxTexture2D.load("res/logo.png");
 
 		initBuffers();
 	}
