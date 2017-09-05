@@ -315,7 +315,8 @@ protected:
 
 		saveSettings();
 
-		Pool.opCall().collect();
+		p := Pool.opCall();
+		p.collect();
 
 		closeSfx();
 		closePhy();
@@ -326,8 +327,7 @@ protected:
 			closeWithoutGfx();
 		}
 
-		Pool.opCall().collect();
-
+		p.cleanAndLeakCheck(io.output.write);
 		cMemoryPrintAll(io.output.write);
 		io.output.flush();
 	}
