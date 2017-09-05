@@ -150,9 +150,16 @@ public:
 		return tex;
 	}
 
-	global fn load(p: Pool, filename: string) Texture2D
+	global fn load(filename: string) Texture2D
 	{
-		file := File.load(filename);
+		if (file := File.load(filename)) {
+			return load(file);
+		}
+			return null;
+	}
+
+	global fn load(file: File) Texture2D
+	{
 		data := file.data;
 		x, y, comp: i32;
 
@@ -165,12 +172,12 @@ public:
 		}
 
 		if (ptr is null) {
-			str := .format("could not load '%s'", filename);
-			throw new Exception(filename);
+			str := .format("could not load '%s'", file.name);
+			throw new Exception(str);
 		}
 
 		levels := log2(max(cast(uint)x, cast(uint)y)) + 1;
-		tex := makeRGBA8(filename, cast(uint)x, cast(uint)y, levels);
+		tex := makeRGBA8(file.name, cast(uint)x, cast(uint)y, levels);
 		id := tex.id;
 		target := tex.target;
 		format := GL_RGBA;
