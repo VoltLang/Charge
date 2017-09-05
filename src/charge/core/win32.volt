@@ -7,12 +7,16 @@ module charge.core.win32;
 version (Windows):
 
 import core.exception;
+
+import core.rt.format;
+
 import core.c.stdio;
 import core.c.stdlib;
 import core.c.string;
 import core.c.windows;
 
 import io = watt.io;
+
 import watt.conv;
 
 import charge.core;
@@ -24,10 +28,13 @@ import charge.ctl.joystick;
 import charge.gfx.gl;
 import charge.gfx.gfx;
 import charge.gfx.target;
+import charge.sys.resource;
+import charge.sys.memheader;
 
 import lib.gl.loader;
 import lib.sdl2.keycode;
 import lib.sdl2.mouse;
+
 
 extern (Windows) { // TODO: Move to RT.
 	fn GetWindowRect(HWND, RECT*) BOOL;
@@ -201,8 +208,16 @@ protected:
 
 	override fn doClose()
 	{
-		if (closeDg !is null) {
-			closeDg();
+		closeDg();
+
+		Pool.opCall().collect();
+
+		mem := cMemoryUsage();
+		if (mem) {
+			io.output.writef("leaked ");
+			vrt_format_readable_size(io.output.write, mem);
+			io.output.writefln(" of memory");
+			io.output.flush();
 		}
 	}
 
