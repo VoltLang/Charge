@@ -158,8 +158,11 @@ public:
 
 		ptr := stbi_load_from_memory(data, out x, out y, out comp, STBI_rgb_alpha);
 
-		// Free and null everything.
-		file.decRef(); file = null; data = null;
+		// Free the file and return.
+		scope (exit) {
+			stbi_image_free(ptr);
+			file.decRef();
+		}
 
 		if (ptr is null) {
 			str := .format("could not load '%s'", filename);
