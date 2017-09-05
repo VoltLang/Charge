@@ -18,6 +18,41 @@ import power.experiments.aligntest;
 import power.experiments.raytracer;
 
 
+class Loader : tui.WindowScene
+{
+public:
+	app: App;
+
+
+protected:
+	mHasRendered: bool;
+
+
+public:
+	this(app: App)
+	{
+		this.app = app;
+		super(app, 40, 5);
+		setHeader(cast(immutable(u8)[])"Loading");
+	}
+
+	override fn render(t: GfxTarget)
+	{
+		mHasRendered = true;
+		super.render(t);
+	}
+
+	override fn logic()
+	{
+		if (!mHasRendered) {
+			return;
+		}
+
+		app.closeMe(this);
+		app.push(new RayTracer(app));
+	}
+}
+
 class Game : App
 {
 public:
@@ -47,7 +82,7 @@ public:
 
 	override fn showVoxelTest()
 	{
-		push(new RayTracer(this));
+		push(new Loader(this));
 	}
 
 	override fn showAlignTest()
