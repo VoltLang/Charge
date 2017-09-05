@@ -8,8 +8,11 @@ import charge.gfx;
 import charge.core;
 import charge.game;
 
-import power.menu;
+import tui = charge.game.tui;
+
 import power.app;
+import power.menu;
+import power.inbuilt;
 import power.experiments.brute;
 import power.experiments.aligntest;
 import power.experiments.raytracer;
@@ -29,6 +32,10 @@ public:
 		super(opts);
 
 		checkVersion();
+
+		bg := new GameBackgroundScene(this);
+		bg.setTile(makeInbuiltTilePng());
+		push(bg);
 
 		showMenu();
 	}
