@@ -10,7 +10,7 @@ import charge.sys.resource;
 import watt.io;
 
 
-class Background : Scene
+class BackgroundScene : Scene
 {
 protected:
 	mBuf: GLuint;
