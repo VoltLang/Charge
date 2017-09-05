@@ -41,7 +41,7 @@ public:
 	fn close()
 	{
 		if (mTextVBO !is null) { mTextVBO.decRef(); mTextVBO = null; }
-		if (mTextBuilder !is null) { mTextBuilder = null; }
+		if (mTextBuilder !is null) { mTextBuilder.close(); mTextBuilder = null; }
 	}
 
 	fn put(x: i32, y: i32, glyph: u8)
