@@ -17,10 +17,11 @@ import charge.game.scene.background;
 import charge.util.stopwatch;
 import charge.gfx.gl;
 
+import gen = voxel.generators;
+
 import voxel.viewer;
 import voxel.svo;
 import voxel.loaders;
-import gen = voxel.generators;
 
 
 class Game : GameSceneManagerApp

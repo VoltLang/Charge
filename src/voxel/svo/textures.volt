@@ -3,8 +3,10 @@
 module voxel.svo.textures;
 
 import io = watt.io;
+
 import watt.algorithm;
 import watt.math.floating;
+
 import gfx = charge.gfx;
 
 

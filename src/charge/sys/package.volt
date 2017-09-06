@@ -6,7 +6,14 @@
 module charge.sys;
 
 
+public import charge.sys.memory :
+	cFree,
+	cMalloc,
+	cRealloc;
+public import charge.sys.resource :
+	Pool,
+	Resource;
 public import charge.sys.file :
-	sysRereference = reference,
-	SysFile = File,
-	SysPool = SysPool;
+	reference,
+	File = File,
+	Pool = SysPool;

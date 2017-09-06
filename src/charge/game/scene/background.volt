@@ -2,7 +2,7 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.game.scene.background;
 
-import charge.sys;
+import sys = charge.sys;
 import gfx = charge.gfx;
 import math = charge.math;
 
@@ -37,16 +37,16 @@ public:
 	fn setTile(filename: string)
 	{
 		if (filename is null) {
-			setTile(cast(SysFile)null);
+			setTile(cast(sys.File)null);
 			return;
 		}
 
-		if (file := SysFile.load(filename)) {
+		if (file := sys.File.load(filename)) {
 			setTile(file);
 		}
 	}
 
-	fn setTile(file: SysFile)
+	fn setTile(file: sys.File)
 	{
 		gfx.reference(ref mTile, null);
 
@@ -58,16 +58,16 @@ public:
 	fn setLogo(filename: string)
 	{
 		if (filename is null) {
-			setTile(cast(SysFile)null);
+			setTile(cast(sys.File)null);
 			return;
 		}
 
-		if (file := SysFile.load(filename)) {
+		if (file := sys.File.load(filename)) {
 			setLogo(file);
 		}
 	}
 
-	fn setLogo(file: SysFile)
+	fn setLogo(file: sys.File)
 	{
 		gfx.reference(ref mLogo, null);
 

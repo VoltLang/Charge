@@ -2,12 +2,12 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module power.menu;
 
+import gfx = charge.gfx;
+import tui = charge.game.tui;
+
 import charge.core;
 import charge.ctl;
-import gfx = charge.gfx;
 import charge.game;
-
-import tui = charge.game.tui;
 
 import power.app;
 

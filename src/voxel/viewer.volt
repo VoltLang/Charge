@@ -2,10 +2,11 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module voxel.viewer;
 
+import io = watt.io;
+
 import watt.math.floating;
 import watt.text.sink;
 import watt.text.format;
-import io = watt.io;
 
 import gfx = charge.gfx;
 import math = charge.math;

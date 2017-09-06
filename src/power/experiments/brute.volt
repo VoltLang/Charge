@@ -8,6 +8,7 @@ import watt.algorithm;
 import watt.text.format;
 import io = watt.io;
 
+import sys = charge.sys;
 import gfx = charge.gfx;
 import math = charge.math;
 
@@ -16,7 +17,6 @@ import charge.core;
 import charge.game;
 import charge.gfx.gl;
 import charge.sys.memory;
-import charge.sys.resource;
 
 import power.voxel.boxel;
 import power.voxel.dag;
@@ -255,7 +255,7 @@ struct IndirectData
 /*!
  * Inderect buffer used for drawing.
  */
-class IndirectBuffer : Resource
+class IndirectBuffer : sys.Resource
 {
 public:
 	buf: GLuint;
@@ -271,7 +271,7 @@ public:
 	global fn make(name: string, num: GLsizei, count: GLuint) IndirectBuffer
 	{
 		dummy: void*;
-		buffer := cast(IndirectBuffer)Resource.alloc(
+		buffer := cast(IndirectBuffer)sys.Resource.alloc(
 			typeid(IndirectBuffer), gfx.Buffer.uri, name, 0, out dummy);
 		buffer.__ctor(num, count);
 		return buffer;
@@ -320,7 +320,7 @@ public:
 	global fn make(name: string, num: GLsizei, instances: size_t) DagBuffer
 	{
 		dummy: void*;
-		buffer := cast(DagBuffer)Resource.alloc(
+		buffer := cast(DagBuffer)sys.Resource.alloc(
 			typeid(DagBuffer), uri, name, 0, out dummy);
 		buffer.__ctor(num, instances);
 		return buffer;

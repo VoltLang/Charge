@@ -10,15 +10,13 @@ import watt.algorithm;
 import watt.text.format;
 
 import gfx = charge.gfx;
+import math = charge.math;
 
 import charge.ctl;
 import charge.core;
 import charge.game;
 import charge.gfx.gl;
 import charge.sys.memory;
-import charge.sys.resource;
-
-import math = charge.math;
 
 
 fn calcAlign(pos: i32, level: i32) i32

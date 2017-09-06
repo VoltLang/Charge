@@ -2,11 +2,11 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module power.voxel.dag;
 
+import sys = charge.sys;
 import gfx = charge.gfx;
 import math = charge.math;
 
 import charge.gfx.gl;
-import charge.sys.resource;
 
 
 /*!
@@ -22,7 +22,7 @@ public:
 	global fn make(name: string, vb: DagBuilder) DagBuffer
 	{
 		dummy: void*;
-		buffer := cast(DagBuffer)Resource.alloc(
+		buffer := cast(DagBuffer)sys.Resource.alloc(
 			typeid(DagBuffer), uri, name, 0, out dummy);
 		buffer.__ctor(0, 0);
 		buffer.update(vb);

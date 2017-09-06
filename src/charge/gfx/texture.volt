@@ -13,8 +13,8 @@ import watt.math.integer;
 
 import lib.stb.image;
 
-import charge.sys.file;
-import charge.sys.resource;
+import sys = charge.sys;
+
 import charge.gfx.gl;
 
 
@@ -43,7 +43,7 @@ fn reference(ref dec: Texture2D, inc: Texture2D)
 /*!
  * Base texture class.
  */
-class Texture : Resource
+class Texture : sys.Resource
 {
 public:
 	enum string uri = "tex://";
@@ -164,7 +164,7 @@ public:
 		width: uint, height: uint) Texture2D
 	{
 		dummy: void*;
-		tex := cast(Texture2D)Resource.alloc(typeid(Texture2D),
+		tex := cast(Texture2D)sys.Resource.alloc(typeid(Texture2D),
 		                                         uri, name,
 		                                         0, out dummy);
 		tex.__ctor(target, id, width, height, 1);
@@ -174,13 +174,13 @@ public:
 
 	global fn load(filename: string) Texture2D
 	{
-		if (file := File.load(filename)) {
+		if (file := sys.File.load(filename)) {
 			return load(file);
 		}
-			return null;
+		return null;
 	}
 
-	global fn load(file: File) Texture2D
+	global fn load(file: sys.File) Texture2D
 	{
 		data := file.data;
 		x, y, comp: i32;
@@ -190,7 +190,7 @@ public:
 		// Free the file and return.
 		scope (exit) {
 			stbi_image_free(ptr);
-			charge.sys.file.reference(ref file, null);
+			sys.reference(ref file, null);
 		}
 
 		if (ptr is null) {

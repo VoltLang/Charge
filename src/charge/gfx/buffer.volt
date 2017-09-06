@@ -2,9 +2,9 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.gfx.buffer;
 
+import sys = charge.sys;
+
 import charge.gfx.gl;
-import charge.sys.memory;
-import charge.sys.resource;
 
 
 /*!
@@ -39,7 +39,7 @@ fn destroy(ref obj: Builder)
 	if (obj !is null) { obj.close(); obj = null; }
 }
 
-class Buffer : Resource
+class Buffer : sys.Resource
 {
 public:
 	enum string uri = "buf://";
@@ -90,7 +90,7 @@ public:
 	final fn close()
 	{
 		if (mPtr !is null) {
-			cFree(mPtr);
+			sys.cFree(mPtr);
 			mPtr = null;
 		}
 		mPos = 0;
@@ -101,7 +101,7 @@ public:
 	{
 		if (mPos + size >= mSize) {
 			mSize += mPos + size;
-			mPtr = cRealloc(mPtr, mSize);
+			mPtr = sys.cRealloc(mPtr, mSize);
 		}
 		mPtr[mPos .. mPos + size] = input[0 .. size];
 		mPos += size;
@@ -110,8 +110,8 @@ public:
 	fn resetStore(size: size_t)
 	{
 		if (mSize < size) {
-			cFree(mPtr);
-			mPtr = cMalloc(size);
+			sys.cFree(mPtr);
+			mPtr = sys.cMalloc(size);
 			mSize = size;
 		}
 		mPos = 0;
@@ -138,7 +138,7 @@ struct IndirectData
  * glDrawArraysIndirect
  * glMultiDrawArraysIndirect
  */
-class IndirectBuffer : Resource
+class IndirectBuffer : sys.Resource
 {
 public:
 	buf: GLuint;
@@ -154,7 +154,7 @@ public:
 	global fn make(name: string, data: IndirectData[]) IndirectBuffer
 	{
 		dummy: void*;
-		buffer := cast(IndirectBuffer)Resource.alloc(
+		buffer := cast(IndirectBuffer)sys.Resource.alloc(
 			typeid(IndirectBuffer), Buffer.uri, name, 0, out dummy);
 		buffer.__ctor(data);
 		return buffer;

@@ -2,11 +2,12 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.gfx.draw;
 
+import sys = charge.sys;
+
 import charge.core;
 import charge.gfx.gl;
 import charge.gfx.shader;
 import charge.gfx.buffer;
-import charge.sys.resource;
 import charge.math.color;
 
 
@@ -48,7 +49,7 @@ public:
 	global fn make(name: string, vb: DrawVertexBuilder) DrawBuffer
 	{
 		dummy: void*;
-		buffer := cast(DrawBuffer)Resource.alloc(
+		buffer := cast(DrawBuffer)sys.Resource.alloc(
 			typeid(DrawBuffer), uri, name, 0, out dummy);
 		buffer.__ctor(0, 0);
 		buffer.update(vb);

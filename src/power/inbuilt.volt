@@ -2,10 +2,10 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module power.inbuilt;
 
-import charge.sys;
+import sys = charge.sys;
 
 
-fn makeInbuiltTilePng() SysFile
+fn makeInbuiltTilePng() sys.File
 {
-	return SysFile.fromImport("power/tile.png", import("power/tile.png"));
+	return sys.File.fromImport("power/tile.png", import("power/tile.png"));
 }

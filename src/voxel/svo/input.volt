@@ -4,9 +4,9 @@ module voxel.svo.input;
 
 import core.compiler.llvm;
 
-import math = charge.math;
-
 import io = watt.io;
+
+import math = charge.math;
 
 import voxel.svo.design;
 import voxel.svo.buddy;

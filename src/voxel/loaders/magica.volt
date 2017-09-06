@@ -11,6 +11,7 @@ import watt.io.file;
 import watt.algorithm;
 
 import math = charge.math;
+
 import voxel.svo;
 import voxel.svo.buddy : nextHighestPowerOfTwo, sizeToOrder;
 

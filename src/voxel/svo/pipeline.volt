@@ -2,13 +2,14 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module voxel.svo.pipeline;
 
+import io = watt.io;
+
 import watt.text.string;
 import watt.text.format;
 import watt.math.floating;
-import io = watt.io;
 
-import math = charge.math;
 import gfx = charge.gfx;
+import math = charge.math;
 
 import charge.gfx.gl;
 

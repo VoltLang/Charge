@@ -11,7 +11,6 @@ import math = charge.math;
 import charge.ctl;
 import charge.game;
 import charge.gfx.gl;
-import charge.sys.resource;
 
 
 /*!

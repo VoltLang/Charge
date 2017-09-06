@@ -2,10 +2,10 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module power.voxel.instance;
 
-import charge.sys.resource;
-import charge.gfx.gl;
-
+import sys = charge.sys;
 import gfx = charge.gfx;
+
+import charge.gfx.gl;
 
 
 struct InstanceData
@@ -22,7 +22,7 @@ public:
 	global fn make(name: string, instances: GLsizei) InstanceBuffer
 	{
 		dummy: void*;
-		buffer := cast(InstanceBuffer)Resource.alloc(
+		buffer := cast(InstanceBuffer)sys.Resource.alloc(
 			typeid(InstanceBuffer), uri, name, 0, out dummy);
 		buffer.__ctor(instances);
 		return buffer;
@@ -69,7 +69,7 @@ struct VisibilityData
 /*!
  * VBO with no per vertex data but instead per instance data.
  */
-class OccludeBuffer : Resource
+class OccludeBuffer : sys.Resource
 {
 public:
 	instanceBuffer: GLuint;
@@ -84,7 +84,7 @@ public:
 	{
 		assert(num > 0);
 		dummy: void*;
-		buffer := cast(OccludeBuffer)Resource.alloc(
+		buffer := cast(OccludeBuffer)sys.Resource.alloc(
 			typeid(OccludeBuffer), gfx.Buffer.uri, name, 0, out dummy);
 		buffer.__ctor(num);
 		return buffer;

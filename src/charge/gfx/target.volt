@@ -5,8 +5,8 @@
  */
 module charge.gfx.target;
 
-import charge.sys.file;
-import charge.sys.resource;
+import sys = charge.sys;
+
 import charge.gfx.gl;
 import charge.gfx.texture;
 import charge.math.matrix;
@@ -51,7 +51,7 @@ fn reference(ref dec: FramebufferMSAA, inc: FramebufferMSAA)
 /*!
  * Base texture class.
  */
-abstract class Target : Resource
+abstract class Target : sys.Resource
 {
 public:
 	enum string uri = "target://";
@@ -157,7 +157,7 @@ public:
 		filename := "%default";
 
 		dummy: void*;
-		t := cast(DefaultTarget)Resource.alloc(typeid(DefaultTarget),
+		t := cast(DefaultTarget)sys.Resource.alloc(typeid(DefaultTarget),
 		                                           uri, filename,
 		                                           0, out dummy);
 		t.__ctor(0, 0);
@@ -229,9 +229,9 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		dummy: void*;
-		t := cast(Framebuffer)Resource.alloc(typeid(Framebuffer),
-		                                     uri, name,
-		                                     0, out dummy);
+		t := cast(Framebuffer)sys.Resource.alloc(typeid(Framebuffer),
+		                                         uri, name,
+		                                         0, out dummy);
 		t.__ctor(fbo, color, depth, width, height);
 
 		return t;
@@ -308,9 +308,9 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		dummy: void*;
-		t := cast(Framebuffer)Resource.alloc(typeid(Framebuffer),
-		                                     uri, name,
-		                                     0, out dummy);
+		t := cast(Framebuffer)sys.Resource.alloc(typeid(Framebuffer),
+		                                         uri, name,
+		                                         0, out dummy);
 		t.__ctor(fbo, color, depth, width, height);
 
 		return t;

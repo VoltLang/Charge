@@ -3,9 +3,11 @@
 module voxel.svo.entity;
 
 import math = charge.math;
+
 import charge.gfx.gl;
 
 import voxel.svo.design : Create;
+
 
 /*!
  * A single entity that points into a SVO tree.
