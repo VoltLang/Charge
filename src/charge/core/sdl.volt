@@ -88,9 +88,9 @@ public:
 		super(opts.flags);
 
 		if (opts.flags & gfxFlags) {
-			initWithgfx.();
+			initWithGfx();
 		} else {
-			initWithoutgfx.();
+			initWithoutGfx();
 		}
 
 		this.input = new InputSDL(0);
@@ -322,9 +322,9 @@ protected:
 		closePhy();
 
 		if (opts.flags & gfxFlags) {
-			closeWithgfx.();
+			closeWithGfx();
 		} else {
-			closeWithoutgfx.();
+			closeWithoutGfx();
 		}
 
 		p.cleanAndLeakCheck(io.output.write);
@@ -341,12 +341,12 @@ private:
 	 */
 
 
-	fn initWithoutgfx.()
+	fn initWithoutGfx()
 	{
 		SDL_Init(0);
 	}
 
-	fn closeWithoutgfx.()
+	fn closeWithoutGfx()
 	{
 		SDL_Quit();
 		noVideo = false;
@@ -359,7 +359,7 @@ private:
 	 *
 	 */
 
-	fn initWithgfx.()
+	fn initWithGfx()
 	{
 		SDL_Init(cast(uint)(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK));
 
@@ -433,7 +433,7 @@ private:
 +/
 	}
 
-	fn closeWithgfx.()
+	fn closeWithGfx()
 	{
 		DefaultTarget.close();
 
