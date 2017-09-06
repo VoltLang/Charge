@@ -12,7 +12,7 @@ import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
 
-import charge.game;
+import game = charge.game;
 import charge.gfx.gl;
 
 import svo = voxel.svo;
@@ -31,7 +31,7 @@ public:
 
 
 public:
-	this(g: GameSceneManager, data: svo.Data, obj: svo.Entity)
+	this(g: game.SceneManager, data: svo.Data, obj: svo.Entity)
 	{
 		super(g);
 		this.data = data;

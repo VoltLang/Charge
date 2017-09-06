@@ -13,9 +13,9 @@ import sys = charge.sys;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
+import game = charge.game;
 
 import charge.core;
-import charge.game;
 import charge.gfx.gl;
 import charge.sys.memory;
 
@@ -53,7 +53,7 @@ public:
 
 
 public:
-	this(g: GameSceneManager)
+	this(g: game.SceneManager)
 	{
 		super(g);
 		distance = 1.0;

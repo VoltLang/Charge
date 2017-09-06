@@ -11,8 +11,8 @@ import watt.io.file;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
+import game = charge.game;
 
-import charge.game;
 import charge.gfx.gl;
 
 import power.voxel.svo;
@@ -101,7 +101,7 @@ public:
 
 
 public:
-	this(GameSceneManager g)
+	this(g: game.SceneManager)
 	{
 		super(g);
 

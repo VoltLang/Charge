@@ -2,15 +2,14 @@
 // See copyright notice in src/charge/licence.volt (BOOST ver 1.0).
 module charge.game;
 
-
 public import charge.game.app :
-	GameApp = App;
+	App;
 public import charge.game.scene.app :
-	GameSceneManagerApp = SceneManagerApp;
+	SceneManagerApp;
 public import charge.game.scene.scene :
-	GameScene = Scene,
-	GameSceneManager = SceneManager;
+	Scene,
+	SceneManager;
 public import charge.game.scene.simple :
-	GameSimpleScene = SimpleScene;
+	SimpleScene;
 public import charge.game.scene.background :
-	GameBackgroundScene = BackgroundScene;
+	BackgroundScene;

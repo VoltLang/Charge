@@ -10,9 +10,9 @@ import watt.algorithm : max;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
+import game = charge.game;
 import tui = charge.game.tui;
 
-import charge.game;
 import charge.gfx.gl;
 
 
@@ -21,7 +21,7 @@ import charge.gfx.gl;
  *
  * Usefull for implementing menus, see @ref charge.game.tui.menuscene.
  */
-abstract class WindowScene : GameSimpleScene
+abstract class WindowScene : game.SimpleScene
 {
 public:
 	enum HeaderExtra : u32 = 5;
@@ -44,7 +44,7 @@ protected:
 
 
 public:
-	this(g: GameSceneManager, width: u32, height: u32)
+	this(g: game.SceneManager, width: u32, height: u32)
 	{
 		super(g, Type.Menu);
 

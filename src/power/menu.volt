@@ -4,10 +4,10 @@ module power.menu;
 
 import ctl = charge.ctl;
 import gfx = charge.gfx;
+import game = charge.game;
 import tui = charge.game.tui;
 
 import charge.core;
-import charge.game;
 
 import power.app;
 

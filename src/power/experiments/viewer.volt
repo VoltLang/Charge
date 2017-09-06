@@ -9,15 +9,15 @@ import watt.math;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
+import game = charge.game;
 
-import charge.game;
 import charge.gfx.gl;
 
 
 /*!
  * Helper class if you want to draw a module and some text.
  */
-class Viewer : GameSimpleScene
+class Viewer : game.SimpleScene
 {
 public:
 	// AA
@@ -44,7 +44,7 @@ protected:
 
 
 public:
-	this(g: GameSceneManager)
+	this(g: game.SceneManager)
 	{
 		super(g, Type.Game);
 		mUseAA = false;
