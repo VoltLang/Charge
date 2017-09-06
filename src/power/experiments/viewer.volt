@@ -100,6 +100,7 @@ public:
 	{
 		aa.breakApart();
 		if (textVbo !is null) { textVbo.decRef(); textVbo = null; }
+		if (textBuilder !is null) { textBuilder.close(); textBuilder = null; }
 	}
 
 	override fn logic()

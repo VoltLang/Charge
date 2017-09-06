@@ -138,6 +138,7 @@ public:
 			b.add(cast(i8)x, cast(i8)y, cast(i8)z, 1);
 		}
 		mVbo = DagBuffer.make("power/dag", b);
+		b.close();
 
 		ind: GfxIndirectData[1];
 		ind[0].count = cast(GLuint)calcNumMorton(1 << mGeomPower);
@@ -145,10 +146,10 @@ public:
 		ind[0].first = 0;
 		ind[0].baseInstance = 0;
 
-		mIndirectBuf = GfxIndirectBuffer.make("svo.buffer.indirect", ind);
+		mIndirectBuf = GfxIndirectBuffer.make("power/svo/indirect", ind);
 
-		mOccludeBuf = OccludeBuffer.make("svo.buffer.occlude", numMorton);
-		mInstanceBuf = InstanceBuffer.make("svo.buffer.trace", numMorton);
+		mOccludeBuf = OccludeBuffer.make("power/svo/occlude", numMorton);
+		mInstanceBuf = InstanceBuffer.make("power/svo/trace", numMorton);
 
 		glCreateTransformFeedbacks(1, &mFBOcclude);
 		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, mFBOcclude);
@@ -163,10 +164,11 @@ public:
 
 	void close()
 	{
-		if (counters !is null) {
-			counters.close();
-			counters = null;
-		}
+		if (mVbo !is null) { mVbo.decRef(); mVbo = null; }
+		if (mIndirectBuf !is null) { mIndirectBuf.decRef(); mIndirectBuf = null; }
+		if (mOccludeBuf !is null) { mOccludeBuf.decRef(); mOccludeBuf = null; }
+		if (mInstanceBuf !is null) { mInstanceBuf.decRef(); mInstanceBuf = null; }
+		if (counters !is null) { counters.close(); counters = null; }
 	}
 
 	fn draw(ref camPosition: math.Point3f, ref mvp: math.Matrix4x4f)
