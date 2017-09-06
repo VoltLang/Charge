@@ -5,16 +5,17 @@
  */
 module charge.game.app;
 
-import charge.core;
-import charge.ctl;
+import ctl = charge.ctl;
 import gfx = charge.gfx;
+
+import charge.core;
 
 
 abstract class App
 {
 protected:
 	mCore: Core;
-	mInput: CtlInput;
+	mInput: ctl.Input;
 /+
 	networkTime: TimeTracker;
 	renderTime: TimeTracker;
@@ -41,7 +42,7 @@ public:
 		mCore.setLogic(doLogic);
 		mCore.setClose(close);
 
-		mInput = CtlInput.opCall();
+		mInput = ctl.Input.opCall();
 /+
 		renderTime = new TimeTracker("gfx");
 		inputTime = new TimeTracker("ctl");

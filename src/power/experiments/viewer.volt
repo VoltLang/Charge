@@ -3,12 +3,13 @@
 module power.experiments.viewer;
 
 import io = watt.io;
+
 import watt.math;
 
+import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
 
-import charge.ctl;
 import charge.game;
 import charge.gfx.gl;
 
@@ -174,7 +175,7 @@ public:
 		mCamRight = false;
 	}
 
-	override fn keyDown(CtlKeyboard, keycode: int)
+	override fn keyDown(ctl.Keyboard, keycode: int)
 	{
 		switch (keycode) {
 		case 27: mManager.closeMe(this); break;
@@ -190,7 +191,7 @@ public:
 		}
 	}
 
-	override fn keyUp(CtlKeyboard, keycode: int)
+	override fn keyUp(ctl.Keyboard, keycode: int)
 	{
 		switch (keycode) {
 		case 32: mCamUp = false; break;
@@ -202,7 +203,7 @@ public:
 		}
 	}
 
-	override fn mouseMove(m: CtlMouse, x: int, y: int)
+	override fn mouseMove(m: ctl.Mouse, x: int, y: int)
 	{
 		if (isDragging) {
 			mCamHeading += x * -0.003f;
@@ -213,7 +214,7 @@ public:
 		if (mCamPitch >  (PIf/2)) mCamPitch =  (PIf/2);
 	}
 
-	override fn mouseDown(m: CtlMouse, button: int)
+	override fn mouseDown(m: ctl.Mouse, button: int)
 	{
 		switch (button) {
 		case 1:
@@ -233,7 +234,7 @@ public:
 		}
 	}
 
-	override fn mouseUp(m: CtlMouse, button: int)
+	override fn mouseUp(m: ctl.Mouse, button: int)
 	{
 		if (button == 1) {
 			isDragging = false;

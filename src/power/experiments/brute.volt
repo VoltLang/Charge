@@ -2,17 +2,18 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module power.experiments.brute;
 
+import io = watt.io;
+
 import watt.math;
 import watt.io.file;
 import watt.algorithm;
 import watt.text.format;
-import io = watt.io;
 
 import sys = charge.sys;
+import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
 
-import charge.ctl;
 import charge.core;
 import charge.game;
 import charge.gfx.gl;

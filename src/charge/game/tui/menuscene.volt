@@ -2,9 +2,10 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.game.tui.menuscene;
 
-import charge.core;
-import charge.ctl;
+import ctl = charge.ctl;
 import gfx = charge.gfx;
+
+import charge.core;
 import charge.game;
 import charge.game.tui.glyphdraw;
 import charge.game.tui.windowscene;
@@ -73,7 +74,7 @@ public:
 		drawButton(close);
 	}
 
-	override fn keyDown(CtlKeyboard, keycode: int)
+	override fn keyDown(ctl.Keyboard, keycode: int)
 	{
 		switch (keycode) {
 		case 27:
@@ -83,7 +84,7 @@ public:
 		}
 	}
 
-	override fn gridMouseDown(m: CtlMouse, x: u32, y: u32, button: i32)
+	override fn gridMouseDown(m: ctl.Mouse, x: u32, y: u32, button: i32)
 	{
 		if (button != 1) {
 			return;

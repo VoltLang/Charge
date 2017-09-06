@@ -7,14 +7,13 @@ module charge.game.tui.windowscene;
 
 import watt.algorithm : max;
 
-import math = charge.math;
+import ctl = charge.ctl;
 import gfx = charge.gfx;
+import math = charge.math;
+import tui = charge.game.tui;
 
-import charge.ctl;
 import charge.game;
 import charge.gfx.gl;
-
-import tui = charge.game.tui;
 
 
 /*!
@@ -83,7 +82,7 @@ public:
 		}
 	}
 
-	override fn mouseDown(m: CtlMouse, button: i32)
+	override fn mouseDown(m: ctl.Mouse, button: i32)
 	{
 		x, y: i32;
 		getGridPositionOnScreen(out x, out y);
@@ -121,7 +120,7 @@ public:
 	 *
 	 */
 
-	fn gridMouseDown(m: CtlMouse, x: u32, y: u32, button: i32) { }
+	fn gridMouseDown(m: ctl.Mouse, x: u32, y: u32, button: i32) { }
 
 
 	/*

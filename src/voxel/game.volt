@@ -6,11 +6,12 @@ import core.exception;
 import core.rt.format;
 
 import io = watt.io;
+
 import watt.io.file;
 
+import ctl = charge.ctl;
 import gfx = charge.gfx;
 
-import charge.ctl;
 import charge.core;
 import charge.game;
 import charge.game.scene.background;

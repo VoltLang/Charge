@@ -5,7 +5,7 @@
  */
 module charge.game.scene.simple;
 
-import charge.ctl;
+import ctl = charge.ctl;
 import gfx = charge.gfx;
 
 import charge.game.scene.scene;
@@ -17,27 +17,27 @@ import charge.game.scene.scene;
 abstract class SimpleScene : Scene
 {
 protected:
-	mInput: CtlInput;
+	mInput: ctl.Input;
 
 
 public:
 	this(SceneManager sm, Type type)
 	{
 		super(sm, type);
-		mInput = CtlInput.opCall();
+		mInput = ctl.Input.opCall();
 	}
 
 	override fn close() {}
 	override fn logic() {}
 	override fn render(gfx.Target) {}
 
-	fn keyText(CtlKeyboard, scope const(char)[]) {}
-	fn keyDown(CtlKeyboard, int) {}
-	fn keyUp(CtlKeyboard, int) {}
+	fn keyText(ctl.Keyboard, scope const(char)[]) {}
+	fn keyDown(ctl.Keyboard, int) {}
+	fn keyUp(ctl.Keyboard, int) {}
 
-	fn mouseMove(CtlMouse, int, int) {}
-	fn mouseDown(CtlMouse, int) {}
-	fn mouseUp(CtlMouse, int) {}
+	fn mouseMove(ctl.Mouse, int, int) {}
+	fn mouseDown(ctl.Mouse, int) {}
+	fn mouseUp(ctl.Mouse, int) {}
 
 	override fn assumeControl()
 	{

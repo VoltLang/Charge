@@ -9,10 +9,10 @@ import watt.io.file;
 import watt.algorithm;
 import watt.text.format;
 
+import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
 
-import charge.ctl;
 import charge.core;
 import charge.game;
 import charge.gfx.gl;
@@ -110,7 +110,7 @@ public:
 		gfx.reference(ref buf, null);
 	}
 
-	override fn mouseMove(m: CtlMouse, int, int)
+	override fn mouseMove(m: ctl.Mouse, int, int)
 	{
 		if (mDragging) {
 			x = m.x - offsetX;
@@ -122,7 +122,7 @@ public:
 		}
 	}
 
-	override fn mouseDown(m: CtlMouse, button: i32)
+	override fn mouseDown(m: ctl.Mouse, button: i32)
 	{
 		if (button == 1 && !mLooking) {
 			mDragging = true;
@@ -136,7 +136,7 @@ public:
 		}
 	}
 
-	override fn mouseUp(m: CtlMouse, button: i32)
+	override fn mouseUp(m: ctl.Mouse, button: i32)
 	{
 		if (button == 1) {
 			mDragging = false;
@@ -146,7 +146,7 @@ public:
 		}
 	}
 
-	override fn keyDown(CtlKeyboard, keycode: int)
+	override fn keyDown(ctl.Keyboard, keycode: int)
 	{
 		switch (keycode) {
 		case 27: mManager.closeMe(this); break;

@@ -2,15 +2,16 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module power.experiments.raytracer;
 
+import io = watt.io;
+
 import watt.text.sink;
 import watt.text.format;
 import watt.io.file;
-import io = watt.io;
 
+import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
 
-import charge.ctl;
 import charge.game;
 import charge.gfx.gl;
 
@@ -187,7 +188,7 @@ public:
 		if (svo !is null) { svo.close(); svo = null; }
 	}
 
-	override fn keyDown(device: CtlKeyboard, keycode: int)
+	override fn keyDown(device: ctl.Keyboard, keycode: int)
 	{
 		switch (keycode) {
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':

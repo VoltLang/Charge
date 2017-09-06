@@ -8,16 +8,16 @@ import watt.math.floating;
 import watt.text.sink;
 import watt.text.format;
 
+import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
 
-import charge.ctl;
 import charge.game;
 import charge.gfx.gl;
 
-import power.experiments.viewer;
-
 import svo = voxel.svo;
+
+import power.experiments.viewer;
 
 
 class RayTracer : Viewer
@@ -134,7 +134,7 @@ public:
 		pipes = null;
 	}
 
-	override fn keyDown(device: CtlKeyboard, keycode: int)
+	override fn keyDown(device: ctl.Keyboard, keycode: int)
 	{
 		switch (keycode) {
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':

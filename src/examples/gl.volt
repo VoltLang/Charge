@@ -4,10 +4,10 @@ module examples.gl;
 
 import core.exception;
 
+import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
 
-import charge.ctl;
 import charge.core;
 import charge.game;
 import charge.gfx.gl;
@@ -31,7 +31,7 @@ public:
 class Scene : GameSimpleScene
 {
 public:
-	input: CtlInput;
+	input: ctl.Input;
 	tex: gfx.Texture;
 	buf: gfx.DrawBuffer;
 	width: uint;
@@ -44,7 +44,7 @@ public:
 		this.width = width;
 		this.height = height;
 
-		input = CtlInput.opCall();
+		input = ctl.Input.opCall();
 
 		checkVersion();
 
@@ -143,7 +143,7 @@ public:
 		glDisable(GL_BLEND);
 	}
 
-	override fn keyDown(CtlKeyboard, int)
+	override fn keyDown(ctl.Keyboard, int)
 	{
 		mManager.closeMe(this);
 	}
