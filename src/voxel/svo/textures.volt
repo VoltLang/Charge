@@ -9,6 +9,8 @@ import watt.math.floating;
 
 import gfx = charge.gfx;
 
+import charge.gfx.gl;
+
 
 fn createEdge3DSampler() GLuint
 {
