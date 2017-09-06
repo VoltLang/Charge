@@ -5,7 +5,7 @@ module charge.license;
  * This is the license for Charge.
  */
 enum string license = `
-Copyright © 2011-2016, Jakob Bornecrantz.
+Copyright © 2011-2017, Jakob Bornecrantz.
 
 Boost Software License - Version 1.0 - August 17th, 2003
 
