@@ -2,13 +2,11 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.game.scene.background;
 
-import charge.game.scene.scene;
 import charge.sys;
 import charge.gfx;
-import charge.math.matrix;
-import charge.sys.resource;
+import math = charge.math;
 
-import watt.io;
+import charge.game.scene.scene;
 
 
 class BackgroundScene : Scene
@@ -187,9 +185,9 @@ public:
 			return;
 		}
 
-		transform: Matrix4x4d;
+		transform: math.Matrix4x4d;
 		t.setMatrixToOrtho(ref transform);
-		mat: Matrix4x4f;
+		mat: math.Matrix4x4f;
 		mat.setFrom(ref transform);
 		gfxDrawShader.bind();
 		gfxDrawShader.matrix4("matrix", 1, true, ref mat);

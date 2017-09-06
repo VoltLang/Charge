@@ -66,7 +66,7 @@ public:
 		// First try a magica voxel level.
 		if (!loadFile(filename, out state, out frames, out data) &&
 		    !doGen(filename, out state, out frames, out data)) {
-			c.panic("Could not load or generate a level");
+			mCore.panic("Could not load or generate a level");
 		}
 
 		d := new Data(ref state, data);
@@ -259,7 +259,7 @@ public:
 		}
 
 		if (str.length) {
-			c.panic(str);
+			mCore.panic(str);
 		}
 		return true;
 	}

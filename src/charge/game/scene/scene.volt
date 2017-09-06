@@ -5,7 +5,7 @@
  */
 module charge.game.scene.scene;
 
-import charge.gfx.target;
+import charge.gfx;
 
 
 /*!
@@ -48,7 +48,7 @@ public:
 	/*!
 	 * Render view of this scene into target.
 	 */
-	abstract fn render(Target);
+	abstract fn render(GfxTarget);
 
 	/*!
 	 * Install all input listeners.

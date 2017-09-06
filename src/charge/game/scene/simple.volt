@@ -7,6 +7,7 @@ module charge.game.scene.simple;
 
 import charge.ctl;
 import charge.gfx;
+
 import charge.game.scene.scene;
 
 

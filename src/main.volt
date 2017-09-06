@@ -13,5 +13,5 @@ fn main(args: string[]) int
 	g := new power.game.Game(args);
 	//g := new voxel.game.Game(args);
 
-	return g.c.loop();
+	return g.loop();
 }

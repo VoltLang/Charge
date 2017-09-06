@@ -6,20 +6,15 @@
 module charge.game.app;
 
 import charge.core;
-import charge.ctl.input;
-import charge.ctl.keyboard;
-import charge.ctl.mouse;
-import charge.gfx.target;
-//import charge.sys.tracker;
+import charge.ctl;
+import charge.gfx;
 
 
 abstract class App
 {
-public:
-	c: Core;
-	input: Input;
-
 protected:
+	mCore: Core;
+	mInput: CtlInput;
 /+
 	networkTime: TimeTracker;
 	renderTime: TimeTracker;
@@ -30,7 +25,8 @@ protected:
 +/
 
 private:
-	closed: bool;
+	mClosed: bool;
+
 
 public:
 	this(CoreOptions opts = null)
@@ -39,14 +35,13 @@ public:
 			opts = new CoreOptions();
 		}
 
-		c = chargeCore(opts);
+		mCore = chargeCore(opts);
+		mCore.setRender(doRender);
+		mCore.setIdle(doIdle);
+		mCore.setLogic(doLogic);
+		mCore.setClose(close);
 
-		c.setRender(doRender);
-		c.setIdle(doIdle);
-		c.setLogic(doLogic);
-		c.setClose(close);
-
-		input = Input.opCall();
+		mInput = CtlInput.opCall();
 /+
 		renderTime = new TimeTracker("gfx");
 		inputTime = new TimeTracker("ctl");
@@ -58,15 +53,20 @@ public:
 
 	~this()
 	{
-		assert(closed);
+		assert(mClosed);
 	}
 
 	fn close()
 	{
-		closed = true;
+		mClosed = true;
 	}
 
-	abstract fn render(t: Target);
+	final fn loop() i32
+	{
+		return mCore.loop();
+	}
+
+	abstract fn render(t: GfxTarget);
 	abstract fn logic();
 
 	/*!
@@ -95,7 +95,7 @@ private final:
 		renderTime.start();
 		scope(exit) renderTime.stop();
 +/
-		t := DefaultTarget.opCall();
+		t := GfxDefaultTarget.opCall();
 		t.bindDefault();
 		render(t);
 		// Core swaps default target.
