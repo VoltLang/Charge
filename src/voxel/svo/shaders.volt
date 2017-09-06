@@ -6,10 +6,10 @@ import watt.text.string;
 import watt.text.format;
 import io = watt.io;
 
-import charge.gfx;
-import charge.sys.resource;
-
+import gfx = charge.gfx;
 import math = charge.math;
+
+import charge.gfx.gl;
 
 import voxel.svo.util;
 import voxel.svo.design;
@@ -190,8 +190,8 @@ public:
 class ListStep : Step
 {
 public:
-	dispatchShader: GfxShader;
-	listShader: GfxShader;
+	dispatchShader: gfx.Shader;
+	listShader: gfx.Shader;
 
 
 public:
@@ -227,8 +227,8 @@ public:
 class ListDoubleStep : Step
 {
 public:
-	dispatchShader: GfxShader;
-	listShader: GfxShader;
+	dispatchShader: gfx.Shader;
+	listShader: gfx.Shader;
 
 
 public:
@@ -263,8 +263,8 @@ public:
 class CubeStep : Step
 {
 public:
-	dispatchShader: GfxShader;
-	drawShader: GfxShader;
+	dispatchShader: gfx.Shader;
+	drawShader: gfx.Shader;
 
 
 public:
@@ -298,8 +298,8 @@ public:
 class RayStep : Step
 {
 public:
-	dispatchShader: GfxShader;
-	drawShader: GfxShader;
+	dispatchShader: gfx.Shader;
+	drawShader: gfx.Shader;
 
 
 public:
@@ -333,8 +333,8 @@ public:
 class RayDoubleStep : Step
 {
 public:
-	dispatchShader: GfxShader;
-	drawShader: GfxShader;
+	dispatchShader: gfx.Shader;
+	drawShader: gfx.Shader;
 
 
 public:
@@ -368,8 +368,8 @@ public:
 class PointsStep : Step
 {
 public:
-	dispatchShader: GfxShader;
-	drawShader: GfxShader;
+	dispatchShader: gfx.Shader;
+	drawShader: gfx.Shader;
 
 
 public:
@@ -409,7 +409,7 @@ public:
 class ShaderStore
 {
 protected:
-	mShaderStore: GfxShader[string];
+	mShaderStore: gfx.Shader[string];
 	mXShift, mYShift, mZShift: u32;
 	mIsAMD: bool;
 
@@ -430,7 +430,7 @@ public:
 		makeArrayDispatchShader(0, BufferCommandId);
 	}
 
-	fn makeComputeDispatchShader(src: u32, dst: u32) GfxShader
+	fn makeComputeDispatchShader(src: u32, dst: u32) gfx.Shader
 	{
 		name := format("svo.dispatch-comp (src: %s, dst: %s)", src, dst);
 		if (s := name in mShaderStore) {
@@ -442,12 +442,12 @@ public:
 		comp = replace(comp, "%INDIRECT_SRC%", format("%s", src));
 		comp = replace(comp, "%INDIRECT_DST%", format("%s", dst));
 
-		s := new GfxShader(name, comp);
+		s := new gfx.Shader(name, comp);
 		mShaderStore[name] = s;
 		return s;
 	}
 
-	fn makeElementsDispatchShader(src: u32, dst: u32) GfxShader
+	fn makeElementsDispatchShader(src: u32, dst: u32) gfx.Shader
 	{
 		name := format("svo.dispatch-elements (src: %s, dst: %s)", src, dst);
 		if (s := name in mShaderStore) {
@@ -459,12 +459,12 @@ public:
 		comp = replace(comp, "%INDIRECT_SRC%", format("%s", src));
 		comp = replace(comp, "%INDIRECT_DST%", format("%s", dst));
 
-		s := new GfxShader(name, comp);
+		s := new gfx.Shader(name, comp);
 		mShaderStore[name] = s;
 		return s;
 	}
 
-	fn makeArrayDispatchShader(src: u32, dst: u32) GfxShader
+	fn makeArrayDispatchShader(src: u32, dst: u32) gfx.Shader
 	{
 		name := format("svo.dispatch-array (src: %s, dst: %s)", src, dst);
 		if (s := name in mShaderStore) {
@@ -476,13 +476,13 @@ public:
 		comp = replace(comp, "%INDIRECT_SRC%", format("%s", src));
 		comp = replace(comp, "%INDIRECT_DST%", format("%s", dst));
 
-		s := new GfxShader(name, comp);
+		s := new gfx.Shader(name, comp);
 		mShaderStore[name] = s;
 		return s;
 	}
 
 	fn makeListShader(src: u32, dst1: u32, dst2: u32,
-	                  powerStart: u32, powerLevels: u32, dist: f32) GfxShader
+	                  powerStart: u32, powerLevels: u32, dist: f32) gfx.Shader
 	{
 		name := format("svo.walk (src: %s, dst1: %s, dst2: %s, powerStart: %s, powerLevels: %s, dist: %s)",
 			src, dst1, dst2, powerStart, powerLevels, dist);
@@ -501,12 +501,12 @@ public:
 		if (dist > 0.0001) {
 			comp = replace(comp, "#undef LIST_DO_TAG", "#define LIST_DO_TAG");
 		}
-		s := new GfxShader(name, comp);
+		s := new gfx.Shader(name, comp);
 		mShaderStore[name] = s;
 		return s;
 	}
 
-	fn makeListDoubleShader(src: u32, dst1: u32, dst2: u32, powerStart: u32) GfxShader
+	fn makeListDoubleShader(src: u32, dst1: u32, dst2: u32, powerStart: u32) gfx.Shader
 	{
 		name := format("svo.walk-double (src: %s, dst1: %s, dst2: %s, powerStart: %s)",
 			src, dst1, dst2, powerStart);
@@ -520,12 +520,12 @@ public:
 		comp = replace(comp, "%VOXEL_DST1%", format("%s", dst1));
 		comp = replace(comp, "%VOXEL_DST2%", format("%s", dst2));
 		comp = replace(comp, "%POWER_START%", format("%s", powerStart));
-		s := new GfxShader(name, comp);
+		s := new gfx.Shader(name, comp);
 		mShaderStore[name] = s;
 		return s;
 	}
 
-	fn makeCubesShader(src: u32, powerStart: u32) GfxShader
+	fn makeCubesShader(src: u32, powerStart: u32) gfx.Shader
 	{
 		name := format("svo.cube (src: %s, start: %s)",
 			src, powerStart);
@@ -544,12 +544,12 @@ public:
 		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
 		frag = replace(frag, "%POWER_LEVELS%", "0");
 
-		s := new GfxShader(name, vert, null, frag);
+		s := new gfx.Shader(name, vert, null, frag);
 		mShaderStore[name] = s;
 		return s;
 	}
 
-	fn makeRayShader(src: u32, powerStart: u32, powerLevels: u32) GfxShader
+	fn makeRayShader(src: u32, powerStart: u32, powerLevels: u32) gfx.Shader
 	{
 		name := format("svo.cube-ray (src: %s, start: %s, levels: %s)",
 			src, powerStart, powerLevels);
@@ -568,12 +568,12 @@ public:
 		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
 		frag = replace(frag, "%POWER_LEVELS%", format("%s", powerLevels));
 
-		s := new GfxShader(name, vert, null, frag);
+		s := new gfx.Shader(name, vert, null, frag);
 		mShaderStore[name] = s;
 		return s;
 	}
 
-	fn makeRayDoubleShader(src: u32, powerStart: u32) GfxShader
+	fn makeRayDoubleShader(src: u32, powerStart: u32) gfx.Shader
 	{
 		name := format("svo.cube-ray-double (src: %s, start: %s)",
 			src, powerStart);
@@ -591,12 +591,12 @@ public:
 		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
 		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
 
-		s := new GfxShader(name, vert, null, frag);
+		s := new gfx.Shader(name, vert, null, frag);
 		mShaderStore[name] = s;
 		return s;
 	}
 
-	fn makePointsShader(src: u32, powerStart: u32) GfxShader
+	fn makePointsShader(src: u32, powerStart: u32) gfx.Shader
 	{
 		name := format("svo.points (src: %s, start: %s)",
 			src, powerStart);
@@ -613,12 +613,12 @@ public:
 		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
 		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
 
-		s := new GfxShader(name, vert, null, frag);
+		s := new gfx.Shader(name, vert, null, frag);
 		mShaderStore[name] = s;
 		return s;
 	}
 
-	fn makeQuadsShader(src: u32, powerStart: u32) GfxShader
+	fn makeQuadsShader(src: u32, powerStart: u32) gfx.Shader
 	{
 		name := format("svo.quads (src: %s, start: %s)",
 			src, powerStart);
@@ -635,7 +635,7 @@ public:
 		frag = replace(frag, "%VOXEL_SRC%", format("%s", src));
 		frag = replace(frag, "%POWER_START%", format("%s", powerStart));
 
-		s := new GfxShader(name, vert, null, frag);
+		s := new gfx.Shader(name, vert, null, frag);
 		mShaderStore[name] = s;
 		return s;
 	}

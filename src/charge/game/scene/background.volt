@@ -3,9 +3,10 @@
 module charge.game.scene.background;
 
 import charge.sys;
-import charge.gfx;
+import gfx = charge.gfx;
 import math = charge.math;
 
+import charge.gfx.gl;
 import charge.game.scene.scene;
 
 
@@ -19,10 +20,10 @@ protected:
 	mWidth: uint;
 	mHeight: uint;
 
-	mLogo: GfxTexture;
+	mLogo: gfx.Texture;
 	mLogoWidth: uint;
 	mLogoHeight: uint;
-	mTile: GfxTexture;
+	mTile: gfx.Texture;
 	mTileWidth: uint;
 	mTileHeight: uint;
 
@@ -47,10 +48,10 @@ public:
 
 	fn setTile(file: SysFile)
 	{
-		gfxReference(ref mTile, null);
+		gfx.reference(ref mTile, null);
 
 		if (file !is null) {
-			mTile = GfxTexture2D.load(file);
+			mTile = gfx.Texture2D.load(file);
 		}
 	}
 
@@ -68,10 +69,10 @@ public:
 
 	fn setLogo(file: SysFile)
 	{
-		gfxReference(ref mLogo, null);
+		gfx.reference(ref mLogo, null);
 
 		if (file !is null) {
-			mLogo = GfxTexture2D.load(file);
+			mLogo = gfx.Texture2D.load(file);
 		}
 	}
 
@@ -82,7 +83,7 @@ public:
 	 *
 	 */
 
-	fn initBuffers(t: GfxTarget)
+	fn initBuffers(t: gfx.Target)
 	{
 		if (mTile is null && mLogo is null) {
 			return;
@@ -101,7 +102,7 @@ public:
 		mTileWidth = tW; mTileHeight = tH;
 		mLogoWidth = lW; mLogoHeight = lH;
 
-		b := new GfxDrawVertexBuilder(8);
+		b := new gfx.DrawVertexBuilder(8);
 
 		// Tile vertecies
 		if (mTile !is null) {
@@ -151,7 +152,7 @@ public:
 		if (mVao) { glDeleteVertexArrays(1, &mVao); mVao = 0; }
 
 		b.bake(out mVao, out mBuf, out mNum);
-		gfxDestroy(ref b);
+		gfx.destroy(ref b);
 	}
 
 	/*
@@ -162,8 +163,8 @@ public:
 
 	override fn close()
 	{
-		gfxReference(ref mTile, null);
-		gfxReference(ref mLogo, null);
+		gfx.reference(ref mTile, null);
+		gfx.reference(ref mLogo, null);
 		if (mBuf) { glDeleteBuffers(1, &mBuf); mBuf = 0; }
 		if (mVao) { glDeleteVertexArrays(1, &mVao); mVao = 0; }
 	}
@@ -173,7 +174,7 @@ public:
 
 	}
 
-	override fn render(t: GfxTarget)
+	override fn render(t: gfx.Target)
 	{
 		initBuffers(t);
 
@@ -189,8 +190,8 @@ public:
 		t.setMatrixToOrtho(ref transform);
 		mat: math.Matrix4x4f;
 		mat.setFrom(ref transform);
-		gfxDrawShader.bind();
-		gfxDrawShader.matrix4("matrix", 1, true, ref mat);
+		gfx.drawShader.bind();
+		gfx.drawShader.matrix4("matrix", 1, true, ref mat);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

@@ -5,12 +5,13 @@ module power.experiments.viewer;
 import io = watt.io;
 import watt.math;
 
-import charge.ctl;
-import charge.gfx;
-import charge.game;
-import charge.sys.resource;
-
+import gfx = charge.gfx;
 import math = charge.math;
+
+import charge.ctl;
+import charge.game;
+import charge.gfx.gl;
+import charge.sys.resource;
 
 
 /*!
@@ -21,7 +22,7 @@ class Viewer : GameSimpleScene
 public:
 	// AA
 	mUseAA: bool;
-	aa: GfxAA;
+	aa: gfx.AA;
 
 	// Rotation stuff.
 	isDragging: bool;
@@ -31,9 +32,9 @@ public:
 	cullRotation: math.Quatf;
 
 	//! Text rendering stuff.
-	textVbo: GfxDrawBuffer;
-	textBuilder: GfxDrawVertexBuilder;
-	textState: GfxBitmapState;
+	textVbo: gfx.DrawBuffer;
+	textBuilder: gfx.DrawVertexBuilder;
+	textState: gfx.BitmapState;
 
 
 protected:
@@ -48,21 +49,21 @@ public:
 		super(g, Type.Game);
 		mUseAA = false;
 
-		textState.glyphWidth = cast(int)gfxBitmapTexture.width / 16;
-		textState.glyphHeight = cast(int)gfxBitmapTexture.height / 16;
+		textState.glyphWidth = cast(int)gfx.bitmapTexture.width / 16;
+		textState.glyphHeight = cast(int)gfx.bitmapTexture.height / 16;
 		textState.offX = 16;
 		textState.offY = 16;
 
 		text := "Info";
-		textBuilder = new GfxDrawVertexBuilder(0);
+		textBuilder = new gfx.DrawVertexBuilder(0);
 		textBuilder.reset(text.length * 4u);
-		gfxBuildVertices(ref textState, textBuilder, cast(ubyte[])text);
-		textVbo = GfxDrawBuffer.make("power/exp/text", textBuilder);
+		gfx.buildVertices(ref textState, textBuilder, cast(ubyte[])text);
+		textVbo = gfx.DrawBuffer.make("power/exp/text", textBuilder);
 
 		updateText("Info:");
 	}
 
-	fn renderScene(t: GfxTarget)
+	fn renderScene(t: gfx.Target)
 	{
 
 	}
@@ -70,7 +71,7 @@ public:
 	fn updateText(text: string)
 	{
 		textBuilder.reset(text.length * 4u);
-		gfxBuildVertices(ref textState, textBuilder, cast(ubyte[])text);
+		gfx.buildVertices(ref textState, textBuilder, cast(ubyte[])text);
 		textVbo.update(textBuilder);
 	}
 
@@ -99,8 +100,8 @@ public:
 	override fn close()
 	{
 		aa.close();
-		gfxDestroy(ref textBuilder);
-		gfxReference(ref textVbo, null);
+		gfx.destroy(ref textBuilder);
+		gfx.reference(ref textVbo, null);
 	}
 
 	override fn logic()
@@ -136,7 +137,7 @@ public:
 		}
 	}
 
-	override fn render(t: GfxTarget)
+	override fn render(t: gfx.Target)
 	{
 		if (mUseAA) {
 			aa.bind(t);
@@ -152,15 +153,15 @@ public:
 		mat: math.Matrix4x4f;
 		mat.setFrom(ref transform);
 
-		gfxDrawShader.bind();
-		gfxDrawShader.matrix4("matrix", 1, true, ref mat);
+		gfx.drawShader.bind();
+		gfx.drawShader.matrix4("matrix", 1, true, ref mat);
 
 		glBindVertexArray(textVbo.vao);
-		gfxBitmapTexture.bind();
+		gfx.bitmapTexture.bind();
 
 		glDrawArrays(GL_TRIANGLES, 0, textVbo.num);
 
-		gfxBitmapTexture.unbind();
+		gfx.bitmapTexture.unbind();
 		glBindVertexArray(0);
 	}
 

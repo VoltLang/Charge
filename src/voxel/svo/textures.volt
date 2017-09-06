@@ -5,7 +5,7 @@ module voxel.svo.textures;
 import io = watt.io;
 import watt.algorithm;
 import watt.math.floating;
-import charge.gfx;
+import gfx = charge.gfx;
 
 
 fn createEdge3DSampler() GLuint

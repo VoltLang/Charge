@@ -7,11 +7,12 @@ import watt.text.sink;
 import watt.text.format;
 import io = watt.io;
 
-import charge.ctl;
-import charge.gfx;
-import charge.game;
-
+import gfx = charge.gfx;
 import math = charge.math;
+
+import charge.ctl;
+import charge.game;
+import charge.gfx.gl;
 
 import power.experiments.viewer;
 
@@ -160,7 +161,7 @@ public:
 	 *
 	 */
 
-	override fn renderScene(t: GfxTarget)
+	override fn renderScene(t: gfx.Target)
 	{
 		// Clear the screen.
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -197,7 +198,7 @@ public:
 		glDisable(GL_DEPTH_TEST);
 	}
 
-	fn checkQuery(t: GfxTarget)
+	fn checkQuery(t: gfx.Target)
 	{
 		ss: StringSink;
 		sink := ss.sink;

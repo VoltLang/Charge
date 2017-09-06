@@ -4,7 +4,7 @@ module power.menu;
 
 import charge.core;
 import charge.ctl;
-import charge.gfx;
+import gfx = charge.gfx;
 import charge.game;
 
 import tui = charge.game.tui;

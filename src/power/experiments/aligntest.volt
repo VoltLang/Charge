@@ -9,10 +9,12 @@ import watt.io.file;
 import watt.algorithm;
 import watt.text.format;
 
+import gfx = charge.gfx;
+
 import charge.ctl;
-import charge.gfx;
 import charge.core;
 import charge.game;
+import charge.gfx.gl;
 import charge.sys.memory;
 import charge.sys.resource;
 
@@ -50,8 +52,8 @@ class AlignTest : GameSimpleScene
 {
 public:
 	x, y, lookX, lookY, offsetX, offsetY: i32;
-	buf: GfxDrawBuffer;
-	testShader: GfxShader;
+	buf: gfx.DrawBuffer;
+	testShader: gfx.Shader;
 
 
 private:
@@ -63,7 +65,7 @@ public:
 	{
 		super(g, Type.Game);
 
-		testShader = new GfxShader("aligntest", vertexShader120,
+		testShader = new gfx.Shader("aligntest", vertexShader120,
 		                    fragmentShader120,
 		                    ["position", "uv", "color"],
 		                    ["tex"]);
@@ -73,7 +75,7 @@ public:
 		offsetY = 0;
 
 		max := 8u;
-		b := new GfxDrawVertexBuilder(max*max*6u);
+		b := new gfx.DrawVertexBuilder(max*max*6u);
 		foreach (i; 0u .. max*max) {
 			arr: u32[2];
 			math.decode2(i, out arr);
@@ -93,8 +95,8 @@ public:
 			b.add(cast(f32)x2, cast(f32)y1, 0.f, 0.f, color);
 			b.add(cast(f32)x1, cast(f32)y1, 0.f, 0.f, color);
 		}
-		buf = GfxDrawBuffer.make("aligntest", b);
-		gfxDestroy(ref b);
+		buf = gfx.DrawBuffer.make("aligntest", b);
+		gfx.destroy(ref b);
 	}
 
 
@@ -106,8 +108,8 @@ public:
 
 	override fn close()
 	{
-		gfxDestroy(ref testShader);
-		gfxReference(ref buf, null);
+		gfx.destroy(ref testShader);
+		gfx.reference(ref buf, null);
 	}
 
 	override fn mouseMove(m: CtlMouse, int, int)
@@ -157,7 +159,7 @@ public:
 		}
 	}
 
-	override fn render(t: GfxTarget)
+	override fn render(t: gfx.Target)
 	{
 		transform: math.Matrix4x4d;
 		t.setMatrixToOrtho(ref transform);

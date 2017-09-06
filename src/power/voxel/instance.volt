@@ -3,7 +3,9 @@
 module power.voxel.instance;
 
 import charge.sys.resource;
-import charge.gfx;
+import charge.gfx.gl;
+
+import gfx = charge.gfx;
 
 
 struct InstanceData
@@ -14,7 +16,7 @@ struct InstanceData
 /*!
  * VBO with no per vertex data but instead per instance data.
  */
-class InstanceBuffer : GfxBuffer
+class InstanceBuffer : gfx.Buffer
 {
 public:
 	global fn make(name: string, instances: GLsizei) InstanceBuffer
@@ -83,7 +85,7 @@ public:
 		assert(num > 0);
 		dummy: void*;
 		buffer := cast(OccludeBuffer)Resource.alloc(
-			typeid(OccludeBuffer), GfxBuffer.uri, name, 0, out dummy);
+			typeid(OccludeBuffer), gfx.Buffer.uri, name, 0, out dummy);
 		buffer.__ctor(num);
 		return buffer;
 	}

@@ -8,8 +8,9 @@ import watt.math.floating;
 import io = watt.io;
 
 import math = charge.math;
+import gfx = charge.gfx;
 
-import charge.gfx;
+import charge.gfx.gl;
 
 import voxel.svo.util;
 import voxel.svo.design;
@@ -46,7 +47,7 @@ public:
 
 
 public:
-	counters: GfxCounters;
+	counters: gfx.Counters;
 	name: string;
 
 
@@ -93,7 +94,7 @@ public:
 		foreach (i, step; mSteps) {
 			names ~= step.name;
 		}
-		counters = new GfxCounters(names);
+		counters = new gfx.Counters(names);
 
 		// Setup the texture.
 		mOctTexture = octTexture;

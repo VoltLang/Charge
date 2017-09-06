@@ -4,12 +4,13 @@ module examples.gl;
 
 import core.exception;
 
+import gfx = charge.gfx;
+
 import charge.ctl;
 import charge.core;
 import charge.game;
-import charge.gfx;
 import charge.math.matrix;
-import charge.sys.resource;
+import charge.gfx.gl;
 
 
 class Game : GameSceneManagerApp
@@ -31,8 +32,8 @@ class Scene : GameSimpleScene
 {
 public:
 	input: CtlInput;
-	tex: GfxTexture;
-	buf: GfxDrawBuffer;
+	tex: gfx.Texture;
+	buf: gfx.DrawBuffer;
 	width: uint;
 	height: uint;
 
@@ -47,7 +48,7 @@ public:
 
 		checkVersion();
 
-		tex = GfxTexture2D.load("res/logo.png");
+		tex = gfx.Texture2D.load("res/logo.png");
 
 		initBuffers();
 	}
@@ -90,15 +91,15 @@ public:
 		fXW := cast(float)(x + texWidth);
 		fYH := cast(float)(y + texHeight);
 
-		b := new GfxDrawVertexBuilder(6);
+		b := new gfx.DrawVertexBuilder(6);
 		b.add(fX,  fY,  0.0f, 0.0f);
 		b.add(fXW, fY,  1.0f, 0.0f);
 		b.add(fXW, fYH, 1.0f, 1.0f);
 		b.add(fXW, fYH, 1.0f, 1.0f);
 		b.add(fX,  fYH, 0.0f, 1.0f);
 		b.add(fX,  fY,  0.0f, 0.0f);
-		buf = GfxDrawBuffer.make("example/gl/buffer", b);
-		gfxDestroy(ref b);
+		buf = gfx.DrawBuffer.make("example/gl/buffer", b);
+		gfx.destroy(ref b);
 	}
 
 
@@ -110,19 +111,19 @@ public:
 
 	override fn close()
 	{
-		gfxReference(ref tex, null);
-		gfxReference(ref buf, null);
+		gfx.reference(ref tex, null);
+		gfx.reference(ref buf, null);
 	}
 
-	override fn render(t: GfxTarget)
+	override fn render(t: gfx.Target)
 	{
 		transform: Matrix4x4d;
 		t.setMatrixToOrtho(ref transform);
 		mat: Matrix4x4f;
 		mat.setFrom(ref transform);
 
-		gfxDrawShader.bind();
-		gfxDrawShader.matrix4("matrix", 1, true, ref mat);
+		gfx.drawShader.bind();
+		gfx.drawShader.matrix4("matrix", 1, true, ref mat);
 
 		// Clear the screen.
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);

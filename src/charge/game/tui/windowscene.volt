@@ -8,10 +8,11 @@ module charge.game.tui.windowscene;
 import watt.algorithm : max;
 
 import math = charge.math;
+import gfx = charge.gfx;
 
-import charge.gfx;
 import charge.ctl;
 import charge.game;
+import charge.gfx.gl;
 
 import tui = charge.game.tui;
 
@@ -39,8 +40,8 @@ public:
 
 
 protected:
-	mTarget: GfxFramebufferResizer;
-	mBlitter: GfxTextureBlitter;
+	mTarget: gfx.FramebufferResizer;
+	mBlitter: gfx.TextureBlitter;
 
 
 public:
@@ -49,9 +50,9 @@ public:
 		super(g, Type.Menu);
 
 		headerGrid = new tui.Grid(1, 1);
-		headerGrid.setGlyphSize(cast(i32)GfxBitmapGlyphWidth*2, cast(i32)GfxBitmapGlyphHeight*2);
+		headerGrid.setGlyphSize(cast(i32)gfx.BitmapGlyphWidth*2, cast(i32)gfx.BitmapGlyphHeight*2);
 		grid = new tui.Grid(0, 0);
-		grid.setGlyphSize(cast(i32)GfxBitmapGlyphWidth, cast(i32)GfxBitmapGlyphHeight);
+		grid.setGlyphSize(cast(i32)gfx.BitmapGlyphWidth, cast(i32)gfx.BitmapGlyphHeight);
 
 		// Now that the grids are created, set the size.
 		setSize(width, height);
@@ -92,8 +93,8 @@ public:
 			return;
 		}
 
-		ux := cast(u32)x / GfxBitmapGlyphWidth;
-		uy := cast(u32)y / GfxBitmapGlyphHeight;
+		ux := cast(u32)x / gfx.BitmapGlyphWidth;
+		uy := cast(u32)y / gfx.BitmapGlyphHeight;
 		if (ux >= grid.width || uy >= grid.height) {
 			return;
 		}
@@ -101,7 +102,7 @@ public:
 		gridMouseDown(m, ux, uy, button);
 	}
 
-	override fn render(t: GfxTarget)
+	override fn render(t: gfx.Target)
 	{
 		width, height: u32;
 		getSizeInPixels(out width, out height);
@@ -176,7 +177,7 @@ public:
 
 
 private:
-	fn updateTarget(t: GfxTarget)
+	fn updateTarget(t: gfx.Target)
 	{
 		if (!grid.isDirty && !headerGrid.isDirty && mTarget.fbo !is null) {
 			return;
@@ -228,7 +229,7 @@ private:
 		glDisable(GL_SCISSOR_TEST);
 
 		// Draw the header.
-		glBindSampler(0, gfxDrawSamplerNearest);
+		glBindSampler(0, gfx.drawSamplerNearest);
 		headerGrid.setOffset(headerShadowX, headerShadowY);
 		headerGrid.setColor(math.Color4b.Black);
 		headerGrid.draw(mTarget.fbo);

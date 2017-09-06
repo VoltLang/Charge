@@ -8,14 +8,15 @@ import watt.algorithm;
 import watt.text.format;
 import io = watt.io;
 
+import gfx = charge.gfx;
+import math = charge.math;
+
 import charge.ctl;
-import charge.gfx;
 import charge.core;
 import charge.game;
+import charge.gfx.gl;
 import charge.sys.memory;
 import charge.sys.resource;
-
-import math = charge.math;
 
 import power.voxel.boxel;
 import power.voxel.dag;
@@ -29,10 +30,10 @@ public:
 	second: DagBuffer;
 	third: DagBuffer;
 	ibo: IndirectBuffer;
-	voxelShader: GfxShader;
+	voxelShader: gfx.Shader;
 
 	feedback: GLuint;
-	feedbackShader: GfxShader;
+	feedbackShader: gfx.Shader;
 
 	query: GLuint;
 	fbQuery: GLuint;
@@ -59,12 +60,12 @@ public:
 		vert := cast(string)read("res/power/shaders/brute/voxel.vert.glsl");
 		geom := cast(string)read("res/power/shaders/brute/voxel.geom.glsl");
 		frag := cast(string)read("res/power/shaders/brute/voxel.frag.glsl");
-		voxelShader = new GfxShader("brute-voxel", vert, geom, frag);
+		voxelShader = new gfx.Shader("brute-voxel", vert, geom, frag);
 
 		vert = cast(string)read("res/power/shaders/brute/feedback.vert.glsl");
 		geom = cast(string)read("res/power/shaders/brute/feedback.geom.glsl");
 		frag = cast(string)read("res/power/shaders/brute/feedback.frag.glsl");
-		feedbackShader = new GfxShader("brute-feedback", vert, geom, frag);
+		feedbackShader = new gfx.Shader("brute-feedback", vert, geom, frag);
 
 		glGenQueries(1, &query);
 		glGenQueries(1, &fbQuery);
@@ -103,7 +104,7 @@ public:
 	{
 		super.close();
 
-		gfxDestroy(ref voxelShader);
+		gfx.destroy(ref voxelShader);
 		if (octTexture) { glDeleteTextures(1, &octTexture); octTexture = 0; }
 		if (octBuffer) { glDeleteBuffers(1, &octBuffer); octBuffer = 0; }
 	}
@@ -115,7 +116,7 @@ public:
 	 *
 	 */
 
-	override fn renderScene(t: GfxTarget)
+	override fn renderScene(t: gfx.Target)
 	{
 		// Clear the screen.
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
@@ -271,7 +272,7 @@ public:
 	{
 		dummy: void*;
 		buffer := cast(IndirectBuffer)Resource.alloc(
-			typeid(IndirectBuffer), GfxBuffer.uri, name, 0, out dummy);
+			typeid(IndirectBuffer), gfx.Buffer.uri, name, 0, out dummy);
 		buffer.__ctor(num, count);
 		return buffer;
 	}
@@ -310,7 +311,7 @@ struct InstanceData
 /*!
  * VBO used for boxed base voxels.
  */
-class DagBuffer : GfxBuffer
+class DagBuffer : gfx.Buffer
 {
 public:
 	num: GLsizei;

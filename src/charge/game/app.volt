@@ -7,7 +7,7 @@ module charge.game.app;
 
 import charge.core;
 import charge.ctl;
-import charge.gfx;
+import gfx = charge.gfx;
 
 
 abstract class App
@@ -66,7 +66,7 @@ public:
 		return mCore.loop();
 	}
 
-	abstract fn render(t: GfxTarget);
+	abstract fn render(t: gfx.Target);
 	abstract fn logic();
 
 	/*!
@@ -95,7 +95,7 @@ private final:
 		renderTime.start();
 		scope(exit) renderTime.stop();
 +/
-		t := GfxDefaultTarget.opCall();
+		t := gfx.DefaultTarget.opCall();
 		t.bindDefault();
 		render(t);
 		// Core swaps default target.

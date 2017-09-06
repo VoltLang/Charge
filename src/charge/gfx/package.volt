@@ -8,49 +8,49 @@ module charge.gfx;
 public import charge.gfx.gl;
 public import charge.gfx.gfx : gfxLoaded;
 public import charge.gfx.aa :
-	GfxAA = AA;
+	AA;
 public import charge.gfx.draw :
-	gfxDestroy = destroy,
-	gfxReference = reference,
-	GfxDrawBuffer = DrawBuffer,
-	GfxDrawVertex = DrawVertex,
-	GfxDrawVertexBuilder = DrawVertexBuilder,
-	gfxDrawShader = drawShader,
-	gfxDrawSamplerLinear = drawSamplerLinear,
-	gfxDrawSamplerNearest = drawSamplerNearest;
+	destroy,
+	reference,
+	drawShader,
+	drawSamplerLinear,
+	drawSamplerNearest,
+	DrawBuffer,
+	DrawVertex,
+	DrawVertexBuilder;
 public import charge.gfx.buffer :
-	gfxDestroy = destroy,
-	gfxReference = reference,
-	GfxBuffer = Buffer,
-	GfxBuilder = Builder,
-	GfxIndirectData = IndirectData,
-	GfxIndirectBuffer = IndirectBuffer;
+	destroy,
+	reference,
+	Buffer,
+	Builder,
+	IndirectData,
+	IndirectBuffer;
 public import charge.gfx.shader :
-	gfxDestroy = destroy,
-	GfxShader = Shader;
+	destroy,
+	Shader;
 public import charge.gfx.target :
-	gfxReference = reference,
-	GfxTarget = Target,
-	GfxDefaultTarget = DefaultTarget,
-	GfxFramebuffer = Framebuffer,
-	GfxFramebufferMSAA = FramebufferMSAA;
+	reference,
+	Target,
+	DefaultTarget,
+	Framebuffer,
+	FramebufferMSAA;
 public import charge.gfx.texture :
-	gfxReference = reference,
-	GfxTexture = Texture,
-	GfxTexture2D = Texture2D;
+	reference,
+	Texture,
+	Texture2D;
 public import charge.gfx.timer :
-	GfxTimer = Timer;
+	Timer;
 public import charge.gfx.bitmapfont :
-	GfxBitmapState = BitmapState,
-	GfxBitmapGlyphWidth = GlyphWidth,
-	GfxBitmapGlyphHeight = GlyphHeight,
-	gfxBuildVertices = buildVertices,
-	gfxBitmapTexture = bitmapTexture;
+	BitmapState,
+	BitmapGlyphWidth = GlyphWidth,
+	BitmapGlyphHeight = GlyphHeight,
+	buildVertices,
+	bitmapTexture;
 public import charge.gfx.sync :
-	GfxSync = Sync;
+	Sync;
 public import charge.gfx.counters :
-	gfxDestroy = destroy,
-	GfxCounters = Counters;
+	destroy,
+	Counters;
 public import charge.gfx.helpers :
-	GfxTextureBlitter = TextureBlitter,
-	GfxFramebufferResizer = FramebufferResizer;
+	TextureBlitter,
+	FramebufferResizer;

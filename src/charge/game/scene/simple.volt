@@ -6,7 +6,7 @@
 module charge.game.scene.simple;
 
 import charge.ctl;
-import charge.gfx;
+import gfx = charge.gfx;
 
 import charge.game.scene.scene;
 
@@ -29,7 +29,7 @@ public:
 
 	override fn close() {}
 	override fn logic() {}
-	override fn render(GfxTarget) {}
+	override fn render(gfx.Target) {}
 
 	fn keyText(CtlKeyboard, scope const(char)[]) {}
 	fn keyDown(CtlKeyboard, int) {}

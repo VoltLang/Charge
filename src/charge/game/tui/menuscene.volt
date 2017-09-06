@@ -4,7 +4,7 @@ module charge.game.tui.menuscene;
 
 import charge.core;
 import charge.ctl;
-import charge.gfx;
+import gfx = charge.gfx;
 import charge.game;
 import charge.game.tui.glyphdraw;
 import charge.game.tui.windowscene;

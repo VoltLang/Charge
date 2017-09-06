@@ -2,16 +2,17 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module power.voxel.dag;
 
-import charge.sys.resource;
-import charge.gfx;
-
+import gfx = charge.gfx;
 import math = charge.math;
+
+import charge.gfx.gl;
+import charge.sys.resource;
 
 
 /*!
  * VBO used for boxed base voxels.
  */
-class DagBuffer : GfxBuffer
+class DagBuffer : gfx.Buffer
 {
 public:
 	num: GLsizei;
@@ -48,7 +49,7 @@ struct Vertex
 }
 
 
-class DagBuilder : GfxBuilder
+class DagBuilder : gfx.Builder
 {
 public:
 	this(num: size_t)
@@ -77,7 +78,7 @@ public:
 		add(cast(void*)vert, num * typeid(Vertex).size);
 	}
 
-	alias add = GfxBuilder.add;
+	alias add = gfx.Builder.add;
 
 	final fn bake(out vao: GLuint, out buf: GLuint, out num: GLsizei)
 	{

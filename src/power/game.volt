@@ -4,11 +4,12 @@ module power.game;
 
 import core.exception;
 
-import charge.gfx;
-import charge.core;
-import charge.game;
-
+import gfx = charge.gfx;
 import tui = charge.game.tui;
+
+import charge.game;
+import charge.core;
+import charge.gfx.gl;
 
 import power.app;
 import power.menu;
@@ -36,7 +37,7 @@ public:
 		setHeader(cast(immutable(u8)[])"Loading");
 	}
 
-	override fn render(t: GfxTarget)
+	override fn render(t: gfx.Target)
 	{
 		mHasRendered = true;
 		super.render(t);

@@ -149,7 +149,7 @@ public:
 	override fn size(out w: uint, out h: uint, out mode: coreWindow)
 	{
 		if (!gfxLoaded) {
-			throw new Exception("Gfx not initd!");
+			throw new Exception("gfx. not initd!");
 		}
 
 		t := DefaultTarget.opCall();

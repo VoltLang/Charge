@@ -8,13 +8,14 @@ import core.rt.format;
 import io = watt.io;
 import watt.io.file;
 
+import gfx = charge.gfx;
+
 import charge.ctl;
-import charge.sys.resource;
 import charge.core;
-import charge.gfx;
 import charge.game;
 import charge.game.scene.background;
 import charge.util.stopwatch;
+import charge.gfx.gl;
 
 import voxel.viewer;
 import voxel.svo;

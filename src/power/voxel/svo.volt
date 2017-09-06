@@ -6,10 +6,10 @@ import watt.text.string;
 import watt.text.format;
 import watt.io.file;
 
-import charge.gfx;
-import charge.sys.resource;
-
+import gfx = charge.gfx;
 import math = charge.math;
+
+import charge.gfx.gl;
 
 import power.voxel.dag;
 import power.voxel.instance;
@@ -45,23 +45,23 @@ fn calcNumMorton(dim: i32) i32
 class SVO
 {
 public:
-	counters: GfxCounters;
+	counters: gfx.Counters;
 
 
 protected:
 	mVbo: DagBuffer;
 	mOccludeBuf: OccludeBuffer;
 	mInstanceBuf: InstanceBuffer;
-	mIndirectBuf: GfxIndirectBuffer;
+	mIndirectBuf: gfx.IndirectBuffer;
 	mTransformObj: GLuint;
 
 	mFBOcclude: GLuint;
 	mFBPrune: GLuint;
 
-	mFeedback: GfxShader;
-	mOcclude: GfxShader;
-	mPrune: GfxShader;
-	mTracer: GfxShader;
+	mFeedback: gfx.Shader;
+	mOcclude: gfx.Shader;
+	mPrune: gfx.Shader;
+	mTracer: gfx.Shader;
 
 	//! Total number of levels in the SVO.
 	mVoxelPower: i32;
@@ -86,7 +86,7 @@ protected:
 public:
 	this(octTexture: GLuint)
 	{
-		counters = new GfxCounters("feedback", "occlude", "prune", "trace");
+		counters = new gfx.Counters("feedback", "occlude", "prune", "trace");
 
 		mVoxelPower = 11;
 		mOccludePower = 5;
@@ -138,15 +138,15 @@ public:
 			b.add(cast(i8)x, cast(i8)y, cast(i8)z, 1);
 		}
 		mVbo = DagBuffer.make("power/dag", b);
-		gfxDestroy(ref b);
+		gfx.destroy(ref b);
 
-		ind: GfxIndirectData[1];
+		ind: gfx.IndirectData[1];
 		ind[0].count = cast(GLuint)calcNumMorton(1 << mGeomPower);
 		ind[0].instanceCount = 1;
 		ind[0].first = 0;
 		ind[0].baseInstance = 0;
 
-		mIndirectBuf = GfxIndirectBuffer.make("power/svo/indirect", ind);
+		mIndirectBuf = gfx.IndirectBuffer.make("power/svo/indirect", ind);
 
 		mOccludeBuf = OccludeBuffer.make("power/svo/occlude", numMorton);
 		mInstanceBuf = InstanceBuffer.make("power/svo/trace", numMorton);
@@ -164,9 +164,9 @@ public:
 
 	void close()
 	{
-		gfxDestroy(ref counters);
-		gfxReference(ref mVbo, null);
-		gfxReference(ref mIndirectBuf, null);
+		gfx.destroy(ref counters);
+		gfx.reference(ref mVbo, null);
+		gfx.reference(ref mIndirectBuf, null);
 		if (mOccludeBuf !is null) { mOccludeBuf.decRef(); mOccludeBuf = null; }
 		if (mInstanceBuf !is null) { mInstanceBuf.decRef(); mInstanceBuf = null; }
 	}
@@ -323,12 +323,12 @@ public:
 
 
 private:
-	fn makeShaderVGF(name: string, vert: string, geom: string, frag: string) GfxShader
+	fn makeShaderVGF(name: string, vert: string, geom: string, frag: string) gfx.Shader
 	{
 		vert = replaceShaderStrings(vert);
 		geom = replaceShaderStrings(geom);
 		frag = replaceShaderStrings(frag);
-		return new GfxShader(name, vert, geom, frag);
+		return new gfx.Shader(name, vert, geom, frag);
 	}
 
 	fn replaceShaderStrings(shader: string) string
