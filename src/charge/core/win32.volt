@@ -212,9 +212,15 @@ protected:
 			closeFunc();
 		}
 
+		saveSettings();
+
 		p := Pool.opCall();
 		p.collect();
 
+		// Do more cleaning up here.
+		DefaultTarget.close();
+
+		// Do final cleanup and leak checks.
 		p.cleanAndLeakCheck(io.output.write);
 		cMemoryPrintAll(io.output.write);
 		io.output.flush();
