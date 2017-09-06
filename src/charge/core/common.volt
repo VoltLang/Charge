@@ -8,6 +8,7 @@ module charge.core.common;
 import core.exception;
 import charge.core;
 import charge.util.properties;
+import charge.sys.timetracker;
 
 
 abstract class CommonCore : Core
@@ -61,6 +62,7 @@ protected:
 
 	// Used for looping.
 	mRunning: bool;
+	mSleepTime: TimeTracker;
 
 
 public:
@@ -100,7 +102,9 @@ public:
 
 			diff = (step + where) - getTicks();
 			if (diff > 0) {
+				mSleepTime.start();
 				doSleep(diff);
+				mSleepTime.stop();
 			}
 		}
 
@@ -198,6 +202,7 @@ protected:
 	{
 		super(flags);
 		this.mRunning = true;
+		this.mSleepTime = new TimeTracker("sleep");
 
 		setRender(null);
 		setLogic(null);

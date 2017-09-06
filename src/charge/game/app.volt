@@ -1,4 +1,4 @@
-// Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
+// Copyright © 2011-2017, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 /*!
  * Source file for App base classes.
@@ -6,6 +6,7 @@
 module charge.game.app;
 
 import core_ = charge.core;
+import sys = charge.sys;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 
@@ -15,14 +16,12 @@ abstract class App
 protected:
 	mCore: core_.Core;
 	mInput: ctl.Input;
-/+
-	networkTime: TimeTracker;
-	renderTime: TimeTracker;
-	logicTime: TimeTracker;
-	inputTime: TimeTracker;
-	buildTime: TimeTracker;
-	idleTime: TimeTracker;
-+/
+
+	mRenderTime: sys.TimeTracker;
+	mLogicTime: sys.TimeTracker;
+	mBuildTime: sys.TimeTracker;
+	mIdleTime: sys.TimeTracker;
+
 
 private:
 	mClosed: bool;
@@ -35,6 +34,11 @@ public:
 			opts = new core_.Options();
 		}
 
+		mRenderTime = new sys.TimeTracker("gfx");
+		mLogicTime = new sys.TimeTracker("logic");
+		mBuildTime = new sys.TimeTracker("build");
+		mIdleTime = new sys.TimeTracker("idle");
+
 		mCore = core_.start(opts);
 		mCore.setRender(doRender);
 		mCore.setIdle(doIdle);
@@ -42,13 +46,6 @@ public:
 		mCore.setClose(close);
 
 		mInput = ctl.Input.opCall();
-/+
-		renderTime = new TimeTracker("gfx");
-		inputTime = new TimeTracker("ctl");
-		logicTime = new TimeTracker("logic");
-		buildTime = new TimeTracker("build");
-		idleTime = new TimeTracker("idle");
-+/
 	}
 
 	~this()
@@ -79,22 +76,20 @@ public:
 	abstract fn idle(time: long);
 
 
-private final:
+private:
 	fn doLogic()
 	{
-/+
-		logicTime.start();
-		scope(exit) logicTime.stop();
-+/
+		mLogicTime.start();
+		scope(exit) mLogicTime.stop();
+
 		logic();
 	}
 
 	fn doRender()
 	{
-/+
-		renderTime.start();
-		scope(exit) renderTime.stop();
-+/
+		mRenderTime.start();
+		scope(exit) mRenderTime.stop();
+
 		t := gfx.DefaultTarget.opCall();
 		t.bindDefault();
 		render(t);
@@ -103,10 +98,9 @@ private final:
 
 	fn doIdle(diff: long)
 	{
-/+
-		idleTime.start();
-		scope(exit) idleTime.stop();
-+/
+		mIdleTime.start();
+		scope(exit) mIdleTime.stop();
+
 		idle(diff);
 	}
 }
