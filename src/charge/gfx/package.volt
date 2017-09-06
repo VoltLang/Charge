@@ -31,6 +31,7 @@ public import charge.gfx.shader :
 public import charge.gfx.target :
 	gfxReference = reference,
 	GfxTarget = Target,
+	GfxDefaultTarget = DefaultTarget,
 	GfxFramebuffer = Framebuffer,
 	GfxFramebufferMSAA = FramebufferMSAA;
 public import charge.gfx.texture :
