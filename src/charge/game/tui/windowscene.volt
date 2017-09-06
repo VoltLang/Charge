@@ -10,10 +10,10 @@ import watt.algorithm : max;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
-import game = charge.game;
-import tui = charge.game.tui;
+import scene = charge.game.scene;
 
 import charge.gfx.gl;
+import charge.game.tui.grid;
 
 
 /*!
@@ -21,7 +21,7 @@ import charge.gfx.gl;
  *
  * Usefull for implementing menus, see @ref charge.game.tui.menuscene.
  */
-abstract class WindowScene : game.SimpleScene
+abstract class WindowScene : scene.Simple
 {
 public:
 	enum HeaderExtra : u32 = 5;
@@ -31,8 +31,8 @@ public:
 
 public:
 	posX, posY: i32;
-	headerGrid: tui.Grid;
-	grid: tui.Grid;
+	headerGrid: Grid;
+	grid: Grid;
 
 	headerBackgroundColor: math.Color4f;
 	gridBackgroundColor: math.Color4f;
@@ -44,13 +44,13 @@ protected:
 
 
 public:
-	this(g: game.SceneManager, width: u32, height: u32)
+	this(m: scene.Manager, width: u32, height: u32)
 	{
-		super(g, Type.Menu);
+		super(m, Type.Menu);
 
-		headerGrid = new tui.Grid(1, 1);
+		headerGrid = new Grid(1, 1);
 		headerGrid.setGlyphSize(cast(i32)gfx.BitmapGlyphWidth*2, cast(i32)gfx.BitmapGlyphHeight*2);
-		grid = new tui.Grid(0, 0);
+		grid = new Grid(0, 0);
 		grid.setGlyphSize(cast(i32)gfx.BitmapGlyphWidth, cast(i32)gfx.BitmapGlyphHeight);
 
 		// Now that the grids are created, set the size.

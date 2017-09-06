@@ -4,12 +4,3 @@ module charge.game;
 
 public import charge.game.app :
 	App;
-public import charge.game.scene.app :
-	SceneManagerApp;
-public import charge.game.scene.scene :
-	Scene,
-	SceneManager;
-public import charge.game.scene.simple :
-	SimpleScene;
-public import charge.game.scene.background :
-	BackgroundScene;

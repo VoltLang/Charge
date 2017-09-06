@@ -16,7 +16,7 @@ import charge.game.scene.scene;
  * Base class for games wishing to use Scenes, implements
  * most if not all needed SceneManager functions needed.
  */
-abstract class SceneManagerApp : App, SceneManager
+abstract class ManagerApp : App, Manager
 {
 private:
 	vec: Scene[];

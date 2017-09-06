@@ -11,7 +11,7 @@ import watt.io.file;
 
 import ctl = charge.ctl;
 import gfx = charge.gfx;
-import game = charge.game;
+import scene = charge.game.scene;
 
 import charge.core;
 import charge.util.stopwatch;
@@ -24,7 +24,7 @@ import voxel.svo;
 import voxel.loaders;
 
 
-class Game : game.SceneManagerApp
+class Game : scene.ManagerApp
 {
 public:
 	this(args: string[])

@@ -12,7 +12,7 @@ import watt.text.format;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
-import game = charge.game;
+import scene = charge.game.scene;
 
 import charge.core;
 import charge.gfx.gl;
@@ -46,7 +46,7 @@ fn getColor(c: u32) math.Color4b
 	return math.Color4b.from(r, g, b, 255);
 }
 
-class AlignTest : game.SimpleScene
+class AlignTest : scene.Simple
 {
 public:
 	x, y, lookX, lookY, offsetX, offsetY: i32;
@@ -59,7 +59,7 @@ private:
 
 
 public:
-	this(g: game.SceneManager)
+	this(g: scene.Manager)
 	{
 		super(g, Type.Game);
 

@@ -11,7 +11,7 @@ import watt.io.file;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
-import game = charge.game;
+import scene = charge.game.scene;
 
 import charge.gfx.gl;
 
@@ -101,9 +101,9 @@ public:
 
 
 public:
-	this(g: game.SceneManager)
+	this(m: scene.Manager)
 	{
-		super(g);
+		super(m);
 
 		data: void[];
 		loadDag("res/alley.dag", out data, out frames);

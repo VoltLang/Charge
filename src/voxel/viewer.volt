@@ -11,8 +11,8 @@ import watt.text.format;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
+import scene = charge.game.scene;
 
-import game = charge.game;
 import charge.gfx.gl;
 
 import svo = voxel.svo;
@@ -31,9 +31,9 @@ public:
 
 
 public:
-	this(g: game.SceneManager, data: svo.Data, obj: svo.Entity)
+	this(m: scene.Manager, data: svo.Data, obj: svo.Entity)
 	{
-		super(g);
+		super(m);
 		this.data = data;
 		this.obj = obj;
 

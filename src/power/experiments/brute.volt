@@ -13,7 +13,7 @@ import sys = charge.sys;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
-import game = charge.game;
+import scene = charge.game.scene;
 
 import charge.core;
 import charge.gfx.gl;
@@ -53,9 +53,9 @@ public:
 
 
 public:
-	this(g: game.SceneManager)
+	this(m: scene.Manager)
 	{
-		super(g);
+		super(m);
 		distance = 1.0;
 
 		vert := cast(string)read("res/power/shaders/brute/voxel.vert.glsl");

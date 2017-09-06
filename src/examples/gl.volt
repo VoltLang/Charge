@@ -7,13 +7,13 @@ import core.exception;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
-import game = charge.game;
+import scene = charge.game.scene;
 
 import charge.core;
 import charge.gfx.gl;
 
 
-class Game : game.SceneManagerApp
+class Game : scene.ManagerApp
 {
 public:
 	this(args: string[])
@@ -28,7 +28,7 @@ public:
 }
 
 
-class Scene : game.SimpleScene
+class Scene : scene.Simple
 {
 public:
 	input: ctl.Input;

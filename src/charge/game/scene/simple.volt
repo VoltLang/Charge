@@ -1,7 +1,7 @@
 // Copyright © 2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 /*!
- * Source file for SimpleScene, helper default implementation.
+ * Source file for @ref Simple, helper default implementation.
  */
 module charge.game.scene.simple;
 
@@ -14,16 +14,16 @@ import charge.game.scene.scene;
 /*!
  * Helper that, implements all of the functions on Scene.
  */
-abstract class SimpleScene : Scene
+abstract class Simple : Scene
 {
 protected:
 	mInput: ctl.Input;
 
 
 public:
-	this(SceneManager sm, Type type)
+	this(m: Manager, type: Type)
 	{
-		super(sm, type);
+		super(m, type);
 		mInput = ctl.Input.opCall();
 	}
 

@@ -5,8 +5,8 @@ module power.game;
 import core.exception;
 
 import gfx = charge.gfx;
-import game = charge.game;
 import tui = charge.game.tui;
+import scene = charge.game.scene;
 
 import charge.core;
 import charge.gfx.gl;
@@ -69,7 +69,7 @@ public:
 
 		checkVersion();
 
-		bg := new game.BackgroundScene(this);
+		bg := new scene.Background(this);
 		bg.setTile(makeInbuiltTilePng());
 		push(bg);
 

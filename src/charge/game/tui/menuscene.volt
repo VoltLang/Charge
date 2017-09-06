@@ -4,7 +4,7 @@ module charge.game.tui.menuscene;
 
 import ctl = charge.ctl;
 import gfx = charge.gfx;
-import game = charge.game;
+import scene = charge.game.scene;
 
 import charge.core;
 import charge.game.tui.glyphdraw;
@@ -53,9 +53,9 @@ public:
 
 
 public:
-	this(g: game.SceneManager, header: string, buttons: scope Button[]...)
+	this(m: scene.Manager, header: string, buttons: scope Button[]...)
 	{
-		super(g, 1, 1);
+		super(m, 1, 1);
 		this.quit = new Button();
 		this.close = new Button();
 		this.quit.str = "Quit";

@@ -9,7 +9,7 @@ import watt.math;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
-import game = charge.game;
+import scene = charge.game.scene;
 
 import charge.gfx.gl;
 
@@ -17,7 +17,7 @@ import charge.gfx.gl;
 /*!
  * Helper class if you want to draw a module and some text.
  */
-class Viewer : game.SimpleScene
+class Viewer : scene.Simple
 {
 public:
 	// AA
@@ -44,9 +44,9 @@ protected:
 
 
 public:
-	this(g: game.SceneManager)
+	this(m: scene.Manager)
 	{
-		super(g, Type.Game);
+		super(m, Type.Game);
 		mUseAA = false;
 
 		textState.glyphWidth = cast(int)gfx.bitmapTexture.width / 16;

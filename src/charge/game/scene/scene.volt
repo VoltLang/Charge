@@ -1,7 +1,7 @@
 // Copyright © 2011-2016, Jakob Bornecrantz.  All rights reserved.
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 /*!
- * Source file for Scene base class and SceneManager interface.
+ * Source file for Scene base class and Manager interface.
  */
 module charge.game.scene.scene;
 
@@ -30,13 +30,15 @@ public:
 
 	flags: Flag;
 
+
 protected:
-	mManager: SceneManager;
+	mManager: Manager;
+
 
 public:
-	this(SceneManager sm, Type type)
+	this(m: Manager, type: Type)
 	{
-		this.mManager = sm;
+		this.mManager = m;
 		this.flags = cast(Flag)type;
 	}
 
@@ -61,7 +63,7 @@ public:
 	abstract fn dropControl();
 
 	/*!
-	 * Shutdown this scene, this is called by the SceneManager.
+	 * Shutdown this scene, this is called by the Manager.
 	 *
 	 * And should not be called by other code.
 	 */
@@ -71,7 +73,7 @@ public:
 /*!
  * A interface back to the main controller, often the main game loop.
  */
-interface SceneManager
+interface Manager
 {
 public:
 	/*!

@@ -10,7 +10,7 @@ import charge.gfx.gl;
 import charge.game.scene.scene;
 
 
-class BackgroundScene : Scene
+class Background : Scene
 {
 protected:
 	mBuf: GLuint;
@@ -29,9 +29,9 @@ protected:
 
 
 public:
-	this(sm: SceneManager)
+	this(m: Manager)
 	{
-		super(sm, Type.Background);
+		super(m, Type.Background);
 	}
 
 	fn setTile(filename: string)
