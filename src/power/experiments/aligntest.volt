@@ -94,7 +94,7 @@ public:
 			b.add(cast(f32)x1, cast(f32)y1, 0.f, 0.f, color);
 		}
 		buf = GfxDrawBuffer.make("aligntest", b);
-		b.close();
+		gfxDestroy(ref b);
 	}
 
 
@@ -106,8 +106,8 @@ public:
 
 	override fn close()
 	{
-		if (testShader !is null) { testShader.breakApart(); testShader = null; }
-		if (buf !is null) { buf.decRef(); buf = null; }
+		gfxDestroy(ref testShader);
+		gfxReference(ref buf, null);
 	}
 
 	override fn mouseMove(m: CtlMouse, int, int)

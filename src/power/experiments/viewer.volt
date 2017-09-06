@@ -98,9 +98,9 @@ public:
 
 	override fn close()
 	{
-		aa.breakApart();
-		if (textVbo !is null) { textVbo.decRef(); textVbo = null; }
-		if (textBuilder !is null) { textBuilder.close(); textBuilder = null; }
+		aa.close();
+		gfxDestroy(ref textBuilder);
+		gfxReference(ref textVbo, null);
 	}
 
 	override fn logic()

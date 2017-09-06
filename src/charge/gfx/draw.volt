@@ -11,6 +11,31 @@ import charge.math.color;
 
 
 /*!
+ * Dereference and reference helper function.
+ *
+ * @param dec Object to dereference passed by reference, set to `inc`.
+ * @param inc Object to reference.
+ * @{
+ */
+fn reference(ref dec: DrawBuffer, inc: DrawBuffer)
+{
+	if (inc !is null) { inc.incRef(); }
+	if (dec !is null) { dec.decRef(); }
+	dec = inc;
+}
+//! @}
+
+/*!
+ * Closes and sets reference to null.
+ *
+ * @param Object to be destroyed.
+ */
+fn destroy(ref obj: DrawVertexBuilder)
+{
+	if (obj !is null) { obj.close(); obj = null; }
+}
+
+/*!
  * VBO used for 2D drawing operations.
  */
 class DrawBuffer : Buffer
@@ -161,8 +186,7 @@ fn initDraw()
 
 fn closeDraw()
 {
-	drawShader.breakApart();
-	drawShader = null;
+	charge.gfx.shader.destroy(ref drawShader);
 
 	if (drawSamplerLinear) { glDeleteSamplers(1, &drawSamplerLinear); drawSamplerLinear = 0; }
 	if (drawSamplerNearest) { glDeleteSamplers(1, &drawSamplerNearest); drawSamplerNearest = 0; }

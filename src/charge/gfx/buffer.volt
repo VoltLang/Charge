@@ -7,6 +7,38 @@ import charge.sys.memory;
 import charge.sys.resource;
 
 
+/*!
+ * Dereference and reference helper function.
+ *
+ * @param dec Object to dereference passed by reference, set to `inc`.
+ * @param inc Object to reference.
+ * @{
+ */
+fn reference(ref dec: Buffer, inc: Buffer)
+{
+	if (inc !is null) { inc.incRef(); }
+	if (dec !is null) { dec.decRef(); }
+	dec = inc;
+}
+
+fn reference(ref dec: IndirectBuffer, inc: IndirectBuffer)
+{
+	if (inc !is null) { inc.incRef(); }
+	if (dec !is null) { dec.decRef(); }
+	dec = inc;
+}
+//! @}
+
+/*!
+ * Closes and sets reference to null.
+ *
+ * @param Object to be destroyed.
+ */
+fn destroy(ref obj: Builder)
+{
+	if (obj !is null) { obj.close(); obj = null; }
+}
+
 class Buffer : Resource
 {
 public:

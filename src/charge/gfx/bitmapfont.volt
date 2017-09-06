@@ -182,10 +182,7 @@ fn initBitmap()
 
 fn closeBitmap()
 {
-	if (bitmapTexture !is null) {
-		bitmapTexture.decRef();
-		bitmapTexture = null;
-	}
+	reference(ref bitmapTexture, null);
 }
 
 enum u32 Width = 128;

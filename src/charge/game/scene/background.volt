@@ -49,10 +49,7 @@ public:
 
 	fn setTile(file: SysFile)
 	{
-		if (mTile !is null) {
-			mTile.decRef();
-			mTile = null;
-		}
+		gfxReference(ref mTile, null);
 
 		if (file !is null) {
 			mTile = GfxTexture2D.load(file);
@@ -73,10 +70,7 @@ public:
 
 	fn setLogo(file: SysFile)
 	{
-		if (mLogo !is null) {
-			mLogo.decRef();
-			mLogo = null;
-		}
+		gfxReference(ref mLogo, null);
 
 		if (file !is null) {
 			mLogo = GfxTexture2D.load(file);
@@ -159,7 +153,7 @@ public:
 		if (mVao) { glDeleteVertexArrays(1, &mVao); mVao = 0; }
 
 		b.bake(out mVao, out mBuf, out mNum);
-		b.close();
+		gfxDestroy(ref b);
 	}
 
 	/*
@@ -170,8 +164,8 @@ public:
 
 	override fn close()
 	{
-		if (mTile !is null) { mTile.decRef(); mTile = null; }
-		if (mLogo !is null) { mLogo.decRef(); mLogo = null; }
+		gfxReference(ref mTile, null);
+		gfxReference(ref mLogo, null);
 		if (mBuf) { glDeleteBuffers(1, &mBuf); mBuf = 0; }
 		if (mVao) { glDeleteVertexArrays(1, &mVao); mVao = 0; }
 	}

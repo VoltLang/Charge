@@ -11,6 +11,16 @@ import charge.core;
 import charge.math.matrix;
 
 
+/*!
+ * Closes and sets reference to null.
+ *
+ * @param Object to be destroyed.
+ */
+fn destroy(ref obj: Shader)
+{
+	if (obj !is null) { obj.close(); obj = null; }
+}
+
 class Shader
 {
 public:
@@ -53,7 +63,7 @@ public:
 
 
 final:
-	fn breakApart()
+	fn close()
 	{
 		if (id != 0) {
 			glDeleteProgram(id);

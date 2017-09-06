@@ -16,6 +16,21 @@ import charge.sys.resource;
 
 
 /*!
+ * Dereference and reference helper function.
+ *
+ * @param dec Object to dereference passed by reference, set to `inc`.
+ * @param inc Object to reference.
+ * @{
+ */
+fn reference(ref dec: File, inc: File)
+{
+	if (inc !is null) { inc.incRef(); }
+	if (dec !is null) { dec.decRef(); }
+	dec = inc;
+}
+//! @}
+
+/*!
  * A single File from the file system or a zip file.
  *
  * Right now very stupid.

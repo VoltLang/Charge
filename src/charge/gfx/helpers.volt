@@ -9,6 +9,7 @@ import math = charge.math;
 
 import charge.gfx.gl;
 import charge.gfx.draw;
+import charge.gfx.buffer;
 import charge.gfx.target;
 import charge.gfx.texture;
 
@@ -22,7 +23,7 @@ public:
 public:
 	fn close()
 	{
-		if (fbo !is null) { fbo.decRef(); fbo = null; }
+		reference(ref fbo, null);
 	}
 
 	fn bind(t: Target, width: u32, height: u32)
@@ -44,7 +45,7 @@ public:
 			return;
 		}
 
-		if (fbo !is null) { fbo.decRef(); fbo = null; }
+		reference(ref fbo, null);
 		fbo = Framebuffer.make("power/exp/fbo", width, height);
 	}
 
@@ -70,8 +71,8 @@ private:
 public:
 	fn close()
 	{
-		if (vbo !is null) { vbo.decRef(); vbo = null; }
-		if (builder !is null) { builder.close(); builder = null; }
+		destroy(ref builder);
+		reference(ref vbo, null);
 	}
 
 	fn blit(t: Target, texture: Texture, x: i32, y: i32)

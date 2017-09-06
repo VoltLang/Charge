@@ -10,6 +10,8 @@ public import charge.gfx.gfx : gfxLoaded;
 public import charge.gfx.aa :
 	GfxAA = AA;
 public import charge.gfx.draw :
+	gfxDestroy = destroy,
+	gfxReference = reference,
 	GfxDrawBuffer = DrawBuffer,
 	GfxDrawVertex = DrawVertex,
 	GfxDrawVertexBuilder = DrawVertexBuilder,
@@ -17,16 +19,22 @@ public import charge.gfx.draw :
 	gfxDrawSamplerLinear = drawSamplerLinear,
 	gfxDrawSamplerNearest = drawSamplerNearest;
 public import charge.gfx.buffer :
+	gfxDestroy = destroy,
+	gfxReference = reference,
 	GfxBuffer = Buffer,
 	GfxBuilder = Builder,
 	GfxIndirectData = IndirectData,
 	GfxIndirectBuffer = IndirectBuffer;
 public import charge.gfx.shader :
+	gfxDestroy = destroy,
 	GfxShader = Shader;
 public import charge.gfx.target :
+	gfxReference = reference,
 	GfxTarget = Target,
-	GfxFramebuffer = Framebuffer;
+	GfxFramebuffer = Framebuffer,
+	GfxFramebufferMSAA = FramebufferMSAA;
 public import charge.gfx.texture :
+	gfxReference = reference,
 	GfxTexture = Texture,
 	GfxTexture2D = Texture2D;
 public import charge.gfx.timer :
@@ -40,6 +48,7 @@ public import charge.gfx.bitmapfont :
 public import charge.gfx.sync :
 	GfxSync = Sync;
 public import charge.gfx.counters :
+	gfxDestroy = destroy,
 	GfxCounters = Counters;
 public import charge.gfx.helpers :
 	GfxTextureBlitter = TextureBlitter,

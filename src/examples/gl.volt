@@ -98,7 +98,7 @@ public:
 		b.add(fX,  fYH, 0.0f, 1.0f);
 		b.add(fX,  fY,  0.0f, 0.0f);
 		buf = GfxDrawBuffer.make("example/gl/buffer", b);
-		b.close();
+		gfxDestroy(ref b);
 	}
 
 
@@ -110,8 +110,8 @@ public:
 
 	override fn close()
 	{
-		if (tex !is null) { tex.decRef(); tex = null; }
-		if (buf !is null) { buf.decRef(); buf = null; }
+		gfxReference(ref tex, null);
+		gfxReference(ref buf, null);
 	}
 
 	override fn render(t: GfxTarget)

@@ -10,6 +10,16 @@ import charge.gfx.gl;
 import charge.gfx.timer;
 
 
+/*!
+ * Closes and sets reference to null.
+ *
+ * @param Object to be destroyed.
+ */
+fn destroy(ref obj: Counters)
+{
+	if (obj !is null) { obj.close(); obj = null; }
+}
+
 class Counters
 {
 public:

@@ -11,7 +11,42 @@ import charge.gfx.gl;
 import charge.gfx.texture;
 import charge.math.matrix;
 
-import watt.io;
+
+/*!
+ * Dereference and reference helper function.
+ *
+ * @param dec Object to dereference passed by reference, set to `inc`.
+ * @param inc Object to reference.
+ * @{
+ */
+fn reference(ref dec: Target, inc: Target)
+{
+	if (inc !is null) { inc.incRef(); }
+	if (dec !is null) { dec.decRef(); }
+	dec = inc;
+}
+
+fn reference(ref dec: DefaultTarget, inc: DefaultTarget)
+{
+	if (inc !is null) { inc.incRef(); }
+	if (dec !is null) { dec.decRef(); }
+	dec = inc;
+}
+
+fn reference(ref dec: Framebuffer, inc: Framebuffer)
+{
+	if (inc !is null) { inc.incRef(); }
+	if (dec !is null) { dec.decRef(); }
+	dec = inc;
+}
+
+fn reference(ref dec: FramebufferMSAA, inc: FramebufferMSAA)
+{
+	if (inc !is null) { inc.incRef(); }
+	if (dec !is null) { dec.decRef(); }
+	dec = inc;
+}
+//! @}
 
 /*!
  * Base texture class.
@@ -133,10 +168,7 @@ public:
 
 	global fn close()
 	{
-		if (mInstance !is null) {
-			mInstance.decRef();
-			mInstance = null;
-		}
+		reference(ref mInstance, null);
 	}
 
 
@@ -157,14 +189,8 @@ public:
 public:
 	~this()
 	{
-		if (color !is null) {
-			color.decRef();
-			color = null;
-		}
-		if (depth !is null) {
-			depth.decRef();
-			depth = null;
-		}
+		charge.gfx.texture.reference(ref color, null);
+		charge.gfx.texture.reference(ref depth, null);
 	}
 
 	override final fn setMatrixToOrtho(ref mat: Matrix4x4d)
@@ -231,14 +257,8 @@ public:
 public:
 	~this()
 	{
-		if (color !is null) {
-			color.decRef();
-			color = null;
-		}
-		if (depth !is null) {
-			depth.decRef();
-			depth = null;
-		}
+		charge.gfx.texture.reference(ref color, null);
+		charge.gfx.texture.reference(ref depth, null);
 	}
 
 	override fn bind(old: Target)

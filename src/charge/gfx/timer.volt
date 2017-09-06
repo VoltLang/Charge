@@ -7,7 +7,6 @@ module charge.gfx.timer;
 
 import charge.gfx.gl;
 
-import io = watt.io;
 
 struct Timer
 {

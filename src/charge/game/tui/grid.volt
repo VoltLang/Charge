@@ -40,8 +40,8 @@ public:
 
 	fn close()
 	{
-		if (mTextVBO !is null) { mTextVBO.decRef(); mTextVBO = null; }
-		if (mTextBuilder !is null) { mTextBuilder.close(); mTextBuilder = null; }
+		destroy(ref mTextBuilder);
+		reference(ref mTextVBO, null);
 	}
 
 	fn put(x: i32, y: i32, glyph: u8)

@@ -24,9 +24,9 @@ public:
 
 
 public:
-	fn breakApart()
+	fn close()
 	{
-		if (fbo !is null) { fbo.decRef(); fbo = null; }
+		reference(ref fbo, null);
 	}
 
 	fn bind(t: Target)
@@ -63,7 +63,7 @@ public:
 			return;
 		}
 
-		if (fbo !is null) { fbo.decRef(); fbo = null; }
+		reference(ref fbo, null);
 		currentMSAA = msaa;
 
 		if (msaa == 0) {

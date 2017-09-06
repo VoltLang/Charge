@@ -103,12 +103,9 @@ public:
 	{
 		super.close();
 
+		gfxDestroy(ref voxelShader);
 		if (octTexture) { glDeleteTextures(1, &octTexture); octTexture = 0; }
 		if (octBuffer) { glDeleteBuffers(1, &octBuffer); octBuffer = 0; }
-		if (voxelShader !is null) {
-			voxelShader.breakApart();
-			voxelShader = null;
-		}
 	}
 
 

@@ -19,6 +19,28 @@ import charge.gfx.gl;
 
 
 /*!
+ * Dereference and reference helper function.
+ *
+ * @param dec Object to dereference passed by reference, set to `inc`.
+ * @param inc Object to reference.
+ * @{
+ */
+fn reference(ref dec: Texture, inc: Texture)
+{
+	if (inc !is null) { inc.incRef(); }
+	if (dec !is null) { dec.decRef(); }
+	dec = inc;
+}
+
+fn reference(ref dec: Texture2D, inc: Texture2D)
+{
+	if (inc !is null) { inc.incRef(); }
+	if (dec !is null) { dec.decRef(); }
+	dec = inc;
+}
+//! @}
+
+/*!
  * Base texture class.
  */
 class Texture : Resource
@@ -168,7 +190,7 @@ public:
 		// Free the file and return.
 		scope (exit) {
 			stbi_image_free(ptr);
-			file.decRef();
+			charge.sys.file.reference(ref file, null);
 		}
 
 		if (ptr is null) {

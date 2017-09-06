@@ -7,5 +7,6 @@ module charge.sys;
 
 
 public import charge.sys.file :
+	sysRereference = reference,
 	SysFile = File,
 	SysPool = SysPool;
