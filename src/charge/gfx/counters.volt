@@ -5,7 +5,8 @@ module charge.gfx.counters;
 import watt.text.sink;
 import watt.text.format;
 
-import charge.math.average;
+import math = charge.math;
+
 import charge.gfx.gl;
 import charge.gfx.timer;
 
@@ -24,7 +25,7 @@ class Counters
 {
 public:
 	names: string[];
-	samples: Average[];
+	samples: math.Average[];
 	timers: Timer[];
 
 
@@ -35,7 +36,7 @@ public:
 
 		this.names = names;
 		timers = new Timer[](names.length);
-		samples = new Average[](names.length);
+		samples = new math.Average[](names.length);
 
 		foreach (ref t; timers) {
 			t.setup();

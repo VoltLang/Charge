@@ -3,12 +3,12 @@
 module charge.gfx.draw;
 
 import sys = charge.sys;
+import math = charge.math;
 
 import charge.core;
 import charge.gfx.gl;
 import charge.gfx.shader;
 import charge.gfx.buffer;
-import charge.math.color;
 
 
 /*!
@@ -86,7 +86,7 @@ struct DrawVertex
 {
 	x, y: f32;
 	u, v: f32;
-	color: Color4b;
+	color: math.Color4b;
 }
 
 
@@ -113,7 +113,7 @@ class DrawVertexBuilder : Builder
 		add(&vert, 1);
 	}
 
-	final fn add(x: f32, y: f32, u: f32, v: f32, color: Color4b)
+	final fn add(x: f32, y: f32, u: f32, v: f32, color: math.Color4b)
 	{
 		vert: DrawVertex;
 		vert.x = x;

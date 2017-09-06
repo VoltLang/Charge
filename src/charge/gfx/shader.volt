@@ -6,9 +6,9 @@
 module charge.gfx.shader;
 
 import io = watt.io;
+import math = charge.math;
 import lib.gl;
 import charge.core;
-import charge.math.matrix;
 
 
 /*!
@@ -186,13 +186,13 @@ final:
 	 * Matrix
 	 */
 
-	fn matrix3(name: const(char)*, count: int, transpose: bool, ref mat: Matrix3x3f)
+	fn matrix3(name: const(char)*, count: int, transpose: bool, ref mat: math.Matrix3x3f)
 	{
 		loc := glGetUniformLocation(id, name);
 		glUniformMatrix3fv(loc, count, transpose, mat.ptr);
 	}
 
-	fn matrix4(name: const(char)*, count: int, transpose: bool, ref mat: Matrix4x4f)
+	fn matrix4(name: const(char)*, count: int, transpose: bool, ref mat: math.Matrix4x4f)
 	{
 		loc := glGetUniformLocation(id, name);
 		glUniformMatrix4fv(loc, count, transpose, mat.ptr);

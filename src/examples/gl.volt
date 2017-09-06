@@ -5,11 +5,11 @@ module examples.gl;
 import core.exception;
 
 import gfx = charge.gfx;
+import math = charge.math;
 
 import charge.ctl;
 import charge.core;
 import charge.game;
-import charge.math.matrix;
 import charge.gfx.gl;
 
 
@@ -117,9 +117,9 @@ public:
 
 	override fn render(t: gfx.Target)
 	{
-		transform: Matrix4x4d;
+		transform: math.Matrix4x4d;
 		t.setMatrixToOrtho(ref transform);
-		mat: Matrix4x4f;
+		mat: math.Matrix4x4f;
 		mat.setFrom(ref transform);
 
 		gfx.drawShader.bind();

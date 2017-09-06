@@ -6,10 +6,10 @@
 module charge.gfx.target;
 
 import sys = charge.sys;
+import math = charge.math;
 
 import charge.gfx.gl;
 import charge.gfx.texture;
-import charge.math.matrix;
 
 
 /*!
@@ -103,9 +103,9 @@ public:
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
 	}
 
-	abstract fn setMatrixToOrtho(ref mat: Matrix4x4d);
-	abstract fn setMatrixToOrtho(ref mat: Matrix4x4d, width: f32, height: f32);
-	abstract fn setMatrixToProjection(ref mat: Matrix4x4d, fov: f32, near: f32, far: f32);
+	abstract fn setMatrixToOrtho(ref mat: math.Matrix4x4d);
+	abstract fn setMatrixToOrtho(ref mat: math.Matrix4x4d, width: f32, height: f32);
+	abstract fn setMatrixToProjection(ref mat: math.Matrix4x4d, fov: f32, near: f32, far: f32);
 
 
 protected:
@@ -133,17 +133,17 @@ public:
 		glViewport(0, 0, cast(int)width, cast(int)height);
 	}
 
-	override final fn setMatrixToOrtho(ref mat: Matrix4x4d)
+	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d)
 	{
 		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
 	}
 
-	override final fn setMatrixToOrtho(ref mat: Matrix4x4d, width: f32, height: f32)
+	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d, width: f32, height: f32)
 	{
 		mat.setToOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
 	}
 
-	override final fn setMatrixToProjection(ref mat: Matrix4x4d, fov: f32, near: f32, far: f32)
+	override final fn setMatrixToProjection(ref mat: math.Matrix4x4d, fov: f32, near: f32, far: f32)
 	{
 		mat.setToPerspective(fov, cast(f32)width / cast(f32)height, near, far);
 	}
@@ -158,8 +158,8 @@ public:
 
 		dummy: void*;
 		t := cast(DefaultTarget)sys.Resource.alloc(typeid(DefaultTarget),
-		                                           uri, filename,
-		                                           0, out dummy);
+		                                           uri, filename, 0,
+		                                           out dummy);
 		t.__ctor(0, 0);
 		mInstance = t;
 
@@ -193,17 +193,17 @@ public:
 		charge.gfx.texture.reference(ref depth, null);
 	}
 
-	override final fn setMatrixToOrtho(ref mat: Matrix4x4d)
+	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d)
 	{
 		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
 	}
 
-	override final fn setMatrixToOrtho(ref mat: Matrix4x4d, width: f32, height: f32)
+	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d, width: f32, height: f32)
 	{
 		mat.setToOrtho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
 	}
 
-	override final fn setMatrixToProjection(ref mat: Matrix4x4d, fov: f32, near: f32, far: f32)
+	override final fn setMatrixToProjection(ref mat: math.Matrix4x4d, fov: f32, near: f32, far: f32)
 	{
 		mat.setToPerspective(fov, cast(f32)width / cast(f32)height, near, far);
 	}
@@ -272,17 +272,17 @@ public:
 		glDisable(GL_MULTISAMPLE);
 	}
 
-	override final fn setMatrixToOrtho(ref mat: Matrix4x4d)
+	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d)
 	{
 		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
 	}
 
-	override final fn setMatrixToOrtho(ref mat: Matrix4x4d, width: f32, height: f32)
+	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d, width: f32, height: f32)
 	{
 		mat.setToOrtho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
 	}
 
-	override final fn setMatrixToProjection(ref mat: Matrix4x4d, fov: f32, near: f32, far: f32)
+	override final fn setMatrixToProjection(ref mat: math.Matrix4x4d, fov: f32, near: f32, far: f32)
 	{
 		mat.setToPerspective(fov, cast(f32)width / cast(f32)height, near, far);
 	}
