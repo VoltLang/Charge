@@ -51,8 +51,8 @@ protected:
 	}
 +/
 
-	enum phyFlags = coreFlag.PHY | coreFlag.AUTO;
-	enum sfxFlags = coreFlag.SFX | coreFlag.AUTO;
+	enum phyFlags = Flag.PHY | Flag.AUTO;
+	enum sfxFlags = Flag.SFX | Flag.AUTO;
 
 	logicDg: dg();
 	closeDg: dg();
@@ -141,9 +141,9 @@ public:
 		}
 	}
 
-	override fn initSubSystem(flag: coreFlag)
+	override fn initSubSystem(flag: Flag)
 	{
-		not := coreFlag.PHY | coreFlag.SFX;
+		not := Flag.PHY | Flag.SFX;
 
 		if (flag & ~not) {
 			throw new Exception("Flag not supported");
@@ -154,12 +154,12 @@ public:
 		}
 
 /+
-		if (flag & coreFlag.PHY) {
+		if (flag & Flag.PHY) {
 			if (phyLoaded) {
 				return;
 			}
 
-			flags |= coreFlag.PHY;
+			flags |= Flag.PHY;
 			loadPhy();
 			initPhy(p);
 
@@ -167,18 +167,18 @@ public:
 				return;
 			}
 
-			flags &= ~coreFlag.PHY;
+			flags &= ~Flag.PHY;
 			throw new Exception("Could not load PHY");
 		}
 +/
 
 /+
-		if (flag & coreFlag.SFX) {
+		if (flag & Flag.SFX) {
 			if (sfxLoaded) {
 				return;
 			}
 
-			flags |= coreFlag.SFX;
+			flags |= Flag.SFX;
 			loadSfx();
 			initSfx(p);
 
@@ -186,7 +186,7 @@ public:
 				return;
 			}
 
-			flags &= ~coreFlag.SFX;
+			flags &= ~Flag.SFX;
 			throw new Exception("Could not load SFX");
 		}
 +/
@@ -194,7 +194,7 @@ public:
 
 
 protected:
-	this(coreFlag flags)
+	this(Flag flags)
 	{
 		super(flags);
 		this.mRunning = true;
@@ -211,11 +211,11 @@ protected:
 +/
 		// Init sub system
 		if (flags & phyFlags) {
-			initSubSystem(coreFlag.PHY);
+			initSubSystem(Flag.PHY);
 		}
 
 		if (flags & sfxFlags) {
-			initSubSystem(coreFlag.SFX);
+			initSubSystem(Flag.SFX);
 		}
 	}
 
@@ -239,7 +239,7 @@ protected:
 	 *
 	 */
 
-	fn notLoaded(mask: coreFlag, name: string)
+	fn notLoaded(mask: Flag, name: string)
 	{
 /+
 		if (flags & mask) {
@@ -286,7 +286,7 @@ protected:
 		version(DynamicODE) {
 			ode = Library.loads(libODEname);
 			if (ode is null) {
-				notLoaded(coreFlag.PHY, "ODE");
+				notLoaded(Flag.PHY, "ODE");
 			} else {
 				loadODE(&ode.symbol);
 				odeLoaded = true;
@@ -308,7 +308,7 @@ protected:
 		alut = Library.loads(libALUTname);
 
 		if (!openal) {
-			notLoaded(coreFlag.SFX, "OpenAL");
+			notLoaded(Flag.SFX, "OpenAL");
 		} else {
 			openalLoaded = true;
 			loadAL(&openal.symbol);

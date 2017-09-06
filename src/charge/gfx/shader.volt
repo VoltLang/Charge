@@ -6,9 +6,10 @@
 module charge.gfx.shader;
 
 import io = watt.io;
+import core_ = charge.core;
 import math = charge.math;
+
 import lib.gl;
-import charge.core;
 
 
 /*!
@@ -386,7 +387,6 @@ fn compileShader(name: string, shader: GLuint, source: string, type: string)
 fn printDebug(name: string, shader: GLuint, program: bool, type: string) bool
 {
 	// Instead of pointers, realy bothersome.
-	core := Core.get();
 	status: GLint;
 	length: GLint;
 
@@ -420,7 +420,7 @@ fn printDebug(name: string, shader: GLuint, program: bool, type: string) bool
 		if (length != 0 && program) {
 			io.error.writef("shader \"%s\" %s status ok!\n%s", name, type, buffer);
 			io.error.flush();
-		} else if (program && core.verbosePrinting) {
+		} else if (program && core_.get().verbosePrinting) {
 			io.error.writefln("shader \"%s\" %s status ok!", name, type);
 			io.error.flush();
 		}

@@ -39,12 +39,17 @@ import lib.gl.loader;
  *
  */
 
-extern(C) fn chargeCore(opts: CoreOptions) Core
+@mangledName("chargeGet") fn get() Core
+{
+	return CoreSDL.gInstance;
+}
+
+@mangledName("chargeStart") fn start(opts: Options) Core
 {
 	return new CoreSDL(opts);
 }
 
-extern(C) fn chargeQuit()
+@mangledName("chargeQuit") fn quit()
 {
 	// If SDL haven't been loaded yet.
 	version (!StaticSDL) {
@@ -61,13 +66,15 @@ extern(C) fn chargeQuit()
 class CoreSDL : CommonCore
 {
 private:
-	opts: CoreOptions;
+	global gInstance: CoreSDL;
+
+	opts: Options;
 
 	input: Input;
 
 	title: string;
 	screenshotNum: int;
-	windowMode: coreWindow;
+	windowMode: WindowMode;
 
 	noVideo: bool;
 
@@ -79,11 +86,13 @@ private:
 	glu: Library;
 	sdl: Library;
 
-	enum gfxFlags = coreFlag.GFX | coreFlag.AUTO;
+	enum gfxFlags = Flag.GFX | Flag.AUTO;
+
 
 public:
-	this(opts: CoreOptions)
+	this(opts: Options)
 	{
+		gInstance = this;
 		this.opts = opts;
 		super(opts.flags);
 
@@ -95,7 +104,7 @@ public:
 
 		this.input = new InputSDL(0);
 
-		foreach (initFunc; initFuncs) {
+		foreach (initFunc; gInitFuncs) {
 			initFunc();
 		}
 	}
@@ -120,14 +129,14 @@ public:
 	{
 	}
 
-	override fn resize(w: uint, h: uint, mode: coreWindow)
+	override fn resize(w: uint, h: uint, mode: WindowMode)
 	{
 		if (!gfxLoaded) {
 			return;
 		}
 
 		this.windowMode = mode;
-		final switch (mode) with (coreWindow) {
+		final switch (mode) with (WindowMode) {
 		case Normal:
 			SDL_SetWindowSize(window, cast(int)w, cast(int)h);
 			SDL_SetWindowFullscreen(window, 0);
@@ -151,7 +160,7 @@ public:
 		t.height = h;
 	}
 
-	override fn size(out w: uint, out h: uint, out mode: coreWindow)
+	override fn size(out w: uint, out h: uint, out mode: WindowMode)
 	{
 		if (!gfxLoaded) {
 			return;
@@ -309,7 +318,7 @@ protected:
 	{
 		closeDg();
 
-		foreach (closeFunc; closeFuncs) {
+		foreach (closeFunc; gCloseFuncs) {
 			closeFunc();
 		}
 
@@ -377,7 +386,7 @@ private:
 		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
 		bits: uint = SDL_WINDOW_OPENGL;
-		final switch (windowMode) with (coreWindow) {
+		final switch (windowMode) with (WindowMode) {
 		case Normal:
 			bits |= SDL_WINDOW_RESIZABLE;
 			break;

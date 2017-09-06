@@ -4,12 +4,12 @@ module examples.gl;
 
 import core.exception;
 
+import core_ = charge.core;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
 import scene = charge.game.scene;
 
-import charge.core;
 import charge.gfx.gl;
 
 
@@ -19,7 +19,7 @@ public:
 	this(args: string[])
 	{
 		// First init core.
-		opts := new CoreOptions();
+		opts := new core_.Options();
 		super(opts);
 
 		s := new Scene(this, opts.width, opts.height);

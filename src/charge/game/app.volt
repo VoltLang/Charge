@@ -5,16 +5,15 @@
  */
 module charge.game.app;
 
+import core_ = charge.core;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
-
-import charge.core;
 
 
 abstract class App
 {
 protected:
-	mCore: Core;
+	mCore: core_.Core;
 	mInput: ctl.Input;
 /+
 	networkTime: TimeTracker;
@@ -30,13 +29,13 @@ private:
 
 
 public:
-	this(CoreOptions opts = null)
+	this(core_.Options opts = null)
 	{
 		if (opts is null) {
-			opts = new CoreOptions();
+			opts = new core_.Options();
 		}
 
-		mCore = chargeCore(opts);
+		mCore = core_.start(opts);
 		mCore.setRender(doRender);
 		mCore.setIdle(doIdle);
 		mCore.setLogic(doLogic);

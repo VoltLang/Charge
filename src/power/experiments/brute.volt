@@ -15,7 +15,6 @@ import gfx = charge.gfx;
 import math = charge.math;
 import scene = charge.game.scene;
 
-import charge.core;
 import charge.gfx.gl;
 import charge.sys.memory;
 

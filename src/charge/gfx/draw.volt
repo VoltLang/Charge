@@ -2,10 +2,10 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.gfx.draw;
 
+import core_ = charge.core;
 import sys = charge.sys;
 import math = charge.math;
 
-import charge.core;
 import charge.gfx.gl;
 import charge.gfx.shader;
 import charge.gfx.buffer;
@@ -167,7 +167,7 @@ class DrawVertexBuilder : Builder
 
 global this()
 {
-	Core.addInitAndCloseRunners(initDraw, closeDraw);
+	core_.addInitAndCloseRunners(initDraw, closeDraw);
 }
 
 fn initDraw()

@@ -41,13 +41,17 @@ extern (Windows) { // TODO: Move to RT.
 	enum GWL_EXSTYLE = -20;
 }
 
-private global thisCore: CoreWin32;
-extern(C) fn chargeCore(opts: CoreOptions) Core
+@mangledName("chargeGet") fn get() Core
+{
+	return CoreWin32.gInstance;
+}
+
+@mangledName("chargeStart") fn start(opts: Options) Core
 {
 	return new CoreWin32(opts);
 }
 
-extern(C) fn chargeQuit()
+@mangledName("chargeQuit") fn quit()
 {
 	PostQuitMessage(0);
 }
@@ -55,9 +59,11 @@ extern(C) fn chargeQuit()
 class CoreWin32 : CommonCore
 {
 private:
-	opts: CoreOptions;
+	global gInstance: CoreWin32;
+
+	opts: Options;
 	input: Input;
-	windowMode: coreWindow;
+	windowMode: WindowMode;
 
 	hDC: HDC = null;          //< GDI device context.
 	hRC: HGLRC = null;        //< Rendering context.
@@ -68,14 +74,15 @@ private:
 	lastX: i32;  //< The last time we saw the mouse it was at this X.
 	lastY: i32;  //< The last time we saw the mouse it was at this Y.
 
-	enum gfxFlags = coreFlag.GFX | coreFlag.AUTO;
+	enum gfxFlags = Flag.GFX | Flag.AUTO;
+
 
 public:
-	this(opts: CoreOptions)
+	this(opts: Options)
 	{
-		super(opts.flags);
-		thisCore = this;
+		gInstance = this;
 		this.opts = opts;
+		super(opts.flags);
 
 		input = new InputWin32(0);
 
@@ -85,7 +92,7 @@ public:
 			assert(false);
 		}
 
-		foreach (initFunc; initFuncs) {
+		foreach (initFunc; gInitFuncs) {
 			initFunc();
 		}
 	}
@@ -101,7 +108,7 @@ public:
 		assert(false);
 	}
 
-	override fn resize(w: uint, h: uint, mode: coreWindow)
+	override fn resize(w: uint, h: uint, mode: WindowMode)
 	{
 		STYLE_BASIC :=      (WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
 		STYLE_FULLSCREEN := (WS_POPUP);
@@ -112,7 +119,7 @@ public:
 		STYLE_RESIZABLE :=  (WS_THICKFRAME | WS_MAXIMIZEBOX);
 		STYLE_MASK :=       (STYLE_FULLSCREEN | STYLE_BORDERLESS | STYLE_NORMAL | STYLE_RESIZABLE);
 
-		if (windowMode == coreWindow.Fullscreen) {
+		if (windowMode == WindowMode.Fullscreen) {
 			ChangeDisplaySettingsA(null, 0);  // Reset the display mode.
 		}
 		r: RECT;
@@ -126,16 +133,16 @@ public:
 		resetRect();
 
 		final switch (mode) {
-		case coreWindow.Normal:
+		case WindowMode.Normal:
 			changeStyle(ref r, STYLE_MASK, STYLE_NORMAL | STYLE_RESIZABLE, EX_NORMAL, true);
 			break;
-		case coreWindow.FullscreenDesktop:
+		case WindowMode.FullscreenDesktop:
 			w = cast(u32)GetSystemMetrics(SM_CXSCREEN);
 			h = cast(u32)GetSystemMetrics(SM_CYSCREEN);
 			SetWindowPos(hWnd, null, 0, 0, cast(i32)w, cast(i32)h, 0);
 			changeStyle(ref r, STYLE_MASK, STYLE_FULLSCREEN, EX_BORDERLESS, false);
 			break;
-		case coreWindow.Fullscreen:
+		case WindowMode.Fullscreen:
 			changeDisplayMode(w, h);
 			changeStyle(ref r, STYLE_MASK, STYLE_FULLSCREEN, EX_BORDERLESS, true);
 			break;
@@ -146,7 +153,7 @@ public:
 		this.windowMode = mode;
 	}
 
-	override fn size(out w: uint, out h: uint, out mode: coreWindow)
+	override fn size(out w: uint, out h: uint, out mode: WindowMode)
 	{
 		if (!gfxLoaded) {
 			throw new Exception("gfx. not initd!");
@@ -208,7 +215,7 @@ protected:
 	{
 		closeDg();
 
-		foreach (closeFunc; closeFuncs) {
+		foreach (closeFunc; gCloseFuncs) {
 			closeFunc();
 		}
 
@@ -289,7 +296,7 @@ private:
 		width := cast(i32)opts.width;
 		height := cast(i32)opts.height;
 		windowMode = this.windowMode;
-		if (windowMode == coreWindow.FullscreenDesktop) {
+		if (windowMode == WindowMode.FullscreenDesktop) {
 			width = cast(i32)GetSystemMetrics(SM_CXSCREEN);
 			height = cast(i32)GetSystemMetrics(SM_CYSCREEN);
 		}
@@ -319,17 +326,17 @@ private:
 			throw new Exception("failed to register window class");
 		}
 
-		if (windowMode == coreWindow.Fullscreen) {
+		if (windowMode == WindowMode.Fullscreen) {
 			changeDisplayMode(cast(u32)width, cast(u32)height);
 		}
 
 		final switch (windowMode) {
-		case coreWindow.Normal:
+		case WindowMode.Normal:
 			dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 			dwStyle = WS_OVERLAPPEDWINDOW;
 			break;
-		case coreWindow.Fullscreen:
-		case coreWindow.FullscreenDesktop:
+		case WindowMode.Fullscreen:
+		case WindowMode.FullscreenDesktop:
 			dwExStyle = WS_EX_APPWINDOW;
 			dwStyle = WS_POPUP;
 			break;
@@ -486,7 +493,7 @@ private:
 			return null;
 		case WM_KEYDOWN:
 		case WM_SYSKEYDOWN:
-			k := thisCore.input.keyboard;
+			k := CoreWin32.gInstance.input.keyboard;
 			if (k.down !is null) {
 				k.down(k, keymap[WindowsScanCodeToSDLScanCode(lParam, wParam)]);
 			}
@@ -499,7 +506,7 @@ private:
 		case WM_CHAR:
 			text: char[5];
 			if (WIN_ConvertUTF32toUTF8(cast(u32)wParam, text.ptr)) {
-				k := thisCore.input.keyboard;
+				k := CoreWin32.gInstance.input.keyboard;
 				if (k.text !is null) {
 					i: size_t;
 					for (; i < text.length && text[i]; i++) {}
@@ -512,19 +519,19 @@ private:
 			break;
 		case WM_KEYUP:
 		case WM_SYSKEYUP:
-			k := thisCore.input.keyboard;
+			k := CoreWin32.gInstance.input.keyboard;
 			if (k.up !is null) {
 				k.up(k, keymap[WindowsScanCodeToSDLScanCode(lParam, wParam)]);
 			}
 			break;
 		case WM_MOUSEMOVE:
-			m := thisCore.input.mouse;
+			m := CoreWin32.gInstance.input.mouse;
 			mx := GET_X_LPARAM(lParam);
 			my := GET_Y_LPARAM(lParam);
-			deltax := mx - thisCore.lastX;
-			deltay := my - thisCore.lastY;
-			thisCore.lastX = mx;
-			thisCore.lastY = my;
+			deltax := mx - CoreWin32.gInstance.lastX;
+			deltay := my - CoreWin32.gInstance.lastY;
+			CoreWin32.gInstance.lastX = mx;
+			CoreWin32.gInstance.lastY = my;
 			if (!m.getRelativeMode()) {
 				m.x = mx;
 				m.y = my;
@@ -564,7 +571,7 @@ private:
 			t := DefaultTarget.opCall();
 			t.width = LOWORD(cast(DWORD)lParam);
 			t.height = HIWORD(cast(DWORD)lParam);
-			//thisCore.resize(LOWORD(cast(DWORD)lParam), HIWORD(cast(DWORD)lParam));
+			//CoreWin32.gInstance.resize(LOWORD(cast(DWORD)lParam), HIWORD(cast(DWORD)lParam));
 			break;
 		case WM_PAINT:
 			return null;
@@ -578,7 +585,7 @@ private:
 
 fn sendMouse(button: i32, down: bool, lParam: LPARAM)
 {
-	m := thisCore.input.mouse;
+	m := CoreWin32.gInstance.input.mouse;
 	m.x = GET_X_LPARAM(lParam);
 	m.y = GET_Y_LPARAM(lParam);
 	if (down) {
@@ -632,7 +639,7 @@ public:
 	{
 		mRelativeMode = value;
 		if (value) {
-			SetCapture(thisCore.hWnd);
+			SetCapture(CoreWin32.gInstance.hWnd);
 			ShowCursor(FALSE);
 		} else {
 			ReleaseCapture();

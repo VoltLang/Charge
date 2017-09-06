@@ -9,7 +9,7 @@ module charge.core;
 /*!
  * Enum for selecting subsystems.
  */
-enum coreFlag
+enum Flag
 {
 	CTL  = (1 << 0),
 	GFX  = (1 << 1),
@@ -19,7 +19,7 @@ enum coreFlag
 	AUTO = (1 << 5),
 }
 
-enum coreWindow
+enum WindowMode
 {
 	Normal,
 	FullscreenDesktop,
@@ -29,36 +29,56 @@ enum coreWindow
 /*!
  * Get a new core created with the given flags.
  */
-extern(C) fn chargeCore(opts: CoreOptions) Core;
+@mangledName("chargeStart") fn start(opts: Options) Core;
 
 /*!
  * Signal a quit a condition, this function mearly pushes
  * a quit event on the event queue and then returns.
  */
-extern(C) fn chargeQuit();
+@mangledName("chargeQuit") fn quit();
+
+/*!
+ * Return the current core.
+ */
+@mangledName("chargeGet") fn get() Core;
+
+/*!
+ * These functions are run just after Core is initialize and
+ * right before Core is closed.
+ */
+fn addInitAndCloseRunners(init: fn(), close: fn())
+{
+	if (init !is null) {
+		Core.gInitFuncs ~= init;
+	}
+
+	if (close !is null) {
+		Core.gCloseFuncs ~= close;
+	}
+}
 
 /*!
  * Options at initialization.
  */
-class CoreOptions
+class Options
 {
 public:
 	width: uint;
 	height: uint;
 	title: string;
-	flags: coreFlag;
-	windowMode: coreWindow;
+	flags: Flag;
+	windowMode: WindowMode;
 	openglDebug: bool;
 
 
 public:
 	this()
 	{
-		this.width = Core.defaultWidth;
-		this.height = Core.defaultHeight;
-		this.flags = coreFlag.AUTO;
-		this.title = Core.defaultTitle;
-		this.windowMode = Core.defaultWindow;
+		this.width = Core.DefaultWidth;
+		this.height = Core.DefaultHeight;
+		this.flags = Flag.AUTO;
+		this.title = Core.DefaultTitle;
+		this.windowMode = Core.DefaultWindowMode;
 	}
 }
 
@@ -68,34 +88,27 @@ public:
 abstract class Core
 {
 public:
-	enum uint defaultWidth = 800;
-	enum uint defaultHeight = 600;
-	enum bool defaultFullscreen = false;
-	enum bool defaultFullscreenAutoSize = true;
-	enum string defaultTitle = "Charge Game Engine";
-	enum bool defaultForceResizeEnable = false;
-	enum coreWindow defaultWindow = coreWindow.Normal;
+	enum DefaultWidth : u32 = 800u;
+	enum DefaultHeight : u32 = 600u;
+	enum DefaultFullscreen : bool = false;
+	enum DefaultFullscreenAutoSize : bool = true;
+	enum DefaultTitle : string = "Charge Game Engine";
+	enum DefaultForceResizeEnable : bool = false;
+	enum DefaultWindowMode : WindowMode = WindowMode.Normal;
 
-	flags: coreFlag;
+
+public:
+	flags: Flag;
 	resizeSupported: bool;
 	verbosePrinting: bool;
 
 
 protected:
-	static initFuncs: fn()[] ;
-	static closeFuncs: fn()[] ;
-
-
-private:
-	global instance: Core;
+	global gInitFuncs: fn()[];
+	global gCloseFuncs: fn()[];
 
 
 public:
-	/*!
-	 * Return the current core.
-	 */
-	final global fn get() Core { return instance; }
-
 	/*!
 	 * Sets callback functions.
 	 * @{
@@ -122,22 +135,7 @@ public:
 	 * initialized after a general initialization, generally speaking
 	 * SFX and PHY should always work.
 	 */
-	abstract fn initSubSystem(flags: coreFlag);
-
-	/*!
-	 * These functions are run just after Core is initialize and
-	 * right before Core is closed.
-	 */
-	global fn addInitAndCloseRunners(init: fn(), close: fn())
-	{
-		if (init !is null) {
-			initFuncs ~= init;
-		}
-
-		if (close !is null) {
-			closeFuncs ~= close;
-		}
-	}
+	abstract fn initSubSystem(flags: Flag);
 
 	/*!
 	 * Display a panic message, usually a dialogue box, then
@@ -158,16 +156,15 @@ public:
 	 */
 	abstract fn getClipboardText() string;
 
-	abstract fn resize(w: uint, h: uint, mode: coreWindow);
-	abstract fn size(out w: uint, out h: uint, out mode: coreWindow);
+	abstract fn resize(w: uint, h: uint, mode: WindowMode);
+	abstract fn size(out w: uint, out h: uint, out mode: WindowMode);
 
 	abstract fn screenShot();
 
 
 protected:
-	this(coreFlag flags)
+	this(flags: Flag)
 	{
 		this.flags = flags;
-		instance = this;
 	}
 }
