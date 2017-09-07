@@ -3,7 +3,7 @@
 /*!
  * Source file for TimeTracker.
  */
-module charge.sys.tracker;
+module charge.sys.timetracker;
 
 import watt.io.monotonic;
 
