@@ -2,14 +2,14 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module power.app;
 
-import core_ = charge.core;
+import core = charge.core;
 import scene = charge.game.scene;
 
 
 abstract class App : scene.ManagerApp
 {
 public:
-	this(opts: core_.Options)
+	this(opts: core.Options)
 	{
 		super(opts);
 	}

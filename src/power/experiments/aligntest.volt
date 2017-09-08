@@ -9,7 +9,7 @@ import watt.io.file;
 import watt.algorithm;
 import watt.text.format;
 
-import core_ = charge.core;
+import core = charge.core;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
@@ -150,9 +150,9 @@ public:
 	{
 		switch (keycode) {
 		case 27: mManager.closeMe(this); break;
-		case 'n': core_.get().resize(800, 600, core_.WindowMode.Normal); break;
-		case 'f': core_.get().resize(800, 600, core_.WindowMode.Fullscreen); break;
-		case 'd': core_.get().resize(800, 600, core_.WindowMode.FullscreenDesktop); break;
+		case 'n': core.get().resize(800, 600, core.WindowMode.Normal); break;
+		case 'f': core.get().resize(800, 600, core.WindowMode.Fullscreen); break;
+		case 'd': core.get().resize(800, 600, core.WindowMode.FullscreenDesktop); break;
 		default:
 		}
 	}

@@ -2,7 +2,7 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.game.tui.menuscene;
 
-import core_ = charge.core;
+import core = charge.core;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import scene = charge.game.scene;

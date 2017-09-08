@@ -2,7 +2,7 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module power.menu;
 
-import core_ = charge.core;
+import core = charge.core;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import tui = charge.game.tui;
@@ -41,7 +41,7 @@ public:
 
 	fn pressedQuit(button: tui.Button)
 	{
-		core_.quit();
+		core.quit();
 	}
 
 	fn pressedAlignTest(button: tui.Button)

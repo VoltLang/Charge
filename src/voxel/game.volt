@@ -9,7 +9,7 @@ import io = watt.io;
 
 import watt.io.file;
 
-import core_ = charge.core;
+import core = charge.core;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import scene = charge.game.scene;
@@ -38,11 +38,11 @@ public:
 		coreStart.startAndStop(ref rtStart);
 
 		// First init core.
-		opts := new core_.Options();
+		opts := new core.Options();
 		opts.title = "Mixed Voxel Rendering";
 		opts.width = 1920;
 		opts.height = 1080;
-		opts.windowMode = core_.WindowMode.Normal;
+		opts.windowMode = core.WindowMode.Normal;
 		super(opts);
 
 		// We are now starting the game.
@@ -50,7 +50,7 @@ public:
 		gameStart.startAndStop(ref coreStart);
 
 		if (!checkVersion()) {
-			core_.quit();
+			core.quit();
 			return;
 		}
 

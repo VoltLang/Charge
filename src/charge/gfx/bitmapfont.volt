@@ -2,7 +2,7 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.gfx.bitmapfont;
 
-import core_ = charge.core;
+import core = charge.core;
 import math = charge.math;
 
 import charge.gfx.gl;
@@ -140,7 +140,7 @@ fn buildVertex(ref s: BitmapState, b: DrawVertexBuilder, x: int, y: int, c: ubyt
 
 global this()
 {
-	core_.addInitAndCloseRunners(initBitmap, closeBitmap);
+	core.addInitAndCloseRunners(initBitmap, closeBitmap);
 }
 
 import watt.io;

@@ -5,7 +5,7 @@
  */
 module charge.game.app;
 
-import core_ = charge.core;
+import core = charge.core;
 import sys = charge.sys;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
@@ -14,7 +14,7 @@ import gfx = charge.gfx;
 abstract class App
 {
 protected:
-	mCore: core_.Core;
+	mCore: core.Core;
 	mInput: ctl.Input;
 
 	mRenderTime: sys.TimeTracker;
@@ -28,10 +28,10 @@ private:
 
 
 public:
-	this(core_.Options opts = null)
+	this(core.Options opts = null)
 	{
 		if (opts is null) {
-			opts = new core_.Options();
+			opts = new core.Options();
 		}
 
 		mRenderTime = new sys.TimeTracker("gfx");
@@ -39,7 +39,7 @@ public:
 		mBuildTime = new sys.TimeTracker("build");
 		mIdleTime = new sys.TimeTracker("idle");
 
-		mCore = core_.start(opts);
+		mCore = core.start(opts);
 		mCore.setRender(doRender);
 		mCore.setIdle(doIdle);
 		mCore.setLogic(doLogic);

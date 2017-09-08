@@ -4,7 +4,7 @@ module power.game;
 
 import core.exception;
 
-import core_ = charge.core;
+import core = charge.core;
 import gfx = charge.gfx;
 import tui = charge.game.tui;
 import scene = charge.game.scene;
@@ -60,11 +60,11 @@ public:
 	this(args: string[])
 	{
 		// First init core.
-		opts := new core_.Options();
+		opts := new core.Options();
 		opts.title = "Charged Power";
 		opts.width = 1920;
 		opts.height = 1080;
-		opts.windowMode = core_.WindowMode.Normal;
+		opts.windowMode = core.WindowMode.Normal;
 		super(opts);
 
 		checkVersion();

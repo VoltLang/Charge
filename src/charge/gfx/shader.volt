@@ -6,7 +6,7 @@
 module charge.gfx.shader;
 
 import io = watt.io;
-import core_ = charge.core;
+import core = charge.core;
 import math = charge.math;
 
 import lib.gl;
@@ -420,7 +420,7 @@ fn printDebug(name: string, shader: GLuint, program: bool, type: string) bool
 		if (length != 0 && program) {
 			io.error.writef("shader \"%s\" %s status ok!\n%s", name, type, buffer);
 			io.error.flush();
-		} else if (program && core_.get().verbosePrinting) {
+		} else if (program && core.get().verbosePrinting) {
 			io.error.writefln("shader \"%s\" %s status ok!", name, type);
 			io.error.flush();
 		}

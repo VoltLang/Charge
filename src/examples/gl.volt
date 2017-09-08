@@ -4,7 +4,7 @@ module examples.gl;
 
 import core.exception;
 
-import core_ = charge.core;
+import core = charge.core;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;
@@ -19,7 +19,7 @@ public:
 	this(args: string[])
 	{
 		// First init core.
-		opts := new core_.Options();
+		opts := new core.Options();
 		super(opts);
 
 		s := new Scene(this, opts.width, opts.height);

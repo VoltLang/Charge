@@ -5,7 +5,7 @@
  */
 module charge.game.scene.app;
 
-import core_ = charge.core;
+import core = charge.core;
 import gfx = charge.gfx;
 
 import charge.game.app;
@@ -30,7 +30,7 @@ private:
 	builders: BuilderDg[];
 
 public:
-	this(core_.Options opts = null)
+	this(core.Options opts = null)
 	{
 		super(opts);
 	}
@@ -230,7 +230,7 @@ public
 
 		// If there is nobody to take the input we quit the game.
 		if (newScene is null) {
-			core_.quit();
+			core.quit();
 		}
 
 		if (currentInput !is newScene) {
