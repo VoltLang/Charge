@@ -13,6 +13,7 @@ import charge.game.tui.glyphdraw;
 import charge.game.tui.menuscene;
 import charge.game.tui.windowscene;
 
+
 class Text
 {
 public:
@@ -54,7 +55,11 @@ public:
 	{
 		switch (keycode) {
 		case 27:
-			mManager.closeMe(this);
+			if (ok.pressed !is null) {
+				ok.pressed(ok);
+			} else {
+				mManager.closeMe(this);
+			}
 			break;
 		default:
 		}
