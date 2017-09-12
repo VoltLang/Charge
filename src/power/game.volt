@@ -14,45 +14,10 @@ import charge.gfx.gl;
 import power.app;
 import power.menu;
 import power.inbuilt;
+import power.svoloader;
 import power.experiments.brute;
 import power.experiments.aligntest;
-import power.experiments.raytracer;
 
-
-class Loader : tui.WindowScene
-{
-public:
-	app: App;
-
-
-protected:
-	mHasRendered: bool;
-
-
-public:
-	this(app: App)
-	{
-		this.app = app;
-		super(app, 40, 5);
-		setHeader(cast(immutable(u8)[])"Loading");
-	}
-
-	override fn render(t: gfx.Target)
-	{
-		mHasRendered = true;
-		super.render(t);
-	}
-
-	override fn logic()
-	{
-		if (!mHasRendered) {
-			return;
-		}
-
-		app.closeMe(this);
-		app.push(new RayTracer(app));
-	}
-}
 
 class Game : App
 {
@@ -83,7 +48,7 @@ public:
 
 	override fn showVoxelTest()
 	{
-		push(new Loader(this));
+		push(new SvoLoader(this, "res/test.vox"));
 	}
 
 	override fn showAlignTest()
