@@ -5,6 +5,57 @@ module charge.game.tui.glyphdraw;
 import charge.game.tui.grid;
 
 
+enum TabSize = 8;
+
+fn makeTextLayout(text: string, out w: u32, out h: u32)
+{
+	x, y, mX, mY: u32;
+	foreach (dchar c; text) {
+		switch (c) {
+		case '\t':
+			x += (TabSize - (x % TabSize));
+			break;
+		case '\n':
+			y++;
+			goto case;
+		case '\r':
+			x = 0;
+			break;
+		default:
+			x++;
+			if (x > mX) { mX = x; }
+			mY = y + 1;
+			break;
+		}
+	}
+
+	w = mX;
+	h = mY;
+}
+
+fn makeText(grid: Grid, x: i32, y: i32, text: string)
+{
+	currX, currY: i32;
+
+	foreach (dchar c; text) {
+		switch (c) {
+		case '\t':
+			currX += (TabSize - (currX % TabSize));
+			break;
+		case '\n':
+			currY++;
+			goto case;
+		case '\r':
+			currX = 0;
+			break;
+		default:
+			grid.put(currX + x, currY + y, cast(u8)c);
+			currX++;
+			break;
+		}
+	}
+}
+
 fn makeButton(grid: Grid, x: i32, y: i32, width: u32, single: bool,
               glyphs: scope const(u8)[])
 {
