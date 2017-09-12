@@ -6,3 +6,4 @@ public import charge.game.tui.grid;
 public import charge.game.tui.glyphdraw;
 public import charge.game.tui.menuscene;
 public import charge.game.tui.windowscene;
+public import charge.game.tui.messagescene;
