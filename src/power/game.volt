@@ -21,18 +21,10 @@ import power.experiments.aligntest;
 
 class Game : App
 {
-private:
-	mArg: string;
-
-
 public:
 	this(args: string[])
 	{
-		if (args.length > 1) {
-			mArg = args[1];
-		} else {
-			mArg = "res/test.vox";
-		}
+
 
 		// First init core.
 		opts := new core.Options();
@@ -48,7 +40,11 @@ public:
 		bg.setTile(makeInbuiltTilePng());
 		push(bg);
 
-		showMenu();
+		if (args.length > 1) {
+			push(new SvoLoader(this, args[1]));
+		} else {
+			showMenu();
+		}
 	}
 
 	override fn showMenu()
@@ -58,7 +54,7 @@ public:
 
 	override fn showVoxelTest()
 	{
-		push(new SvoLoader(this, mArg));
+		push(new SvoLoader(this, "res/test.vox"));
 	}
 
 	override fn showAlignTest()
