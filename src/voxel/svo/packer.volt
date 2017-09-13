@@ -128,14 +128,14 @@ public:
 
 	fn add(x: u32, y: u32, z: u32, val: u32)
 	{
-		morton := cast(u32)(
+		morton :=
 			math.encode_component_3(x, XShift) |
 			math.encode_component_3(y, YShift) |
-			math.encode_component_3(z, ZShift));
+			math.encode_component_3(z, ZShift);
 		add(morton, val);
 	}
 
-	fn add(morton: u32, value: u32)
+	fn add(morton: u64, value: u32)
 	{
 		// First is always at zero.
 		dst: u32 = 0;
@@ -143,7 +143,7 @@ public:
 		for (level := mLevels; level > ArrLevels; level -= ArrLevels) {
 
 			shift := (level - 1) * NumDim;
-			index := (morton >> shift) % ArrNum;
+			index := cast(u32)((morton >> shift) % ArrNum);
 
 			if (mArr[dst].getBit(index)) {
 				dst = mArr[dst].data[index];
@@ -156,7 +156,7 @@ public:
 			dst = newValue;
 		}
 
-		mArr[dst].set(morton % ArrNum, value);
+		mArr[dst].set(cast(u32)(morton % ArrNum), value);
 	}
 
 	/*!
