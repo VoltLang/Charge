@@ -201,13 +201,14 @@ private:
 	mMap: u32[const(u32)[]];
 	mData: u32[];
 	mNumData: u32;
+	enum ChunkSize : size_t = 2u * 4u * 1024u;
 
 
 public:
 	fn setup(numReserved: u32)
 	{
 		mNumData = numReserved;
-		mData = new u32[](InputBuddy.numBitsInOrder(0));
+		mData = new u32[](ChunkSize);
 	}
 
 	/*!
@@ -235,6 +236,8 @@ public:
 	 */
 	fn add(data: scope const(u32)[]) u32
 	{
+		assert(data.length > 0);
+
 		// Is there a cache of the data.
 		r := data in mMap;
 		if (r !is null) {
@@ -244,11 +247,23 @@ public:
 		// Grab the next free memory from the buffer.
 		pos := mNumData;
 		mNumData += cast(u32)data.length;
+		ensureSpace(mNumData);
 		internal := mData[pos .. pos + data.length];
 		internal[..] = data;
 		mMap[internal] = pos;
 
 		return pos;
+	}
+
+
+private:
+	fn ensureSpace(min: size_t)
+	{
+		if (min > mData.length) {
+			tmp := new u32[](mData.length + ChunkSize);
+			tmp[0 .. mData.length] = mData[0 .. $];
+			mData = tmp;
+		}
 	}
 }
 
