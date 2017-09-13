@@ -21,9 +21,19 @@ import power.experiments.aligntest;
 
 class Game : App
 {
+private:
+	mArg: string;
+
+
 public:
 	this(args: string[])
 	{
+		if (args.length > 1) {
+			mArg = args[1];
+		} else {
+			mArg = "res/test.vox";
+		}
+
 		// First init core.
 		opts := new core.Options();
 		opts.title = "Charged Power";
@@ -48,7 +58,7 @@ public:
 
 	override fn showVoxelTest()
 	{
-		push(new SvoLoader(this, "res/test.vox"));
+		push(new SvoLoader(this, mArg));
 	}
 
 	override fn showAlignTest()
