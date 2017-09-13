@@ -247,6 +247,12 @@ public:
 //		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		dispatchShader.bind();
 		glDispatchCompute(1u, 1u, 1u);
+//		// Test code
+//		glCopyBufferSubData(
+//			GL_ATOMIC_COUNTER_BUFFER,
+//			GL_DISPATCH_INDIRECT_BUFFER,
+//			src * 4, 0, 4);
+//		glClearBufferSubData(GL_ATOMIC_COUNTER_BUFFER, GL_R32UI, src * 4, 4, GL_UNSIGNED_INT, GL_RED, null);
 
 		listShader.bind();
 		listShader.float3("uCameraPos".ptr, state.camPosition.ptr);
