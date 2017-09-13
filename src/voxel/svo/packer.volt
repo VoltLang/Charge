@@ -96,7 +96,7 @@ public:
 	enum u32 ArrNum = ArrType.ElementsNum;
 	enum u32 ArrMask = ArrNum - 1;
 	enum u32 ArrLevels = ArrType.Pow;
-	enum u32 ColorLevelStart = Input4Cubed.Pow + 3;
+	enum u32 ColorLevelStart = Input4Cubed.Pow + 4;
 
 
 private:
