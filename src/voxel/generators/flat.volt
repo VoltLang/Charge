@@ -17,11 +17,11 @@ struct FlatGen
 {
 public:
 	enum Max = 32;
-	enum ColorLevels = 7;
+	enum ColorLevels = 8;
 
 
 private:
-	mArr: Input2Cubed[64*64+32*32+16*16+8*8+4*4+2*2+1];
+	mArr: Input2Cubed[];
 	mPos: u32;
 
 
@@ -31,7 +31,7 @@ public:
 	 */
 	fn genYWhite(ref ib: InputBuffer, levels: u32) u32
 	{
-		assert(levels < mArr.length);
+		mArr = new Input2Cubed[](levels + 1);
 
 		// Initial bits.
 		mArr[levels-1].set(0, 1, 0, 0xff_ff_ff_ff);
@@ -59,7 +59,9 @@ public:
 	 */
 	fn genYColored(ref ib: InputBuffer, levels: u32) u32
 	{
+		mArr = new Input2Cubed[](128*128+64*64+32*32+16*16+8*8+4*4+2*2+1);
 		mPos = 0;
+
 		ret := paint(0, 0, ColorLevels);
 		assert(ret == 0);
 
@@ -96,8 +98,14 @@ private:
 
 	global fn getColor(x: u32, z: u32) u32
 	{
+		y := (x & 0x0f) | ((z & 0x0f) << 4);
+
+		x = x & 0xff_ff_ff_f0;
+		z = z & 0xff_ff_ff_f0;
+
 		xf := cast(f32)x / (1 << ColorLevels) * 255.f;
+		yf := cast(f32)y / (1 << ColorLevels) * 255.f;
 		zf := cast(f32)z / (1 << ColorLevels) * 255.f;
-		return 0xff_00_00_00 + (cast(u8)xf << 16u) + (cast(u8)zf << 0u);
+		return 0xff_00_00_00 + (cast(u8)xf << 16u) + (cast(u8)yf << 8u) + (cast(u8)zf << 0u);
 	}
 }
