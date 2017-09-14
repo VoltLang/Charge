@@ -10,6 +10,7 @@ import math = charge.math;
 
 import voxel.svo.design;
 import voxel.svo.buddy;
+import voxel.svo.hashbuffer;
 
 
 struct Input2Cubed = mixin InputDefinition!(1);
@@ -20,7 +21,7 @@ struct Input8Cubed = mixin InputDefinition!(3);
 alias InputBuffer = LinearBuffer;
 
 //! Linear adding comrpessing buffer.
-struct LinearBuffer = mixin CompressingBuffer!(LinearAdder);
+struct LinearBuffer = mixin CompressingBuffer!(HashBuffer);
 
 //! Buddy based adding comrpessing buffer.
 struct BuddyBuffer = mixin CompressingBuffer!(BuddyAdder);
@@ -67,7 +68,8 @@ public:
 
 	fn getData() void[]
 	{
-		return base.getData();
+		dummy: u32;
+		return cast(void[])base.takeMemory(out dummy);
 	}
 
 	/*!
@@ -194,79 +196,6 @@ private:
 	}
 }
 
-//! Linear buffer for filling up voxel data.
-struct LinearAdder
-{
-private:
-	mMap: u32[const(u32)[]];
-	mData: u32[];
-	mNumData: u32;
-	enum ChunkSize : size_t = 2u * 4u * 1024u;
-
-
-public:
-	fn setup(numReserved: u32)
-	{
-		mNumData = numReserved;
-		mData = new u32[](ChunkSize);
-	}
-
-	/*!
-	 * Returns the entire data buffer as void array.
-	 */
-	fn getData() void[]
-	{
-		return cast(void[])(mData[0 .. mNumData]);
-	}
-
-	/*!
-	 * Small helper to add a single u32 value.
-	 */
-	fn add(v: u32) u32
-	{
-		buf: u32[1]; buf[0] = v;
-		return add(buf[..]);
-	}
-
-	/*!
-	 * Adds data into the buffer and returns the index to it.
-	 *
-	 * If there is data inside of the buffer that matches the
-	 * contents, it will point to it instead.
-	 */
-	fn add(data: scope const(u32)[]) u32
-	{
-		assert(data.length > 0);
-
-		// Is there a cache of the data.
-		r := data in mMap;
-		if (r !is null) {
-			return *r;
-		}
-
-		// Grab the next free memory from the buffer.
-		pos := mNumData;
-		mNumData += cast(u32)data.length;
-		ensureSpace(mNumData);
-		internal := mData[pos .. pos + data.length];
-		internal[..] = data;
-		mMap[internal] = pos;
-
-		return pos;
-	}
-
-
-private:
-	fn ensureSpace(min: size_t)
-	{
-		if (min > mData.length) {
-			tmp := new u32[](mData.length + ChunkSize);
-			tmp[0 .. mData.length] = mData[0 .. $];
-			mData = tmp;
-		}
-	}
-}
-
 /*!
  * Caching input buffer to build SVOs, is more designed for live updating
  * then space size, so wastes memory.
@@ -305,9 +234,10 @@ public:
 	/*!
 	 * Returns the entire data buffer as void array.
 	 */
-	fn getData() void[]
+	fn takeMemory(out count: u32) u32[]
 	{
-		return cast(void[])mData[0 .. mMaxSize];
+		count = mMaxSize;
+		return mData[0 .. InputBuddy.numBitsInOrder(0)];
 	}
 
 	/*!
