@@ -110,10 +110,6 @@ public:
 		c.zShift = svo.ZShift;
 		c.numLevels = 11;
 
-		// Reserve the first index.
-		ib: svo.InputBuffer;
-		ib.setup(1);
-
 		// Create the loader.
 		l := new magica.Loader();
 
@@ -124,10 +120,6 @@ public:
 	fn loadChalmers(fileData: void[], out c: svo.Create,
 	                out frames: u32[], out data: void[]) bool
 	{
-		// Reserve the first index.
-		ib: svo.InputBuffer;
-		ib.setup(1);
-
 		// Create the loader.
 		l := new chalmers.Loader();
 
