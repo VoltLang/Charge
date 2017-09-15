@@ -137,7 +137,10 @@ public:
 		io.output.flush();
 
 		// Grab the data.
-		data = ib.getData();
+		count: u32;
+		data = cast(void[])ib.base.takeMemory(out count);
+		io.output.writefln("num: %s", count);
+		io.output.flush();
 
 		// Free the array afterwards.
 		if (mArr.length > 0) {
