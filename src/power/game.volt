@@ -4,6 +4,8 @@ module power.game;
 
 import core.exception;
 
+import io = watt.io;
+
 import core = charge.core;
 import gfx = charge.gfx;
 import tui = charge.game.tui;
@@ -15,7 +17,6 @@ import power.app;
 import power.menu;
 import power.inbuilt;
 import power.svoloader;
-import power.experiments.brute;
 import power.experiments.aligntest;
 
 
@@ -35,6 +36,12 @@ public:
 		super(opts);
 
 		checkVersion();
+
+		if (GL_EXT_memory_object) {
+			io.writefln("GL_EXT_memory_object");
+			io.writefln("\tGL_EXT_memory_object_fd %s", GL_EXT_memory_object_fd);
+			io.writefln("\tGL_EXT_memory_object_win32 %s", GL_EXT_memory_object_win32);
+		}
 
 		bg := new scene.Background(this);
 		bg.setTile(makeInbuiltTilePng());
