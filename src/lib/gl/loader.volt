@@ -80,6 +80,12 @@ bool gladLoadGL(Loader load) {
 	load_GL_ARB_ES3_2_compatibility(load);
 	load_GL_ARB_sampler_objects(load);
 	load_GL_ARB_texture_storage(load);
+	load_GL_EXT_memory_object(load);
+	load_GL_EXT_memory_object_fd(load);
+	load_GL_EXT_memory_object_win32(load);
+	load_GL_EXT_semaphore(load);
+	load_GL_EXT_semaphore_fd(load);
+	load_GL_EXT_semaphore_win32(load);
 	return GL_MAJOR != 0 || GL_MINOR != 0;
 }
 
@@ -122,6 +128,12 @@ void find_extensionsGL() {
 	GL_ARB_shader_atomic_counter_ops = has_ext("GL_ARB_shader_atomic_counter_ops");
 	GL_ARB_shader_ballot = has_ext("GL_ARB_shader_ballot");
 	GL_ARB_texture_storage = has_ext("GL_ARB_texture_storage");
+	GL_EXT_memory_object = has_ext("GL_EXT_memory_object");
+	GL_EXT_memory_object_fd = has_ext("GL_EXT_memory_object_fd");
+	GL_EXT_memory_object_win32 = has_ext("GL_EXT_memory_object_win32");
+	GL_EXT_semaphore = has_ext("GL_EXT_semaphore");
+	GL_EXT_semaphore_fd = has_ext("GL_EXT_semaphore_fd");
+	GL_EXT_semaphore_win32 = has_ext("GL_EXT_semaphore_win32");
 	GL_EXT_texture_filter_anisotropic = has_ext("GL_EXT_texture_filter_anisotropic");
 	return;
 }
@@ -956,6 +968,64 @@ void load_GL_ARB_texture_storage(Loader load) {
 	glTexStorage1D = cast(typeof(glTexStorage1D))load("glTexStorage1D");
 	glTexStorage2D = cast(typeof(glTexStorage2D))load("glTexStorage2D");
 	glTexStorage3D = cast(typeof(glTexStorage3D))load("glTexStorage3D");
+	return;
+}
+void load_GL_EXT_memory_object(Loader load) {
+	if(!GL_EXT_memory_object) return;
+	glGetUnsignedBytevEXT = cast(typeof(glGetUnsignedBytevEXT))load("glGetUnsignedBytevEXT");
+	glGetUnsignedBytei_vEXT = cast(typeof(glGetUnsignedBytei_vEXT))load("glGetUnsignedBytei_vEXT");
+	glDeleteMemoryObjectsEXT = cast(typeof(glDeleteMemoryObjectsEXT))load("glDeleteMemoryObjectsEXT");
+	glIsMemoryObjectEXT = cast(typeof(glIsMemoryObjectEXT))load("glIsMemoryObjectEXT");
+	glCreateMemoryObjectsEXT = cast(typeof(glCreateMemoryObjectsEXT))load("glCreateMemoryObjectsEXT");
+	glMemoryObjectParameterivEXT = cast(typeof(glMemoryObjectParameterivEXT))load("glMemoryObjectParameterivEXT");
+	glGetMemoryObjectParameterivEXT = cast(typeof(glGetMemoryObjectParameterivEXT))load("glGetMemoryObjectParameterivEXT");
+	glTexStorageMem2DEXT = cast(typeof(glTexStorageMem2DEXT))load("glTexStorageMem2DEXT");
+	glTexStorageMem2DMultisampleEXT = cast(typeof(glTexStorageMem2DMultisampleEXT))load("glTexStorageMem2DMultisampleEXT");
+	glTexStorageMem3DEXT = cast(typeof(glTexStorageMem3DEXT))load("glTexStorageMem3DEXT");
+	glTexStorageMem3DMultisampleEXT = cast(typeof(glTexStorageMem3DMultisampleEXT))load("glTexStorageMem3DMultisampleEXT");
+	glBufferStorageMemEXT = cast(typeof(glBufferStorageMemEXT))load("glBufferStorageMemEXT");
+	glTextureStorageMem2DEXT = cast(typeof(glTextureStorageMem2DEXT))load("glTextureStorageMem2DEXT");
+	glTextureStorageMem2DMultisampleEXT = cast(typeof(glTextureStorageMem2DMultisampleEXT))load("glTextureStorageMem2DMultisampleEXT");
+	glTextureStorageMem3DEXT = cast(typeof(glTextureStorageMem3DEXT))load("glTextureStorageMem3DEXT");
+	glTextureStorageMem3DMultisampleEXT = cast(typeof(glTextureStorageMem3DMultisampleEXT))load("glTextureStorageMem3DMultisampleEXT");
+	glNamedBufferStorageMemEXT = cast(typeof(glNamedBufferStorageMemEXT))load("glNamedBufferStorageMemEXT");
+	glTexStorageMem1DEXT = cast(typeof(glTexStorageMem1DEXT))load("glTexStorageMem1DEXT");
+	glTextureStorageMem1DEXT = cast(typeof(glTextureStorageMem1DEXT))load("glTextureStorageMem1DEXT");
+	return;
+}
+void load_GL_EXT_memory_object_fd(Loader load) {
+	if(!GL_EXT_memory_object_fd) return;
+	glImportMemoryFdEXT = cast(typeof(glImportMemoryFdEXT))load("glImportMemoryFdEXT");
+	return;
+}
+void load_GL_EXT_memory_object_win32(Loader load) {
+	if(!GL_EXT_memory_object_win32) return;
+	glImportMemoryWin32HandleEXT = cast(typeof(glImportMemoryWin32HandleEXT))load("glImportMemoryWin32HandleEXT");
+	glImportMemoryWin32NameEXT = cast(typeof(glImportMemoryWin32NameEXT))load("glImportMemoryWin32NameEXT");
+	return;
+}
+void load_GL_EXT_semaphore(Loader load) {
+	if(!GL_EXT_semaphore) return;
+	glGetUnsignedBytevEXT = cast(typeof(glGetUnsignedBytevEXT))load("glGetUnsignedBytevEXT");
+	glGetUnsignedBytei_vEXT = cast(typeof(glGetUnsignedBytei_vEXT))load("glGetUnsignedBytei_vEXT");
+	glGenSemaphoresEXT = cast(typeof(glGenSemaphoresEXT))load("glGenSemaphoresEXT");
+	glDeleteSemaphoresEXT = cast(typeof(glDeleteSemaphoresEXT))load("glDeleteSemaphoresEXT");
+	glIsSemaphoreEXT = cast(typeof(glIsSemaphoreEXT))load("glIsSemaphoreEXT");
+	glSemaphoreParameterui64vEXT = cast(typeof(glSemaphoreParameterui64vEXT))load("glSemaphoreParameterui64vEXT");
+	glGetSemaphoreParameterui64vEXT = cast(typeof(glGetSemaphoreParameterui64vEXT))load("glGetSemaphoreParameterui64vEXT");
+	glWaitSemaphoreEXT = cast(typeof(glWaitSemaphoreEXT))load("glWaitSemaphoreEXT");
+	glSignalSemaphoreEXT = cast(typeof(glSignalSemaphoreEXT))load("glSignalSemaphoreEXT");
+	return;
+}
+void load_GL_EXT_semaphore_fd(Loader load) {
+	if(!GL_EXT_semaphore_fd) return;
+	glImportSemaphoreFdEXT = cast(typeof(glImportSemaphoreFdEXT))load("glImportSemaphoreFdEXT");
+	return;
+}
+void load_GL_EXT_semaphore_win32(Loader load) {
+	if(!GL_EXT_semaphore_win32) return;
+	glImportSemaphoreWin32HandleEXT = cast(typeof(glImportSemaphoreWin32HandleEXT))load("glImportSemaphoreWin32HandleEXT");
+	glImportSemaphoreWin32NameEXT = cast(typeof(glImportSemaphoreWin32NameEXT))load("glImportSemaphoreWin32NameEXT");
 	return;
 }
 
