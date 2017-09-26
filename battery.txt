@@ -9,12 +9,12 @@ src/charge/sys/memheader.volt
 -lUser32.Lib
 --if-msvc
 -lGdi32.Lib
---if-msvc
-src/charge/core/win32.volt
+#--if-msvc
+#src/charge/core/win32.volt
 --if-linux
 --if-osx
 --cmd
 sdl2-config --libs
---if-linux
---if-osx
-src/charge/core/sdl.volt
+#--if-linux
+#--if-osx
+#src/charge/core/sdl.volt
