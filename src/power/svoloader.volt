@@ -50,9 +50,7 @@ public:
 			return;
 		}
 
-		str := svo.checkGraphics();
-		if (str.length) {
-		//if (str := svo.checkGraphics()) {
+		if (str := svo.checkGraphics()) {
 			return doError(str);
 		}
 
