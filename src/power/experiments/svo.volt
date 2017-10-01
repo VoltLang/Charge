@@ -109,9 +109,6 @@ public:
 	              out frames: u32[], out data: void[]) bool
 	{
 		// Setup the state.
-		c.xShift = svo.XShift;
-		c.yShift = svo.YShift;
-		c.zShift = svo.ZShift;
 		c.numLevels = 11;
 
 		// Create the loader.
@@ -146,9 +143,6 @@ public:
 	fn genOne(out c: svo.Create, out frames: u32[], out data: void[]) bool
 	{
 		// Setup the state.
-		c.xShift = svo.XShift;
-		c.yShift = svo.YShift;
-		c.zShift = svo.ZShift;
 		c.numLevels = 11;
 
 		// Reserve the first index.
@@ -169,9 +163,6 @@ public:
 	fn genFlatY(out c: svo.Create, out frames: u32[], out data: void[]) bool
 	{
 		// Setup the state.
-		c.xShift = svo.XShift;
-		c.yShift = svo.YShift;
-		c.zShift = svo.ZShift;
 		c.numLevels = 11;
 
 		// Reserve the first index.

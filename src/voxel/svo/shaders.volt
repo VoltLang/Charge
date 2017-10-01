@@ -36,15 +36,15 @@ struct StepState
 
 private global voxelShaderStoreStore: ShaderStore[const(u32)[]];
 
-fn getStore(xShift: u32, yShift: u32, zShift: u32, isAMD: bool) ShaderStore
+fn getStore(ref c: Create) ShaderStore
 {
-	key := [xShift, yShift, zShift];
+	key := [cast(u32)c.isAMD];
 	s := key in voxelShaderStoreStore;
 	if (s !is null) {
 		return *s;
 	}
 
-	store := new ShaderStore(xShift, yShift, zShift, isAMD);
+	store := new ShaderStore(c.isAMD);
 	voxelShaderStoreStore[key] = store;
 	return store;
 }
@@ -417,16 +417,12 @@ class ShaderStore
 {
 protected:
 	mShaderStore: gfx.Shader[string];
-	mXShift, mYShift, mZShift: u32;
 	mIsAMD: bool;
 
 
 public:
-	this(xShift: u32, yShift: u32, zShift: u32, isAMD: bool)
+	this(isAMD: bool)
 	{
-		this.mXShift = xShift;
-		this.mYShift = yShift;
-		this.mZShift = zShift;
 		this.mIsAMD = isAMD;
 
 		makeComputeDispatchShader(0, BufferCommandId);
@@ -651,9 +647,9 @@ private:
 	fn replaceCommon(str: string) string
 	{
 		str = replace(str, "%RENDERER_AMD%", mIsAMD ? "1" : "0");
-		str = replace(str, "%X_SHIFT%", format("%s", mXShift));
-		str = replace(str, "%Y_SHIFT%", format("%s", mYShift));
-		str = replace(str, "%Z_SHIFT%", format("%s", mZShift));
+		str = replace(str, "%X_SHIFT%", format("%s", XShift));
+		str = replace(str, "%Y_SHIFT%", format("%s", YShift));
+		str = replace(str, "%Z_SHIFT%", format("%s", ZShift));
 		return str;
 	}
 }

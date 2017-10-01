@@ -99,9 +99,6 @@ public:
 		totalLevels := levels;
 
 		// Setup the state.
-		c.xShift = XShift;
-		c.yShift = YShift;
-		c.zShift = ZShift;
 		c.numLevels = totalLevels;
 
 		mData = cast(u32[])h.data;
