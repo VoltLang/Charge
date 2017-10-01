@@ -21,7 +21,6 @@ class Viewer : scene.Simple
 {
 public:
 	// AA
-	mUseAA: bool;
 	aa: gfx.AA;
 
 	// Rotation stuff.
@@ -47,8 +46,6 @@ public:
 	this(m: scene.Manager)
 	{
 		super(m, Type.Game);
-		mUseAA = false;
-
 		textState.glyphWidth = cast(int)gfx.bitmapTexture.width / 16;
 		textState.glyphHeight = cast(int)gfx.bitmapTexture.height / 16;
 		textState.offX = 16;
@@ -139,13 +136,10 @@ public:
 
 	override fn render(t: gfx.Target)
 	{
-		if (mUseAA) {
-			aa.bind(t);
-			renderScene(aa.fbo);
-			aa.resolveToAndBind(t);
-		} else {
-			renderScene(t);
-		}
+		// Always use the AA, it supports non-aa.
+		aa.bind(t);
+		renderScene(aa.fbo);
+		aa.resolveToAndBind(t);
 
 		// Draw text
 		transform: math.Matrix4x4d;
@@ -185,7 +179,7 @@ public:
 		case 'a': mCamLeft = true; break;
 		case 'd': mCamRight = true; break;
 		case 'q': printInfo(); break;
-		case 'o': mUseAA = !mUseAA; break;
+		case 'o': aa.toggle(); break;
 		case 'l': mLockCull = !mLockCull; break;
 		default:
 		}

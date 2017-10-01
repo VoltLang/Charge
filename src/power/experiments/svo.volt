@@ -380,7 +380,7 @@ o - AA (%s)
 t - animate (%s)
 y - step frame (#%s)
 m - switch renderer (%s)
-l - lock culling (%s)`, mUseAA, animate, obj.frame, pipes[pipeId].name, mLockCull);
+l - lock culling (%s)`, aa.getName(), animate, obj.frame, pipes[pipeId].name, mLockCull);
 		updateText(ss.toString());
 	}
 }
