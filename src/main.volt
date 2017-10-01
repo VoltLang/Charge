@@ -3,7 +3,6 @@
 module main;
 
 static import examples.gl;
-static import voxel.game;
 static import power.game;
 
 
@@ -11,7 +10,6 @@ fn main(args: string[]) int
 {
 	//g := new examples.gl.Game(args);
 	g := new power.game.Game(args);
-	//g := new voxel.game.Game(args);
 
 	return g.loop();
 }
