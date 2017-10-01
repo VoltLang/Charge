@@ -15,6 +15,7 @@ import charge.gfx.gl;
 
 import voxel.svo.util;
 import voxel.svo.design;
+import voxel.svo.entity;
 import voxel.svo.shaders;
 import voxel.svo.buffers;
 
@@ -90,4 +91,31 @@ public:
 
 	abstract fn close();
 	abstract fn draw(ref input: Draw);
+}
+
+/*!
+ * A single SVO rendering pipeline.
+ */
+class TestPipeline : Pipeline
+{
+public:
+	data: Data;
+
+
+public:
+	this(data: Data)
+	{
+		this.data = data;
+		super("test", new gfx.Counters("test"));
+	}
+
+	override fn close()
+	{
+
+	}
+
+	override fn draw(ref input: Draw)
+	{
+
+	}
 }

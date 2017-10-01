@@ -204,6 +204,10 @@ public:
 		this.data = data;
 		this.obj = obj;
 
+		// New testing pipeline
+		pipes ~= new svo.TestPipeline(data);
+
+		// Old pipelines
 		for (i: i32; i < svo.StepPipeline.Kind.Num; i++) {
 			pipes ~= new svo.StepPipeline(data.texture, ref data.create, i);
 		}
