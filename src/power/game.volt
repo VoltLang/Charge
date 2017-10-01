@@ -16,7 +16,7 @@ import charge.gfx.gl;
 import power.app;
 import power.menu;
 import power.inbuilt;
-import power.svoloader;
+import power.experiments.svo;
 import power.experiments.aligntest;
 
 

@@ -19,7 +19,7 @@ import charge.gfx.gl;
 
 import gen = voxel.generators;
 
-import voxel.viewer;
+import power.experiments.svo;
 import voxel.svo;
 import voxel.loaders;
 
@@ -74,7 +74,7 @@ public:
 		d := new Data(ref state, data);
 		obj := new Entity(d, frames);
 
-		push(new RayTracer(this, d, obj));
+		push(new SvoViewer(this, d, obj));
 
 		// Done with game startup, do some debug prinintg.
 		// We are now starting the game.
