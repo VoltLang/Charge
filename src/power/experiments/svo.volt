@@ -204,8 +204,8 @@ public:
 		this.data = data;
 		this.obj = obj;
 
-		for (i: i32; i < svo.Pipeline.Kind.Num; i++) {
-			pipes ~= new svo.Pipeline(data.texture, ref data.create, i);
+		for (i: i32; i < svo.StepPipeline.Kind.Num; i++) {
+			pipes ~= new svo.StepPipeline(data.texture, ref data.create, i);
 		}
 
 		// Set the starting position.
