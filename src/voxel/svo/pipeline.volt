@@ -93,6 +93,33 @@ public:
 	abstract fn draw(ref input: Draw);
 }
 
+struct TestState
+{
+public:
+	matrix: math.Matrix4x4f;
+	planes: math.Planef[4];
+	camPosition: math.Point3f; frame: u32;
+	pointScale: f32;
+
+
+	fn setFrom(ref input: Draw)
+	{
+		frustum: math.Frustum;
+		frustum.setFromUntransposedGL(ref input.cullMVP);
+		height := cast(f64)input.targetHeight;
+		fov := radians(cast(f64)input.fov);
+
+		matrix.setToAndTranspose(ref input.camMVP);
+		camPosition = input.cullPos;
+		planes[0].setFrom(ref frustum.p[0]);
+		planes[1].setFrom(ref frustum.p[1]);
+		planes[2].setFrom(ref frustum.p[2]);
+		planes[3].setFrom(ref frustum.p[3]);
+		frame = input.frame;
+		pointScale = cast(f32)(height / (2.0 * tan(fov / 2.0)));
+	}
+}
+
 /*!
  * A single SVO rendering pipeline.
  */
@@ -102,11 +129,37 @@ public:
 	data: Data;
 
 
+protected:
+	mCounterBuffer: GLuint;
+
+	mInBuffer: GLuint;
+	mOutBuffer: GLuint;
+
+	mSortShader: gfx.Shader;
+
+
 public:
 	this(data: Data)
 	{
 		this.data = data;
 		super("test", new gfx.Counters("test"));
+
+		comp, frag, vert: string;
+
+		comp = import("voxel/walk-sort.comp.glsl");
+
+		mSortShader = new gfx.Shader(name, comp);
+
+
+		// Create the storage for the atomic buffer.
+		glCreateBuffers(1, &mCounterBuffer);
+		glNamedBufferStorage(mCounterBuffer, 8 * 4, null, GL_DYNAMIC_STORAGE_BIT);
+
+		// Really big data buffer.
+		glCreateBuffers(1, &mInBuffer);
+		glNamedBufferStorage(mInBuffer, 0x0800_0000, null, GL_DYNAMIC_STORAGE_BIT);
+		glCreateBuffers(1, &mOutBuffer);
+		glNamedBufferStorage(mOutBuffer, 0x0800_0000, null, GL_DYNAMIC_STORAGE_BIT);
 	}
 
 	override fn close()
@@ -116,6 +169,56 @@ public:
 
 	override fn draw(ref input: Draw)
 	{
+		frustum: math.Frustum;
+		frustum.setFromUntransposedGL(ref input.cullMVP);
+		height := cast(f64)input.targetHeight;
+		fov := radians(cast(f64)input.fov);
 
+		state: TestState;
+		state.setFrom(ref input);
+
+
+		glCheckError();
+		glClearNamedBufferData(mCounterBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glNamedBufferSubData(mInBuffer, 0, 16, cast(void*)[0, 0, 0, input.frame].ptr);
+
+		// General bindigns.
+		glBindTextureUnit(0, data.texture);
+
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mCounterBuffer);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mInBuffer);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mOutBuffer);
+
+		// Sort shader.
+		mSortShader.bind();
+		mSortShader.float3("uCameraPos".ptr, state.camPosition.ptr);
+		mSortShader.matrix4("uMatrix", 1, false, ref state.matrix);
+		mSortShader.float4("uPlanes".ptr, 4, &state.planes[0].a);
+		glDispatchCompute(1u, 1u, 1u);
+		mSortShader.unbind();
+
+		// Unbind general bindings.
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+
+		glBindTextureUnit(0, data.texture);
+
+		// Debug
+		glCheckError();
+
+		io.output.writefln("%s %s", input.frame, debugCounter(0));
+		io.output.flush();
+	}
+
+
+private:
+	fn debugCounter(src: u32) u32
+	{
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+		val: u32;
+		offset := cast(GLintptr)(src * 4);
+		glGetNamedBufferSubData(mCounterBuffer, offset, 4, cast(void*)&val);
+		return val;
 	}
 }
