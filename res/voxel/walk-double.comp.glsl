@@ -3,7 +3,7 @@
 #define POWER_LEVELS 2
 
 #define VOXEL_SRC %VOXEL_SRC%
-#define VOXEL_DST1 %VOXEL_DST1%
+#define VOXEL_DST %VOXEL_DST%
 
 #define X_SHIFT %X_SHIFT%
 #define Y_SHIFT %Y_SHIFT%
@@ -22,9 +22,9 @@ layout (binding = VOXEL_SRC, std430) buffer BufferIn
 	uint inData[];
 };
 
-layout (binding = VOXEL_DST1, std430) buffer BufferOut1
+layout (binding = VOXEL_DST, std430) buffer BufferOut1
 {
-	uint outData1[];
+	uint outData[];
 };
 
 
@@ -114,8 +114,8 @@ void main(void)
 		bitfieldExtract(morton, Z_SHIFT, 1),  0, 1);
 #endif
 
-	uint index = atomicCounterIncrement(counter[VOXEL_DST1]) * 3;
-	outData1[index + 0] = packedPos1;
-	outData1[index + 1] = packedPos2;
-	outData1[index + 2] = data;
+	uint index = atomicCounterIncrement(counter[VOXEL_DST]) * 3;
+	outData[index + 0] = packedPos1;
+	outData[index + 1] = packedPos2;
+	outData[index + 2] = data;
 }

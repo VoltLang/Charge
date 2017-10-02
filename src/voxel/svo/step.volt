@@ -57,11 +57,11 @@ public:
 
 		final switch (kind) with (Kind) {
 		case Points0:
-			name = "points";
+			name = "points-old";
 			makePointsPipeline(b, false);
 			break;
 		case Points1:
-			name = "points";
+			name = "points-new";
 			makePointsPipeline(b, true);
 			break;
 		case CubePoint:
@@ -109,16 +109,20 @@ public:
 
 	fn makePointsPipeline(b: StepsBuilder, dub: bool)
 	{
-		buf0, buf3, buf6, buf9, buf11: u32;
+		buf0, buf3, buf5, buf6, buf7, buf9, buf11: u32;
 
 		mSteps ~= b.makeInit(           out    buf0);
 		mSteps ~= b.makeList1( buf0, 3, out    buf3);
-		mSteps ~= b.makeList1( buf3, 3, out    buf6);
-		mSteps ~= b.makeList1( buf6, 3, out    buf9);
+
 		if (dub) {
+			mSteps ~= b.makeList1( buf3, 2, out    buf5);
+			mSteps ~= b.makeList1( buf5, 2, out    buf7);
+			mSteps ~= b.makeList1( buf7, 2, out    buf9);
 			mSteps ~= b.makeListDouble(buf9, out buf11);
 		} else {
-			mSteps ~= b.makeList1(buf9, 2, out buf11);
+			mSteps ~= b.makeList1( buf3, 3, out    buf6);
+			mSteps ~= b.makeList1( buf6, 3, out    buf9);
+			mSteps ~= b.makeListDouble(buf9, out buf11);
 		}
 		mSteps ~= b.makePoints(buf11);
 	}
@@ -313,7 +317,7 @@ public:
 		dst = tracker.get(); // Produce
 		tracker.free(src);   // Consume
 		endLevelOfBuf[dst] = powerStart + powerLevels;
-		return new ListDoubleStep(s, src, dst, 0, powerStart);
+		return new ListDoubleStep(s, src, dst, powerStart);
 	}
 
 	fn makeList2(src: u32, powerLevels: u32, distance: f32,
@@ -450,12 +454,12 @@ public:
 
 
 public:
-	this(s: ShaderStore, src: u32, dst1: u32, dst2: u32, powerStart: u32)
+	this(s: ShaderStore, src: u32, dst: u32, powerStart: u32)
 	{
 		this.name = "double";
 
 		dispatchShader = s.makeComputeDispatchShader(src, BufferCommandId);
-		listShader = s.makeListDoubleShader(src, dst1, dst2, powerStart);
+		listShader = s.makeListDoubleShader(src, dst, powerStart);
 	}
 
 	override fn run(ref state: StepState)

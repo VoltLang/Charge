@@ -208,9 +208,11 @@ public:
 		pipes ~= new svo.TestPipeline(data);
 
 		// Old pipelines
-		for (i: i32; i < svo.StepPipeline.Kind.Num; i++) {
-			pipes ~= new svo.StepPipeline(data.texture, ref data.create, i);
-		}
+		pipes ~= new svo.StepPipeline(data.texture, ref data.create, svo.StepPipeline.Kind.Points0);
+		pipes ~= new svo.StepPipeline(data.texture, ref data.create, svo.StepPipeline.Kind.Points1);
+		//for (i: i32; i < svo.StepPipeline.Kind.Num; i++) {
+		//	pipes ~= new svo.StepPipeline(data.texture, ref data.create, i);
+		//}
 
 		// Set the starting position.
 		resetPosition(1);

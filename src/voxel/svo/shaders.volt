@@ -148,10 +148,10 @@ public:
 		return s;
 	}
 
-	fn makeListDoubleShader(src: u32, dst1: u32, dst2: u32, powerStart: u32) gfx.Shader
+	fn makeListDoubleShader(src: u32, dst: u32, powerStart: u32) gfx.Shader
 	{
-		name := format("svo.walk-double (src: %s, dst1: %s, dst2: %s, powerStart: %s)",
-			src, dst1, dst2, powerStart);
+		name := format("svo.walk-double (src: %s, dst: %s, powerStart: %s)",
+			src, dst, powerStart);
 		if (s := name in mShaderStore) {
 			return *s;
 		}
@@ -159,9 +159,49 @@ public:
 		comp := cast(string)import("voxel/walk-double.comp.glsl");
 		comp = replaceCommon(comp);
 		comp = replace(comp, "%VOXEL_SRC%", format("%s", src));
-		comp = replace(comp, "%VOXEL_DST1%", format("%s", dst1));
-		comp = replace(comp, "%VOXEL_DST2%", format("%s", dst2));
+		comp = replace(comp, "%VOXEL_DST%", format("%s", dst));
 		comp = replace(comp, "%POWER_START%", format("%s", powerStart));
+		s := new gfx.Shader(name, comp);
+		mShaderStore[name] = s;
+		return s;
+	}
+
+	fn makeWalkSimpleShader(src: u32, dst: u32, counterIndex: u32, powerStart: u32, powerLevels: u32) gfx.Shader
+	{
+		name := format("svo.walk-sort (src: %s, dst: %s, counterIndex: %s, powerStart: %s, powerLevels: %s)",
+			src, dst, counterIndex, powerStart, powerLevels);
+		if (s := name in mShaderStore) {
+			return *s;
+		}
+
+		comp := cast(string)import("voxel/walk-simple.comp.glsl");
+		comp = replaceCommon(comp);
+		comp = replace(comp, "%POWER_START%", format("%s", powerStart));
+		comp = replace(comp, "%POWER_LEVELS%", format("%s", powerLevels));
+		comp = replace(comp, "%VOXEL_SRC%", format("%s", src));
+		comp = replace(comp, "%VOXEL_DST%", format("%s", dst));
+		comp = replace(comp, "%COUNTER_INDEX%", format("%s", counterIndex));
+
+		s := new gfx.Shader(name, comp);
+		mShaderStore[name] = s;
+		return s;
+	}
+
+	fn makeWalkSortShader(src: u32, dst: u32, counterIndex: u32, powerStart: u32) gfx.Shader
+	{
+		name := format("svo.walk-sort (src: %s, dst: %s, counterIndex: %s, powerStart: %s, powerLevels: %s)",
+			src, dst, counterIndex, powerStart, 2);
+		if (s := name in mShaderStore) {
+			return *s;
+		}
+
+		comp := cast(string)import("voxel/walk-sort.comp.glsl");
+		comp = replaceCommon(comp);
+		comp = replace(comp, "%POWER_START%", format("%s", powerStart));
+		comp = replace(comp, "%VOXEL_SRC%", format("%s", src));
+		comp = replace(comp, "%VOXEL_DST%", format("%s", dst));
+		comp = replace(comp, "%COUNTER_INDEX%", format("%s", counterIndex));
+
 		s := new gfx.Shader(name, comp);
 		mShaderStore[name] = s;
 		return s;
