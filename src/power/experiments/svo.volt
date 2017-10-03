@@ -9,6 +9,7 @@ import watt.text.format : format;
 
 import ctl = charge.ctl;
 import gfx = charge.gfx;
+import sys = charge.sys;
 import tui = charge.game.tui;
 import math = charge.math;
 import scene = charge.game.scene;
@@ -385,8 +386,16 @@ public:
 		ss: StringSink;
 		sink := ss.sink;
 
-		sink.format("Info:\n");
+		fn cb(name: string, used: i64, total: i64) {
+			p := cast(u32)(cast(f64)used / cast(f64)total * 100.0);
+			sink.format("%10s: %02s%%\n", name, p);
+		}
+
+		sink.format("CPU:\n");
+		sys.TimeTracker.calcAll(cb);
+		sink.format("\nGPU:\n");
 		gfx.TimeTracker.getLastFrame(sink);
+		sink.format("\n");
 		sink.format("Resolution: %sx%s\n", t.width, t.height);
 		sink.format(`w a s d - move camera
 1 2 3 4 5 6 - reset position
