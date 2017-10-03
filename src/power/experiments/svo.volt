@@ -197,19 +197,24 @@ public:
 	animate: bool;
 
 
+protected:
+	mTimeClear: gfx.TimeTracker;
+
+
 public:
 	this(m: scene.Manager, data: svo.Data, obj: svo.Entity)
 	{
 		super(m);
 		this.data = data;
 		this.obj = obj;
+		this.mTimeClear = new gfx.TimeTracker("clear");
 
 		// New testing pipeline
 		pipes ~= new svo.TestPipeline(data);
 
 		// Old pipelines
-		pipes ~= new svo.StepPipeline(data.texture, ref data.create, svo.StepPipeline.Kind.Points0);
 		pipes ~= new svo.StepPipeline(data.texture, ref data.create, svo.StepPipeline.Kind.Points1);
+		pipes ~= new svo.StepPipeline(data.texture, ref data.create, svo.StepPipeline.Kind.Points0);
 		//for (i: i32; i < svo.StepPipeline.Kind.Num; i++) {
 		//	pipes ~= new svo.StepPipeline(data.texture, ref data.create, i);
 		//}
@@ -338,12 +343,15 @@ public:
 	override fn renderScene(t: gfx.Target)
 	{
 		// Clear the screen.
+		mTimeClear.start();
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glUseProgram(0);
-		fov := 45.f;
+		mTimeClear.stop();
 
+		// Constant for now.
+		fov := 45.f;
 
 		proj: math.Matrix4x4d;
 		t.setMatrixToProjection(ref proj, fov, 0.0001f, 256.f);
@@ -378,7 +386,7 @@ public:
 		sink := ss.sink;
 
 		sink.format("Info:\n");
-		pipes[pipeId].counters.print(sink);
+		gfx.TimeTracker.getLastFrame(sink);
 		sink.format("Resolution: %sx%s\n", t.width, t.height);
 		sink.format(`w a s d - move camera
 1 2 3 4 5 6 - reset position

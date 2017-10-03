@@ -78,19 +78,29 @@ struct Draw
 abstract class Pipeline
 {
 public:
-	counters: gfx.Counters;
 	name: string;
 
 
+private:
+	mTimeTrackerRoot: gfx.TimeTracker;
+
+
 public:
-	this(name: string, counters: gfx.Counters)
+	this(name: string)
 	{
 		this.name = name;
-		this.counters = counters;
+		this.mTimeTrackerRoot = new gfx.TimeTracker("voxels (" ~ name ~ ")");
 	}
 
 	abstract fn close();
-	abstract fn draw(ref input: Draw);
+	fn draw(ref input: Draw)
+	{
+		mTimeTrackerRoot.start();
+		doDraw(ref input);
+		mTimeTrackerRoot.stop();
+	}
+
+	abstract fn doDraw(ref input: Draw);
 }
 
 struct TestState
@@ -152,13 +162,25 @@ protected:
 	enum DrawIndirectSize = 4 * 4;
 	enum DispatchIndirectSize = 4 * 3;
 
+	mTimeTrackers: gfx.TimeTracker[];
+
 
 public:
 	this(data: Data)
 	{
 		this.data = data;
 		this.mStore = getStore(ref data.create);
-		super("test", new gfx.Counters("init", "walk", "walk", "walk", "walk", "double", "points"));
+		super("test");
+
+		mTimeTrackers = [
+			new gfx.TimeTracker("init"),
+			new gfx.TimeTracker("walk 1-3"),
+			new gfx.TimeTracker("walk 3-5"),
+			new gfx.TimeTracker("walk 5-7"),
+			new gfx.TimeTracker("walk 7-9"),
+			new gfx.TimeTracker("double 9-11"),
+			new gfx.TimeTracker("points")
+		];
 
 
 		mSort[0] = mStore.makeWalkSimpleShader(src: 2, dst: 3, counterIndex: 1, powerStart: 0, powerLevels: 3);
@@ -206,8 +228,11 @@ public:
 
 	}
 
-	override fn draw(ref input: Draw)
+	override fn doDraw(ref input: Draw)
 	{
+		// Start counting the voxel time.
+		mTimeTrackers[0].start();
+
 		frustum: math.Frustum;
 		frustum.setFromUntransposedGL(ref input.cullMVP);
 		height := cast(f64)input.targetHeight;
@@ -232,7 +257,6 @@ public:
 		glBindVertexArray(mArrayVAO);
 
 		// Clear and setup buffers.
-		counters.start(0);
 		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glClearNamedBufferData(mCounterBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 		glNamedBufferSubData(mDrawIndirect, 0, 4 * 4, cast(void*)[0, 1, 0, 0].ptr);
@@ -240,37 +264,30 @@ public:
 		glNamedBufferSubData(mInBuffer, 0, 4 * 3, cast(void*)[0, 0, input.frame].ptr);
 		glNamedBufferSubData(mDataBuffer, 0, 4 * (16 + 16 + 4), cast(void*)&state);
 		glNamedBufferSubData(mCounterBuffer, 0, 4, cast(void*)[1].ptr);
-		counters.stop(0);
 
 		// 1st sort shader.
-		counters.start(1);
+		mTimeTrackers[1].exchange();
 		runSort(0);
-		counters.stop(1);
 
 		// 2nd sort shader.
-		counters.start(2);
+		mTimeTrackers[2].exchange();
 		runSort(1);
-		counters.stop(2);
 
 		// 3rd sort shader.
-		counters.start(3);
+		mTimeTrackers[3].exchange();
 		runSort(2);
-		counters.stop(3);
 
 		// 4th sort shader.
-		counters.start(4);
+		mTimeTrackers[4].exchange();
 		runSort(3);
-		counters.stop(4);
 
 		// 5th sort shader.
-		counters.start(5);
+		mTimeTrackers[5].exchange();
 		runDouble(ref state, 4);
-		counters.stop(5);
 
 		// Run the points shader
-		counters.start(6);
+		mTimeTrackers[6].exchange();
 		runPoints(ref state, 3);
-		counters.stop(6);
 
 		// Unbind all state
 		glUseProgram(0);
@@ -284,6 +301,9 @@ public:
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 
 		glBindTextureUnit(0, data.texture);
+
+		// Stop counting.
+		mTimeTrackers[6].stop();
 
 		// Debug
 		glCheckError();

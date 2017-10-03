@@ -37,6 +37,8 @@ public:
 
 
 protected:
+	mTimeTrackers: gfx.TimeTracker[];
+
 	mOctTexture: GLuint;
 
 	mElementsVAO: GLuint;
@@ -74,12 +76,11 @@ public:
 			break;
 		case Num: assert(false);
 		}
+		super(name);
 
-		names: string[];
 		foreach (i, step; mSteps) {
-			names ~= step.name;
+			mTimeTrackers ~= new gfx.TimeTracker(step.name);
 		}
-		super(name, new gfx.Counters(names));
 
 		// Setup the texture.
 		mOctTexture = octTexture;
@@ -181,7 +182,7 @@ public:
 	{
 	}
 
-	override fn draw(ref input: Draw)
+	override fn doDraw(ref input: Draw)
 	{
 		frustum: math.Frustum;
 		frustum.setFromUntransposedGL(ref input.cullMVP);
@@ -234,14 +235,11 @@ public:
 
 		glCheckError();
 
-		// Completely sync with the GPU, for timing.
-		glFinish();
-
 		// Dispatch the entire pipeline.
 		foreach (i, step; mSteps) {
-			counters.start(i);
+			mTimeTrackers[i].start();
 			step.run(ref state);
-			counters.stop(i);
+			mTimeTrackers[i].stop();
 		}
 
 		// Restore all state.

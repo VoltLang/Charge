@@ -3,6 +3,7 @@
 module charge.gfx.aa;
 
 import charge.gfx.target;
+import charge.gfx.timetracker;
 
 
 struct AA
@@ -19,6 +20,7 @@ public:
 
 
 public:
+	tl: TimeTracker;
 	fbo: Target;
 	kind: Kind;
 	currentMSAA: u32;
@@ -60,7 +62,9 @@ public:
 	fn resolveToAndBind(t: Target)
 	{
 		if (t !is fbo) {
+			tl.start();
 			t.bindAndCopyFrom(fbo);
+			tl.stop();
 		}
 	}
 
@@ -85,6 +89,10 @@ public:
 		    width == fbo.width &&
 		    height == fbo.height) {
 			return;
+		}
+
+		if (tl is null) {
+			tl = new TimeTracker("aa");
 		}
 
 		currentMSAA = msaa;

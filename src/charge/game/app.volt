@@ -10,6 +10,8 @@ import sys = charge.sys;
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 
+import charge.gfx.gl;
+
 
 abstract class App
 {
@@ -17,6 +19,10 @@ protected:
 	mCore: core.Core;
 	mInput: ctl.Input;
 
+	// Gfx timers
+	mFrameTime: gfx.TimeTracker;
+
+	// Sys timers
 	mRenderTime: sys.TimeTracker;
 	mLogicTime: sys.TimeTracker;
 	mBuildTime: sys.TimeTracker;
@@ -34,6 +40,10 @@ public:
 			opts = new core.Options();
 		}
 
+		// Gfx timers
+		mFrameTime = new gfx.TimeTracker("frame");
+
+		// Sys timers
 		mRenderTime = new sys.TimeTracker("gfx");
 		mLogicTime = new sys.TimeTracker("logic");
 		mBuildTime = new sys.TimeTracker("build");
@@ -88,11 +98,16 @@ private:
 	fn doRender()
 	{
 		mRenderTime.start();
-		scope(exit) mRenderTime.stop();
+		mFrameTime.startFrame();
+		scope(exit) {
+			mFrameTime.endFrame();
+			mRenderTime.stop();
+		}
 
 		t := gfx.DefaultTarget.opCall();
 		t.bindDefault();
 		render(t);
+
 		// Core swaps default target.
 	}
 

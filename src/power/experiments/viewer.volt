@@ -37,6 +37,7 @@ public:
 
 
 protected:
+	mTimeText: gfx.TimeTracker;
 	mLockCull: bool;
 	mCamHeading, mCamPitch, distance: f32;
 	mCamUp, mCamFore, mCamBack, mCamLeft, mCamRight: bool;
@@ -46,6 +47,8 @@ public:
 	this(m: scene.Manager)
 	{
 		super(m, Type.Game);
+		this.mTimeText = new gfx.TimeTracker("text");
+
 		textState.glyphWidth = cast(int)gfx.bitmapTexture.width / 16;
 		textState.glyphHeight = cast(int)gfx.bitmapTexture.height / 16;
 		textState.offX = 16;
@@ -142,6 +145,8 @@ public:
 		aa.resolveToAndBind(t);
 
 		// Draw text
+		mTimeText.start();
+
 		transform: math.Matrix4x4d;
 		t.setMatrixToOrtho(ref transform);
 		mat: math.Matrix4x4f;
@@ -157,6 +162,9 @@ public:
 
 		gfx.bitmapTexture.unbind();
 		glBindVertexArray(0);
+
+		// Stop timing
+		mTimeText.stop();
 	}
 
 	override fn dropControl()
