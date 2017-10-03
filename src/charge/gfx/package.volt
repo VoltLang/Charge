@@ -40,6 +40,8 @@ public import charge.gfx.texture :
 	Texture2D;
 public import charge.gfx.timer :
 	Timer;
+public import charge.gfx.timetracker :
+	TimeTracker;
 public import charge.gfx.bitmapfont :
 	BitmapState,
 	BitmapGlyphWidth = GlyphWidth,
