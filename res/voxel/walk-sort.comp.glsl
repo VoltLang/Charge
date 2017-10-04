@@ -6,8 +6,13 @@
 #define POWER_FINAL (POWER_LEVELS + POWER_START)
 
 #define COUNTER_INDEX %COUNTER_INDEX%
+
 #define VOXEL_SRC %VOXEL_SRC%
 #define VOXEL_DST %VOXEL_DST%
+
+#define VOXEL_SIZE      (1.0 / (1 << (POWER_FINAL    )))
+#define VOXEL_SIZE_HALF (1.0 / (1 << (POWER_FINAL + 1)))
+#define VOXEL_RADII     (VOXEL_SIZE_HALF * sqrt(2.0))
 
 #define X_SHIFT %X_SHIFT%
 #define Y_SHIFT %Y_SHIFT%
@@ -93,38 +98,33 @@ void main(void)
 		return;								\
 	}
 
-	// Update the position.
-	x += (morton >> (X_SHIFT + 3 - 1)) & 0x2;
-	y += (morton >> (Y_SHIFT + 3 - 1)) & 0x2;
-	z += (morton >> (Z_SHIFT + 3 - 1)) & 0x2;
-
-	// Some constants
-	float invDiv2 =    1.0 / (1 << (POWER_FINAL - 1));
-	float invDiv =     1.0 / (1 << (POWER_FINAL    ));
-	float invDivHalf = 1.0 / (1 << (POWER_FINAL + 1));
-	float invRadii2 = invDiv2 * sqrt(2.0);
-
-	vec4 v = vec4(vec3(x, y, z) * invDiv + invDiv, 1.0);
-
-	// Test against frustum.
-#if POWER_FINAL > 3
-	uint bitsIndex = gl_SubGroupInvocationARB & 0x38;
-	uint b = uint(ballotARB(dot(v, uData.planes[gl_SubGroupInvocationARB & 0x03]) < -invRadii2) >> bitsIndex);
-	if ((b & 0x0f) != 0) {
-		return;
-	}
-#endif
-
 	// Final loop body.
 	LOOPBODY(2);
-
-	offset = calcAddress(select, node, offset);
-	offset = texelFetch(octree, int(offset)).r;
 
 	// Update the position.
 	x += (morton >> X_SHIFT) & 0x1;
 	y += (morton >> Y_SHIFT) & 0x1;
 	z += (morton >> Z_SHIFT) & 0x1;
+
+	x += (morton >> (X_SHIFT + 3 - 1)) & 0x2;
+	y += (morton >> (Y_SHIFT + 3 - 1)) & 0x2;
+	z += (morton >> (Z_SHIFT + 3 - 1)) & 0x2;
+
+	// Calculate a position in the center of the voxel.
+	vec4 v = vec4(vec3(x, y, z) * VOXEL_SIZE + VOXEL_SIZE_HALF, 1.0);
+
+	// Test against the frustum.
+	uint test =
+		uint(dot(v, uData.planes[0]) < -VOXEL_RADII) |
+		uint(dot(v, uData.planes[1]) < -VOXEL_RADII) |
+		uint(dot(v, uData.planes[2]) < -VOXEL_RADII) |
+		uint(dot(v, uData.planes[3]) < -VOXEL_RADII);
+	if (test != 0) {
+		return;
+	}
+
+	offset = calcAddress(select, node, offset);
+	offset = texelFetch(octree, int(offset)).r;
 
 	uint index = atomicAdd(inoutCounters[COUNTER_INDEX], 1) * 3;
 	outData[index + 0] = bitfieldInsert(x, y, 16, 16);
