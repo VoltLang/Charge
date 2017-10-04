@@ -187,6 +187,26 @@ public:
 		return s;
 	}
 
+	fn makeWalkCullShader(src: u32, dst: u32, counterIndex: u32, powerStart: u32) gfx.Shader
+	{
+		name := format("svo.walk-cull (src: %s, dst: %s, counterIndex: %s, powerStart: %s, powerLevels: %s)",
+			src, dst, counterIndex, powerStart, 2);
+		if (s := name in mShaderStore) {
+			return *s;
+		}
+
+		comp := cast(string)import("voxel/walk-cull.comp.glsl");
+		comp = replaceCommon(comp);
+		comp = replace(comp, "%POWER_START%", format("%s", powerStart));
+		comp = replace(comp, "%VOXEL_SRC%", format("%s", src));
+		comp = replace(comp, "%VOXEL_DST%", format("%s", dst));
+		comp = replace(comp, "%COUNTER_INDEX%", format("%s", counterIndex));
+
+		s := new gfx.Shader(name, comp);
+		mShaderStore[name] = s;
+		return s;
+	}
+
 	fn makeWalkSortShader(src: u32, dst: u32, counterIndex: u32, powerStart: u32) gfx.Shader
 	{
 		name := format("svo.walk-sort (src: %s, dst: %s, counterIndex: %s, powerStart: %s, powerLevels: %s)",

@@ -175,17 +175,17 @@ public:
 		mTimeTrackers = [
 			new gfx.TimeTracker("init"),
 			new gfx.TimeTracker("walk 1-3"),
-			new gfx.TimeTracker("walk 3-5"),
-			new gfx.TimeTracker("walk 5-7"),
-			new gfx.TimeTracker("walk 7-9"),
+			new gfx.TimeTracker("cull 3-5"),
+			new gfx.TimeTracker("cull 5-7"),
+			new gfx.TimeTracker("sort 7-9"),
 			new gfx.TimeTracker("double 9-11"),
 			new gfx.TimeTracker("points")
 		];
 
 
 		mSort[0] = mStore.makeWalkSimpleShader(src: 2, dst: 3, counterIndex: 1, powerStart: 0, powerLevels: 3);
-		mSort[1] = mStore.makeWalkSortShader(src: 3, dst: 2, counterIndex: 2, powerStart: 3);
-		mSort[2] = mStore.makeWalkSortShader(src: 2, dst: 3, counterIndex: 3, powerStart: 5);
+		mSort[1] = mStore.makeWalkCullShader(src: 3, dst: 2, counterIndex: 2, powerStart: 3);
+		mSort[2] = mStore.makeWalkCullShader(src: 2, dst: 3, counterIndex: 3, powerStart: 5);
 		mSort[3] = mStore.makeWalkSortShader(src: 3, dst: 2, counterIndex: 4, powerStart: 7);
 		mSort[4] = mStore.makeListDoubleShader(src: 2, dst: 3, powerStart: 9);
 		mPoints = mStore.makePointsShader(src: 3, powerStart: 11);
