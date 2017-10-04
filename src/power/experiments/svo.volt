@@ -394,7 +394,7 @@ public:
 		sink.format("CPU:\n");
 		sys.TimeTracker.calcAll(cb);
 		sink.format("\nGPU:\n");
-		gfx.TimeTracker.getLastFrame(sink);
+		gfx.TimeTracker.getTimings(sink);
 		sink.format("\n");
 		sink.format("Resolution: %sx%s\n", t.width, t.height);
 		sink.format(`w a s d - move camera

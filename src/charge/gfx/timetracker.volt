@@ -35,7 +35,7 @@ public:
 		this.name = name;
 	}
 
-	global fn getLastFrame(sink: Sink)
+	global fn getTimings(sink: Sink)
 	{
 		if (gTracker is null) {
 			gTracker = new Tracker();
