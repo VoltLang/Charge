@@ -386,13 +386,9 @@ public:
 		ss: StringSink;
 		sink := ss.sink;
 
-		fn cb(name: string, used: i64, total: i64) {
-			p := cast(u32)(cast(f64)used / cast(f64)total * 100.0);
-			sink.format("%10s: %02s%%\n", name, p);
-		}
 
 		sink.format("CPU:\n");
-		sys.TimeTracker.calcAll(cb);
+		sys.TimeTracker.getTimings(sink);
 		sink.format("\nGPU:\n");
 		gfx.TimeTracker.getTimings(sink);
 		sink.format("\n");
