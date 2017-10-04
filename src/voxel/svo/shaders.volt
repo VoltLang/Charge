@@ -126,13 +126,13 @@ public:
 	fn makeListShader(src: u32, dst1: u32, dst2: u32,
 	                  powerStart: u32, powerLevels: u32, dist: f32) gfx.Shader
 	{
-		name := format("svo.walk (src: %s, dst1: %s, dst2: %s, powerStart: %s, powerLevels: %s, dist: %s)",
+		name := format("svo.list (src: %s, dst1: %s, dst2: %s, powerStart: %s, powerLevels: %s, dist: %s)",
 			src, dst1, dst2, powerStart, powerLevels, dist);
 		if (s := name in mShaderStore) {
 			return *s;
 		}
 
-		comp := cast(string)import("voxel/walk-generic.comp.glsl");
+		comp := cast(string)import("voxel/list-generic.comp.glsl");
 		comp = replaceCommon(comp);
 		comp = replace(comp, "%VOXEL_SRC%", format("%s", src));
 		comp = replace(comp, "%VOXEL_DST1%", format("%s", dst1));
@@ -150,13 +150,13 @@ public:
 
 	fn makeListDoubleShader(src: u32, dst: u32, powerStart: u32) gfx.Shader
 	{
-		name := format("svo.walk-double (src: %s, dst: %s, powerStart: %s)",
+		name := format("svo.list-double (src: %s, dst: %s, powerStart: %s)",
 			src, dst, powerStart);
 		if (s := name in mShaderStore) {
 			return *s;
 		}
 
-		comp := cast(string)import("voxel/walk-double.comp.glsl");
+		comp := cast(string)import("voxel/list-double.comp.glsl");
 		comp = replaceCommon(comp);
 		comp = replace(comp, "%VOXEL_SRC%", format("%s", src));
 		comp = replace(comp, "%VOXEL_DST%", format("%s", dst));
