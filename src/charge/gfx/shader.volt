@@ -292,7 +292,7 @@ fn createAndCompileShaderC(name: string, comp: string) GLuint
 	glAttachShader(programShader, compShader);
 
 	// Load and compile the Compute Shader
-	compileShader(name, compShader, comp, "comp");
+	compileShaderLog(name, compShader, comp, "comp");
 
 	// The shader object is not needed any more,
 	// the programShader is the complete shader to be used.
@@ -315,10 +315,10 @@ fn createAndCompileShaderVF(name: string, vert: string, frag: string) GLuint
 	glAttachShader(programShader, fragShader);
 
 	// Load and compile the Vertex Shader
-	compileShader(name, vertShader, vert, "vert");
+	compileShaderLog(name, vertShader, vert, "vert");
 
 	// Load and compile the Fragment Shader
-	compileShader(name, fragShader, frag, "frag");
+	compileShaderLog(name, fragShader, frag, "frag");
 
 	// The shader objects are not needed any more,
 	// the programShader is the complete shader to be used.
@@ -338,7 +338,7 @@ fn createAndCompileShaderVGF(name: string, vert: string, geom: string, frag: str
 		vertShader := glCreateShader(GL_VERTEX_SHADER);
 		glAttachShader(programShader, vertShader);
 
-		compileShader(name, vertShader, vert, "vert");
+		compileShaderLog(name, vertShader, vert, "vert");
 
 		// The shader objects are not needed any more.
 		glDeleteShader(vertShader);
@@ -349,7 +349,7 @@ fn createAndCompileShaderVGF(name: string, vert: string, geom: string, frag: str
 		geomShader := glCreateShader(GL_GEOMETRY_SHADER);
 		glAttachShader(programShader, geomShader);
 
-		compileShader(name, geomShader, geom, "geom");
+		compileShaderLog(name, geomShader, geom, "geom");
 
 		// The shader objects are not needed any more.
 		glDeleteShader(geomShader);
@@ -360,7 +360,7 @@ fn createAndCompileShaderVGF(name: string, vert: string, geom: string, frag: str
 		fragShader := glCreateShader(GL_FRAGMENT_SHADER);
 		glAttachShader(programShader, fragShader);
 
-		compileShader(name, fragShader, frag, "frag");
+		compileShaderLog(name, fragShader, frag, "frag");
 
 		// The shader objects are not needed any more.
 		glDeleteShader(fragShader);
@@ -370,7 +370,7 @@ fn createAndCompileShaderVGF(name: string, vert: string, geom: string, frag: str
 	return programShader;
 }
 
-fn compileShader(name: string, shader: GLuint, source: string, type: string)
+fn compileShader(shader: GLuint, source: string)
 {
 	ptr: const(char)*;
 	length: int;
@@ -379,29 +379,32 @@ fn compileShader(name: string, shader: GLuint, source: string, type: string)
 	length = cast(int)source.length - 1;
 	glShaderSource(shader, 1, &ptr, &length);
 	glCompileShader(shader);
+}
+
+fn compileShaderLog(name: string, shader: GLuint, source: string, type: string)
+{
+	// Compile.
+	compileShader(shader, source);
 
 	// Print any debug message
 	printDebug(name, shader, false, type);
 }
 
-fn printDebug(name: string, shader: GLuint, program: bool, type: string) bool
+fn getInfoLog(shader: GLuint, program: bool) string
 {
 	// Instead of pointers, realy bothersome.
-	status: GLint;
 	length: GLint;
 
-	// Get information about the log on this object.
+	// Get the length.
 	if (program) {
-		glGetProgramiv(shader, GL_LINK_STATUS, &status);
 		glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &length);
 	} else {
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 	}
 
 	buffer: char[];
 	if (length > 2) {
-		// Yes length+1 and just length.
+		// Add a trailing zero just in case.
 		buffer = new char[](length + 1);
 		buffer.ptr[length] = 0;
 
@@ -410,15 +413,47 @@ fn printDebug(name: string, shader: GLuint, program: bool, type: string) bool
 		} else {
 			glGetShaderInfoLog(shader, length, &length, buffer.ptr);
 		}
+
+		// Skip the trailing zero.
+		buffer = buffer[0 .. length];
+	}
+
+	return cast(string)buffer;
+}
+
+fn getStatus(shader: GLuint, program: bool) bool
+{
+	// Instead of pointers, realy bothersome.
+	status: GLint;
+
+	// Get information about the log on this object.
+	if (program) {
+		glGetProgramiv(shader, GL_LINK_STATUS, &status);
 	} else {
-		length = 0;
+		glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 	}
 
 	switch (status) {
-	case 1: //GL_TRUE:
-		// Only print warnings from the linking stage.
-		if (length != 0 && program) {
-			io.error.writef("shader \"%s\" %s status ok!\n%s", name, type, buffer);
+	case GL_TRUE:
+		return true;
+	case GL_FALSE:
+		return false;
+	default:
+		return false;
+	}
+}
+
+fn printDebug(name: string, shader: GLuint, program: bool, type: string) bool
+{
+	// Get the status of the shader.
+	status := getStatus(shader, program);
+
+	// Get the info log, automatically returns null if just "ok".
+	infoLog := getInfoLog(shader, program);
+
+	if (status) {
+		if (infoLog.length != 0 && program) {
+			io.error.writef("shader \"%s\" %s status ok!\n%s", name, type, infoLog);
 			io.error.flush();
 		} else if (program && core.get().verbosePrinting) {
 			io.error.writefln("shader \"%s\" %s status ok!", name, type);
@@ -426,24 +461,12 @@ fn printDebug(name: string, shader: GLuint, program: bool, type: string) bool
 		}
 
 		return true;
-
-	case 0: //GL_FALSE:
-		if (length != 0) {
-			io.error.writef("shader \"%s\" %s status error!\n%s", name, type, buffer);
+	} else {
+		if (infoLog.length != 0) {
+			io.error.writef("shader \"%s\" %s status error!\n%s", name, type, infoLog);
 			io.error.flush();
 		} else if (program) {
 			io.error.writefln("shader \"%s\" %s status error!", name, type);
-			io.error.flush();
-		}
-
-		return false;
-
-	default:
-		if (length != 0) {
-			io.error.writef("shader \"%s\" %s status %s\n%s", name, type, status, buffer);
-			io.error.flush();
-		} else if (program) {
-			io.error.writefln("shader \"%s\" %s status %s", name, type, status);
 			io.error.flush();
 		}
 
