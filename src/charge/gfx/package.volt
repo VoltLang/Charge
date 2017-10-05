@@ -28,6 +28,12 @@ public import charge.gfx.buffer :
 public import charge.gfx.shader :
 	destroy,
 	Shader;
+public import charge.gfx.compiler :
+	CompSrc,
+	VertSrc,
+	GeomSrc,
+	FragSrc,
+	Compiler;
 public import charge.gfx.target :
 	reference,
 	Target,
