@@ -7,8 +7,9 @@ module charge.gfx.compiler;
 
 import io = watt.io;
 
-import watt.text.string;
-import watt.text.format;
+import watt.text.sink : StringSink;
+import watt.text.string : indexOf, splitLines, replace;
+import watt.text.format : format;
 
 import core = charge.core;
 import math = charge.math;
@@ -97,17 +98,44 @@ public:
 
 class Compiler
 {
+private:
+	mIncludes: IncludeFile[string];
+
+
 public:
 	fn compile(ref comp: CompSrc, name: string) Shader
 	{
-		id := makeShader(this, ref comp, name);
+		c := comp;
+		processSource(this, ref c.src);
+
+		id := makeShader(this, ref c, name);
 		return new Shader(name, id);
 	}
 
 	fn compile(ref vert: VertSrc, ref frag: FragSrc, name: string) Shader
 	{
-		id := makeShader(this, ref vert, ref frag, name);
+		v := vert;
+		f := frag;
+		processSource(this, ref v.src);
+		processSource(this, ref f.src);
+
+		id := makeShader(this, ref v, ref f, name);
 		return new Shader(name, id);
+	}
+
+	fn getInclude(file: string) string
+	{
+		r := file in mIncludes;
+		if (r !is null) {
+			return r.src;
+		}
+		assert(false, file);
+	}
+
+	fn addInclude(ref src: Src, lookupName: string)
+	{
+		i := new IncludeFile(lookupName, src.filename, src.src);
+		mIncludes[lookupName] = i;
 	}
 }
 
@@ -129,6 +157,50 @@ public:
 		this.fullName = fullName;
 		this.src = src;
 	}
+}
+
+fn processSource(c: Compiler, ref s: Src)
+{
+	o: StringSink;
+
+	fileNo := 0u;
+	nextLineNo := 1u;
+	look := "#include \"";
+
+	foreach (line; splitLines(s.src)) {
+		nextLineNo++;
+
+		index := line.indexOf(look);
+
+		if (index != 0) {
+			o.sink(line);
+			o.sink("\n");
+			continue;
+		}
+
+		// Get the file name.
+		start := look.length;
+		end := line[start .. $].indexOf("\"");
+		if (end < 1) {
+			continue;
+		}
+
+		// Get the file name.
+		file := line[start .. start + cast(size_t)end];
+
+		// Get the file source.
+		txt := c.getInclude(file);
+		if (txt.length == 0) {
+			o.sink.format("#error \"can not find file '%s'\"\n", file);
+			continue;
+		}
+
+		o.sink("#line 1 1\n");
+		o.sink(txt);
+		o.sink.format("#line %s 0\n", nextLineNo);
+	}
+
+	s.src = o.toString();
 }
 
 fn makeShader(c: Compiler, ref comp: CompSrc, name: string) GLuint

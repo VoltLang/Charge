@@ -29,6 +29,7 @@ public import charge.gfx.shader :
 	destroy,
 	Shader;
 public import charge.gfx.compiler :
+	Src,
 	CompSrc,
 	VertSrc,
 	GeomSrc,
