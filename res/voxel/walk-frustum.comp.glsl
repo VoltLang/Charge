@@ -5,11 +5,12 @@
 
 
 #define POWER_START %POWER_START%
-#define POWER_LEVELS 2
+#define POWER_LEVELS %POWER_LEVELS%
 #define POWER_FINAL (POWER_START + POWER_LEVELS)
 
 #define SRC_BASE_INDEX %SRC_BASE_INDEX%
 
+#define DST_BASE_INDEX %DST_BASE_INDEX%
 #define DST_COUNTER_INDEX %COUNTER_INDEX%
 
 #define VOXEL_SIZE      (1.0 / (1 << (POWER_FINAL    )))
@@ -29,7 +30,11 @@ layout (local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 #endif
 
 layout (binding = 0) uniform usamplerBuffer octree;
-layout (binding = 0) uniform atomic_uint counter[8];
+
+layout (binding = 0, std430) buffer BufferCounters
+{
+	uint ioCounters[];
+};
 
 layout (binding = 1, std430) buffer Data
 {
@@ -38,13 +43,9 @@ layout (binding = 1, std430) buffer Data
 
 layout (binding = 2, std430) buffer BufferVoxels
 {
-	uint inVoxels[];
+	uint ioVoxels[];
 };
 
-layout (binding = 3, std430) buffer BufferSort
-{
-	uint outVoxels[];
-};
 
 uint calcAddress(uint select, uint node, uint offset)
 {
@@ -61,13 +62,13 @@ void main(void)
 
 	// Get the initial node adress and the packed position.
 	uint offset = SRC_BASE_INDEX + gl_WorkGroupID.x * 3;
-	uint xy = inVoxels[offset + 0] << POWER_LEVELS;
-	uint zobj = inVoxels[offset + 1];
+	uint xy = ioVoxels[offset + 0] << POWER_LEVELS;
+	uint zobj = ioVoxels[offset + 1];
 	uint x = bitfieldExtract(xy, 0, 16);
 	uint y = bitfieldExtract(xy, 16, 16);
 	uint z = bitfieldExtract(zobj, 0, 16) << POWER_LEVELS;
 	uint obj = bitfieldExtract(zobj, 16, 0);
-	offset = inVoxels[offset + 2];
+	offset = ioVoxels[offset + 2];
 
 	// This is a unrolled loop.
 	// Subdivide until empty node or found the node for this box.
@@ -125,9 +126,13 @@ void main(void)
 	offset = calcAddress(select, node, offset);
 	offset = texelFetch(octree, int(offset)).r;
 
+	// Setup where we should write.
+	uint index = DST_BASE_INDEX;
+	uint counterIndex = DST_COUNTER_INDEX;
+
 	// Write out the data.
-	uint index = atomicCounterIncrement(counter[DST_COUNTER_INDEX]) * 3;
-	outVoxels[index + 0] = bitfieldInsert(x, y, 16, 16);
-	outVoxels[index + 1] = bitfieldInsert(z, obj, 16, 16);
-	outVoxels[index + 2] = offset;
+	index += atomicAdd(ioCounters[counterIndex], 1) * 3;
+	ioVoxels[index + 0] = bitfieldInsert(x, y, 16, 16);
+	ioVoxels[index + 1] = bitfieldInsert(z, obj, 16, 16);
+	ioVoxels[index + 2] = offset;
 }

@@ -42,7 +42,7 @@ public:
 
 	}
 
-	fn loadFileFromData(fileData: void[], out frames: u32[], out data: void[]) bool
+	fn loadFileFromData(fileData: void[], out frames: u32[], out data: void[], totalLevels: u32) bool
 	{
 		// Reserve the first index.
 		ib: InputBuffer;
@@ -55,7 +55,7 @@ public:
 
 		// Only one frame.
 		frames = new u32[](1);
-		frames[0] = toBuffer(ib: ref ib, totalLevels: 11, repeat: true);
+		frames[0] = toBuffer(ib: ref ib, totalLevels: totalLevels, repeat: true);
 
 		// Grab the data.
 		data = ib.getData();

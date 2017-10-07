@@ -20,6 +20,7 @@ import power.app;
 import power.experiments.viewer;
 
 import svo = voxel.svo;
+import old = voxel.old;
 import gen = voxel.generators;
 
 import voxel.loaders;
@@ -57,7 +58,7 @@ public:
 			return;
 		}
 
-		if (str := svo.checkGraphics()) {
+		if (str := old.checkGraphics()) {
 			return doError(str);
 		}
 
@@ -116,7 +117,7 @@ public:
 		l := new magica.Loader();
 
 		// Load parse the file.
-		return l.loadFileFromData(fileData, out frames, out data);
+		return l.loadFileFromData(fileData, out frames, out data, c.numLevels);
 	}
 
 	fn loadChalmers(fileData: void[], out c: svo.Create,
@@ -155,7 +156,7 @@ public:
 
 		// Only one frame.
 		frames = new u32[](1);
-		frames[0] = og.gen(ref ib, 11);
+		frames[0] = og.gen(ref ib, c.numLevels);
 
 		data = ib.getData();
 		return true;
@@ -193,7 +194,7 @@ class SvoViewer : Viewer
 public:
 	data: svo.Data;
 	obj: svo.Entity;
-	pipes: svo.Pipeline[];
+	pipes: old.Pipeline[];
 	pipeId: u32;
 	animate: bool;
 
@@ -211,14 +212,12 @@ public:
 		this.mTimeClear = new gfx.TimeTracker("clear");
 
 		// New testing pipeline
-		pipes ~= new svo.TestPipeline(data);
+		pipes ~= new svo.Pipeline(data);
 
-		// Old pipelines
-		pipes ~= new svo.StepPipeline(data.texture, ref data.create, svo.StepPipeline.Kind.Points1);
-		pipes ~= new svo.StepPipeline(data.texture, ref data.create, svo.StepPipeline.Kind.Points0);
-		//for (i: i32; i < svo.StepPipeline.Kind.Num; i++) {
-		//	pipes ~= new svo.StepPipeline(data.texture, ref data.create, i);
-		//}
+		// Create the pipelines.
+		for (i: i32; i < old.StepPipeline.Kind.Num; i++) {
+			pipes ~= new old.StepPipeline(data.texture, ref data.create, i);
+		}
 
 		// Set the starting position.
 		resetPosition(1);
@@ -363,7 +362,7 @@ public:
 		cull: math.Matrix4x4d;
 		cull.setToLookFrom(ref cullPosition, ref cullRotation);
 
-		state: svo.Draw;
+		state: old.Draw;
 		state.targetWidth = t.width;
 		state.targetHeight = t.height;
 		state.fov = fov;

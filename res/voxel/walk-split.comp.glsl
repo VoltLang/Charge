@@ -1,57 +1,53 @@
 #version 450 core
-#extension GL_ARB_shader_ballot : enable
+
+// Defines the struct DataFmt
+#include "voxel/data.glsl"
+
 
 #define POWER_START %POWER_START%
-#define POWER_LEVELS 2
+#define POWER_LEVELS 1
 #define POWER_FINAL (POWER_LEVELS + POWER_START)
 
-#define COUNTER_INDEX %COUNTER_INDEX%
+#define SRC_BASE_INDEX %SRC_BASE_INDEX%
 
-#define VOXEL_SRC %VOXEL_SRC%
-#define VOXEL_DST %VOXEL_DST%
+#define DST_BASE_INDEX %DST_BASE_INDEX%
+#define DST_COUNTER_INDEX %COUNTER_INDEX%
+
+#define SPLIT_INDEX %SPLIT_INDEX%
+#define SPLIT_SIZE %SPLIT_SIZE%
 
 #define VOXEL_SIZE      (1.0 / (1 << (POWER_FINAL    )))
 #define VOXEL_SIZE_HALF (1.0 / (1 << (POWER_FINAL + 1)))
-#define VOXEL_RADII     (VOXEL_SIZE_HALF * sqrt(2.0))
+#define VOXEL_RADII     (VOXEL_SIZE * sqrt(2.0))
 
 #define X_SHIFT %X_SHIFT%
 #define Y_SHIFT %Y_SHIFT%
 #define Z_SHIFT %Z_SHIFT%
 
-// Shared data struct for the voxel volume.
-struct DataFmt
-{
-	// MVP matrix
-	mat4 matrix;
-	// Frustum planes.
-	vec4 planes[4];
-	// The position of the camera (w is padding).
-	vec4 cameraPos;
-};
 
-
+#if POWER_LEVELS == 1
+layout (local_size_x = 8, local_size_y = 1, local_size_z = 1) in;
+#elif POWER_LEVELS == 2
 layout (local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+#else
+#error "invalid power levels"
+#endif
 
 layout (binding = 0) uniform usamplerBuffer octree;
 
 layout (binding = 0, std430) buffer BufferCounters
 {
-	uint inoutCounters[];
+	uint ioCounters[];
 };
 
-layout (binding = 1, std430) buffer Data
+layout (binding = 1, std430) buffer BufferData
 {
 	DataFmt uData;
 };
 
-layout (binding = VOXEL_SRC, std430) buffer BufferIn
+layout (binding = 2, std430) buffer BufferVoxels
 {
-	uint inData[];
-};
-
-layout (binding = VOXEL_DST, std430) buffer BufferOut
-{
-	uint outData[];
+	uint ioVoxels[];
 };
 
 
@@ -69,12 +65,14 @@ void main(void)
 	uint morton = gl_LocalInvocationIndex;
 
 	// Get the initial node adress and the packed position.
-	uint offset = gl_WorkGroupID.x * 3;
-	uint xy = inData[offset + 0] << POWER_LEVELS;
+	uint offset = SRC_BASE_INDEX + gl_WorkGroupID.x * 3;
+	uint xy = ioVoxels[offset + 0] << POWER_LEVELS;
+	uint zobj = ioVoxels[offset + 1];
 	uint x = bitfieldExtract(xy, 0, 16);
 	uint y = bitfieldExtract(xy, 16, 16);
-	uint z = inData[offset + 1] << POWER_LEVELS;
-	offset = inData[offset + 2];
+	uint z = bitfieldExtract(zobj, 0, 16) << POWER_LEVELS;
+	uint obj = bitfieldExtract(zobj, 16, 0);
+	offset = ioVoxels[offset + 2];
 
 	// This is a unrolled loop.
 	// Subdivide until empty node or found the node for this box.
@@ -99,38 +97,53 @@ void main(void)
 		return;								\
 	}
 
+#if POWER_LEVELS == 2
 	// Final loop body.
 	LOOPBODY(2);
+#endif
 
 	// Update the position.
 	x += (morton >> X_SHIFT) & 0x1;
 	y += (morton >> Y_SHIFT) & 0x1;
 	z += (morton >> Z_SHIFT) & 0x1;
 
+#if POWER_LEVELS == 2
 	x += (morton >> (X_SHIFT + 3 - 1)) & 0x2;
 	y += (morton >> (Y_SHIFT + 3 - 1)) & 0x2;
 	z += (morton >> (Z_SHIFT + 3 - 1)) & 0x2;
+#endif
 
 	// Calculate a position in the center of the voxel.
 	vec4 v = vec4(vec3(x, y, z) * VOXEL_SIZE + VOXEL_SIZE_HALF, 1.0);
 
 	// Test against the frustum.
 	uint test =
-		uint(dot(v, uData.planes[0]) < -VOXEL_RADII) |
-		uint(dot(v, uData.planes[1]) < -VOXEL_RADII) |
-		uint(dot(v, uData.planes[2]) < -VOXEL_RADII) |
-		uint(dot(v, uData.planes[3]) < -VOXEL_RADII);
+		uint(dot(v, uData.objs[obj].planes[0]) < -VOXEL_RADII) |
+		uint(dot(v, uData.objs[obj].planes[1]) < -VOXEL_RADII) |
+		uint(dot(v, uData.objs[obj].planes[2]) < -VOXEL_RADII) |
+		uint(dot(v, uData.objs[obj].planes[3]) < -VOXEL_RADII);
 	if (test != 0) {
 		return;
 	}
+
+	// Get where to split and where to write the data.
+	float split = uData.dists[SPLIT_INDEX];
+	float dist = distance(v.xyz, uData.objs[obj].cameraPos.xyz);
+	uint slot = uint(step(split, dist));
+
+
 
 	// Do final fetching of address here.
 	offset = calcAddress(select, node, offset);
 	offset = texelFetch(octree, int(offset)).r;
 
+	// Setup where we should write.
+	uint counterIndex = DST_COUNTER_INDEX + slot;
+	uint index = DST_BASE_INDEX + slot * SPLIT_SIZE;
+
 	// Write out the data.
-	uint index = atomicAdd(inoutCounters[COUNTER_INDEX], 1) * 3;
-	outData[index + 0] = bitfieldInsert(x, y, 16, 16);
-	outData[index + 1] = z;
-	outData[index + 2] = offset;
+	index += atomicAdd(ioCounters[counterIndex], 1) * 3;
+	ioVoxels[index + 0] = bitfieldInsert(x, y, 16, 16);
+	ioVoxels[index + 1] = bitfieldInsert(z, obj, 16, 16);
+	ioVoxels[index + 2] = offset;
 }

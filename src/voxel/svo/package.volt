@@ -2,7 +2,7 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module voxel.svo;
 
-public import voxel.svo.step;
+
 public import voxel.svo.input;
 public import voxel.svo.entity;
 public import voxel.svo.packer;

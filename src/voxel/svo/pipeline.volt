@@ -4,6 +4,7 @@ module voxel.svo.pipeline;
 
 import io = watt.io;
 
+import watt.algorithm;
 import watt.text.string;
 import watt.text.format;
 import watt.math.floating;
@@ -13,7 +14,10 @@ import math = charge.math;
 
 import charge.gfx.gl;
 
+import old = voxel.old;
+
 import voxel.svo.util;
+import voxel.svo.steps;
 import voxel.svo.design;
 import voxel.svo.entity;
 import voxel.svo.shaders;
@@ -60,80 +64,55 @@ fn checkGraphics() string
 	return str;
 }
 
-/*!
- * Input to the draw call that renders the SVO.
- */
-struct Draw
-{
-	camMVP: math.Matrix4x4d;
-	cullMVP: math.Matrix4x4d;
-	camPos: math.Point3f; pad0: f32;
-	cullPos: math.Point3f; pad1: f32;
-	frame, targetWidth, targetHeight: u32; fov: f32;
-}
 
-/*!
- * A single SVO rendering pipeline.
- */
-abstract class Pipeline
+struct DataBuffer
 {
 public:
-	name: string;
-
-
-private:
-	mTimeTrackerRoot: gfx.TimeTracker;
-
-
-public:
-	this(name: string)
+	struct PerObject
 	{
-		this.name = name;
-		this.mTimeTrackerRoot = new gfx.TimeTracker("voxels (" ~ name ~ ")");
-	}
+		matrix: math.Matrix4x4f;
+		planes: math.Planef[4];
+		camPosition: math.Point3f; _pad0: f32;
+	};
 
-	abstract fn close();
-	fn draw(ref input: Draw)
-	{
-		mTimeTrackerRoot.start();
-		doDraw(ref input);
-		mTimeTrackerRoot.stop();
-	}
 
-	abstract fn doDraw(ref input: Draw);
-}
-
-struct TestState
-{
 public:
-	matrix: math.Matrix4x4f;
-	planes: math.Planef[4];
-	camPosition: math.Point3f; pointScale: f32;
-	frame: u32;
+	objs: PerObject[256];
+	dists: f32[32];
+	pointScale: f32;
 
 
-	fn setFrom(ref input: Draw)
+public:
+	fn setFrom(ref input: old.Draw)
 	{
 		frustum: math.Frustum;
 		frustum.setFromUntransposedGL(ref input.cullMVP);
 		height := cast(f64)input.targetHeight;
 		fov := radians(cast(f64)input.fov);
 
-		matrix.setToAndTranspose(ref input.camMVP);
-		camPosition = input.cullPos;
-		planes[0].setFrom(ref frustum.p[0]);
-		planes[1].setFrom(ref frustum.p[1]);
-		planes[2].setFrom(ref frustum.p[2]);
-		planes[3].setFrom(ref frustum.p[3]);
-		frame = input.frame;
+		dist: VoxelDistanceFinder;
+		dist.setup(fov, input.targetHeight, input.targetWidth);
+		foreach (i, ref d; dists) {
+			d = cast(f32)dist.getDistance(cast(i32)i);
+		}
+
+		// Shared point scaler.
 		pointScale = cast(f32)(height / (2.0 * tan(fov / 2.0)));
+
+
+		objs[0].matrix.setToAndTranspose(ref input.camMVP);
+		objs[0].camPosition = input.cullPos;
+		objs[0].planes[0].setFrom(ref frustum.p[0]);
+		objs[0].planes[1].setFrom(ref frustum.p[1]);
+		objs[0].planes[2].setFrom(ref frustum.p[2]);
+		objs[0].planes[3].setFrom(ref frustum.p[3]);
 	}
 }
 
 /*!
  * A single SVO rendering pipeline.
  */
-class TestPipeline : Pipeline
+class Pipeline : old.Pipeline
 {
 public:
 	data: Data;
@@ -142,27 +121,26 @@ public:
 protected:
 	mStore: ShaderStore;
 
-	mDataBuffer: GLuint;
-	mAtomicBuffer: GLuint;
-	mCounterBuffer: GLuint;
+	mVAO: GLuint;
 
-	mDrawIndirect: GLuint;
-	mDispatchIndirect: GLuint;
+	mState: StepState;
 
-	mInBuffer: GLuint;
-	mOutBuffer: GLuint;
-	mArrayVAO: GLuint;
-
-	mSort: gfx.Shader[5];
-	mPoints: gfx.Shader;
-
-	enum DataBufferSize = 4 * 128;
+	enum DataBufferSize = cast(u32)(typeid(DataBuffer).size);
 	enum AtomicBufferSize = 4 * 8;
-	enum CounterBufferSize = 4 * 64;
-	enum DrawIndirectSize = 4 * 4;
+	enum CounterBufferSize = 4 * 128;
+	enum DrawIndirectSize = 4 * 5;
 	enum DispatchIndirectSize = 4 * 3;
+	enum VoxelBufferSize : size_t = 512 * 1024 * 1024;
 
-	mTimeTrackers: gfx.TimeTracker[];
+	// Yes they really need to be this big.
+	enum SortBufferSize : size_t = 8 * 1024 * 1024;
+	enum DoubleBufferSize : size_t = 128 * 1024 * 1024;
+
+	mTimeInit: gfx.TimeTracker;
+	mTimeClose: gfx.TimeTracker;
+
+	mSteps: Step[];
+	mStart: Step[16];
 
 
 public:
@@ -172,55 +150,113 @@ public:
 		this.mStore = getStore(ref data.create);
 		super("test");
 
-		mTimeTrackers = [
-			new gfx.TimeTracker("init"),
-			new gfx.TimeTracker("walk 1-3"),
-			new gfx.TimeTracker("cull 3-5"),
-			new gfx.TimeTracker("cull 5-7"),
-			new gfx.TimeTracker("sort 7-9"),
-			new gfx.TimeTracker("double 9-11"),
-			new gfx.TimeTracker("points")
-		];
+		mTimeInit = new gfx.TimeTracker("init");
+		mTimeClose = new gfx.TimeTracker("close");
 
+		numLevels := max(data.create.numLevels, 8u);
+		if (numLevels >= 16) {
+			assert(false, "to many levels");
+		}
 
-		mSort[0] = mStore.makeWalkSimpleShader(src: 2, dst: 3, counterIndex: 1, powerStart: 0, powerLevels: 3);
-		mSort[1] = mStore.makeWalkCullShader(src: 3, dst: 2, counterIndex: 2, powerStart: 3);
-		mSort[2] = mStore.makeWalkCullShader(src: 2, dst: 3, counterIndex: 3, powerStart: 5);
-		mSort[3] = mStore.makeWalkSortShader(src: 3, dst: 2, counterIndex: 4, powerStart: 7);
-		mSort[4] = mStore.makeListDoubleShader(src: 2, dst: 3, powerStart: 9);
-		mPoints = mStore.makePointsShader(src: 3, powerStart: 11);
+		tmp, cubes, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13: Step;
 
-		// Setup the dummy arrays VAO.
-		glCreateVertexArrays(1, &mArrayVAO);
+		rt: ResourceTracker;
+		rt.store = mStore;
+		rt.addInit(out mStart[numLevels]);
+		si := 7u;
+
+		if (numLevels >= 15) {
+			rt.addSplit(  s: out mStart[14], o: out  s3, src: mStart[15],  splitIndex: si++);
+		}
+
+		if (numLevels >= 14) {
+			rt.addSplit(  s: out mStart[13], o: out  s4, src: mStart[14],  splitIndex: si++);
+		}
+
+		if (numLevels >= 13) {
+			rt.addSplit(  s: out mStart[12], o: out  s5, src: mStart[13],  splitIndex: si++);
+		}
+
+		if (numLevels >= 12) {
+			rt.addSplit(  s: out mStart[11], o: out  s6, src: mStart[12],  splitIndex: si++);
+		}
+
+		if (numLevels >= 11) {
+			rt.addSplit(  s: out mStart[10], o: out  s7, src: mStart[11],  splitIndex: si++);
+		}
+
+		if (numLevels >= 10) {
+			rt.addSplit(  s: out mStart[ 9], o: out  s8, src: mStart[10],  splitIndex: si++);
+		}
+
+		if (numLevels >= 9) {
+			rt.addSplit(  s: out mStart[ 8], o: out  s9, src: mStart[9],  splitIndex: si++);
+		}
+
+		rt.addSplit(  s: out mStart[ 7], o: out s10, src: mStart[ 8],  splitIndex: si++);
+		rt.addSplit(  s: out mStart[ 6], o: out s11, src: mStart[ 7],  splitIndex: si++);
+		rt.addSplit(  s: out mStart[ 5], o: out s12, src: mStart[ 6],  splitIndex: si++);
+		rt.addSplit(  s: out      cubes, o: out s13, src: mStart[ 5],  splitIndex: si + 2);
+
+		// Closest voxels.
+		rt.addSortToDoubleToCube(cubes);
+
+		// Second closest voxels.
+		rt.addSortToDoubleToPoint(s13);
+
+		// And so on.
+		rt.addSortToDoubleToPoint(s12);
+		rt.addSortToDoubleToPoint(s11);
+		rt.addSortToDoubleToPoint(s10);
+
+		if (numLevels >= 9) {
+			rt.addSortToDoubleToPoint(s9);
+		}
+
+		if (numLevels >= 10) {
+			rt.addSortToDoubleToPoint(s8);
+		}
+
+		mSteps = rt.steps;
+
+		// Setup a VAO.
+		mIndexBuffer := createIndexBuffer(662230u);
+		glCreateVertexArrays(1, &mVAO);
+		glVertexArrayElementBuffer(mVAO, mIndexBuffer);
 
 		// Create the storage for the atmic buffer.
-		glCreateBuffers(1, &mAtomicBuffer);
-		glNamedBufferStorage(mAtomicBuffer, AtomicBufferSize, null, GL_DYNAMIC_STORAGE_BIT);
-		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glCreateBuffers(1, &mState.atomicBuffer);
+		glNamedBufferStorage(mState.atomicBuffer, AtomicBufferSize, null, GL_DYNAMIC_STORAGE_BIT);
+		glClearNamedBufferData(mState.atomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 
 		// Create the storage for the command buffer.
-		glCreateBuffers(1, &mDispatchIndirect);
-		glNamedBufferStorage(mDispatchIndirect, DispatchIndirectSize, null, GL_DYNAMIC_STORAGE_BIT);
-		glClearNamedBufferData(mDispatchIndirect, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glCreateBuffers(1, &mState.computeIndirectBuffer);
+		glNamedBufferStorage(mState.computeIndirectBuffer, DispatchIndirectSize, null, GL_DYNAMIC_STORAGE_BIT);
+		glClearNamedBufferData(mState.computeIndirectBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 
 		// Create the storage for the command buffer.
-		glCreateBuffers(1, &mDrawIndirect);
-		glNamedBufferStorage(mDrawIndirect, DrawIndirectSize, null, GL_DYNAMIC_STORAGE_BIT);
-		glClearNamedBufferData(mDrawIndirect, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glCreateBuffers(1, &mState.drawIndirectBuffer);
+		glNamedBufferStorage(mState.drawIndirectBuffer, DrawIndirectSize, null, GL_DYNAMIC_STORAGE_BIT);
+		glClearNamedBufferData(mState.drawIndirectBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
 
 		// Create the storage for the counter buffer.
-		glCreateBuffers(1, &mCounterBuffer);
-		glNamedBufferStorage(mCounterBuffer, CounterBufferSize, null, GL_DYNAMIC_STORAGE_BIT);
+		glCreateBuffers(1, &mState.countersBuffer);
+		glNamedBufferStorage(mState.countersBuffer, CounterBufferSize, null, GL_DYNAMIC_STORAGE_BIT);
 
 		// Create the storage for the data buffer.
-		glCreateBuffers(1, &mDataBuffer);
-		glNamedBufferStorage(mDataBuffer, DataBufferSize, null, GL_DYNAMIC_STORAGE_BIT);
+		glCreateBuffers(1, &mState.dataBuffer);
+		glNamedBufferStorage(mState.dataBuffer, DataBufferSize, null, GL_DYNAMIC_STORAGE_BIT);
 
 		// Really big data buffer.
-		glCreateBuffers(1, &mInBuffer);
-		glNamedBufferStorage(mInBuffer, 0x0800_0000, null, GL_DYNAMIC_STORAGE_BIT);
-		glCreateBuffers(1, &mOutBuffer);
-		glNamedBufferStorage(mOutBuffer, 0x0800_0000, null, GL_DYNAMIC_STORAGE_BIT);
+		glCreateBuffers(1, &mState.voxelBuffer);
+		glNamedBufferStorage(mState.voxelBuffer, VoxelBufferSize, null, GL_DYNAMIC_STORAGE_BIT);
+
+
+		glCreateBuffers(1, &mState.sortBuffer);
+		glNamedBufferStorage(mState.sortBuffer, SortBufferSize, null, GL_DYNAMIC_STORAGE_BIT);
+
+		glCreateBuffers(1, &mState.doubleBuffer);
+		glNamedBufferStorage(mState.doubleBuffer, DoubleBufferSize, null, GL_DYNAMIC_STORAGE_BIT);
 	}
 
 	override fn close()
@@ -228,17 +264,17 @@ public:
 
 	}
 
-	override fn doDraw(ref input: Draw)
+	override fn doDraw(ref input: old.Draw)
 	{
 		// Start counting the voxel time.
-		mTimeTrackers[0].start();
+		mTimeInit.start();
 
 		frustum: math.Frustum;
 		frustum.setFromUntransposedGL(ref input.cullMVP);
 		height := cast(f64)input.targetHeight;
 		fov := radians(cast(f64)input.fov);
 
-		state: TestState;
+		state: DataBuffer;
 		state.setFrom(ref input);
 
 		// Clear any error state.
@@ -247,47 +283,36 @@ public:
 		// General bindigns.
 		glBindTextureUnit(0, data.texture);
 
-		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, mDrawIndirect);
-		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, mDispatchIndirect);
-		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, mAtomicBuffer);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mCounterBuffer);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mDataBuffer);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mInBuffer);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, mOutBuffer);
-		glBindVertexArray(mArrayVAO);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, mState.drawIndirectBuffer);
+		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, mState.computeIndirectBuffer);
+		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, mState.atomicBuffer);
+
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, StepState.CountersBufferBinding, mState.countersBuffer);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, StepState.DataBufferBinding, mState.dataBuffer);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, StepState.VoxelBufferBinding, mState.voxelBuffer);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, StepState.SortBufferBinding, mState.sortBuffer);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, StepState.DoubleBufferBinding, mState.doubleBuffer);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, StepState.DrawIndirectBinding, mState.drawIndirectBuffer);
+		glBindVertexArray(mVAO);
 
 		// Clear and setup buffers.
-		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
-		glClearNamedBufferData(mCounterBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
-		glNamedBufferSubData(mDrawIndirect, 0, 4 * 4, cast(void*)[0, 1, 0, 0].ptr);
-		glNamedBufferSubData(mDispatchIndirect, 0, 4 * 3, cast(void*)[0, 1, 1].ptr);
-		glNamedBufferSubData(mInBuffer, 0, 4 * 3, cast(void*)[0, 0, input.frame].ptr);
-		glNamedBufferSubData(mDataBuffer, 0, 4 * (16 + 16 + 4), cast(void*)&state);
-		glNamedBufferSubData(mCounterBuffer, 0, 4, cast(void*)[1].ptr);
+		glClearNamedBufferData(mState.atomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glClearNamedBufferData(mState.countersBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glNamedBufferSubData(mState.dataBuffer, 0, DataBufferSize, cast(void*)&state);
+		glNamedBufferSubData(mState.drawIndirectBuffer, 0, 4 * 4, cast(void*)[0, 1, 0, 0, 0].ptr);
+		glNamedBufferSubData(mState.computeIndirectBuffer, 0, 4 * 3, cast(void*)[0, 1, 1].ptr);
+		glNamedBufferSubData(mState.voxelBuffer, cast(GLintptr)(mStart[data.create.numLevels].baseIndex * 4), 4 * 3, cast(void*)[0, 0, input.frame].ptr);
+		glNamedBufferSubData(mState.countersBuffer, cast(GLintptr)(mStart[data.create.numLevels].counterIndex * 4), 4, cast(void*)[1].ptr);
 
-		// 1st sort shader.
-		mTimeTrackers[1].exchange();
-		runSort(0);
+		glCheckError();
 
-		// 2nd sort shader.
-		mTimeTrackers[2].exchange();
-		runSort(1);
+		// Init counts as 0, skip it.
+		foreach (step; mSteps[1 .. $]) {
+			step.run(ref mState);
+		}
 
-		// 3rd sort shader.
-		mTimeTrackers[3].exchange();
-		runSort(2);
-
-		// 4th sort shader.
-		mTimeTrackers[4].exchange();
-		runSort(3);
-
-		// 5th sort shader.
-		mTimeTrackers[5].exchange();
-		runDouble(ref state, 4);
-
-		// Run the points shader
-		mTimeTrackers[6].exchange();
-		runPoints(ref state, 3);
+		// Final closing step.
+		mTimeClose.exchange();
 
 		// Unbind all state
 		glUseProgram(0);
@@ -303,50 +328,9 @@ public:
 		glBindTextureUnit(0, data.texture);
 
 		// Stop counting.
-		mTimeTrackers[6].stop();
+		mTimeClose.stop();
 
 		// Debug
-		glCheckError();
-	}
-
-
-protected:
-	fn runSort(num: u32)
-	{
-		// Copy the counter from the previous run.
-		off := cast(GLintptr)(num * 4);
-		glCopyNamedBufferSubData(mCounterBuffer, mDispatchIndirect, off, 0, 4);
-
-		mSort[num].bind();
-		glDispatchComputeIndirect(0u);
-	}
-
-	fn runDouble(ref state: TestState, num: u32)
-	{
-		// Copy the counter from the previous run.
-		off := cast(GLintptr)(num * 4);
-		glCopyNamedBufferSubData(mCounterBuffer, mDispatchIndirect, off, 0, 4);
-
-		mSort[4].bind();
-		mSort[4].float3("uCameraPos".ptr, state.camPosition.ptr);
-		mSort[4].matrix4("uMatrix", 1, false, ref state.matrix);
-		mSort[4].float1("uPointScale".ptr, state.pointScale);
-		glDispatchComputeIndirect(0u);
-	}
-
-	fn runPoints(ref state: TestState, num: u32)
-	{
-		// Copy the counter from the previous run.
-		off := cast(GLintptr)(num * 4);
-		glCopyNamedBufferSubData(mAtomicBuffer, mDrawIndirect, off, 0, 4);
-
-		mPoints.bind();
-		mPoints.float3("uCameraPos".ptr, state.camPosition.ptr);
-		mPoints.matrix4("uMatrix", 1, false, ref state.matrix);
-		mPoints.float1("uPointScale".ptr, state.pointScale);
-		glEnable(GL_PROGRAM_POINT_SIZE);
-		glDrawArraysIndirect(GL_POINTS, null);
-		glDisable(GL_PROGRAM_POINT_SIZE);
 		glCheckError();
 	}
 
@@ -355,30 +339,23 @@ private:
 	fn debugCounter(src: u32) u32
 	{
 		val: u32[1];
-		readBuffer(mCounterBuffer, src, val);
+		readBuffer(mState.countersBuffer, src, val);
 		return val[0];
 	}
 
 	fn debugAtomic(src: u32) u32
 	{
 		val: u32[1];
-		readBuffer(mAtomicBuffer, src, val);
+		readBuffer(mState.atomicBuffer, src, val);
 		return val[0];
 	}
 
 	fn printCounters()
 	{
 		val: u32[8];
-		readBuffer(mCounterBuffer, 0, val);
+		readBuffer(mState.countersBuffer, 0, val);
 		io.output.writef( "| %8s | %8s | %8s | %8s |", val[0], val[1], val[2], val[3]);
 		io.output.writefln(" %8s | %8s | %8s | %8s |", val[4], val[5], val[6], val[7]);
-	}
-
-	fn printData(slot: u32)
-	{
-		val: u32[4];
-		readBuffer(mOutBuffer, slot * 4, val);
-		io.output.writefln("| %08x | %08x | %08x | %08x |", val[0], val[1], val[2], val[3]);
 	}
 
 	fn readBuffer(buf: GLuint, offset: u32, data: scope u32[])
