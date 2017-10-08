@@ -71,7 +71,7 @@ void main(void)
 	uint x = bitfieldExtract(xy, 0, 16);
 	uint y = bitfieldExtract(xy, 16, 16);
 	uint z = bitfieldExtract(zobj, 0, 16) << POWER_LEVELS;
-	uint obj = bitfieldExtract(zobj, 16, 0);
+	uint obj = bitfieldExtract(zobj, 16, 16);
 	offset = ioVoxels[offset + 2];
 
 	// This is a unrolled loop.

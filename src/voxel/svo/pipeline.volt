@@ -74,10 +74,26 @@ struct Draw
 	objs: Entity[];
 }
 
+
+
 struct DataBuffer
 {
 public:
-	struct PerObject
+	static struct Entry
+	{
+		xy: u32;
+		zobj: u32;
+		addr: u32;
+
+		fn from(id: u32, start: u32)
+		{
+			this.xy = 0;
+			this.zobj = id << 16u;
+			this.addr = start;
+		}
+	}
+
+	static struct PerObject
 	{
 		matrix: math.Matrix4x4f;
 		planes: math.Planef[4];
@@ -89,6 +105,8 @@ public:
 	objs: PerObject[256];
 	dists: f32[32];
 	pointScale: f32;
+	nums: u32[16];
+	entries: Entry[256][16];
 
 
 public:
@@ -107,9 +125,18 @@ public:
 		pointScale = cast(f32)(height / (2.0 * tan(fov / 2.0)));
 
 
-//		foreach (input.objs) {
-//
-//		}
+		foreach (i, obj; input.objs) {
+			updateState(
+				ref objs[i],
+				ref input.camVP,
+				ref input.cullVP,
+				ref input.cullPos,
+				obj);
+			id := cast(u32) i;
+			level := obj.numLevels;
+			num := nums[level]++;
+			entries[level][num].from(id, obj.start);
+		}
 	}
 
 	global fn updateState(ref outObj: PerObject,
@@ -121,8 +148,6 @@ public:
 		rot := model.rot;
 		pos := model.pos;
 
-		//voxelSize := 1.0f / (1 << mLevels);
-		//off := model.rot * (model.off * voxelSize);
 		off: math.Vector3f;
 		offPos := pos - off;
 
@@ -159,9 +184,11 @@ public:
 			d = cast(f32)dist.getDistance(cast(i32)i);
 		}
 
+		nums[input.numLevels] = 1u;
+		entries[input.numLevels][0].from(id: 0, start: input.frame);
+
 		// Shared point scaler.
 		pointScale = cast(f32)(height / (2.0 * tan(fov / 2.0)));
-
 
 		objs[0].matrix.setToAndTranspose(ref input.camMVP);
 		objs[0].camPosition = input.cullPos;
@@ -336,8 +363,7 @@ public:
 		state: DataBuffer;
 		state.setFrom(ref input);
 
-		obj := input.objs[0];
-		doDraw(ref state, obj.numLevels, obj.start);
+		doDraw(ref state);
 
 		mTimeTrackerRoot.stop();
 	}
@@ -346,10 +372,10 @@ public:
 	{
 		state: DataBuffer;
 		state.setFrom(ref input);
-		doDraw(ref state, input.numLevels, input.frame);
+		doDraw(ref state);
 	}
 
-	fn doDraw(ref state: DataBuffer, level: u32, start: u32)
+	fn doDraw(ref state: DataBuffer)
 	{
 		// Start counting the voxel time.
 		mTimeInit.start();
@@ -378,8 +404,23 @@ public:
 		glNamedBufferSubData(mState.dataBuffer, 0, DataBufferSize, cast(void*)&state);
 		glNamedBufferSubData(mState.drawIndirectBuffer, 0, 4 * 4, cast(void*)[0, 1, 0, 0, 0].ptr);
 		glNamedBufferSubData(mState.computeIndirectBuffer, 0, 4 * 3, cast(void*)[0, 1, 1].ptr);
-		glNamedBufferSubData(mState.voxelBuffer, cast(GLintptr)(mStart[level].baseIndex * 4), 4 * 3, cast(void*)[0, 0, start].ptr);
-		glNamedBufferSubData(mState.countersBuffer, cast(GLintptr)(mStart[level].counterIndex * 4), 4, cast(void*)[1].ptr);
+
+		foreach (i, ref es; state.entries) {
+			num := state.nums[i];
+			if (num <= 0) {
+				continue;
+			}
+
+			entriesPtr := cast(void*)&es;
+			entriesOff := cast(GLintptr)(mStart[i].baseIndex * 4);
+			entriesSize := cast(GLintptr)(typeid(DataBuffer.Entry).size * num);
+			numPtr := cast(void*)&state.nums[i];
+			numOff := cast(GLintptr)(mStart[i].counterIndex * 4);
+			numSize := cast(GLintptr)4;
+
+			glNamedBufferSubData(mState.voxelBuffer, entriesOff, entriesSize, entriesPtr);
+			glNamedBufferSubData(mState.countersBuffer, numOff, numSize, numPtr);
+		}
 
 		glCheckError();
 

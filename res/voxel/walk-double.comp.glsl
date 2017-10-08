@@ -44,10 +44,13 @@ void main(void)
 
 	// Get the initial node adress and the packed position.
 	uint inOffset = gl_WorkGroupID.x * 3;
-	uint packedPos1 = inVoxels[inOffset + 0] << POWER_LEVELS;
-	uint packedPos2 = inVoxels[inOffset + 1] << POWER_LEVELS;
+	uint packedPos1 = inVoxels[inOffset + 0];
+	uint packedPos2 = inVoxels[inOffset + 1];
 	uint packedOffset = inVoxels[inOffset + 2];
 
+	// Shift positions but keep object id as is.
+	packedPos1 = packedPos1 << POWER_LEVELS;
+	packedPos2 = bitfieldInsert(packedPos2, packedPos2 << POWER_LEVELS, 0, 16);
 	// Calculate where the offset and bits are for this voxel.
 	uint offsetAndBitsAddress = packedOffset + 1 + morton / 16;
 
