@@ -303,12 +303,10 @@ fn addInternalStart(filename: string) string
 {
 	file := __FILE__;
 	version (Windows) {
-		end := "src\\charge\\gfx\\compiler.volt";
-	} else {
-		end := "src/charge/gfx/compiler.volt";
+		file = replace(file, "src\\charge\\gfx\\compiler.volt", filename);
 	}
 
-	return replace(file, end, filename);
+	return replace(file, "src/charge/gfx/compiler.volt", filename);
 }
 
 fn printDebug(name: string, shader: GLuint, ref src: Src) bool
