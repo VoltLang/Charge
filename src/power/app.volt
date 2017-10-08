@@ -15,6 +15,7 @@ public:
 	}
 
 	abstract fn showMenu();
-	abstract fn showVoxelTest();
 	abstract fn showAlignTest();
+	abstract fn showVoxelScene();
+	abstract fn showVoxelCompare();
 }

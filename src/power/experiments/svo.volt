@@ -33,15 +33,17 @@ public:
 
 
 protected:
-	mHasRendered: bool;
 	mFilename: string;
+	mHasRendered: bool;
+	mUseTest: bool;
 
 
 public:
-	this(app: App, filename: string)
+	this(app: App, filename: string, useTest: bool)
 	{
 		this.app = app;
 		this.mFilename = filename;
+		this.mUseTest = useTest;
 		super(app, 40, 5);
 		setHeader(cast(immutable(u8)[])"Loading");
 	}
@@ -77,7 +79,11 @@ public:
 		obj := new svo.Entity(d, frames);
 
 		app.closeMe(this);
-		app.push(new SvoViewer(app, d, obj));
+		if (mUseTest) {
+			app.push(new OldSvoViewer(app, d, obj));
+		} else {
+			app.push(new NewSvoViewer(app, d, obj));
+		}
 	}
 
 
@@ -189,14 +195,14 @@ public:
 	}
 }
 
-class SvoViewer : Viewer
+abstract class SvoViewer : Viewer
 {
 public:
 	data: svo.Data;
 	obj: svo.Entity;
+	animate: bool;
 	pipes: old.Pipeline[];
 	pipeId: u32;
-	animate: bool;
 
 
 protected:
@@ -207,20 +213,19 @@ public:
 	this(m: scene.Manager, data: svo.Data, obj: svo.Entity)
 	{
 		super(m);
-		this.data = data;
 		this.obj = obj;
+		this.data = data;
 		this.mTimeClear = new gfx.TimeTracker("clear");
-
-		// New testing pipeline
-		pipes ~= new svo.Pipeline(data);
-
-		// Create the pipelines.
-		for (i: i32; i < old.StepPipeline.Kind.Num; i++) {
-			pipes ~= new old.StepPipeline(data.texture, ref data.create, i);
-		}
 
 		// Set the starting position.
 		resetPosition(1);
+	}
+
+	fn switchRenderer()
+	{
+		if ((pipeId += 1) >= pipes.length) {
+			pipeId = 0;
+		}
 	}
 
 	fn resetPosition(pos: i32)
@@ -287,13 +292,6 @@ public:
 		}
 	}
 
-	fn switchRenderer()
-	{
-		if ((pipeId += 1) >= pipes.length) {
-			pipeId = 0;
-		}
-	}
-
 
 	/*
 	 *
@@ -331,6 +329,113 @@ public:
 			obj.stepFrame();
 		}
 		super.logic();
+	}
+
+
+protected:
+	fn checkQuery(t: gfx.Target)
+	{
+		ss: StringSink;
+		sink := ss.sink;
+
+
+		sink.format("CPU:\n");
+		sys.TimeTracker.getTimings(sink);
+		sink.format("\nGPU:\n");
+		gfx.TimeTracker.getTimings(sink);
+		sink.format("\n");
+		sink.format("Resolution: %sx%s\n", t.width, t.height);
+		sink.format(`w a s d - move camera
+1 2 3 4 5 6 - reset position
+o - AA (%s)
+t - animate (%s)
+y - step frame (#%s)
+m - switch renderer (%s)
+l - lock culling (%s)`, aa.getName(), animate, obj.frame, pipes[pipeId].name, mLockCull);
+		updateText(ss.toString());
+	}
+}
+
+class NewSvoViewer : SvoViewer
+{
+public:
+	objs: svo.Entity[];
+
+
+public:
+	this(m: scene.Manager, data: svo.Data, obj: svo.Entity)
+	{
+		super(m, data, obj);
+		this.objs = [obj];
+
+		// New testing pipeline
+		pipes ~= new svo.Pipeline(data);
+	}
+
+
+	/*
+	 *
+	 * Viewer methods.
+	 *
+	 */
+
+	override fn renderScene(t: gfx.Target)
+	{
+		pipe := cast(svo.Pipeline)pipes[pipeId];
+
+		// Clear the screen.
+		mTimeClear.start();
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		glUseProgram(0);
+		mTimeClear.stop();
+
+		// Constant for now.
+		fov := 45.f;
+
+		proj: math.Matrix4x4d;
+		t.setMatrixToProjection(ref proj, fov, 0.0001f, 256.f);
+
+		view: math.Matrix4x4d;
+		view.setToLookFrom(ref camPosition, ref camRotation);
+
+		cull: math.Matrix4x4d;
+		cull.setToLookFrom(ref cullPosition, ref cullRotation);
+
+		state: old.Draw;
+		state.targetWidth = t.width;
+		state.targetHeight = t.height;
+		state.fov = fov;
+		state.frame = obj.start;
+		state.camPos = camPosition;
+		state.camMVP.setToMultiply(ref proj, ref view);
+		state.cullPos = cullPosition;
+		state.cullMVP.setToMultiply(ref proj, ref cull);
+
+		pipes[pipeId].draw(ref state);
+
+		// Check for last frames query.
+		checkQuery(t);
+
+		glDisable(GL_DEPTH_TEST);
+	}
+}
+
+class OldSvoViewer : SvoViewer
+{
+public:
+	this(m: scene.Manager, data: svo.Data, obj: svo.Entity)
+	{
+		super(m, data, obj);
+
+		// New testing pipeline
+		pipes ~= new svo.Pipeline(data);
+
+		// Create the pipelines.
+		for (i: i32; i < old.StepPipeline.Kind.Num; i++) {
+			pipes ~= new old.StepPipeline(data.texture, ref data.create, i);
+		}
 	}
 
 
@@ -378,27 +483,5 @@ public:
 		checkQuery(t);
 
 		glDisable(GL_DEPTH_TEST);
-	}
-
-	fn checkQuery(t: gfx.Target)
-	{
-		ss: StringSink;
-		sink := ss.sink;
-
-
-		sink.format("CPU:\n");
-		sys.TimeTracker.getTimings(sink);
-		sink.format("\nGPU:\n");
-		gfx.TimeTracker.getTimings(sink);
-		sink.format("\n");
-		sink.format("Resolution: %sx%s\n", t.width, t.height);
-		sink.format(`w a s d - move camera
-1 2 3 4 5 6 - reset position
-o - AA (%s)
-t - animate (%s)
-y - step frame (#%s)
-m - switch renderer (%s)
-l - lock culling (%s)`, aa.getName(), animate, obj.frame, pipes[pipeId].name, mLockCull);
-		updateText(ss.toString());
 	}
 }

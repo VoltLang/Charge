@@ -48,7 +48,7 @@ public:
 		push(bg);
 
 		if (args.length > 1) {
-			push(new SvoLoader(this, args[1]));
+			push(new SvoLoader(this, args[1], true));
 		} else {
 			showMenu();
 		}
@@ -59,9 +59,14 @@ public:
 		push(new Menu(this));
 	}
 
-	override fn showVoxelTest()
+	override fn showVoxelScene()
 	{
-		push(new SvoLoader(this, "res/test.vox"));
+		push(new SvoLoader(this, "res/test.vox", false));
+	}
+
+	override fn showVoxelCompare()
+	{
+		push(new SvoLoader(this, "res/test.vox", true));
 	}
 
 	override fn showAlignTest()

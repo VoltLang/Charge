@@ -20,15 +20,18 @@ public:
 	this(app: App)
 	{
 		this.app = app;
-		voxelTest := new tui.Button();
-		voxelTest.str = "Voxel Test";
-		voxelTest.pressed = pressedVoxels;
+		voxelScene := new tui.Button();
+		voxelScene.str = "Voxel Scene";
+		voxelScene.pressed = pressedVoxelScene;
+		voxelCmp := new tui.Button();
+		voxelCmp.str = "Voxel Test";
+		voxelCmp.pressed = pressedVoxelCompare;
 
 		alignTest := new tui.Button();
 		alignTest.str = "Align Test";
 		alignTest.pressed = pressedAlignTest;
 
-		super(app, "Charged Experiments", voxelTest, alignTest);
+		super(app, "Charged Experiments", voxelScene, voxelCmp, alignTest);
 
 		this.quit.pressed = pressedQuit;
 		this.close.pressed = pressedClose;
@@ -50,9 +53,15 @@ public:
 		app.showAlignTest();
 	}
 
-	fn pressedVoxels(button: tui.Button)
+	fn pressedVoxelScene(button: tui.Button)
 	{
 		app.closeMe(this);
-		app.showVoxelTest();
+		app.showVoxelScene();
+	}
+
+	fn pressedVoxelCompare(button: tui.Button)
+	{
+		app.closeMe(this);
+		app.showVoxelCompare();
 	}
 }
