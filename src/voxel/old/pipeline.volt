@@ -81,7 +81,7 @@ public:
 	name: string;
 
 
-private:
+protected:
 	mTimeTrackerRoot: gfx.TimeTracker;
 
 
@@ -93,6 +93,7 @@ public:
 	}
 
 	abstract fn close();
+
 	fn draw(ref input: Draw)
 	{
 		mTimeTrackerRoot.start();

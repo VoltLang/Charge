@@ -64,6 +64,15 @@ fn checkGraphics() string
 	return str;
 }
 
+struct Draw
+{
+	camVP: math.Matrix4x4d;
+	cullVP: math.Matrix4x4d;
+	camPos: math.Point3f; _pad0: f32;
+	cullPos: math.Point3f; _pad1: f32;
+	targetWidth, targetHeight: u32; fov: f32; _pad2: f32;
+	objs: Entity[];
+}
 
 struct DataBuffer
 {
@@ -83,6 +92,60 @@ public:
 
 
 public:
+	fn setFrom(ref input: Draw)
+	{
+		fov := radians(cast(f64)input.fov);
+		height := cast(f64)input.targetHeight;
+
+		dist: VoxelDistanceFinder;
+		dist.setup(fov, input.targetHeight, input.targetWidth);
+		foreach (i, ref d; dists) {
+			d = cast(f32)dist.getDistance(cast(i32)i);
+		}
+
+		// Shared point scaler.
+		pointScale = cast(f32)(height / (2.0 * tan(fov / 2.0)));
+
+
+//		foreach (input.objs) {
+//
+//		}
+	}
+
+	global fn updateState(ref outObj: PerObject,
+	                      ref camVp: math.Matrix4x4d,
+	                      ref cullVp: math.Matrix4x4d,
+	                      ref cullCamPos: math.Point3f,
+	                      model: Entity)
+	{
+		rot := model.rot;
+		pos := model.pos;
+
+		//voxelSize := 1.0f / (1 << mLevels);
+		//off := model.rot * (model.off * voxelSize);
+		off: math.Vector3f;
+		offPos := pos - off;
+
+		m: math.Matrix4x4d;
+		m.setToModel(ref offPos, ref rot);
+
+		vec := model.rot.inverse() * (cullCamPos - offPos);
+		offCamPos := math.Point3f.opCall(vec);
+
+		cullMVP: math.Matrix4x4d;
+		cullMVP.setToMultiply(ref cullVp, ref m);
+
+		frustum: math.Frustum;
+		frustum.setFromUntransposedGL(ref cullMVP);
+
+		outObj.matrix.setToMultiplyAndTranspose(ref camVp, ref m);
+		outObj.planes[0].setFrom(ref frustum.p[0]);
+		outObj.planes[1].setFrom(ref frustum.p[1]);
+		outObj.planes[2].setFrom(ref frustum.p[2]);
+		outObj.planes[3].setFrom(ref frustum.p[3]);
+		outObj.camPosition = offCamPos;
+	}
+
 	fn setFrom(ref input: old.Draw)
 	{
 		frustum: math.Frustum;
@@ -153,7 +216,7 @@ public:
 		mTimeInit = new gfx.TimeTracker("init");
 		mTimeClose = new gfx.TimeTracker("close");
 
-		numLevels := max(data.create.numLevels, 8u);
+		numLevels := 11u;
 		if (numLevels >= 16) {
 			assert(false, "to many levels");
 		}
@@ -264,18 +327,32 @@ public:
 
 	}
 
-	override fn doDraw(ref input: old.Draw)
-	{
-		// Start counting the voxel time.
-		mTimeInit.start();
+	alias draw = old.Pipeline.draw;
 
-		frustum: math.Frustum;
-		frustum.setFromUntransposedGL(ref input.cullMVP);
-		height := cast(f64)input.targetHeight;
-		fov := radians(cast(f64)input.fov);
+	fn draw(ref input: Draw)
+	{
+		mTimeTrackerRoot.start();
 
 		state: DataBuffer;
 		state.setFrom(ref input);
+
+		obj := input.objs[0];
+		doDraw(ref state, obj.numLevels, obj.start);
+
+		mTimeTrackerRoot.stop();
+	}
+
+	override fn doDraw(ref input: old.Draw)
+	{
+		state: DataBuffer;
+		state.setFrom(ref input);
+		doDraw(ref state, input.numLevels, input.frame);
+	}
+
+	fn doDraw(ref state: DataBuffer, level: u32, start: u32)
+	{
+		// Start counting the voxel time.
+		mTimeInit.start();
 
 		// Clear any error state.
 		glCheckError();
@@ -301,8 +378,8 @@ public:
 		glNamedBufferSubData(mState.dataBuffer, 0, DataBufferSize, cast(void*)&state);
 		glNamedBufferSubData(mState.drawIndirectBuffer, 0, 4 * 4, cast(void*)[0, 1, 0, 0, 0].ptr);
 		glNamedBufferSubData(mState.computeIndirectBuffer, 0, 4 * 3, cast(void*)[0, 1, 1].ptr);
-		glNamedBufferSubData(mState.voxelBuffer, cast(GLintptr)(mStart[data.create.numLevels].baseIndex * 4), 4 * 3, cast(void*)[0, 0, input.frame].ptr);
-		glNamedBufferSubData(mState.countersBuffer, cast(GLintptr)(mStart[data.create.numLevels].counterIndex * 4), 4, cast(void*)[1].ptr);
+		glNamedBufferSubData(mState.voxelBuffer, cast(GLintptr)(mStart[level].baseIndex * 4), 4 * 3, cast(void*)[0, 0, start].ptr);
+		glNamedBufferSubData(mState.countersBuffer, cast(GLintptr)(mStart[level].counterIndex * 4), 4, cast(void*)[1].ptr);
 
 		glCheckError();
 
