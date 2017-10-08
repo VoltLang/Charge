@@ -18,13 +18,15 @@ class Entity
 	frame: size_t;
 	frames: u32[];
 	index: size_t;
+	numLevels: u32;
 
 
 public:
-	this(data: Data, frames: u32[])
+	this(data: Data, frames: u32[], numLevels: u32)
 	{
 		this.data = data;
 		this.frames = frames;
+		this.numLevels = numLevels;
 
 		assert(frames.length > 0);
 		te: EntityEntry;
@@ -45,6 +47,8 @@ public:
 	}
 
 	@property fn start() u32 { return entry.start; }
+	@property fn rot() math.Quatf { return entry.rot; }
+	@property fn pos() math.Point3f { return entry.pos; }
 
 
 protected:
@@ -98,8 +102,8 @@ public:
 	{
 		return decend(data, levels, obj.start);
 	}
-
 }
+
 
 private:
 

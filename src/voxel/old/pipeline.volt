@@ -69,7 +69,7 @@ struct Draw
 	cullMVP: math.Matrix4x4d;
 	camPos: math.Point3f; pad0: f32;
 	cullPos: math.Point3f; pad1: f32;
-	frame, targetWidth, targetHeight: u32; fov: f32;
+	frame, numLevels, targetWidth, targetHeight: u32; fov: f32;
 }
 
 /*!

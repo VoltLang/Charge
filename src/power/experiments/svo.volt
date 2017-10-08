@@ -30,6 +30,7 @@ class SvoLoader : tui.WindowScene
 {
 public:
 	app: App;
+	enum NumLevels = 11u;
 
 
 protected:
@@ -76,7 +77,7 @@ public:
 		}
 
 		d := new svo.Data(ref state, data);
-		obj := new svo.Entity(d, frames);
+		obj := new svo.Entity(d, frames, NumLevels);
 
 		app.closeMe(this);
 		if (mUseTest) {
@@ -116,14 +117,11 @@ public:
 	fn loadMagica(fileData: void[], out c: svo.Create,
 	              out frames: u32[], out data: void[]) bool
 	{
-		// Setup the state.
-		c.numLevels = 11;
-
 		// Create the loader.
 		l := new magica.Loader();
 
 		// Load parse the file.
-		return l.loadFileFromData(fileData, out frames, out data, c.numLevels);
+		return l.loadFileFromData(fileData, out frames, out data, NumLevels);
 	}
 
 	fn loadChalmers(fileData: void[], out c: svo.Create,
@@ -150,9 +148,6 @@ public:
 
 	fn genOne(out c: svo.Create, out frames: u32[], out data: void[]) bool
 	{
-		// Setup the state.
-		c.numLevels = 11;
-
 		// Reserve the first index.
 		ib: svo.InputBuffer;
 		ib.setup(1);
@@ -162,7 +157,7 @@ public:
 
 		// Only one frame.
 		frames = new u32[](1);
-		frames[0] = og.gen(ref ib, c.numLevels);
+		frames[0] = og.gen(ref ib, NumLevels);
 
 		data = ib.getData();
 		return true;
@@ -170,9 +165,6 @@ public:
 
 	fn genFlatY(out c: svo.Create, out frames: u32[], out data: void[]) bool
 	{
-		// Setup the state.
-		c.numLevels = 11;
-
 		// Reserve the first index.
 		ib: svo.InputBuffer;
 		ib.setup(1);
@@ -182,7 +174,7 @@ public:
 
 		// Only one frame.
 		frames = new u32[](1);
-		frames[0] = fg.genYColored(ref ib, c.numLevels);
+		frames[0] = fg.genYColored(ref ib, NumLevels);
 
 		data = ib.getData();
 		return true;
@@ -408,12 +400,13 @@ public:
 		state.targetHeight = t.height;
 		state.fov = fov;
 		state.frame = obj.start;
+		state.numLevels = obj.numLevels;
 		state.camPos = camPosition;
 		state.camMVP.setToMultiply(ref proj, ref view);
 		state.cullPos = cullPosition;
 		state.cullMVP.setToMultiply(ref proj, ref cull);
 
-		pipes[pipeId].draw(ref state);
+		pipe.draw(ref state);
 
 		// Check for last frames query.
 		checkQuery(t);
@@ -472,6 +465,7 @@ public:
 		state.targetHeight = t.height;
 		state.fov = fov;
 		state.frame = obj.start;
+		state.numLevels = obj.numLevels;
 		state.camPos = camPosition;
 		state.camMVP.setToMultiply(ref proj, ref view);
 		state.cullPos = cullPosition;

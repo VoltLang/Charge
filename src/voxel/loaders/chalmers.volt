@@ -98,9 +98,6 @@ public:
 		levels := sizeToOrder(cast(u32)h.resolution);
 		totalLevels := levels;
 
-		// Setup the state.
-		c.numLevels = totalLevels;
-
 		mData = cast(u32[])h.data;
 
 		// Convert the array data into a format we know about.

@@ -33,6 +33,5 @@ enum u32 BufferCommandId = BufferNum; // Buffer ids start at zero.
  */
 struct Create
 {
-	numLevels: u32;
 	isAMD: bool;
 }
