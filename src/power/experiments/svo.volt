@@ -61,8 +61,21 @@ public:
 			return;
 		}
 
-		if (str := old.checkGraphics()) {
-			return doError(str);
+		svoErrStr := svo.checkGraphics();
+		oldErrStr := old.checkGraphics();
+
+		// Ignore old error, if we are not using those pipelines.
+		if (!mUseTest) {
+			oldErrStr = null;
+		}
+
+		// Check error messages
+		if (svoErrStr.length != 0 && oldErrStr.length != 0) {
+			return doError(svoErrStr ~ "\n" ~ oldErrStr);
+		} else if (svoErrStr.length != 0) {
+			return doError(svoErrStr);
+		} else if (oldErrStr.length != 0) {
+			return doError(oldErrStr);
 		}
 
 		// State to give to the renderers.
