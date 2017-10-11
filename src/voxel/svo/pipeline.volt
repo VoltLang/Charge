@@ -53,9 +53,6 @@ fn checkGraphics() string
 	if (!GL_ARB_explicit_attrib_location) {
 		str ~= "Need GL_ARB_explicit_attrib_location\n";
 	}
-	if (!GL_ARB_shader_ballot) {
-		str ~= "Need GL_ARB_shader_ballot\n";
-	}
 	if (!GL_ARB_shader_atomic_counter_ops && !GL_AMD_shader_atomic_counter_ops) {
 		str ~= "Need GL_ARB_shader_atomic_counter_ops\n";
 		str ~=  " or GL_AMD_shader_atomic_counter_ops\n";
