@@ -93,7 +93,7 @@ public:
 		fclose(fp);
 
 		file := cast(File)raw;
-		file.__ctor(ptr, size);
+		file.__ctor(cast(immutable(void)*) ptr, size);
 
 		return file;
 	}
