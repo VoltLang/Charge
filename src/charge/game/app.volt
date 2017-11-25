@@ -63,17 +63,30 @@ public:
 		assert(mClosed);
 	}
 
+	/*!
+	 * Called by the core when it is shutting down.
+	 */
 	fn close()
 	{
 		mClosed = true;
 	}
 
+	/*!
+	 * Simple function that dispatches to the charge core.
+	 */
 	final fn loop() i32
 	{
 		return mCore.loop();
 	}
 
+	/*!
+	 * Called every frame.
+	 */
 	abstract fn render(t: gfx.Target);
+
+	/*!
+	 * Called every logic step.
+	 */
 	abstract fn logic();
 
 	/*!
