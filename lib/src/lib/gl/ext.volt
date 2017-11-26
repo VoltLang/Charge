@@ -9,6 +9,7 @@ global bool GL_ARB_ES2_compatibility;
 global bool GL_ARB_ES3_1_compatibility;
 global bool GL_ARB_ES3_2_compatibility;
 global bool GL_ARB_ES3_compatibility;
+global bool GL_ARB_direct_state_access;
 global bool GL_ARB_explicit_attrib_location;
 global bool GL_ARB_sampler_objects;
 global bool GL_ARB_shader_atomic_counter_ops;

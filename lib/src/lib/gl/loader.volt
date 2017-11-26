@@ -73,11 +73,13 @@ bool gladLoadGL(Loader load) {
 	load_GL_VERSION_4_3(load);
 	load_GL_VERSION_4_4(load);
 	load_GL_VERSION_4_5(load);
+	load_GL_VERSION_4_6(load);
 
 	find_extensionsGL();
 	load_GL_ARB_ES2_compatibility(load);
 	load_GL_ARB_ES3_1_compatibility(load);
 	load_GL_ARB_ES3_2_compatibility(load);
+	load_GL_ARB_direct_state_access(load);
 	load_GL_ARB_sampler_objects(load);
 	load_GL_ARB_texture_storage(load);
 	load_GL_EXT_memory_object(load);
@@ -114,6 +116,7 @@ void find_coreGL() {
 	GL_VERSION_4_3 = (major == 4 && minor >= 3) || major > 4;
 	GL_VERSION_4_4 = (major == 4 && minor >= 4) || major > 4;
 	GL_VERSION_4_5 = (major == 4 && minor >= 5) || major > 4;
+	GL_VERSION_4_6 = (major == 4 && minor >= 6) || major > 4;
 	return;
 }
 
@@ -123,6 +126,7 @@ void find_extensionsGL() {
 	GL_ARB_ES3_1_compatibility = has_ext("GL_ARB_ES3_1_compatibility");
 	GL_ARB_ES3_2_compatibility = has_ext("GL_ARB_ES3_2_compatibility");
 	GL_ARB_ES3_compatibility = has_ext("GL_ARB_ES3_compatibility");
+	GL_ARB_direct_state_access = has_ext("GL_ARB_direct_state_access");
 	GL_ARB_explicit_attrib_location = has_ext("GL_ARB_explicit_attrib_location");
 	GL_ARB_sampler_objects = has_ext("GL_ARB_sampler_objects");
 	GL_ARB_shader_atomic_counter_ops = has_ext("GL_ARB_shader_atomic_counter_ops");
@@ -926,6 +930,15 @@ void load_GL_VERSION_4_5(Loader load) {
 	return;
 }
 
+void load_GL_VERSION_4_6(Loader load) {
+	if(!GL_VERSION_4_6) return;
+	glSpecializeShader = cast(typeof(glSpecializeShader))load("glSpecializeShader");
+	glMultiDrawArraysIndirectCount = cast(typeof(glMultiDrawArraysIndirectCount))load("glMultiDrawArraysIndirectCount");
+	glMultiDrawElementsIndirectCount = cast(typeof(glMultiDrawElementsIndirectCount))load("glMultiDrawElementsIndirectCount");
+	glPolygonOffsetClamp = cast(typeof(glPolygonOffsetClamp))load("glPolygonOffsetClamp");
+	return;
+}
+
 void load_GL_ARB_ES2_compatibility(Loader load) {
 	if(!GL_ARB_ES2_compatibility) return;
 	glReleaseShaderCompiler = cast(typeof(glReleaseShaderCompiler))load("glReleaseShaderCompiler");
@@ -943,6 +956,107 @@ void load_GL_ARB_ES3_1_compatibility(Loader load) {
 void load_GL_ARB_ES3_2_compatibility(Loader load) {
 	if(!GL_ARB_ES3_2_compatibility) return;
 	glPrimitiveBoundingBoxARB = cast(typeof(glPrimitiveBoundingBoxARB))load("glPrimitiveBoundingBoxARB");
+	return;
+}
+void load_GL_ARB_direct_state_access(Loader load) {
+	if(!GL_ARB_direct_state_access) return;
+	glCreateTransformFeedbacks = cast(typeof(glCreateTransformFeedbacks))load("glCreateTransformFeedbacks");
+	glTransformFeedbackBufferBase = cast(typeof(glTransformFeedbackBufferBase))load("glTransformFeedbackBufferBase");
+	glTransformFeedbackBufferRange = cast(typeof(glTransformFeedbackBufferRange))load("glTransformFeedbackBufferRange");
+	glGetTransformFeedbackiv = cast(typeof(glGetTransformFeedbackiv))load("glGetTransformFeedbackiv");
+	glGetTransformFeedbacki_v = cast(typeof(glGetTransformFeedbacki_v))load("glGetTransformFeedbacki_v");
+	glGetTransformFeedbacki64_v = cast(typeof(glGetTransformFeedbacki64_v))load("glGetTransformFeedbacki64_v");
+	glCreateBuffers = cast(typeof(glCreateBuffers))load("glCreateBuffers");
+	glNamedBufferStorage = cast(typeof(glNamedBufferStorage))load("glNamedBufferStorage");
+	glNamedBufferData = cast(typeof(glNamedBufferData))load("glNamedBufferData");
+	glNamedBufferSubData = cast(typeof(glNamedBufferSubData))load("glNamedBufferSubData");
+	glCopyNamedBufferSubData = cast(typeof(glCopyNamedBufferSubData))load("glCopyNamedBufferSubData");
+	glClearNamedBufferData = cast(typeof(glClearNamedBufferData))load("glClearNamedBufferData");
+	glClearNamedBufferSubData = cast(typeof(glClearNamedBufferSubData))load("glClearNamedBufferSubData");
+	glMapNamedBuffer = cast(typeof(glMapNamedBuffer))load("glMapNamedBuffer");
+	glMapNamedBufferRange = cast(typeof(glMapNamedBufferRange))load("glMapNamedBufferRange");
+	glUnmapNamedBuffer = cast(typeof(glUnmapNamedBuffer))load("glUnmapNamedBuffer");
+	glFlushMappedNamedBufferRange = cast(typeof(glFlushMappedNamedBufferRange))load("glFlushMappedNamedBufferRange");
+	glGetNamedBufferParameteriv = cast(typeof(glGetNamedBufferParameteriv))load("glGetNamedBufferParameteriv");
+	glGetNamedBufferParameteri64v = cast(typeof(glGetNamedBufferParameteri64v))load("glGetNamedBufferParameteri64v");
+	glGetNamedBufferPointerv = cast(typeof(glGetNamedBufferPointerv))load("glGetNamedBufferPointerv");
+	glGetNamedBufferSubData = cast(typeof(glGetNamedBufferSubData))load("glGetNamedBufferSubData");
+	glCreateFramebuffers = cast(typeof(glCreateFramebuffers))load("glCreateFramebuffers");
+	glNamedFramebufferRenderbuffer = cast(typeof(glNamedFramebufferRenderbuffer))load("glNamedFramebufferRenderbuffer");
+	glNamedFramebufferParameteri = cast(typeof(glNamedFramebufferParameteri))load("glNamedFramebufferParameteri");
+	glNamedFramebufferTexture = cast(typeof(glNamedFramebufferTexture))load("glNamedFramebufferTexture");
+	glNamedFramebufferTextureLayer = cast(typeof(glNamedFramebufferTextureLayer))load("glNamedFramebufferTextureLayer");
+	glNamedFramebufferDrawBuffer = cast(typeof(glNamedFramebufferDrawBuffer))load("glNamedFramebufferDrawBuffer");
+	glNamedFramebufferDrawBuffers = cast(typeof(glNamedFramebufferDrawBuffers))load("glNamedFramebufferDrawBuffers");
+	glNamedFramebufferReadBuffer = cast(typeof(glNamedFramebufferReadBuffer))load("glNamedFramebufferReadBuffer");
+	glInvalidateNamedFramebufferData = cast(typeof(glInvalidateNamedFramebufferData))load("glInvalidateNamedFramebufferData");
+	glInvalidateNamedFramebufferSubData = cast(typeof(glInvalidateNamedFramebufferSubData))load("glInvalidateNamedFramebufferSubData");
+	glClearNamedFramebufferiv = cast(typeof(glClearNamedFramebufferiv))load("glClearNamedFramebufferiv");
+	glClearNamedFramebufferuiv = cast(typeof(glClearNamedFramebufferuiv))load("glClearNamedFramebufferuiv");
+	glClearNamedFramebufferfv = cast(typeof(glClearNamedFramebufferfv))load("glClearNamedFramebufferfv");
+	glClearNamedFramebufferfi = cast(typeof(glClearNamedFramebufferfi))load("glClearNamedFramebufferfi");
+	glBlitNamedFramebuffer = cast(typeof(glBlitNamedFramebuffer))load("glBlitNamedFramebuffer");
+	glCheckNamedFramebufferStatus = cast(typeof(glCheckNamedFramebufferStatus))load("glCheckNamedFramebufferStatus");
+	glGetNamedFramebufferParameteriv = cast(typeof(glGetNamedFramebufferParameteriv))load("glGetNamedFramebufferParameteriv");
+	glGetNamedFramebufferAttachmentParameteriv = cast(typeof(glGetNamedFramebufferAttachmentParameteriv))load("glGetNamedFramebufferAttachmentParameteriv");
+	glCreateRenderbuffers = cast(typeof(glCreateRenderbuffers))load("glCreateRenderbuffers");
+	glNamedRenderbufferStorage = cast(typeof(glNamedRenderbufferStorage))load("glNamedRenderbufferStorage");
+	glNamedRenderbufferStorageMultisample = cast(typeof(glNamedRenderbufferStorageMultisample))load("glNamedRenderbufferStorageMultisample");
+	glGetNamedRenderbufferParameteriv = cast(typeof(glGetNamedRenderbufferParameteriv))load("glGetNamedRenderbufferParameteriv");
+	glCreateTextures = cast(typeof(glCreateTextures))load("glCreateTextures");
+	glTextureBuffer = cast(typeof(glTextureBuffer))load("glTextureBuffer");
+	glTextureBufferRange = cast(typeof(glTextureBufferRange))load("glTextureBufferRange");
+	glTextureStorage1D = cast(typeof(glTextureStorage1D))load("glTextureStorage1D");
+	glTextureStorage2D = cast(typeof(glTextureStorage2D))load("glTextureStorage2D");
+	glTextureStorage3D = cast(typeof(glTextureStorage3D))load("glTextureStorage3D");
+	glTextureStorage2DMultisample = cast(typeof(glTextureStorage2DMultisample))load("glTextureStorage2DMultisample");
+	glTextureStorage3DMultisample = cast(typeof(glTextureStorage3DMultisample))load("glTextureStorage3DMultisample");
+	glTextureSubImage1D = cast(typeof(glTextureSubImage1D))load("glTextureSubImage1D");
+	glTextureSubImage2D = cast(typeof(glTextureSubImage2D))load("glTextureSubImage2D");
+	glTextureSubImage3D = cast(typeof(glTextureSubImage3D))load("glTextureSubImage3D");
+	glCompressedTextureSubImage1D = cast(typeof(glCompressedTextureSubImage1D))load("glCompressedTextureSubImage1D");
+	glCompressedTextureSubImage2D = cast(typeof(glCompressedTextureSubImage2D))load("glCompressedTextureSubImage2D");
+	glCompressedTextureSubImage3D = cast(typeof(glCompressedTextureSubImage3D))load("glCompressedTextureSubImage3D");
+	glCopyTextureSubImage1D = cast(typeof(glCopyTextureSubImage1D))load("glCopyTextureSubImage1D");
+	glCopyTextureSubImage2D = cast(typeof(glCopyTextureSubImage2D))load("glCopyTextureSubImage2D");
+	glCopyTextureSubImage3D = cast(typeof(glCopyTextureSubImage3D))load("glCopyTextureSubImage3D");
+	glTextureParameterf = cast(typeof(glTextureParameterf))load("glTextureParameterf");
+	glTextureParameterfv = cast(typeof(glTextureParameterfv))load("glTextureParameterfv");
+	glTextureParameteri = cast(typeof(glTextureParameteri))load("glTextureParameteri");
+	glTextureParameterIiv = cast(typeof(glTextureParameterIiv))load("glTextureParameterIiv");
+	glTextureParameterIuiv = cast(typeof(glTextureParameterIuiv))load("glTextureParameterIuiv");
+	glTextureParameteriv = cast(typeof(glTextureParameteriv))load("glTextureParameteriv");
+	glGenerateTextureMipmap = cast(typeof(glGenerateTextureMipmap))load("glGenerateTextureMipmap");
+	glBindTextureUnit = cast(typeof(glBindTextureUnit))load("glBindTextureUnit");
+	glGetTextureImage = cast(typeof(glGetTextureImage))load("glGetTextureImage");
+	glGetCompressedTextureImage = cast(typeof(glGetCompressedTextureImage))load("glGetCompressedTextureImage");
+	glGetTextureLevelParameterfv = cast(typeof(glGetTextureLevelParameterfv))load("glGetTextureLevelParameterfv");
+	glGetTextureLevelParameteriv = cast(typeof(glGetTextureLevelParameteriv))load("glGetTextureLevelParameteriv");
+	glGetTextureParameterfv = cast(typeof(glGetTextureParameterfv))load("glGetTextureParameterfv");
+	glGetTextureParameterIiv = cast(typeof(glGetTextureParameterIiv))load("glGetTextureParameterIiv");
+	glGetTextureParameterIuiv = cast(typeof(glGetTextureParameterIuiv))load("glGetTextureParameterIuiv");
+	glGetTextureParameteriv = cast(typeof(glGetTextureParameteriv))load("glGetTextureParameteriv");
+	glCreateVertexArrays = cast(typeof(glCreateVertexArrays))load("glCreateVertexArrays");
+	glDisableVertexArrayAttrib = cast(typeof(glDisableVertexArrayAttrib))load("glDisableVertexArrayAttrib");
+	glEnableVertexArrayAttrib = cast(typeof(glEnableVertexArrayAttrib))load("glEnableVertexArrayAttrib");
+	glVertexArrayElementBuffer = cast(typeof(glVertexArrayElementBuffer))load("glVertexArrayElementBuffer");
+	glVertexArrayVertexBuffer = cast(typeof(glVertexArrayVertexBuffer))load("glVertexArrayVertexBuffer");
+	glVertexArrayVertexBuffers = cast(typeof(glVertexArrayVertexBuffers))load("glVertexArrayVertexBuffers");
+	glVertexArrayAttribBinding = cast(typeof(glVertexArrayAttribBinding))load("glVertexArrayAttribBinding");
+	glVertexArrayAttribFormat = cast(typeof(glVertexArrayAttribFormat))load("glVertexArrayAttribFormat");
+	glVertexArrayAttribIFormat = cast(typeof(glVertexArrayAttribIFormat))load("glVertexArrayAttribIFormat");
+	glVertexArrayAttribLFormat = cast(typeof(glVertexArrayAttribLFormat))load("glVertexArrayAttribLFormat");
+	glVertexArrayBindingDivisor = cast(typeof(glVertexArrayBindingDivisor))load("glVertexArrayBindingDivisor");
+	glGetVertexArrayiv = cast(typeof(glGetVertexArrayiv))load("glGetVertexArrayiv");
+	glGetVertexArrayIndexediv = cast(typeof(glGetVertexArrayIndexediv))load("glGetVertexArrayIndexediv");
+	glGetVertexArrayIndexed64iv = cast(typeof(glGetVertexArrayIndexed64iv))load("glGetVertexArrayIndexed64iv");
+	glCreateSamplers = cast(typeof(glCreateSamplers))load("glCreateSamplers");
+	glCreateProgramPipelines = cast(typeof(glCreateProgramPipelines))load("glCreateProgramPipelines");
+	glCreateQueries = cast(typeof(glCreateQueries))load("glCreateQueries");
+	glGetQueryBufferObjecti64v = cast(typeof(glGetQueryBufferObjecti64v))load("glGetQueryBufferObjecti64v");
+	glGetQueryBufferObjectiv = cast(typeof(glGetQueryBufferObjectiv))load("glGetQueryBufferObjectiv");
+	glGetQueryBufferObjectui64v = cast(typeof(glGetQueryBufferObjectui64v))load("glGetQueryBufferObjectui64v");
+	glGetQueryBufferObjectuiv = cast(typeof(glGetQueryBufferObjectuiv))load("glGetQueryBufferObjectuiv");
 	return;
 }
 void load_GL_ARB_sampler_objects(Loader load) {

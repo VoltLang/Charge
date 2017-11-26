@@ -20,6 +20,7 @@ global bool GL_VERSION_4_2;
 global bool GL_VERSION_4_3;
 global bool GL_VERSION_4_4;
 global bool GL_VERSION_4_5;
+global bool GL_VERSION_4_6;
 extern(System) @loadDynamic {
 void glCullFace(GLenum);
 void glFrontFace(GLenum);
@@ -715,4 +716,8 @@ void glGetnSeparableFilter(GLenum, GLenum, GLenum, GLsizei, void*, GLsizei, void
 void glGetnHistogram(GLenum, GLboolean, GLenum, GLenum, GLsizei, void*);
 void glGetnMinmax(GLenum, GLboolean, GLenum, GLenum, GLsizei, void*);
 void glTextureBarrier();
+void glSpecializeShader(GLuint, const(GLchar)*, GLuint, const(GLuint)*, const(GLuint)*);
+void glMultiDrawArraysIndirectCount(GLenum, const(void)*, GLintptr, GLsizei, GLsizei);
+void glMultiDrawElementsIndirectCount(GLenum, GLenum, const(void)*, GLintptr, GLsizei, GLsizei);
+void glPolygonOffsetClamp(GLfloat, GLfloat, GLfloat);
 }
