@@ -2,8 +2,6 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.gfx.buffer;
 
-import gl45 = lib.gl.gl45;
-
 import lib.gl.gl33;
 
 import sys = charge.sys;
@@ -19,13 +17,6 @@ import charge.gfx.gl;
  * @{
  */
 fn reference(ref dec: Buffer, inc: Buffer)
-{
-	if (inc !is null) { inc.incRef(); }
-	if (dec !is null) { dec.decRef(); }
-	dec = inc;
-}
-
-fn reference(ref dec: IndirectBuffer, inc: IndirectBuffer)
 {
 	if (inc !is null) { inc.incRef(); }
 	if (dec !is null) { dec.decRef(); }
@@ -119,63 +110,5 @@ public:
 			mSize = size;
 		}
 		mPos = 0;
-	}
-}
-
-/*!
- * Follows the OpenGL spec for input to draw arrays indirection fuctions.
- *
- * glDrawArraysIndirect
- * glMultiDrawArraysIndirect
- */
-struct IndirectData
-{
-	count: GLuint;
-	instanceCount: GLuint;
-	first: GLuint;
-	baseInstance: GLuint;
-}
-
-/*!
- * Inderect buffer for use with OpenGL darw arrays indirect functions.
- *
- * glDrawArraysIndirect
- * glMultiDrawArraysIndirect
- */
-class IndirectBuffer : sys.Resource
-{
-public:
-	buf: GLuint;
-	num: GLsizei;
-
-
-public:
-	~this()
-	{
-		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
-	}
-
-	global fn make(name: string, data: IndirectData[]) IndirectBuffer
-	{
-		dummy: void*;
-		buffer := cast(IndirectBuffer)sys.Resource.alloc(
-			typeid(IndirectBuffer), Buffer.uri, name, 0, out dummy);
-		buffer.__ctor(data);
-		return buffer;
-	}
-
-
-protected:
-	this(data: IndirectData[])
-	{
-		super();
-		this.num = cast(GLsizei)data.length;
-
-		indirectStride := cast(GLsizei)typeid(IndirectData).size;
-		indirectLength := num * indirectStride;
-
-		gl45.glCreateBuffers(1, &buf);
-		gl45.glNamedBufferStorage(buf, indirectLength, cast(void*)data.ptr, gl45.GL_DYNAMIC_STORAGE_BIT);
-		glCheckError();
 	}
 }
