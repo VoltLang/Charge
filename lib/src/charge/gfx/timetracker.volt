@@ -276,6 +276,10 @@ public:
 private:
 	fn getEntry() Entry
 	{
+		if (mPool is null) {
+			return new Entry();
+		}
+
 		e := mPool;
 		mPool = e.mNext;
 		e.mNext = null;
