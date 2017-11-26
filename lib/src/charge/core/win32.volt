@@ -17,6 +17,8 @@ import io = watt.io;
 
 import watt.conv;
 
+import lib.gl.gl45;
+
 import charge.core;
 import charge.core.common;
 import charge.ctl.input;
