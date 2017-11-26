@@ -62,15 +62,9 @@ public:
 
 	fn checkVersion()
 	{
-		// For texture functions.
-		if (!GL_VERSION_4_5) {
-			throw new Exception("OpenGL features missing");
-		}
-
-		// For shaders.
-		if (!GL_ARB_ES2_compatibility &&
-		    !GL_VERSION_4_5) {
-			throw new Exception("Need GL_ARB_ES2_compatibility or OpenGL 4.5");
+		// Min version for charge.gfx.
+		if (!GL_VERSION_3_3) {
+			throw new Exception("Requires OpenGL 3.3");
 		}
 	}
 
