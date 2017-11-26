@@ -29,7 +29,7 @@
     Online:
         http://glad.dav1d.de/#profile=core&language=volt&specification=gl&api=gl%3D4.5&extensions=GL_AMD_shader_atomic_counter_ops&extensions=GL_ARB_ES3_1_compatibility&extensions=GL_ARB_ES3_2_compatibility&extensions=GL_ARB_ES3_compatibility&extensions=GL_ARB_shader_atomic_counter_ops&extensions=GL_ARB_shader_ballot&extensions=GL_EXT_memory_object&extensions=GL_EXT_memory_object_fd&extensions=GL_EXT_memory_object_win32&extensions=GL_EXT_semaphore&extensions=GL_EXT_semaphore_fd&extensions=GL_EXT_semaphore_win32&extensions=GL_EXT_texture_filter_anisotropic
 */
-module lib.gl.gl;
+module lib.gl.gl45;
 
 
 public import lib.gl.types;
