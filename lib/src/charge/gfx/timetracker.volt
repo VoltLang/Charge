@@ -31,7 +31,7 @@ public:
 	this(name: string)
 	{
 		if (gTracker is null) {
-			gTracker = Tracker.create();
+			gTracker = new Tracker();
 		}
 
 		this.name = name;
@@ -40,7 +40,7 @@ public:
 	global fn getTimings(sink: Sink)
 	{
 		if (gTracker is null) {
-			gTracker = Tracker.create();
+			gTracker = new Tracker();
 		}
 
 		gTracker.getLastFrame(sink);
@@ -123,36 +123,7 @@ private:
 	}
 }
 
-abstract class Tracker
-{
-public:
-	abstract fn getLastFrame(sink: Sink);
-	abstract fn startFrame(t: TimeTracker);
-	abstract fn endFrame(t: TimeTracker);
-	abstract fn push(t: TimeTracker);
-	abstract fn pop(t: TimeTracker);
-	abstract fn exchange(t: TimeTracker);
-
-
-public:
-	global fn create() Tracker
-	{
-		return new TrackerDesktop();
-	}
-}
-
-class TrackerNull : Tracker
-{
-public:
-	override fn getLastFrame(sink: Sink) { }
-	override fn startFrame(t: TimeTracker) { }
-	override fn endFrame(t: TimeTracker) { }
-	override fn push(t: TimeTracker) { }
-	override fn pop(t: TimeTracker) { }
-	override fn exchange(t: TimeTracker) { }
-}
-
-class TrackerDesktop : Tracker
+final class Tracker
 {
 private:
 	mRoot: Entry;
@@ -162,7 +133,7 @@ private:
 
 
 public:
-	override fn getLastFrame(sink: Sink)
+	fn getLastFrame(sink: Sink)
 	{
 		numRunning: u32;
 
@@ -210,7 +181,7 @@ public:
 		}
 	}
 
-	override fn startFrame(t: TimeTracker)
+	fn startFrame(t: TimeTracker)
 	{
 		assert(mFrame is null);
 
@@ -222,7 +193,7 @@ public:
 		mRoot = e;
 	}
 
-	override fn endFrame(t: TimeTracker)
+	fn endFrame(t: TimeTracker)
 	{
 		assert(mRoot !is null);
 		assert(mFrame !is null);
@@ -235,7 +206,7 @@ public:
 		mRoot = null;
 	}
 
-	override fn push(t: TimeTracker)
+	fn push(t: TimeTracker)
 	{
 		assert(mRoot !is null);
 		assert(mFrame !is null);
@@ -248,7 +219,7 @@ public:
 		mRoot = e;
 	}
 
-	override fn pop(t: TimeTracker)
+	fn pop(t: TimeTracker)
 	{
 		assert(mRoot !is null);
 		assert(mFrame !is null);
@@ -261,7 +232,7 @@ public:
 		mRoot = e;
 	}
 
-	override fn exchange(t: TimeTracker)
+	fn exchange(t: TimeTracker)
 	{
 		e := getEntry();
 		e.add();
