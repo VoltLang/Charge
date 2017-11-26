@@ -4,7 +4,7 @@ module voxel.svo.entity;
 
 import math = charge.math;
 
-import charge.gfx.gl;
+import lib.gl.gl45;
 
 import voxel.svo.design : Create;
 

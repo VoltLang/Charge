@@ -2,6 +2,8 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.game.tui.grid;
 
+import lib.gl.gl33;
+
 import math = charge.math;
 
 import charge.gfx.gl;

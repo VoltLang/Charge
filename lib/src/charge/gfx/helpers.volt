@@ -5,6 +5,8 @@
  */
 module charge.gfx.helpers;
 
+import lib.gl.gl33;
+
 import math = charge.math;
 
 import charge.gfx.gl;

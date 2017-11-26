@@ -11,6 +11,7 @@ import watt.algorithm;
 import watt.text.format;
 import watt.math.integer;
 
+import lib.gl.gl33;
 import lib.stb.image;
 
 import sys = charge.sys;

@@ -9,6 +9,8 @@ import watt.io.file;
 import watt.algorithm;
 import watt.text.format;
 
+import lib.gl.gl33;
+
 import core = charge.core;
 import ctl = charge.ctl;
 import gfx = charge.gfx;

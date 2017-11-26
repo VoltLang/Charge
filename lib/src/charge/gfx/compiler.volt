@@ -11,10 +11,12 @@ import watt.text.sink : StringSink;
 import watt.text.string : indexOf, splitLines, replace;
 import watt.text.format : format;
 
+import gl45 = lib.gl.gl45;
+
+import lib.gl.gl33;
+
 import core = charge.core;
 import math = charge.math;
-
-import lib.gl;
 
 import charge.gfx.shader;
 
@@ -248,7 +250,7 @@ fn attachAndCompileShader(c: Compiler, ref comp: CompSrc, name: string,
                           programShader: GLuint)
 {
 	// Create and attach the shader to a program handel.
-	compShader := glCreateShader(GL_COMPUTE_SHADER);
+	compShader := glCreateShader(gl45.GL_COMPUTE_SHADER);
 	glAttachShader(programShader, compShader);
 
 	// Do the compile.

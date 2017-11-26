@@ -5,11 +5,13 @@
  */
 module charge.gfx.shader;
 
+import gl45 = lib.gl.gl45;
+
+import lib.gl.gl33;
+
 import io = watt.io;
 import core = charge.core;
 import math = charge.math;
-
-import lib.gl;
 
 
 /*!
@@ -285,7 +287,7 @@ fn createAndCompileShaderC(name: string, comp: string) GLuint
 	assert(comp.length > 0);
 
 	// Create the handels
-	compShader := glCreateShader(GL_COMPUTE_SHADER);
+	compShader := glCreateShader(gl45.GL_COMPUTE_SHADER);
 	programShader := glCreateProgram();
 
 	// Attach the shader to a program handel.

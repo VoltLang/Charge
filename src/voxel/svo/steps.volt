@@ -4,6 +4,8 @@ module voxel.svo.steps;
 
 import watt.text.format;
 
+import lib.gl.gl45;
+
 import gfx = charge.gfx;
 import math = charge.math;
 

@@ -7,6 +7,8 @@ import watt.math : PIf;
 import watt.text.sink : StringSink;
 import watt.text.format : format;
 
+import lib.gl.gl33;
+
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import sys = charge.sys;

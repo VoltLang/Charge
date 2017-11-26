@@ -2,6 +2,8 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.gfx.bitmapfont;
 
+import lib.gl.gl33;
+
 import core = charge.core;
 import math = charge.math;
 

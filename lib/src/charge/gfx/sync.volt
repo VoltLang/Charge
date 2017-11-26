@@ -5,6 +5,8 @@
  */
 module charge.gfx.sync;
 
+import lib.gl.gl33;
+
 import charge.gfx.gl;
 
 
@@ -26,10 +28,7 @@ public:
 	local fn insert() Sync
 	{
 		sync: Sync;
-
-		if (GL_VERSION_3_2) {
-			sync.obj = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-		}
+		sync.obj = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 
 		return sync;
 	}

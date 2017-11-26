@@ -7,6 +7,8 @@ module charge.game.tui.windowscene;
 
 import watt.algorithm : max;
 
+import lib.gl.gl33;
+
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;

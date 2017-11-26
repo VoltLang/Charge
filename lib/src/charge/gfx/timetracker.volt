@@ -10,6 +10,8 @@ import watt.text.format : format;
 
 import math = charge.math;
 
+import lib.gl.gl33;
+
 import charge.gfx.gl;
 
 
@@ -88,7 +90,7 @@ private:
 private:
 	this()
 	{
-		glCreateQueries(GL_TIMESTAMP, 1, &mId);
+		glGenQueries(1, &mId);
 	}
 
 	fn close()
@@ -135,11 +137,7 @@ public:
 public:
 	global fn create() Tracker
 	{
-		if (GL_VERSION_4_5) {
-			return new TrackerDesktop();
-		} else {
-			return new TrackerNull();
-		}
+		return new TrackerDesktop();
 	}
 }
 

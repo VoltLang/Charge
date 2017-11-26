@@ -5,6 +5,8 @@
  */
 module charge.gfx.timer;
 
+import lib.gl.gl33;
+
 import charge.gfx.gl;
 
 
@@ -20,7 +22,7 @@ private:
 public:
 	fn setup()
 	{
-		glCreateQueries(GL_TIME_ELAPSED, 1, &mId);
+		glGenQueries(1, &mId);
 	}
 
 	fn close()

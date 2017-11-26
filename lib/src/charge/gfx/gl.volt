@@ -2,10 +2,11 @@
 // See copyright notice in src/charge/licence.volt (BOOST ver. 1.0).
 module charge.gfx.gl;
 
-public import lib.gl;
-
 import io = watt.io;
+
 import watt.conv;
+
+import lib.gl.gl33;
 
 import charge.gfx.gfx;
 

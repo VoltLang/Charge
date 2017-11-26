@@ -6,12 +6,17 @@ import core.exception;
 
 import io = watt.io;
 
+import lib.gl.gl45 :
+	GL_EXT_memory_object,
+	GL_EXT_memory_object_fd,
+	GL_EXT_memory_object_win32;
+
+import lib.gl.gl33;
+
 import core = charge.core;
 import gfx = charge.gfx;
 import tui = charge.game.tui;
 import scene = charge.game.scene;
-
-import charge.gfx.gl;
 
 import power.app;
 import power.menu;
@@ -84,22 +89,20 @@ public:
 	//! Absolute minimum required.
 	fn checkVersion()
 	{
-		// For texture functions.
-		if (!GL_ARB_texture_storage && !GL_VERSION_4_5) {
-			throw new Exception("Need GL_ARB_texture_storage or OpenGL 4.5");
-		}
-
 		// For samplers functions.
-		if (!GL_ARB_sampler_objects && !GL_VERSION_3_3) {
-			throw new Exception("Need GL_ARB_sampler_objects or OpenGL 3.3");
+		if (!GL_VERSION_3_3) {
+			throw new Exception("Need OpenGL 3.3");
 		}
-
 		// For shaders.
 		if (!GL_ARB_ES2_compatibility) {
 			throw new Exception("Need GL_ARB_ES2_compatibility");
 		}
 		if (!GL_ARB_explicit_attrib_location) {
 			throw new Exception("Need GL_ARB_explicit_attrib_location");
+		}
+		// For texture functions.
+		if (!GL_ARB_texture_storage) {
+			throw new Exception("Need GL_ARB_texture_storage");
 		}
 	}
 }

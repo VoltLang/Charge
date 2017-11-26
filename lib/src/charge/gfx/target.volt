@@ -5,6 +5,8 @@
  */
 module charge.gfx.target;
 
+import lib.gl.gl33;
+
 import sys = charge.sys;
 import math = charge.math;
 

@@ -16,6 +16,8 @@ import watt.conv : toStringz;
 import watt.library;
 import watt.text.utf;
 
+import lib.gl.gl45;
+
 import charge.core;
 import charge.gfx.gl;
 import charge.gfx.gfx;

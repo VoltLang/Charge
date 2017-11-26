@@ -2,6 +2,8 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module voxel.svo.buffers;
 
+import lib.gl.gl45;
+
 import charge.gfx.gl;
 
 

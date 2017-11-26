@@ -6,6 +6,8 @@ import io = watt.io;
 
 import watt.math;
 
+import lib.gl.gl45;
+
 import ctl = charge.ctl;
 import gfx = charge.gfx;
 import math = charge.math;

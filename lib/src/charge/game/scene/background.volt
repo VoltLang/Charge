@@ -2,6 +2,8 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.game.scene.background;
 
+import lib.gl.gl33;
+
 import sys = charge.sys;
 import gfx = charge.gfx;
 import math = charge.math;

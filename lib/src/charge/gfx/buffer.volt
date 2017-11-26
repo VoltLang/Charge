@@ -2,6 +2,10 @@
 // See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
 module charge.gfx.buffer;
 
+import gl45 = lib.gl.gl45;
+
+import lib.gl.gl33;
+
 import sys = charge.sys;
 
 import charge.gfx.gl;
@@ -170,8 +174,8 @@ protected:
 		indirectStride := cast(GLsizei)typeid(IndirectData).size;
 		indirectLength := num * indirectStride;
 
-		glCreateBuffers(1, &buf);
-		glNamedBufferStorage(buf, indirectLength, cast(void*)data.ptr, GL_DYNAMIC_STORAGE_BIT);
+		gl45.glCreateBuffers(1, &buf);
+		gl45.glNamedBufferStorage(buf, indirectLength, cast(void*)data.ptr, gl45.GL_DYNAMIC_STORAGE_BIT);
 		glCheckError();
 	}
 }

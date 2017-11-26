@@ -7,6 +7,8 @@ import io = watt.io;
 import watt.algorithm;
 import watt.math.floating;
 
+import lib.gl.gl45;
+
 import gfx = charge.gfx;
 
 import charge.gfx.gl;

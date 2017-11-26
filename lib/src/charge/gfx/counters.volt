@@ -5,6 +5,8 @@ module charge.gfx.counters;
 import watt.text.sink;
 import watt.text.format;
 
+import lib.gl.gl33;
+
 import math = charge.math;
 
 import charge.gfx.gl;
