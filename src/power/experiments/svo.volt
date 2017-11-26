@@ -196,7 +196,26 @@ public:
 	fn doError(str: string)
 	{
 		app.closeMe(this);
-		app.push(new tui.MessageScene(app, "ERROR", str));
+		app.push(new ErrrorMessageScene(app, str));
+	}
+}
+
+class ErrrorMessageScene : tui.MessageScene
+{
+public:
+	app: App;
+
+public:
+	this(app: App, str: string)
+	{
+		this.app = app;
+		super(app, "ERROR", str);
+	}
+
+	override fn pressedOk(button: tui.Button)
+	{
+		app.closeMe(this);
+		app.showMenu();
 	}
 }
 
