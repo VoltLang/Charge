@@ -29,7 +29,7 @@ public:
 	this(name: string)
 	{
 		if (gTracker is null) {
-			gTracker = new Tracker();
+			gTracker = Tracker.create();
 		}
 
 		this.name = name;
@@ -38,7 +38,7 @@ public:
 	global fn getTimings(sink: Sink)
 	{
 		if (gTracker is null) {
-			gTracker = new Tracker();
+			gTracker = Tracker.create();
 		}
 
 		gTracker.getLastFrame(sink);
@@ -121,7 +121,40 @@ private:
 	}
 }
 
-final class Tracker
+abstract class Tracker
+{
+public:
+	abstract fn getLastFrame(sink: Sink);
+	abstract fn startFrame(t: TimeTracker);
+	abstract fn endFrame(t: TimeTracker);
+	abstract fn push(t: TimeTracker);
+	abstract fn pop(t: TimeTracker);
+	abstract fn exchange(t: TimeTracker);
+
+
+public:
+	global fn create() Tracker
+	{
+		if (GL_VERSION_4_5) {
+			return new TrackerDesktop();
+		} else {
+			return new TrackerNull();
+		}
+	}
+}
+
+class TrackerNull : Tracker
+{
+public:
+	override fn getLastFrame(sink: Sink) { }
+	override fn startFrame(t: TimeTracker) { }
+	override fn endFrame(t: TimeTracker) { }
+	override fn push(t: TimeTracker) { }
+	override fn pop(t: TimeTracker) { }
+	override fn exchange(t: TimeTracker) { }
+}
+
+class TrackerDesktop : Tracker
 {
 private:
 	mRoot: Entry;
@@ -130,8 +163,8 @@ private:
 	mLastFrame: Entry;
 
 
-private:
-	fn getLastFrame(sink: Sink)
+public:
+	override fn getLastFrame(sink: Sink)
 	{
 		numRunning: u32;
 
@@ -179,8 +212,7 @@ private:
 		}
 	}
 
-
-	fn startFrame(t: TimeTracker)
+	override fn startFrame(t: TimeTracker)
 	{
 		assert(mFrame is null);
 
@@ -192,7 +224,7 @@ private:
 		mRoot = e;
 	}
 
-	fn endFrame(t: TimeTracker)
+	override fn endFrame(t: TimeTracker)
 	{
 		assert(mRoot !is null);
 		assert(mFrame !is null);
@@ -205,7 +237,7 @@ private:
 		mRoot = null;
 	}
 
-	fn push(t: TimeTracker)
+	override fn push(t: TimeTracker)
 	{
 		assert(mRoot !is null);
 		assert(mFrame !is null);
@@ -218,7 +250,7 @@ private:
 		mRoot = e;
 	}
 
-	fn pop(t: TimeTracker)
+	override fn pop(t: TimeTracker)
 	{
 		assert(mRoot !is null);
 		assert(mFrame !is null);
@@ -231,7 +263,7 @@ private:
 		mRoot = e;
 	}
 
-	fn exchange(t: TimeTracker)
+	override fn exchange(t: TimeTracker)
 	{
 		e := getEntry();
 		e.add();
@@ -242,12 +274,10 @@ private:
 		mRoot = e;
 	}
 
+
+private:
 	fn getEntry() Entry
 	{
-		if (mPool is null) {
-			return new Entry();
-		}
-
 		e := mPool;
 		mPool = e.mNext;
 		e.mNext = null;
