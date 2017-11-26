@@ -1,0 +1,6 @@
+name = "charge.lib"
+dependencies = ["watt"]
+[platform.msvc]
+libraries = ["OpenGL32.Lib", "User32.Lib", "Gdi32.Lib"]
+[platform.'linux || osx']
+commands = ["sdl2-config --libs"]

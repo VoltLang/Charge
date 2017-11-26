@@ -1,9 +1,2 @@
 name = "charge"
-dependencies = ["watt"]
-voltFiles = ["src/charge/sys/memheader.volt"]
-[platform.msvc]
-libraries = ["OpenGL32.Lib", "User32.Lib", "Gdi32.Lib"]
-voltFiles = ["src/charge/core/win32.volt"]
-[platform.'linux || osx']
-commands = ["sdl2-config --libs"]
-voltFiles = ["src/charge/core/sdl.volt"]
+dependencies = ["charge.lib"]
