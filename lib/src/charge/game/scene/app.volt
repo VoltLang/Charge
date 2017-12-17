@@ -187,7 +187,7 @@ private:
 		dirty = true;
 	}
 
-public
+public:
 	override fn remove(r: Scene)
 	{
 		n: size_t;
