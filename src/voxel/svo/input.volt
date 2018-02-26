@@ -20,10 +20,10 @@ struct Input8Cubed = mixin InputDefinition!(3);
 //! Select the default input buffer.
 alias InputBuffer = LinearBuffer;
 
-//! Linear adding comrpessing buffer.
+//! Linear adding compressing buffer.
 struct LinearBuffer = mixin CompressingBuffer!(HashBuffer);
 
-//! Buddy based adding comrpessing buffer.
+//! Buddy based adding compressing buffer.
 struct BuddyBuffer = mixin CompressingBuffer!(BuddyAdder);
 
 //! Buddy allocator for the InputBuffer.
