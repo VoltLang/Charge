@@ -7,7 +7,7 @@ module charge.core.sdl;
 version (!Windows):
 
 import core.exception;
-import core.c.stdio : printf;
+import core.c.stdio : fprintf, fflush, stderr;
 import core.c.stdlib : exit;
 
 import io = watt.io;
@@ -469,7 +469,8 @@ private:
 	                            severity: GLenum, length: GLsizei,
 	                            msg: const(GLchar*), data: GLvoid*)
 	{
-		printf("#OGL# %.*s\n", length, msg);
+		fprintf(stderr, "#OGL# %.*s\n", length, msg);
+		fflush(stderr);
 	}
 }
 
