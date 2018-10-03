@@ -300,17 +300,17 @@ public:
 		// Create the storage for the atmic buffer.
 		glCreateBuffers(1, &mState.atomicBuffer);
 		glNamedBufferStorage(mState.atomicBuffer, AtomicBufferSize, null, GL_DYNAMIC_STORAGE_BIT);
-		glClearNamedBufferData(mState.atomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glClearNamedBufferData(mState.atomicBuffer, GL_R8, GL_RED, GL_UNSIGNED_BYTE, null);
 
 		// Create the storage for the command buffer.
 		glCreateBuffers(1, &mState.computeIndirectBuffer);
 		glNamedBufferStorage(mState.computeIndirectBuffer, DispatchIndirectSize, null, GL_DYNAMIC_STORAGE_BIT);
-		glClearNamedBufferData(mState.computeIndirectBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glClearNamedBufferData(mState.computeIndirectBuffer, GL_R8, GL_RED, GL_UNSIGNED_BYTE, null);
 
 		// Create the storage for the command buffer.
 		glCreateBuffers(1, &mState.drawIndirectBuffer);
 		glNamedBufferStorage(mState.drawIndirectBuffer, DrawIndirectSize, null, GL_DYNAMIC_STORAGE_BIT);
-		glClearNamedBufferData(mState.drawIndirectBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glClearNamedBufferData(mState.drawIndirectBuffer, GL_R8, GL_RED, GL_UNSIGNED_BYTE, null);
 
 		// Create the storage for the counter buffer.
 		glCreateBuffers(1, &mState.countersBuffer);
@@ -382,8 +382,8 @@ public:
 		glBindVertexArray(mVAO);
 
 		// Clear and setup buffers.
-		glClearNamedBufferData(mState.atomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
-		glClearNamedBufferData(mState.countersBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glClearNamedBufferData(mState.atomicBuffer, GL_R8, GL_RED, GL_UNSIGNED_BYTE, null);
+		glClearNamedBufferData(mState.countersBuffer, GL_R8, GL_RED, GL_UNSIGNED_BYTE, null);
 		glNamedBufferSubData(mState.dataBuffer, 0, DataBufferSize, cast(void*)&state);
 		glNamedBufferSubData(mState.drawIndirectBuffer, 0, 4 * 4, cast(void*)[0, 1, 0, 0, 0].ptr);
 		glNamedBufferSubData(mState.computeIndirectBuffer, 0, 4 * 3, cast(void*)[0, 1, 1].ptr);

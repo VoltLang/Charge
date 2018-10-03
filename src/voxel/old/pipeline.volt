@@ -286,7 +286,7 @@ public:
 		glBindTextureUnit(0, mOctTexture);
 
 		// Rest the atomic buffer.
-		glClearNamedBufferData(mAtomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glClearNamedBufferData(mAtomicBuffer, GL_R8, GL_RED, GL_UNSIGNED_BYTE, null);
 
 		// Bind the special buffers.
 		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, mAtomicBuffer);
@@ -465,8 +465,8 @@ public:
 //		                GL_SHADER_STORAGE_BARRIER_BIT |
 //		                GL_COMMAND_BARRIER_BIT);
 
-		glClearNamedBufferData(state.commandBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
-		glClearNamedBufferData(state.atomicBuffer, GL_R32UI, GL_RED, GL_UNSIGNED_INT, null);
+		glClearNamedBufferData(state.commandBuffer, GL_R8, GL_RED, GL_UNSIGNED_BYTE, null);
+		glClearNamedBufferData(state.atomicBuffer, GL_R8, GL_RED, GL_UNSIGNED_BYTE, null);
 		glNamedBufferSubData(state.atomicBuffer, offset, 4, cast(void*)&one);
 		glNamedBufferSubData(state.buffers[dst], 0, 16, cast(void*)[0, 0, frame, 0].ptr);
 
