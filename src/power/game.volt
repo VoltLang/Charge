@@ -43,9 +43,10 @@ public:
 		checkVersion();
 
 		if (GL_EXT_memory_object) {
-			io.writefln("GL_EXT_memory_object");
-			io.writefln("\tGL_EXT_memory_object_fd %s", GL_EXT_memory_object_fd);
-			io.writefln("\tGL_EXT_memory_object_win32 %s", GL_EXT_memory_object_win32);
+			io.output.writefln("GL_EXT_memory_object");
+			io.output.writefln("\tGL_EXT_memory_object_fd %s", GL_EXT_memory_object_fd);
+			io.output.writefln("\tGL_EXT_memory_object_win32 %s", GL_EXT_memory_object_win32);
+			io.output.flush();
 		}
 
 		bg := new scene.Background(this);
