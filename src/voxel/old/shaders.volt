@@ -276,7 +276,7 @@ public:
 			return *s;
 		}
 
-		vert := cast(string)import("voxel/cube.vert.glsl");
+		vert := cast(string)import("voxel/quads.vert.glsl");
 		vert = replaceCommon(vert);
 		vert = replace(vert, "%VOXEL_SRC%", format("%s", src));
 		vert = replace(vert, "%POWER_START%", format("%s", powerStart));
