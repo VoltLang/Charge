@@ -5,6 +5,7 @@ module charge.gfx.gl;
 import io = watt.io;
 
 import watt.conv;
+import watt.text.string;
 
 import lib.gl.gl33;
 
@@ -90,6 +91,12 @@ fn runDetection()
 		gfxRendererInfo.isNVIDIA = true;
 		gfxRendererInfo.isConfidentInDetection = true;
 		return;
+	}
+
+	if (gfxRendererInfo.glVendor == "X.Org" ||
+	    gfxRendererInfo.glVendor.startsWith("AMD")) {
+		gfxRendererInfo.isAMD = true;
+		gfxRendererInfo.isConfidentInDetection = true;
 	}
 }
 
