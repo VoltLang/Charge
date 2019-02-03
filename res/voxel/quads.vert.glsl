@@ -11,7 +11,6 @@
 layout (location = 0) out vec3 outPosition;
 layout (location = 1) out flat vec3 outMinEdge;
 layout (location = 2) out flat uint outOffset;
-layout (location = 3) out flat vec3 outNormal;
 
 
 uniform mat4 uMatrix;
@@ -44,25 +43,10 @@ uvec4 unpack_16_16_16_16(uint data1, uint data2)
 
 uint getFlipBits(vec3 pos)
 {
-	uint bits =   (uCameraPos.x > pos.x ? 0x01 : 0x00);
-	bits = bits | (uCameraPos.y > pos.y ? 0x02 : 0x00);
-	bits = bits | (uCameraPos.z > pos.z ? 0x04 : 0x00);
+	uint bits =   (uCameraPos.x < pos.x ? 0x01 : 0x00);
+	bits = bits | (uCameraPos.y < pos.y ? 0x02 : 0x00);
+	bits = bits | (uCameraPos.z < pos.z ? 0x04 : 0x00);
 	return bits;
-}
-
-vec3 getNormal(uint bits)
-{
-	uint face = (gl_VertexID & 0x07);
-	face = (face << 2) | (face >> 1);
-
-	int nx = int((face >> 0) & 1);
-	int ny = int((face >> 1) & 1);
-	int nz = int((face >> 2) & 1);
-	nx = ((int(bits) >> 0) & nx) * 2 - nx;
-	ny = ((int(bits) >> 1) & ny) * 2 - ny;
-	nz = ((int(bits) >> 2) & nz) * 2 - nz;
-
-	return vec3(nx, ny, nz);
 }
 
 vec3 getOffsetPosition(vec3 pos, uint bits)
@@ -93,11 +77,9 @@ void main(void)
 	// and half a the triangles (not counting the extra di)
 	uint bits = getFlipBits(pos);
 	vec3 offsetPos = getOffsetPosition(pos, bits);
-	vec3 normal = getNormal(bits);
 
 	outMinEdge = pos;
 	outOffset = inOffset;
-	outNormal = uNormalMatrix * normal;
 	outPosition = offsetPos;
 	gl_Position = uMatrix * vec4(offsetPos, 1.0);
 }

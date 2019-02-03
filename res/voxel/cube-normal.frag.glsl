@@ -17,7 +17,6 @@ layout (early_fragment_tests) in;
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in flat vec3 inMinEdge;
 layout (location = 2) in flat uint inOffset;
-layout (location = 3) in flat vec3 inNormal;
 
 layout (binding = 1) uniform NORMAL_SAMPLER sNormal;
 
@@ -53,6 +52,5 @@ void main(void)
 
 	float nDotL = max(dot(normal.xyz, -uLightNormal), 0.0);
 	float factor = nDotL * 0.4 + 0.6;
-
 	outColor = vec4(color * factor, 1.0);
 }
