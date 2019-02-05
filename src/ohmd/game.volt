@@ -224,6 +224,9 @@ public:
 
 		// Default HMD position.
 		hmd.pos = math.Point3f.opCall(0.5f, 1.8f, 0.5f);
+
+		// Force double AA on.
+		mAA.kind = gfx.AA.Kind.Double;
 	}
 
 	override fn logic()
