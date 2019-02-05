@@ -37,6 +37,12 @@ public:
 		textVbo = gfx.DrawBuffer.make("power/exp/text", textBuilder);
 	}
 
+	fn close()
+	{
+		gfx.destroy(ref textBuilder);
+		gfx.reference(ref textVbo, null);
+	}
+
 	fn update(text: string)
 	{
 		textBuilder.reset(text.length * 4u);

@@ -229,6 +229,15 @@ public:
 		mAA.kind = gfx.AA.Kind.Double;
 	}
 
+	override fn close()
+	{
+		mAA.close();
+		if (text !is null) {
+			text.close();
+			text = null;
+		}
+	}
+
 	override fn logic()
 	{
 		// Update the light.
@@ -488,6 +497,7 @@ rotation: %s %s %s %s
 			break;
 		}
 	}
+
 	fn printInfo()
 	{
 		io.writefln("\t\tmCamHeading = %sf;", cast(f64)mCamHeading);
