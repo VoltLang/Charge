@@ -43,11 +43,6 @@ extern (Windows) { // TODO: Move to RT.
 	enum GWL_EXSTYLE = -20;
 }
 
-@mangledName("chargeGet") fn get() Core
-{
-	return CoreWin32.gInstance;
-}
-
 @mangledName("chargeStart") fn start(opts: Options) Core
 {
 	return new CoreWin32(opts);
@@ -61,7 +56,7 @@ extern (Windows) { // TODO: Move to RT.
 class CoreWin32 : CommonCore
 {
 private:
-	global gInstance: CoreWin32;
+	global gWinInstance: CoreWin32;
 
 	opts: Options;
 	input: Input;
@@ -82,7 +77,7 @@ private:
 public:
 	this(opts: Options)
 	{
-		gInstance = this;
+		gWinInstance = this;
 		this.opts = opts;
 		super(opts.flags);
 
@@ -495,7 +490,7 @@ private:
 			return null;
 		case WM_KEYDOWN:
 		case WM_SYSKEYDOWN:
-			k := CoreWin32.gInstance.input.keyboard;
+			k := CoreWin32.gWinInstance.input.keyboard;
 			if (k.down !is null) {
 				k.down(k, keymap[WindowsScanCodeToSDLScanCode(lParam, wParam)]);
 			}
@@ -508,7 +503,7 @@ private:
 		case WM_CHAR:
 			text: char[5];
 			if (WIN_ConvertUTF32toUTF8(cast(u32)wParam, text.ptr)) {
-				k := CoreWin32.gInstance.input.keyboard;
+				k := CoreWin32.gWinInstance.input.keyboard;
 				if (k.text !is null) {
 					i: size_t;
 					for (; i < text.length && text[i]; i++) {}
@@ -521,19 +516,19 @@ private:
 			break;
 		case WM_KEYUP:
 		case WM_SYSKEYUP:
-			k := CoreWin32.gInstance.input.keyboard;
+			k := CoreWin32.gWinInstance.input.keyboard;
 			if (k.up !is null) {
 				k.up(k, keymap[WindowsScanCodeToSDLScanCode(lParam, wParam)]);
 			}
 			break;
 		case WM_MOUSEMOVE:
-			m := CoreWin32.gInstance.input.mouse;
+			m := CoreWin32.gWinInstance.input.mouse;
 			mx := GET_X_LPARAM(lParam);
 			my := GET_Y_LPARAM(lParam);
-			deltax := mx - CoreWin32.gInstance.lastX;
-			deltay := my - CoreWin32.gInstance.lastY;
-			CoreWin32.gInstance.lastX = mx;
-			CoreWin32.gInstance.lastY = my;
+			deltax := mx - CoreWin32.gWinInstance.lastX;
+			deltay := my - CoreWin32.gWinInstance.lastY;
+			CoreWin32.gWinInstance.lastX = mx;
+			CoreWin32.gWinInstance.lastY = my;
 			if (!m.getRelativeMode()) {
 				m.x = mx;
 				m.y = my;
@@ -573,7 +568,7 @@ private:
 			t := DefaultTarget.opCall();
 			t.width = LOWORD(cast(DWORD)lParam);
 			t.height = HIWORD(cast(DWORD)lParam);
-			//CoreWin32.gInstance.resize(LOWORD(cast(DWORD)lParam), HIWORD(cast(DWORD)lParam));
+			//CoreWin32.gWinInstance.resize(LOWORD(cast(DWORD)lParam), HIWORD(cast(DWORD)lParam));
 			break;
 		case WM_PAINT:
 			return null;
@@ -587,7 +582,7 @@ private:
 
 fn sendMouse(button: i32, down: bool, lParam: LPARAM)
 {
-	m := CoreWin32.gInstance.input.mouse;
+	m := CoreWin32.gWinInstance.input.mouse;
 	m.x = GET_X_LPARAM(lParam);
 	m.y = GET_Y_LPARAM(lParam);
 	if (down) {
@@ -641,7 +636,7 @@ public:
 	{
 		mRelativeMode = value;
 		if (value) {
-			SetCapture(CoreWin32.gInstance.hWnd);
+			SetCapture(CoreWin32.gWinInstance.hWnd);
 			ShowCursor(FALSE);
 		} else {
 			ReleaseCapture();

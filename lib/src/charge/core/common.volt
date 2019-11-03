@@ -7,11 +7,15 @@ module charge.core.common;
 
 import core.exception;
 import charge.core;
+import charge.core.basic;
 import charge.util.properties;
 import charge.sys.timetracker;
 
 
-abstract class CommonCore : Core
+/*!
+ * Class hold common things for core.
+ */
+abstract class CommonCore : BasicCore
 {
 protected:
 /+
@@ -54,11 +58,6 @@ protected:
 
 	enum phyFlags = Flag.PHY | Flag.AUTO;
 	enum sfxFlags = Flag.SFX | Flag.AUTO;
-
-	logicDg: dg();
-	closeDg: dg();
-	renderDg: dg();
-	idleDg: dg(long);
 
 	// Used for looping.
 	mRunning: bool;
@@ -111,38 +110,6 @@ public:
 		doClose();
 
 		return 0;
-	}
-
-	override fn setIdle(dgt: dg(long)) {
-		if (dgt is null) {
-			idleDg = defaultIdle;
-		} else {
-			idleDg = dgt;
-		}
-	}
-
-	override fn setRender(dgt: dg()) {
-		if (dgt is null) {
-			renderDg = defaultDg;
-		} else {
-			renderDg = dgt;
-		}
-	}
-
-	override fn setLogic(dgt: dg()) {
-		if (dgt is null) {
-			logicDg = defaultDg;
-		} else {
-			logicDg = dgt;
-		}
-	}
-
-	override fn setClose(dgt: dg()) {
-		if (dgt is null) {
-			closeDg = defaultDg;
-		} else {
-			closeDg = dgt;
-		}
 	}
 
 	override fn initSubSystem(flag: Flag)
@@ -204,11 +171,6 @@ protected:
 		this.mRunning = true;
 		this.mSleepTime = new TimeTracker("sleep");
 
-		setRender(null);
-		setLogic(null);
-		setClose(null);
-		setIdle(null);
-
 		initSettings();
 
 /+
@@ -253,24 +215,6 @@ protected:
 			l.info("%s not found, this not an error.", name);
 		}
 +/
-	}
-
-
-	/*
-	 *
-	 * Default delegate methods.
-	 *
-	 */
-
-
-	fn defaultIdle(long)
-	{
-		// This method intentionally left empty.
-	}
-
-	fn defaultDg()
-	{
-		// This method intentionally left empty.
 	}
 
 

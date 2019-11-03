@@ -41,11 +41,6 @@ import lib.gl.loader;
  *
  */
 
-@mangledName("chargeGet") fn get() Core
-{
-	return CoreSDL.gInstance;
-}
-
 @mangledName("chargeStart") fn start(opts: Options) Core
 {
 	return new CoreSDL(opts);
@@ -68,8 +63,6 @@ import lib.gl.loader;
 class CoreSDL : CommonCore
 {
 private:
-	global gInstance: CoreSDL;
-
 	opts: Options;
 
 	input: Input;
@@ -94,7 +87,6 @@ private:
 public:
 	this(opts: Options)
 	{
-		gInstance = this;
 		this.opts = opts;
 		super(opts.flags);
 
