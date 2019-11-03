@@ -1,5 +1,6 @@
 // Copyright 2016-2019, Jakob Bornecrantz.
-// See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
+// Copyright 2019, Collabora, Ltd.
+// SPDX-License-Identifier: BSL-1.0
 module charge.gfx.simple;
 
 import lib.gl.gl33;

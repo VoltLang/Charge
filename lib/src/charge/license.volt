@@ -1,11 +1,11 @@
-// See copyright just below.
+// SPDX-License-Identifier: BSL-1.0
 module charge.license;
 
 /*!
  * This is the license for Charge.
  */
 enum string license = `
-Copyright © 2011-2017, Jakob Bornecrantz.
+Copyright 2011-2019, Jakob Bornecrantz.
 
 Boost Software License - Version 1.0 - August 17th, 2003
 

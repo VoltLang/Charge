@@ -1,5 +1,5 @@
-// Copyright © 2011-2017, Jakob Bornecrantz.  All rights reserved.
-// See copyright notice in src/charge/license.volt (BOOST ver. 1.0).
+// Copyright 2011-2019, Jakob Bornecrantz.
+// SPDX-License-Identifier: BSL-1.0
 /*!
  * Contains classes and code to create a text-user-interface window scene.
  */

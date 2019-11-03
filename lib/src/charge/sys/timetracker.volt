@@ -1,5 +1,5 @@
-// Copyright © 2012-2017, Jakob Bornecrantz.  All rights reserved.
-// See copyright notice in src/charge/charge.d (GPLv2 only).
+// Copyright 2012-2019, Jakob Bornecrantz.
+// SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for TimeTracker.
  */
