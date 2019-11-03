@@ -5,7 +5,7 @@
  */
 module charge.math.matrix;
 
-import watt.math : sin, cos, PI, PIf;
+import watt.math : sin, cos, tan, PI, PIf;
 import charge.math.quat;
 import charge.math.point;
 import charge.math.vector;
@@ -352,6 +352,45 @@ public:
 		u.m[1][0] = 0.0;
 		u.m[1][1] = cotangent;
 		u.m[1][2] = 0.0;
+		u.m[1][3] = 0.0;
+
+		u.m[2][0] = 0.0;
+		u.m[2][1] = 0.0;
+		u.m[2][2] = -(far + near) / delta;
+		u.m[2][3] = -2.0 * near * far / delta;
+
+		u.m[3][0] = 0.0;
+		u.m[3][1] = 0.0;
+		u.m[3][2] = -1.0;
+		u.m[3][3] = 0.0;
+	}
+
+	/*!
+	 * Used by OpenXR.
+	 */
+	fn setToFrustum(angleLeft: f64, angleRight: f64,
+	                angleDown: f64, angleUp: f64,
+	                near: f64, far: f64)
+	{
+		tanAngleLeft: f64 = tan(angleLeft);
+		tanAngleRight: f64 = tan(angleRight);
+
+		tanAngleDown: f64 = tan(angleDown);
+		tanAngleUp: f64 = tan(angleUp);
+
+		tanAngleWidth: f64 = tanAngleRight - tanAngleLeft;
+		tanAngleHeight: f64 = tanAngleUp - tanAngleDown;
+
+		delta: f64 = far - near;
+
+		u.m[0][0] = 2.0 / tanAngleWidth;
+		u.m[0][1] = 0.0;
+		u.m[0][2] = (tanAngleRight + tanAngleLeft) / tanAngleWidth;
+		u.m[0][3] = 0.0;
+
+		u.m[1][0] = 0.0;
+		u.m[1][1] = 2.0 / tanAngleHeight;
+		u.m[1][2] = (tanAngleUp + tanAngleDown) / tanAngleHeight;
 		u.m[1][3] = 0.0;
 
 		u.m[2][0] = 0.0;
