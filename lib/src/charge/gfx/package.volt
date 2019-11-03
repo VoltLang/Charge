@@ -28,6 +28,13 @@ public import charge.gfx.buffer :
 public import charge.gfx.shader :
 	destroy,
 	Shader;
+public import charge.gfx.simple :
+	destroy,
+	reference,
+	simpleShader,
+	SimpleBuffer,
+	SimpleVertex,
+	SimpleVertexBuilder;
 public import charge.gfx.compiler :
 	Src,
 	CompSrc,
