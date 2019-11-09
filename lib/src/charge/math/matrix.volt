@@ -7,7 +7,7 @@
  */
 module charge.math.matrix;
 
-import watt.math : sin, cos, tan, PI, PIf;
+import watt.math : sin, cos, tan, atan, PI, PIf;
 import charge.math.quat;
 import charge.math.point;
 import charge.math.vector;
@@ -20,10 +20,26 @@ import charge.math.vector;
  */
 struct Fovf
 {
+public:
 	angleLeft: f32;
 	angleRight: f32;
 	angleUp: f32;
 	angleDown: f32;
+
+
+public:
+	fn setToFovyAspect(fovy: f64, aspect: f64)
+	{
+		fovy_radians := fovy * (PI / 180.0);
+
+		tanUp: f64 = tan(fovy_radians / 2.0);
+		tanRight: f64 = tanUp * aspect;
+
+		this.angleRight = cast(f32) atan(tanRight);
+		this.angleLeft  = -this.angleRight;
+		this.angleUp    = cast(f32) atan(tanUp);
+		this.angleDown  = -this.angleUp;
+	}
 }
 
 /*!
@@ -398,6 +414,16 @@ public:
 		u.m[3][1] = 0.0;
 		u.m[3][2] = -1.0;
 		u.m[3][3] = 0.0;
+	}
+
+	/*!
+	 * Set from a set of fov angles.
+	 */
+	fn setToFrustum(ref fov: Fovf, near: f64, far: f64)
+	{
+		this.setToFrustum(fov.angleLeft, fov.angleRight,
+		                  fov.angleDown, fov.angleUp,
+		                  near, far);
 	}
 
 	/*!
