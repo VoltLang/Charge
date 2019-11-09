@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for CoreSDL.
+ *
+ * @ingroup core
  */
 module charge.core.sdl;
 version (!Windows):

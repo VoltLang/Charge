@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for BasicCore.
+ *
+ * @ingroup core
  */
 module charge.core.basic;
 

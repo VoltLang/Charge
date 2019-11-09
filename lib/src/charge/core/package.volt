@@ -2,9 +2,15 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file containing Core and CoreOptions.
+ *
+ * @ingroup core
  */
 module charge.core;
 
+/*!
+ * @defgroup core Core
+ * @brief Main thing that holds everything together.
+ */
 
 /*!
  * Enum for selecting subsystems.
@@ -28,23 +34,31 @@ enum WindowMode
 
 /*!
  * Get a new core created with the given flags.
+ *
+ * @ingroup core
  */
 @mangledName("chargeStart") fn start(opts: Options) Core;
 
 /*!
  * Signal a quit a condition, this function mearly pushes
  * a quit event on the event queue and then returns.
+ *
+ * @ingroup core
  */
 @mangledName("chargeQuit") fn quit();
 
 /*!
  * Return the current core.
+ *
+ * @ingroup core
  */
 @mangledName("chargeGet") fn get() Core;
 
 /*!
  * These functions are run just after Core is initialize and
  * right before Core is closed.
+ *
+ * @ingroup core
  */
 fn addInitAndCloseRunners(init: fn(), close: fn())
 {
@@ -59,6 +73,8 @@ fn addInitAndCloseRunners(init: fn(), close: fn())
 
 /*!
  * Options at initialization.
+ *
+ * @ingroup core
  */
 class Options
 {
@@ -84,6 +100,8 @@ public:
 
 /*!
  * Class holding the entire thing together.
+ *
+ * @ingroup core
  */
 abstract class Core
 {

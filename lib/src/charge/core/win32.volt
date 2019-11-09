@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for CoreWin32.
+ *
+ * @ingroup core
  */
 module charge.core.win32;
 version (Windows):
