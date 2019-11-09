@@ -14,6 +14,19 @@ import charge.math.vector;
 
 
 /*!
+ * Fov angles to make a up projection matrix.
+ *
+ * @ingroup Math
+ */
+struct Fovf
+{
+	angleLeft: f32;
+	angleRight: f32;
+	angleUp: f32;
+	angleDown: f32;
+}
+
+/*!
  * Matrix 3x3!f32, used for normal transforms.
  *
  * @ingroup Math
