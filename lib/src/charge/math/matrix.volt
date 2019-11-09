@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for Matrix4x4d.
+ *
+ * @ingroup Math
  */
 module charge.math.matrix;
 
@@ -11,6 +13,11 @@ import charge.math.point;
 import charge.math.vector;
 
 
+/*!
+ * Matrix 3x3!f32, used for normal transforms.
+ *
+ * @ingroup Math
+ */
 struct Matrix3x3f
 {
 public:
@@ -53,6 +60,11 @@ public:
 	@property fn ptr() f32* { return a.ptr; }
 }
 
+/*!
+ * Matrix 4x4!f32, used to upload to OpenGL shaders.
+ *
+ * @ingroup Math
+ */
 struct Matrix4x4f
 {
 public:
@@ -129,6 +141,11 @@ public:
 	@property fn ptr() f32* { return a.ptr; }
 }
 
+/*!
+ * Matrix 3x3!f64, used mostly to create normal matrices.
+ *
+ * @ingroup Math
+ */
 struct Matrix3x3d
 {
 public:
@@ -212,6 +229,11 @@ public:
 	}
 }
 
+/*!
+ * Matrix 4x4!f64, common handy matrix.
+ *
+ * @ingroup Math
+ */
 struct Matrix4x4d
 {
 public:

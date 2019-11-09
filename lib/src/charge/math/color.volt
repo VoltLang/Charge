@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for colors used in graphics.
+ *
+ * @ingroup Math
  */
 module charge.math.color;
 

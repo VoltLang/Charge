@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for Vector3f.
+ *
+ * @ingroup Math
  */
 module charge.math.vector;
 

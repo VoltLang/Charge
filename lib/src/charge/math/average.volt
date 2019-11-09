@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for calculating a average over time.
+ *
+ * @ingroup Math
  */
 module charge.math.average;
 

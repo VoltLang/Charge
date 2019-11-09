@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for morton encoding code.
+ *
+ * @ingroup Math
  */
 module charge.math.morton;
 
