@@ -3,7 +3,7 @@
 /*!
  * Source file for calculating a average over time.
  *
- * @ingroup Math
+ * @ingroup math
  */
 module charge.math.average;
 

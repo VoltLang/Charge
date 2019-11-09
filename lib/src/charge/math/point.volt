@@ -3,7 +3,7 @@
 /*!
  * Source file for Point3f.
  *
- * @ingroup Math
+ * @ingroup math
  */
 module charge.math.point;
 
@@ -14,7 +14,7 @@ import charge.math.vector;
 /*!
  * Point in 3D space.
  *
- * @ingroup Math
+ * @ingroup math
  */
 struct Point3f
 {

@@ -3,7 +3,7 @@
 /*!
  * Source file for morton encoding code.
  *
- * @ingroup Math
+ * @ingroup math
  */
 module charge.math.morton;
 

@@ -3,7 +3,7 @@
 /*!
  * Source file for Vector3f.
  *
- * @ingroup Math
+ * @ingroup math
  */
 module charge.math.vector;
 
@@ -16,7 +16,7 @@ import charge.math.point;
  * Vector in a 3D space. Charge follows the OpenGL convetion for axis
  * so Y+ is up, X+ is right and Z- is forward.
  *
- * @ingroup Math
+ * @ingroup math
  */
 struct Vector3f
 {
@@ -180,7 +180,7 @@ public:
  * Vector in a 3D space. Charge follows the OpenGL convetion for axis
  * so Y+ is up, X+ is right and Z- is forward.
  *
- * @ingroup Math
+ * @ingroup math
  */
 struct Vector3d
 {

@@ -3,7 +3,7 @@
 /*!
  * Source file for Quatf.
  *
- * @ingroup Math
+ * @ingroup math
  */
 module charge.math.quat;
 

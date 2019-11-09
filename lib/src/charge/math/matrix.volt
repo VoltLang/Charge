@@ -3,7 +3,7 @@
 /*!
  * Source file for Matrix4x4d.
  *
- * @ingroup Math
+ * @ingroup math
  */
 module charge.math.matrix;
 
@@ -16,7 +16,7 @@ import charge.math.vector;
 /*!
  * Fov angles to make a up projection matrix.
  *
- * @ingroup Math
+ * @ingroup math
  */
 struct Fovf
 {
@@ -29,7 +29,7 @@ struct Fovf
 /*!
  * Matrix 3x3!f32, used for normal transforms.
  *
- * @ingroup Math
+ * @ingroup math
  */
 struct Matrix3x3f
 {
@@ -76,7 +76,7 @@ public:
 /*!
  * Matrix 4x4!f32, used to upload to OpenGL shaders.
  *
- * @ingroup Math
+ * @ingroup math
  */
 struct Matrix4x4f
 {
@@ -157,7 +157,7 @@ public:
 /*!
  * Matrix 3x3!f64, used mostly to create normal matrices.
  *
- * @ingroup Math
+ * @ingroup math
  */
 struct Matrix3x3d
 {
@@ -245,7 +245,7 @@ public:
 /*!
  * Matrix 4x4!f64, common handy matrix.
  *
- * @ingroup Math
+ * @ingroup math
  */
 struct Matrix4x4d
 {

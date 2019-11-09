@@ -3,9 +3,14 @@
 /*!
  * Include everything from math.
  *
- * @ingroup Math
+ * @ingroup math
  */
 module charge.math;
+
+/*!
+ * @defgroup math Math
+ * @brief Math structs, classes and functions.
+ */
 
 public import charge.math.quat;
 public import charge.math.color;
@@ -15,9 +20,3 @@ public import charge.math.vector;
 public import charge.math.morton;
 public import charge.math.frustum;
 public import charge.math.average;
-
-
-/*!
- * @defgroup Math Math
- * @brief Math structs, classes and functions.
- */

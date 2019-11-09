@@ -3,7 +3,7 @@
 /*!
  * Source file for colors used in graphics.
  *
- * @ingroup Math
+ * @ingroup math
  */
 module charge.math.color;
 

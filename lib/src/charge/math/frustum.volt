@@ -3,7 +3,7 @@
 /*!
  * Source file for Frustum and Plane.
  *
- * @ingroup Math
+ * @ingroup math
  */
 module charge.math.frustum;
 
@@ -15,7 +15,7 @@ import charge.math.matrix;
 /*!
  * 3D Plane uses single precision.
  *
- * @ingroup Math
+ * @ingroup math
  */
 struct Planef
 {
@@ -41,7 +41,7 @@ public:
 /*!
  * 3D Plane used by the Frustum struct, double precision.
  *
- * @ingroup Math
+ * @ingroup math
  */
 struct Planed
 {
@@ -71,7 +71,7 @@ public:
  *
  * @see http://en.wikipedia.org/wiki/Viewing_frustum
  * @see http://en.wikipedia.org/wiki/Frustum_culling
- * @ingroup Math
+ * @ingroup math
  */
 struct Frustum
 {
