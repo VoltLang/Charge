@@ -24,6 +24,16 @@ public:
 
 
 public:
+	global fn from(rf: f32, gf: f32, bf: f32, af: f32) Color4b
+	{
+		cf := Color4f.from(rf, gf, bf, af);
+
+		return from(cast(u8)(cf.r * 255.0f),
+		            cast(u8)(cf.g * 255.0f),
+		            cast(u8)(cf.b * 255.0f),
+		            cast(u8)(cf.a * 255.0f));
+	}
+
 	global fn from(r: u8, g: u8, b: u8, a: u8) Color4b
 	{
 		res: Color4b = {r, g, b, a};
