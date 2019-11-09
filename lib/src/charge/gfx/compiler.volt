@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for Shader Compiler code.
+ *
+ * @ingroup gfx
  */
 module charge.gfx.compiler;
 

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for TimeTrackers and trackers.
+ *
+ * @ingroup gfx
  */
 module charge.gfx.timetracker;
 

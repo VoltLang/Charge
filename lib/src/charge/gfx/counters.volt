@@ -1,5 +1,10 @@
 // Copyright 2016-2019, Jakob Bornecrantz.
 // SPDX-License-Identifier: BSL-1.0
+/*!
+ * GPU profiling counters.
+ *
+ * @ingroup gfx
+ */
 module charge.gfx.counters;
 
 import watt.text.sink;

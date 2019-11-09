@@ -1,5 +1,10 @@
 // Copyright 2011-2019, Jakob Bornecrantz.
 // SPDX-License-Identifier: BSL-1.0
+/*!
+ * Simple bitmap font.
+ *
+ * @ingroup gfx
+ */
 module charge.gfx.bitmapfont;
 
 import lib.gl.gl33;

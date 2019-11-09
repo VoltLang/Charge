@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for syncing with the gpu.
+ *
+ * @ingroup gfx
  */
 module charge.gfx.sync;
 

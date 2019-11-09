@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for timers.
+ *
+ * @ingroup gfx
  */
 module charge.gfx.timer;
 

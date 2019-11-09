@@ -1,7 +1,9 @@
 // Copyright 2011-2019, Jakob Bornecrantz.
 // SPDX-License-Identifier: BSL-1.0
 /*!
- * Source file for Target(s), that is FBO's and DefaultTarget.
+ * Source file for Target(s), that is FBOs and DefaultTarget.
+ *
+ * @ingroup gfx
  */
 module charge.gfx.target;
 
@@ -19,6 +21,7 @@ import charge.gfx.texture;
  *
  * @param dec Object to dereference passed by reference, set to `inc`.
  * @param inc Object to reference.
+ * @ingroup gfx
  * @{
  */
 fn reference(ref dec: Target, inc: Target)
@@ -52,6 +55,8 @@ fn reference(ref dec: FramebufferMSAA, inc: FramebufferMSAA)
 
 /*!
  * Base texture class.
+ *
+ * @ingroup gfx
  */
 abstract class Target : sys.Resource
 {

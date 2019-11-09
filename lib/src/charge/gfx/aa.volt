@@ -1,5 +1,10 @@
 // Copyright 2016-2019, Jakob Bornecrantz.
 // SPDX-License-Identifier: BSL-1.0
+/*!
+ * Helper class for rendering a AA view to another target.
+ *
+ * @ingroup gfx
+ */
 module charge.gfx.aa;
 
 import charge.gfx.target;

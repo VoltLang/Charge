@@ -2,8 +2,15 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Include everything from gfx.
+ *
+ * @ingroup gfx
  */
 module charge.gfx;
+
+/*!
+ * @defgroup gfx Graphics
+ * @brief Graphics helper code, based on OpenGL.
+ */
 
 public import charge.gfx.gl;
 public import charge.gfx.gfx : gfxLoaded;

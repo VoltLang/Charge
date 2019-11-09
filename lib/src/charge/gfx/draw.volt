@@ -1,5 +1,10 @@
 // Copyright 2016-2019, Jakob Bornecrantz.
 // SPDX-License-Identifier: BSL-1.0
+/*!
+ * Super simple 2D drawing helper.
+ *
+ * @ingroup gfx
+ */
 module charge.gfx.draw;
 
 import lib.gl.gl33;

@@ -1,6 +1,11 @@
 // Copyright 2016-2019, Jakob Bornecrantz.
 // Copyright 2019, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
+/*!
+ * Simpler object rendering code, shader, buffer and builder.
+ *
+ * @ingroup gfx
+ */
 module charge.gfx.simple;
 
 import lib.gl.gl33;

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for Texture(s).
+ *
+ * @ingroup gfx
  */
 module charge.gfx.texture;
 
@@ -24,6 +26,7 @@ import charge.gfx.gl;
  *
  * @param dec Object to dereference passed by reference, set to `inc`.
  * @param inc Object to reference.
+ * @ingroup gfx
  * @{
  */
 fn reference(ref dec: Texture, inc: Texture)

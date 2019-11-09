@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for misc gfx things.
+ *
+ * @ingroup gfx
  */
 module charge.gfx.gfx;
 

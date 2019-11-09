@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Helper classes to keep track of framebuffers and blit textures.
+ *
+ * @ingroup gfx
  */
 module charge.gfx.helpers;
 

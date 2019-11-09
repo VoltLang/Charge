@@ -1,5 +1,10 @@
 // Copyright 2011-2019, Jakob Bornecrantz.
 // SPDX-License-Identifier: BSL-1.0
+/*!
+ * OpenGL helpers.
+ *
+ * @ingroup
+ */
 module charge.gfx.gl;
 
 import io = watt.io;
