@@ -53,6 +53,7 @@ public import charge.gfx.target :
 	reference,
 	Target,
 	DefaultTarget,
+	ExtTarget,
 	Framebuffer,
 	FramebufferMSAA;
 public import charge.gfx.texture :

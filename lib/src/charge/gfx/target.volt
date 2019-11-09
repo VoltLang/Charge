@@ -7,6 +7,8 @@
  */
 module charge.gfx.target;
 
+import core.exception;
+
 import lib.gl.gl33;
 
 import sys = charge.sys;
@@ -32,6 +34,13 @@ fn reference(ref dec: Target, inc: Target)
 }
 
 fn reference(ref dec: DefaultTarget, inc: DefaultTarget)
+{
+	if (inc !is null) { inc.incRef(); }
+	if (dec !is null) { dec.decRef(); }
+	dec = inc;
+}
+
+fn reference(ref dec: ExtTarget, inc: ExtTarget)
 {
 	if (inc !is null) { inc.incRef(); }
 	if (dec !is null) { dec.decRef(); }
@@ -183,6 +192,46 @@ private:
 	this(uint width, uint height)
 	{
 		super(0, width, height, GL_LINEAR);
+	}
+}
+
+/*!
+ * Target for a FBO made outside of charge, takes ownership of the fbo.
+ */
+class ExtTarget : Target
+{
+public:
+	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d)
+	{
+		throw new Exception("setMatrixToOrtho is deprecated");
+	}
+
+	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d, width: f32, height: f32)
+	{
+		throw new Exception("setMatrixToOrtho is deprecated");
+	}
+
+	override final fn setMatrixToProjection(ref mat: math.Matrix4x4d, fov: f32, near: f32, far: f32)
+	{
+		throw new Exception("setMatrixToOrtho is deprecated");
+	}
+
+	global fn make(name: string, fbo: GLuint, width: uint, height: uint) ExtTarget
+	{
+		dummy: void*;
+		t := cast(ExtTarget)sys.Resource.alloc(typeid(ExtTarget),
+		                                         uri, name,
+		                                         0, out dummy);
+		t.__ctor(fbo, width, height);
+
+		return t;
+	}
+
+
+protected:
+	this(fdo: GLuint, height: u32, width: u32)
+	{
+		super(fdo, width, height, GL_LINEAR);
 	}
 }
 
