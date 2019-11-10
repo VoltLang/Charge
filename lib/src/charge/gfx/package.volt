@@ -51,6 +51,7 @@ public import charge.gfx.compiler :
 	Compiler;
 public import charge.gfx.target :
 	reference,
+	ViewInfo,
 	Target,
 	DefaultTarget,
 	ExtTarget,

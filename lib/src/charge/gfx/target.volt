@@ -63,6 +63,50 @@ fn reference(ref dec: FramebufferMSAA, inc: FramebufferMSAA)
 //! @}
 
 /*!
+ * Information about a single view to be rendered,
+ * passed alongside a @ref Target.
+ *
+ * @ingroup gfx
+ */
+struct ViewInfo
+{
+public:
+	//! A fov to be used on the given target.
+	fov: math.Fovf;
+
+	//! Used in XR mode, gives the position of the view.
+	position: math.Point3f;
+
+	//! Used in XR mode, gives the rotation of the view.
+	rotation: math.Quatf;
+
+	//! Should the fov be used or can it be filled in.
+	validFov: bool;
+
+	//! Are @ref position and @rotation valid and should be used.
+	validLocation: bool;
+
+	/*!
+	 * Is this view suitable for orthogonal rendering, that is it displayed
+	 * on monitor like thing or is it a XR view.
+	 */
+	suitableForOrtho: bool;
+
+
+public:
+	fn ensureValidFov(fovy: f64, t: Target)
+	{
+		if (validFov) {
+			return;
+		}
+
+		aspect := cast(f64)t.width / cast(f64)t.height;
+		fov.setToFovyAspect(fovy, aspect);
+		validFov = true;
+	}
+}
+
+/*!
  * Base target class, allows you to bind and unbind targets.
  *
  * @ingroup gfx
