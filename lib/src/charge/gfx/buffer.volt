@@ -99,12 +99,22 @@ public:
 
 	final fn add(input: void*, size: size_t)
 	{
-		if (mPos + size >= mSize) {
-			mSize += mPos + size;
-			mPtr = sys.cRealloc(mPtr, mSize);
-		}
+		ensureExtraSpace(size);
 		mPtr[mPos .. mPos + size] = input[0 .. size];
 		mPos += size;
+	}
+
+	final fn alignAndGetOffset(to: size_t) size_t
+	{
+		if (mPos % to == 0) {
+			return mPos;
+		}
+
+		size := to - mPos % to;
+		ensureExtraSpace(size);
+
+		mPos += size;
+		return mPos;
 	}
 
 	fn resetStore(size: size_t)
@@ -115,5 +125,15 @@ public:
 			mSize = size;
 		}
 		mPos = 0;
+	}
+
+
+private:
+	fn ensureExtraSpace(size: size_t)
+	{
+		if (mPos + size >= mSize) {
+			mSize += mPos + size;
+			mPtr = sys.cRealloc(mPtr, mSize);
+		}
 	}
 }
