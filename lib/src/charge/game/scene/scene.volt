@@ -50,7 +50,7 @@ public:
 	/*!
 	 * Render view of this scene into target.
 	 */
-	abstract fn render(gfx.Target);
+	abstract fn render(gfx.Target, ref gfx.ViewInfo);
 
 	/*!
 	 * Install all input listeners.

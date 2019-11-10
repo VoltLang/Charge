@@ -65,7 +65,7 @@ public:
 		updateText("Info:");
 	}
 
-	fn renderScene(t: gfx.Target)
+	fn renderScene(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 
 	}
@@ -139,11 +139,11 @@ public:
 		}
 	}
 
-	override fn render(t: gfx.Target)
+	override fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		// Always use the AA, it supports non-aa.
 		aa.bind(t);
-		renderScene(aa.fbo);
+		renderScene(aa.fbo, ref viewInfo);
 		aa.resolveToAndBind(t);
 
 		// Draw text

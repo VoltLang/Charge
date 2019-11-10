@@ -176,7 +176,7 @@ public:
 
 	}
 
-	override fn render(t: gfx.Target)
+	override fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		initBuffers(t);
 

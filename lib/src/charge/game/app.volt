@@ -82,7 +82,7 @@ public:
 	/*!
 	 * Called every frame.
 	 */
-	abstract fn render(t: gfx.Target);
+	abstract fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo);
 
 	/*!
 	 * Called every logic step.
@@ -119,7 +119,12 @@ private:
 
 		t := gfx.DefaultTarget.opCall();
 		t.bindDefault();
-		render(t);
+
+		// Only info we have is that it's suitable for ortho.
+		viewInfo: gfx.ViewInfo;
+		viewInfo.suitableForOrtho = true;
+
+		render(t, ref viewInfo);
 
 		// Core swaps default target.
 	}

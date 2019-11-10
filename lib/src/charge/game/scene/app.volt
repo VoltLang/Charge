@@ -61,7 +61,7 @@ public:
 		super.close();
 	}
 
-	override fn render(t: gfx.Target)
+	override fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		i := vec.length;
 		foreach_reverse(r; vec) {
@@ -72,7 +72,7 @@ public:
 		}
 
 		for (; i < vec.length; i++) {
-			vec[i].render(t);
+			vec[i].render(t, ref viewInfo);
 		}
 	}
 

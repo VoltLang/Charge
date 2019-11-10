@@ -51,10 +51,10 @@ public:
 		setHeader(cast(immutable(u8)[])"Loading");
 	}
 
-	override fn render(t: gfx.Target)
+	override fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		mHasRendered = true;
-		super.render(t);
+		super.render(t, ref viewInfo);
 	}
 
 	override fn logic()
@@ -405,7 +405,7 @@ public:
 	 *
 	 */
 
-	override fn renderScene(t: gfx.Target)
+	override fn renderScene(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		pipe := cast(svo.Pipeline)pipes[pipeId];
 
@@ -419,9 +419,10 @@ public:
 
 		// Constant for now.
 		fov := 45.f;
+		viewInfo.ensureValidFov(fov, t);
 
 		proj: math.Matrix4x4d;
-		t.setMatrixToProjection(ref proj, fov, 0.0001f, 256.f);
+		proj.setToFrustum(ref viewInfo.fov, 0.0001f, 256.f);
 
 		view: math.Matrix4x4d;
 		view.setToLookFrom(ref camPosition, ref camRotation);
@@ -472,7 +473,7 @@ public:
 	 *
 	 */
 
-	override fn renderScene(t: gfx.Target)
+	override fn renderScene(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		// Clear the screen.
 		mTimeClear.start();
@@ -484,9 +485,10 @@ public:
 
 		// Constant for now.
 		fov := 45.f;
+		viewInfo.ensureValidFov(fov, t);
 
 		proj: math.Matrix4x4d;
-		t.setMatrixToProjection(ref proj, fov, 0.0001f, 256.f);
+		proj.setToFrustum(ref viewInfo.fov, 0.0001f, 256.f);
 
 		view: math.Matrix4x4d;
 		view.setToLookFrom(ref camPosition, ref camRotation);

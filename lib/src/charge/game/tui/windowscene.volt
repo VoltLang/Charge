@@ -103,7 +103,7 @@ public:
 		gridMouseDown(m, ux, uy, button);
 	}
 
-	override fn render(t: gfx.Target)
+	override fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		width, height: u32;
 		getSizeInPixels(out width, out height);

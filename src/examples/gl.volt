@@ -111,7 +111,7 @@ public:
 		gfx.reference(ref buf, null);
 	}
 
-	override fn render(t: gfx.Target)
+	override fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		transform: math.Matrix4x4d;
 		t.setMatrixToOrtho(ref transform);

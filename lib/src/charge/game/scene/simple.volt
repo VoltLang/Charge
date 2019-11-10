@@ -29,7 +29,7 @@ public:
 
 	override fn close() {}
 	override fn logic() {}
-	override fn render(gfx.Target) {}
+	override fn render(gfx.Target, ref gfx.ViewInfo) {}
 
 	fn keyText(ctl.Keyboard, scope const(char)[]) {}
 	fn keyDown(ctl.Keyboard, int) {}
