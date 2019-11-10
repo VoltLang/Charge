@@ -62,6 +62,11 @@ import lib.gl.loader;
 	SDL_PushEvent(&event);
 }
 
+/*!
+ * Multi-platform Core based on SDL.
+ *
+ * @ingroup core
+ */
 class CoreSDL : CommonCore
 {
 private:

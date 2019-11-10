@@ -55,6 +55,11 @@ extern (Windows) { // TODO: Move to RT.
 	PostQuitMessage(0);
 }
 
+/*!
+ * Windows core using the Win32 API.
+ *
+ * @ingroup Core
+ */
 class CoreWin32 : CommonCore
 {
 private:

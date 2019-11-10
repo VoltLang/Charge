@@ -1,7 +1,7 @@
 // Copyright 2011-2019, Jakob Bornecrantz.
 // SPDX-License-Identifier: BSL-1.0
 /*!
- * Source file containing Core and CoreOptions.
+ * Source file containing @ref Core and @ref Options.
  *
  * @ingroup core
  */
@@ -14,6 +14,8 @@ module charge.core;
 
 /*!
  * Enum for selecting subsystems.
+ *
+ * @ingroup core
  */
 enum Flag
 {
@@ -25,6 +27,11 @@ enum Flag
 	AUTO = (1 << 5),
 }
 
+/*!
+ * Enum for selecting window mode.
+ *
+ * @ingroup core
+ */
 enum WindowMode
 {
 	Normal,
