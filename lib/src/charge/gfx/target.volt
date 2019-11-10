@@ -303,18 +303,19 @@ public:
 		t := cast(Framebuffer)sys.Resource.alloc(typeid(Framebuffer),
 		                                         uri, name,
 		                                         0, out dummy);
-		t.__ctor(fbo, color, depth, width, height);
+		t.__ctor(fbo, color, depth, width, height, GL_LINEAR);
 
 		return t;
 	}
 
 
 protected:
-	this(GLuint fbo, Texture color, Texture depth, uint width, uint height)
+	this(fbo: GLuint, color: Texture, depth: Texture,
+	     width: uint, height: uint, filter: GLuint)
 	{
 		this.color = color;
 		this.depth = depth;
-		super(fbo, width, height, GL_LINEAR);
+		super(fbo, width, height, filter);
 	}
 }
 
@@ -323,20 +324,9 @@ protected:
  *
  * @ingroup gfx
  */
-class FramebufferMSAA : Target
+class FramebufferMSAA : Framebuffer
 {
 public:
-	color: Texture;
-	depth: Texture;
-
-
-public:
-	~this()
-	{
-		charge.gfx.texture.reference(ref color, null);
-		charge.gfx.texture.reference(ref depth, null);
-	}
-
 	override fn bind(old: Target)
 	{
 		super.bind(old);
@@ -348,22 +338,7 @@ public:
 		glDisable(GL_MULTISAMPLE);
 	}
 
-	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d)
-	{
-		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
-	}
-
-	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d, width: f32, height: f32)
-	{
-		mat.setToOrtho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
-	}
-
-	override final fn setMatrixToProjection(ref mat: math.Matrix4x4d, fov: f32, near: f32, far: f32)
-	{
-		mat.setToPerspective(fov, cast(f32)width / cast(f32)height, near, far);
-	}
-
-	global fn make(name: string, width: uint, height: uint, samples: uint) Framebuffer
+	global fn make(name: string, width: uint, height: uint, samples: uint) FramebufferMSAA
 	{
 		levels: uint = 1;
 
@@ -384,20 +359,19 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		dummy: void*;
-		t := cast(Framebuffer)sys.Resource.alloc(typeid(Framebuffer),
-		                                         uri, name,
-		                                         0, out dummy);
-		t.__ctor(fbo, color, depth, width, height);
+		t := cast(FramebufferMSAA)sys.Resource.alloc(typeid(FramebufferMSAA),
+		                                             uri, name,
+		                                             0, out dummy);
+		t.__ctor(fbo, color, depth, width, height, GL_NEAREST);
 
 		return t;
 	}
 
 
 protected:
-	this(GLuint fbo, Texture color, Texture depth, uint width, uint height)
+	this(fbo: GLuint, color: Texture, depth: Texture,
+	     width: uint, height: uint, filter: GLuint)
 	{
-		this.color = color;
-		this.depth = depth;
-		super(fbo, width, height, GL_NEAREST);
+		super(fbo, color, depth, width, height, filter);
 	}
 }
