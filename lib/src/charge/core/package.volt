@@ -153,16 +153,6 @@ public:
 	abstract fn loop() int;
 
 	/*!
-	 * Initialize a subsystem. Only a single subsystem can be initialized
-	 * a time. Will throw Exception upon failure.
-	 *
-	 * XXX: Most Cores are bit picky when it comes which subsystems can be
-	 * initialized after a general initialization, generally speaking
-	 * SFX and PHY should always work.
-	 */
-	abstract fn initSubSystem(flags: Flag);
-
-	/*!
 	 * Display a panic message, usually a dialogue box, then
 	 * calls exit(-1), so this function does not return.
 	 */

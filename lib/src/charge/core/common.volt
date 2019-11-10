@@ -114,7 +114,30 @@ public:
 		return 0;
 	}
 
-	override fn initSubSystem(flag: Flag)
+
+protected:
+	this(Flag flags)
+	{
+		super(flags);
+		this.mRunning = true;
+		this.mSleepTime = new TimeTracker("sleep");
+
+		initSettings();
+
+/+
+		resizeSupported = p.getBool("forceResizeEnable", defaultForceResizeEnable);
++/
+		// Init sub system
+		if (flags & phyFlags) {
+			initSubSystem(Flag.PHY);
+		}
+
+		if (flags & sfxFlags) {
+			initSubSystem(Flag.SFX);
+		}
+	}
+
+	fn initSubSystem(flag: Flag)
 	{
 		not := Flag.PHY | Flag.SFX;
 
@@ -163,29 +186,6 @@ public:
 			throw new Exception("Could not load SFX");
 		}
 +/
-	}
-
-
-protected:
-	this(Flag flags)
-	{
-		super(flags);
-		this.mRunning = true;
-		this.mSleepTime = new TimeTracker("sleep");
-
-		initSettings();
-
-/+
-		resizeSupported = p.getBool("forceResizeEnable", defaultForceResizeEnable);
-+/
-		// Init sub system
-		if (flags & phyFlags) {
-			initSubSystem(Flag.PHY);
-		}
-
-		if (flags & sfxFlags) {
-			initSubSystem(Flag.SFX);
-		}
 	}
 
 
