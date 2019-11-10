@@ -166,9 +166,20 @@ public:
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
 	}
 
-	abstract fn setMatrixToOrtho(ref mat: math.Matrix4x4d);
-	abstract fn setMatrixToOrtho(ref mat: math.Matrix4x4d, width: f32, height: f32);
-	abstract fn setMatrixToProjection(ref mat: math.Matrix4x4d, fov: f32, near: f32, far: f32);
+	final fn setMatrixToOrtho(ref mat: math.Matrix4x4d)
+	{
+		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
+	}
+
+	final fn setMatrixToOrtho(ref mat: math.Matrix4x4d, width: f32, height: f32)
+	{
+		// Need to flip the ortho projection when rendering to the window.
+		if (fbo == 0) {
+			mat.setToOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
+		} else {
+			mat.setToOrtho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
+		}
+	}
 
 
 protected:
@@ -199,21 +210,6 @@ public:
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glViewport(0, 0, cast(int)width, cast(int)height);
-	}
-
-	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d)
-	{
-		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
-	}
-
-	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d, width: f32, height: f32)
-	{
-		mat.setToOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
-	}
-
-	override final fn setMatrixToProjection(ref mat: math.Matrix4x4d, fov: f32, near: f32, far: f32)
-	{
-		mat.setToPerspective(fov, cast(f32)width / cast(f32)height, near, far);
 	}
 
 	global fn opCall() DefaultTarget
@@ -255,21 +251,6 @@ private:
 class ExtTarget : Target
 {
 public:
-	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d)
-	{
-		throw new Exception("setMatrixToOrtho is deprecated");
-	}
-
-	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d, width: f32, height: f32)
-	{
-		throw new Exception("setMatrixToOrtho is deprecated");
-	}
-
-	override final fn setMatrixToProjection(ref mat: math.Matrix4x4d, fov: f32, near: f32, far: f32)
-	{
-		throw new Exception("setMatrixToOrtho is deprecated");
-	}
-
 	global fn make(name: string, fbo: GLuint, width: uint, height: uint) ExtTarget
 	{
 		dummy: void*;
@@ -306,21 +287,6 @@ public:
 	{
 		charge.gfx.texture.reference(ref color, null);
 		charge.gfx.texture.reference(ref depth, null);
-	}
-
-	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d)
-	{
-		setMatrixToOrtho(ref mat, cast(f32)width, cast(f32)height);
-	}
-
-	override final fn setMatrixToOrtho(ref mat: math.Matrix4x4d, width: f32, height: f32)
-	{
-		mat.setToOrtho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
-	}
-
-	override final fn setMatrixToProjection(ref mat: math.Matrix4x4d, fov: f32, near: f32, far: f32)
-	{
-		mat.setToPerspective(fov, cast(f32)width / cast(f32)height, near, far);
 	}
 
 	global fn make(name: string, width: uint, height: uint) Framebuffer
