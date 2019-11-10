@@ -106,6 +106,7 @@ public:
 
 	final fn alignAndGetOffset(to: size_t) size_t
 	{
+		// Already aligned.
 		if (mPos % to == 0) {
 			return mPos;
 		}
@@ -131,9 +132,14 @@ public:
 private:
 	fn ensureExtraSpace(size: size_t)
 	{
-		if (mPos + size >= mSize) {
-			mSize += mPos + size;
-			mPtr = sys.cRealloc(mPtr, mSize);
+		if (mPos + size < mSize) {
+			return;
 		}
+
+		while (mSize < mPos + size) {
+			mSize += 4u * 1024u;
+		}
+
+		mPtr = sys.cRealloc(mPtr, mSize);
 	}
 }
