@@ -63,7 +63,7 @@ fn reference(ref dec: FramebufferMSAA, inc: FramebufferMSAA)
 //! @}
 
 /*!
- * Base texture class.
+ * Base target class, allows you to bind and unbind targets.
  *
  * @ingroup gfx
  */
@@ -106,8 +106,10 @@ public:
 
 	fn bindAndCopyFrom(src: Target)
 	{
+		// Bind this target and unbind src.
 		bind(src);
 
+		// We are now bound as both buffers, read from src.
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, src.fbo);
 
 		glDrawBuffer(GL_BACK);
@@ -116,6 +118,7 @@ public:
 			0, 0, cast(GLint)width, cast(GLint)height,
 			GL_COLOR_BUFFER_BIT, mCopyFilter);
 
+		// And make us bound in both buffers again.
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
 	}
 
@@ -136,6 +139,11 @@ protected:
 	}
 }
 
+/*!
+ * The default fbo in OpenGL, `glBindFramebuffer(GL_FRAMEBUFFER, 0)`.
+ *
+ * @ingroup gfx
+ */
 final class DefaultTarget : Target
 {
 private:
@@ -197,6 +205,8 @@ private:
 
 /*!
  * Target for a FBO made outside of charge, takes ownership of the fbo.
+ *
+ * @ingroup gfx
  */
 class ExtTarget : Target
 {
@@ -235,6 +245,11 @@ protected:
 	}
 }
 
+/*!
+ * A simple color + depth framebuffer.
+ *
+ * @ingroup gfx
+ */
 class Framebuffer : Target
 {
 public:
@@ -303,6 +318,11 @@ protected:
 	}
 }
 
+/*!
+ * A simple color + depth framebuffer, with MSAA textures.
+ *
+ * @ingroup gfx
+ */
 class FramebufferMSAA : Target
 {
 public:
