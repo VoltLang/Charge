@@ -229,7 +229,7 @@ public:
 
 
 protected:
-	this(fdo: GLuint, height: u32, width: u32)
+	this(fdo: GLuint, width: u32, height: u32)
 	{
 		super(fdo, width, height, GL_LINEAR);
 	}
