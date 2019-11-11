@@ -285,26 +285,61 @@ public:
 		u.m[3][3] = 1.0;
 	}
 
+	/*!
+	 * Set this matrix to a model matrix from
+	 * the given position and rotation.
+	 */
 	fn setToModel(ref p: Point3f, ref q: Quatf)
+	{
+		s: Vector3f = {1.0f, 1.0f, 1.0f};
+		this.setToModel(ref p, ref q, ref s);
+	}
+
+	/*!
+	 * Set this matrix to a model matrix from the given position, rotation
+	 * and scales, the variable rotPoint defines where in model scape the
+	 * rotation and scale is centered.
+	 */
+	fn setToModel(ref p: Point3f, ref q: Quatf, ref s: Vector3f, ref rotPoint: Point3f)
+	{
+		setToModel(ref p, ref q, ref s);
+
+		off := Vector3f.opCall(-rotPoint.x, -rotPoint.y, -rotPoint.z);
+		scaledOff := this * off;
+
+		this.u.m[0][3] += scaledOff.x;
+		this.u.m[1][3] += scaledOff.y;
+		this.u.m[2][3] += scaledOff.z;
+	}
+
+	/*!
+	 * Set this matrix to a model matrix from the given
+	 * position, rotation and scales.
+	 */
+	fn setToModel(ref p: Point3f, ref q: Quatf, ref s: Vector3f)
 	{
 		qx: f64 = q.x;
 		qy: f64 = q.y;
 		qz: f64 = q.z;
 		qw: f64 = q.w;
 
-		u.m[0][0] = 1 - 2 * qy * qy - 2 * qz * qz;
-		u.m[0][1] =     2 * qx * qy - 2 * qw * qz;
-		u.m[0][2] =     2 * qx * qz + 2 * qw * qy;
+		sx: f64 = s.x;
+		sy: f64 = s.y;
+		sz: f64 = s.z;
+
+		u.m[0][0] = (1 - 2 * qy * qy - 2 * qz * qz) * sx;
+		u.m[0][1] = (    2 * qx * qy - 2 * qw * qz) * sy;
+		u.m[0][2] = (    2 * qx * qz + 2 * qw * qy) * sz;
 		u.m[0][3] = p.x;
 
-		u.m[1][0] =     2 * qx * qy + 2 * qw * qz;
-		u.m[1][1] = 1 - 2 * qx * qx - 2 * qz * qz;
-		u.m[1][2] =     2 * qy * qz - 2 * qw * qx;
+		u.m[1][0] = (    2 * qx * qy + 2 * qw * qz) * sx;
+		u.m[1][1] = (1 - 2 * qx * qx - 2 * qz * qz) * sy;
+		u.m[1][2] = (    2 * qy * qz - 2 * qw * qx) * sz;
 		u.m[1][3] = p.y;
 
-		u.m[2][0] =     2 * qx * qz - 2 * qw * qy;
-		u.m[2][1] =     2 * qy * qz + 2 * qw * qx;
-		u.m[2][2] = 1 - 2 * qx * qx - 2 * qy * qy;
+		u.m[2][0] = (    2 * qx * qz - 2 * qw * qy) * sx;
+		u.m[2][1] = (    2 * qy * qz + 2 * qw * qx) * sy;
+		u.m[2][2] = (1 - 2 * qx * qx - 2 * qy * qy) * sz;
 		u.m[2][3] = p.z;
 
 		u.m[3][0] = 0.0;
@@ -463,6 +498,19 @@ public:
 		u.m[3][1] = 0.0;
 		u.m[3][2] = -1.0;
 		u.m[3][3] = 0.0;
+	}
+
+	/*!
+	 * Transforms a vector using only the lowest 3x3 part of the matrix,
+	 * aka a normal transformation, no perspective divide.
+	 */
+	fn opMul(ref vector: Vector3f) Vector3f
+	{
+		vx: f64 = vector.x; vy: f64 = vector.y; vz: f64 = vector.z;
+		x := vx * u.m[0][0] + vy * u.m[0][1] + vz * u.m[0][2];
+		y := vx * u.m[1][0] + vy * u.m[1][1] + vz * u.m[1][2];
+		z := vx * u.m[2][0] + vy * u.m[2][1] + vz * u.m[2][2];
+		return Vector3f.opCall(cast(f32)x, cast(f32)y, cast(f32)z);
 	}
 
 	fn opMul(ref point: Point3f) Point3f
