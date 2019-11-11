@@ -24,7 +24,7 @@ import charge.gfx.buffer;
  *
  * @param dec Object to dereference passed by reference, set to `inc`.
  * @param inc Object to reference.
- * @{
+ * @ingroup gfx
  */
 fn reference(ref dec: SimpleBuffer, inc: SimpleBuffer)
 {
@@ -32,12 +32,12 @@ fn reference(ref dec: SimpleBuffer, inc: SimpleBuffer)
 	if (dec !is null) { dec.decRef(); }
 	dec = inc;
 }
-//! @}
 
 /*!
  * Closes and sets reference to null.
  *
  * @param Object to be destroyed.
+ * @ingroup gfx
  */
 fn destroy(ref obj: SimpleVertexBuilder)
 {
@@ -46,6 +46,8 @@ fn destroy(ref obj: SimpleVertexBuilder)
 
 /*!
  * VBO used for simple drawing operations.
+ *
+ * @ingroup gfx
  */
 class SimpleBuffer : Buffer
 {
@@ -70,6 +72,7 @@ public:
 		vb.bake(out vao, out buf, out num);
 	}
 
+
 protected:
 	this(GLuint vao, GLuint buf)
 	{
@@ -82,11 +85,15 @@ protected:
  * Shader to be used with the vertex format in this file.
  *
  * It has one shader uniform called 'matrix' that is the.
+ *
+ * @ingroup gfx
  */
 global simpleShader: Shader;
 
 /*!
  * Vertex format, vec3!f32 position, vec2!f32 coordinate and vec4!u8 color.
+ *
+ * @ingroup gfx
  */
 struct SimpleVertex
 {
@@ -97,6 +104,8 @@ struct SimpleVertex
 
 /*!
  * Building simple vertex buffers.
+ *
+ * @ingroup gfx
  */
 class SimpleVertexBuilder : Builder
 {
