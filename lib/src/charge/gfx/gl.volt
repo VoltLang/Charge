@@ -98,8 +98,12 @@ fn runDetection()
 		return;
 	}
 
-	if (gfxRendererInfo.glVendor == "X.Org" ||
-	    gfxRendererInfo.glVendor.startsWith("AMD")) {
+	if (gfxRendererInfo.glVendor == "X.Org") {
+		gfxRendererInfo.isAMD = true;
+		gfxRendererInfo.isMESA = true;
+		gfxRendererInfo.isConfidentInDetection = true;
+	}
+	if (gfxRendererInfo.glVendor.startsWith("AMD")) {
 		gfxRendererInfo.isAMD = true;
 		gfxRendererInfo.isConfidentInDetection = true;
 	}
