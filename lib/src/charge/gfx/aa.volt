@@ -7,6 +7,7 @@
  */
 module charge.gfx.aa;
 
+import charge.gfx.gfx;
 import charge.gfx.target;
 import charge.gfx.timetracker;
 
@@ -40,6 +41,12 @@ public:
 	fn toggle()
 	{
 		kind++;
+
+		// AMD can not create MSAA16 FBO.
+		if (kind == Kind.MSAA16 && gfxRendererInfo.isAMD) {
+			kind = Kind.None;
+		}
+
 		if (kind > Kind.MSAA16) {
 			kind = Kind.None;
 		}
