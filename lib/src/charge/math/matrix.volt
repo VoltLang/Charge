@@ -14,7 +14,8 @@ import charge.math.vector;
 
 
 /*!
- * Fov angles to make a up projection matrix.
+ * Fov angles to make a up projection matrix,
+ * angle semantics matches those of OpenXR.
  *
  * @ingroup math
  */
@@ -304,12 +305,17 @@ public:
 	{
 		setToModel(ref p, ref q, ref s);
 
-		off := Vector3f.opCall(-rotPoint.x, -rotPoint.y, -rotPoint.z);
-		scaledOff := this * off;
+		/*
+		 * We turn this into a vector and transform it with the model
+		 * part without the offset. Since this is a vector it is only
+		 * transformed with the scale and rotation part.
+		 */
+		offset := Vector3f.opCall(-rotPoint.x, -rotPoint.y, -rotPoint.z);
+		scaledAndRotatedOffset := this * offset;
 
-		this.u.m[0][3] += scaledOff.x;
-		this.u.m[1][3] += scaledOff.y;
-		this.u.m[2][3] += scaledOff.z;
+		this.u.m[0][3] += scaledAndRotatedOffset.x;
+		this.u.m[1][3] += scaledAndRotatedOffset.y;
+		this.u.m[2][3] += scaledAndRotatedOffset.z;
 	}
 
 	/*!
@@ -462,7 +468,8 @@ public:
 	}
 
 	/*!
-	 * Used by OpenXR.
+	 * Set to a projection matrix using fov angles,
+	 * angle semantics matches those of OpenXR.
 	 */
 	fn setToFrustum(angleLeft: f64, angleRight: f64,
 	                angleDown: f64, angleUp: f64,
