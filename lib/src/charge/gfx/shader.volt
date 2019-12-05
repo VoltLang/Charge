@@ -60,20 +60,14 @@ public:
 
 	~this()
 	{
-		if (id != 0) {
-			glDeleteProgram(id);
-		}
-		id = 0;
+		close();
 	}
 
 
 final:
 	fn close()
 	{
-		if (id != 0) {
-			glDeleteProgram(id);
-		}
-		id = 0;
+		if (id != 0) { glDeleteProgram(id); id = 0; }
 	}
 
 	fn bind()

@@ -129,10 +129,7 @@ protected:
 public:
 	~this()
 	{
-		if (fbo != 0) {
-			glDeleteFramebuffers(1, &fbo);
-			fbo = 0;
-		}
+		if (fbo != 0) { glDeleteFramebuffers(1, &fbo); fbo = 0; }
 	}
 
 	fn bind(old: Target)

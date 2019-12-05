@@ -54,8 +54,7 @@ public:
 		switch(ret) {
 		case GL_ALREADY_SIGNALED:
 		case GL_CONDITION_SATISFIED:
-			glDeleteSync(sync.obj);
-			sync.obj = null;
+			sync.close();
 			return true;
 		case GL_WAIT_FAILED:
 			glCheckError("gfxSyncWait");
@@ -68,11 +67,8 @@ public:
 	/*!
 	 * Delete a sync object.
 	 */
-	fn close(ref sync: Sync)
+	fn close()
 	{
-		if (sync.obj !is null) {
-			glDeleteSync(sync.obj);
-		}
-		sync.obj = null;
+		if (this.obj !is null) { glDeleteSync(this.obj); this.obj = null; }
 	}
 }

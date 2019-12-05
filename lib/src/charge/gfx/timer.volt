@@ -29,7 +29,7 @@ public:
 
 	fn close()
 	{
-		glDeleteQueries(1, &mId);
+		if (mId) { glDeleteQueries(1, &mId); mId = 0; }
 	}
 
 	fn start()

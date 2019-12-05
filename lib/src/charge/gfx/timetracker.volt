@@ -97,10 +97,7 @@ private:
 
 	fn close()
 	{
-		if (mId != 0) {
-			glDeleteQueries(1, &mId);
-			mId = 0;
-		}
+		if (mId != 0) { glDeleteQueries(1, &mId); mId = 0; }
 	}
 
 	fn reset()

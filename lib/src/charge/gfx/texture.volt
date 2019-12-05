@@ -63,10 +63,7 @@ public:
 public:
 	~this()
 	{
-		if (id != 0) {
-			glDeleteTextures(1, &id);
-			id = 0;
-		}
+		if (id != 0) { glDeleteTextures(1, &id); id = 0; }
 	}
 
 	final fn bind()
