@@ -247,7 +247,7 @@ public:
 
 		// If there is nobody to take the input we quit the game.
 		if (newScene is null) {
-			core.quit();
+			core.get().quit(0);
 		}
 
 		if (currentInput !is newScene) {

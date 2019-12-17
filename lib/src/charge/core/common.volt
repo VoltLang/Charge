@@ -111,7 +111,7 @@ public:
 
 		doClose();
 
-		return 0;
+		return mRetVal;
 	}
 
 

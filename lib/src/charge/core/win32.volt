@@ -47,15 +47,12 @@ extern (Windows) { // TODO: Move to RT.
 	enum GWL_EXSTYLE = -20;
 }
 
+
 @mangledName("chargeStart") fn start(opts: Options) Core
 {
 	return new CoreWin32(opts);
 }
 
-@mangledName("chargeQuit") fn quit()
-{
-	PostQuitMessage(0);
-}
 
 /*!
  * Windows core using the Win32 API.
@@ -101,6 +98,12 @@ public:
 		foreach (initFunc; gInitFuncs) {
 			initFunc();
 		}
+	}
+
+	override fn quit(ret: int)
+	{
+		mRetVal = ret;
+		PostQuitMessage(0);
 	}
 
 	override fn panic(message: string)

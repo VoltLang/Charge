@@ -50,19 +50,6 @@ import lib.gl.loader;
 	return new CoreSDL(opts);
 }
 
-@mangledName("chargeQuit") fn quit()
-{
-	// If SDL haven't been loaded yet.
-	version (!StaticSDL) {
-		if (SDL_PushEvent is null) {
-			return;
-		}
-	}
-
-	event: SDL_Event;
-	event.type = SDL_QUIT;
-	SDL_PushEvent(&event);
-}
 
 /*!
  * Multi-platform Core based on SDL.
@@ -110,6 +97,22 @@ public:
 		foreach (initFunc; gInitFuncs) {
 			initFunc();
 		}
+	}
+
+	override fn quit(ret: int)
+	{
+		mRetVal = ret;
+
+		// If SDL haven't been loaded yet.
+		version (!StaticSDL) {
+			if (SDL_PushEvent is null) {
+				return;
+			}
+		}
+
+		event: SDL_Event;
+		event.type = SDL_QUIT;
+		SDL_PushEvent(&event);
 	}
 
 	override fn panic(msg: string)

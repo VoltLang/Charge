@@ -44,7 +44,7 @@ public:
 
 	fn pressedQuit(button: tui.Button)
 	{
-		core.quit();
+		core.get().quit(0);
 	}
 
 	fn pressedAlignTest(button: tui.Button)

@@ -24,6 +24,8 @@ abstract class BasicCore : Core
 protected:
 	global gInstance: BasicCore;
 
+	mRetVal: int;
+
 	closeDg: dg();
 	updateActionsDg: dg(i64);
 	logicDg: dg();

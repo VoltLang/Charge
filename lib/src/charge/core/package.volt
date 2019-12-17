@@ -50,14 +50,6 @@ enum WindowMode
 @mangledName("chargeStart") fn start(opts: Options) Core;
 
 /*!
- * Signal a quit a condition, this function mearly pushes
- * a quit event on the event queue and then returns.
- *
- * @ingroup core
- */
-@mangledName("chargeQuit") fn quit();
-
-/*!
  * Return the current core.
  *
  * @ingroup core
@@ -155,6 +147,11 @@ public:
 	 * Best usage is if you in your main function do this "return c.loop();".
 	 */
 	abstract fn loop() int;
+
+	/*!
+	 * Signal the core to quit, will return from loop.
+	 */
+	abstract fn quit(int);
 
 	/*!
 	 * Display a panic message, usually a dialogue box, then
