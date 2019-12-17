@@ -138,10 +138,11 @@ public:
 	 * Sets callback functions.
 	 * @{
 	 */
-	abstract fn setRender(dgt: dg());
+	abstract fn setUpdateActions(dgt: dg(i64));
 	abstract fn setLogic(dgt: dg());
+	abstract fn setRender(dgt: dg());
 	abstract fn setClose(dgt: dg());
-	abstract fn setIdle(dgt: dg(long));
+	abstract fn setIdle(dgt: dg(i64));
 	/*!
 	 * @}
 	 */

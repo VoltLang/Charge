@@ -23,26 +23,27 @@ abstract class BasicCore : Core
 protected:
 	global gInstance: BasicCore;
 
-	logicDg: dg();
 	closeDg: dg();
+	updateActionsDg: dg(i64);
+	logicDg: dg();
 	renderDg: dg();
 	idleDg: dg(long);
 
 
 public:
-	override fn setIdle(dgt: dg(long)) {
+	override fn setClose(dgt: dg()) {
 		if (dgt is null) {
-			idleDg = defaultIdle;
+			closeDg = defaultDg;
 		} else {
-			idleDg = dgt;
+			closeDg = dgt;
 		}
 	}
 
-	override fn setRender(dgt: dg()) {
+	override fn setUpdateActions(dgt: dg(i64)) {
 		if (dgt is null) {
-			renderDg = defaultDg;
+			updateActionsDg = defaultDgI64;
 		} else {
-			renderDg = dgt;
+			updateActionsDg = dgt;
 		}
 	}
 
@@ -54,11 +55,19 @@ public:
 		}
 	}
 
-	override fn setClose(dgt: dg()) {
+	override fn setRender(dgt: dg()) {
 		if (dgt is null) {
-			closeDg = defaultDg;
+			renderDg = defaultDg;
 		} else {
-			closeDg = dgt;
+			renderDg = dgt;
+		}
+	}
+
+	override fn setIdle(dgt: dg(i64)) {
+		if (dgt is null) {
+			idleDg = defaultDgI64;
+		} else {
+			idleDg = dgt;
 		}
 	}
 
@@ -68,9 +77,10 @@ protected:
 	{
 		super(flags);
 
-		setRender(null);
-		setLogic(null);
 		setClose(null);
+		setUpdateActions(null);
+		setLogic(null);
+		setRender(null);
 		setIdle(null);
 
 		gInstance = this;
@@ -78,7 +88,7 @@ protected:
 
 
 private:
-	final fn defaultIdle(long)
+	final fn defaultDgI64(i64)
 	{
 		// This method intentionally left empty.
 	}
