@@ -30,9 +30,14 @@ private:
 	builders: BuilderDg[];
 
 public:
-	this(core.Options opts = null)
+	this(opts: core.Options = null)
 	{
 		super(opts);
+	}
+
+	this(core: core.Core)
+	{
+		super(core);
 	}
 
 	~this()

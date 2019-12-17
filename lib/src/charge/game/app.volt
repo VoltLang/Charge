@@ -40,6 +40,14 @@ public:
 			opts = new core.Options();
 		}
 
+		this(core.start(opts));
+	}
+
+	this(core: core.Core)
+	{
+		// First
+		mCore = core;
+
 		// Gfx timers
 		mFrameTime = new gfx.TimeTracker("frame");
 
@@ -49,7 +57,6 @@ public:
 		mBuildTime = new sys.TimeTracker("build");
 		mIdleTime = new sys.TimeTracker("idle");
 
-		mCore = core.start(opts);
 		mCore.setClose(close);
 		mCore.setUpdateActions(updateActions);
 		mCore.setLogic(doLogic);
