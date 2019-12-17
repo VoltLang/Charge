@@ -122,7 +122,7 @@ private:
 		logic();
 	}
 
-	fn doRender()
+	fn doRender(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		mRenderTime.start();
 		mFrameTime.startFrame();
@@ -131,16 +131,9 @@ private:
 			mRenderTime.stop();
 		}
 
-		t := gfx.DefaultTarget.opCall();
-		t.bindDefault();
-
-		// Only info we have is that it's suitable for ortho.
-		viewInfo: gfx.ViewInfo;
-		viewInfo.suitableForOrtho = true;
-
 		render(t, ref viewInfo);
 
-		// Core swaps default target.
+		// Core swaps target.
 	}
 
 	fn doIdle(diff: long)

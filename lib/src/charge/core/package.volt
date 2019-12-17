@@ -7,6 +7,9 @@
  */
 module charge.core;
 
+import gfx = charge.gfx;
+
+
 /*!
  * @defgroup core Core
  * @brief Main thing that holds everything together.
@@ -140,7 +143,7 @@ public:
 	 */
 	abstract fn setUpdateActions(dgt: dg(i64));
 	abstract fn setLogic(dgt: dg());
-	abstract fn setRender(dgt: dg());
+	abstract fn setRender(dgt: dg(gfx.Target, ref gfx.ViewInfo));
 	abstract fn setClose(dgt: dg());
 	abstract fn setIdle(dgt: dg(i64));
 	/*!

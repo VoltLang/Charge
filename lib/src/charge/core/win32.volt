@@ -21,6 +21,8 @@ import watt.conv;
 
 import lib.gl.gl45;
 
+import gfx = charge.gfx;
+
 import charge.core;
 import charge.core.common;
 import charge.ctl.input;
@@ -206,7 +208,14 @@ protected:
 
 	override fn doRenderAndSwap()
 	{
-		renderDg();
+		t := gfx.DefaultTarget.opCall();
+		t.bindDefault();
+
+		// Only info we have is that it's suitable for ortho.
+		viewInfo: gfx.ViewInfo;
+		viewInfo.suitableForOrtho = true;
+
+		renderDg(t, ref viewInfo);
 		SwapBuffers(hDC);
 	}
 

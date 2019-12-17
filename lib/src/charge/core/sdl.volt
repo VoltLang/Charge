@@ -20,6 +20,8 @@ import watt.text.utf;
 
 import lib.gl.gl45;
 
+import gfx = charge.gfx;
+
 import charge.core;
 import charge.gfx.gl;
 import charge.gfx.gfx;
@@ -306,7 +308,14 @@ protected:
 
 	override fn doRenderAndSwap()
 	{
-		renderDg();
+		t := gfx.DefaultTarget.opCall();
+		t.bindDefault();
+
+		// Only info we have is that it's suitable for ortho.
+		viewInfo: gfx.ViewInfo;
+		viewInfo.suitableForOrtho = true;
+
+		renderDg(t, ref viewInfo);
 		SDL_GL_SwapWindow(window);
 	}
 

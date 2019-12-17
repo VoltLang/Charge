@@ -7,6 +7,7 @@
  */
 module charge.core.basic;
 
+import gfx = charge.gfx;
 import charge.core;
 
 
@@ -26,7 +27,7 @@ protected:
 	closeDg: dg();
 	updateActionsDg: dg(i64);
 	logicDg: dg();
-	renderDg: dg();
+	renderDg: dg(gfx.Target, ref gfx.ViewInfo);
 	idleDg: dg(long);
 
 
@@ -55,9 +56,9 @@ public:
 		}
 	}
 
-	override fn setRender(dgt: dg()) {
+	override fn setRender(dgt: dg(gfx.Target, ref gfx.ViewInfo)) {
 		if (dgt is null) {
-			renderDg = defaultDg;
+			renderDg = defaultDgRender;
 		} else {
 			renderDg = dgt;
 		}
@@ -88,6 +89,11 @@ protected:
 
 
 private:
+	final fn defaultDgRender(gfx.Target, ref gfx.ViewInfo)
+	{
+
+	}
+
 	final fn defaultDgI64(i64)
 	{
 		// This method intentionally left empty.
