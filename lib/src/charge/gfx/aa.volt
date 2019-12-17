@@ -73,6 +73,11 @@ public:
 
 	fn resolveToAndBind(t: Target)
 	{
+		if (kind == Kind.None) {
+			reference(ref fbo, null);
+			return;
+		}
+
 		if (t !is fbo) {
 			tl.start();
 			t.bindAndCopyFrom(fbo);
@@ -84,6 +89,11 @@ public:
 	{
 		msaa: u32;
 		factor: u32;
+
+		if (kind == Kind.None) {
+			reference(ref fbo, t);
+			return;
+		}
 
 		final switch (kind) with (Kind) {
 		case None: factor = 1; msaa = 0; break;
