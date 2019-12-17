@@ -43,6 +43,19 @@ public:
 	}
 
 	/*!
+	 * Shutdown this scene, this is called by the Manager.
+	 *
+	 * And should not be called by other code.
+	 */
+	abstract fn close();
+
+	/*!
+	 * Called every time actions should be updated, timepoint given is when
+	 * next frame is to be displayed.
+	 */
+	abstract fn updateActions(timepoint: i64);
+
+	/*!
 	 * Step the game logic one step.
 	 */
 	abstract fn logic();
@@ -61,13 +74,6 @@ public:
 	 * Uninstall all input listeners.
 	 */
 	abstract fn dropControl();
-
-	/*!
-	 * Shutdown this scene, this is called by the Manager.
-	 *
-	 * And should not be called by other code.
-	 */
-	abstract fn close();
 }
 
 /*!

@@ -28,6 +28,7 @@ public:
 	}
 
 	override fn close() {}
+	override fn updateActions(timepoint: i64) {}
 	override fn logic() {}
 	override fn render(gfx.Target, ref gfx.ViewInfo) {}
 

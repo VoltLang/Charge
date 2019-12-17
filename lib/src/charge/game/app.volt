@@ -44,16 +44,17 @@ public:
 		mFrameTime = new gfx.TimeTracker("frame");
 
 		// Sys timers
-		mRenderTime = new sys.TimeTracker("gfx");
 		mLogicTime = new sys.TimeTracker("logic");
+		mRenderTime = new sys.TimeTracker("gfx");
 		mBuildTime = new sys.TimeTracker("build");
 		mIdleTime = new sys.TimeTracker("idle");
 
 		mCore = core.start(opts);
+		mCore.setClose(close);
+		mCore.setUpdateActions(updateActions);
+		mCore.setLogic(doLogic);
 		mCore.setRender(doRender);
 		mCore.setIdle(doIdle);
-		mCore.setLogic(doLogic);
-		mCore.setClose(close);
 
 		mInput = ctl.Input.opCall();
 	}
@@ -80,14 +81,20 @@ public:
 	}
 
 	/*!
-	 * Called every frame.
+	 * Called every time actions should be updated, timepoint given is when
+	 * next frame is to be displayed.
 	 */
-	abstract fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo);
+	abstract fn updateActions(timepoint: i64);
 
 	/*!
 	 * Called every logic step.
 	 */
 	abstract fn logic();
+
+	/*!
+	 * Called every frame.
+	 */
+	abstract fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo);
 
 	/*!
 	 * Idle is a bit missleading name, this function is always called after

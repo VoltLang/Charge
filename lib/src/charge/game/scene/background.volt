@@ -171,6 +171,11 @@ public:
 		if (mVao) { glDeleteVertexArrays(1, &mVao); mVao = 0; }
 	}
 
+	override fn updateActions(timepoint: i64)
+	{
+
+	}
+
 	override fn logic()
 	{
 

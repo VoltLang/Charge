@@ -61,18 +61,15 @@ public:
 		super.close();
 	}
 
-	override fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
+	override fn updateActions(timepoint: i64)
 	{
-		i := vec.length;
-		foreach_reverse(r; vec) {
-			i--;
-			if (r.flags & Scene.Flag.Blocker) {
+		foreach_reverse (r; vec) {
+			assert(r !is null);
+
+			if (r.flags & Scene.Flag.TakesInput) {
+				r.updateActions(timepoint);
 				break;
 			}
-		}
-
-		for (; i < vec.length; i++) {
-			vec[i].render(t, ref viewInfo);
 		}
 	}
 
@@ -90,6 +87,21 @@ public:
 			if (r.flags & Scene.Flag.Blocker) {
 				break;
 			}
+		}
+	}
+
+	override fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
+	{
+		i := vec.length;
+		foreach_reverse(r; vec) {
+			i--;
+			if (r.flags & Scene.Flag.Blocker) {
+				break;
+			}
+		}
+
+		for (; i < vec.length; i++) {
+			vec[i].render(t, ref viewInfo);
 		}
 	}
 
