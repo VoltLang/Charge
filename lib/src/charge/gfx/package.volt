@@ -60,7 +60,8 @@ public import charge.gfx.target :
 public import charge.gfx.texture :
 	reference,
 	Texture,
-	Texture2D;
+	Texture2D,
+	Texture2DArray;
 public import charge.gfx.timer :
 	Timer;
 public import charge.gfx.timetracker :

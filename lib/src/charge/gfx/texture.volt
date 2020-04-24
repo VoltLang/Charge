@@ -13,7 +13,7 @@ import watt.algorithm;
 import watt.text.format;
 import watt.math.integer;
 
-import lib.gl.gl33;
+import lib.gl.gl45;
 import lib.stb.image;
 
 import sys = charge.sys;
@@ -224,6 +224,54 @@ public:
 		return tex;
 	}
 
+
+protected:
+	this(GLuint target, GLuint id, uint width, uint height, uint depth)
+	{
+		super(target, id, width, height, depth);
+	}
+}
+
+class Texture2DArray : Texture
+{
+public:
+	global fn makeRGBA8(name: string, width: uint, height: uint,
+		layers: uint, levels: uint) Texture2DArray
+	{
+		return makeInternal(name, width, height, layers, levels, GL_RGBA8);
+	}
+
+	global fn makeInternal(name: string, width: uint, height: uint,
+		layers: uint, levels: uint, internal: GLuint) Texture2DArray
+	{
+		x := cast(int)width;
+		y := cast(int)height;
+		lays := cast(int)layers;
+		lvls := cast(int)levels;
+
+		target: GLuint = GL_TEXTURE_2D_ARRAY;
+		id: GLuint;
+
+		glGenTextures(1, &id);
+		glBindTexture(target, id);
+		glTexStorage3D(target, lvls, internal, x, y, lays);
+		glBindTexture(target, 0);
+		glCheckError();
+
+		return makeId(name, target, id, width, height, layers);
+	}
+
+	global fn makeId(name: string, target: GLuint, id: GLuint,
+		width: uint, height: uint, layers: uint) Texture2DArray
+	{
+		dummy: void*;
+		tex := cast(Texture2DArray)sys.Resource.alloc(typeid(Texture2DArray),
+		                                              uri, name,
+		                                              0, out dummy);
+		tex.__ctor(target, id, width, height, layers);
+
+		return tex;
+	}
 
 protected:
 	this(GLuint target, GLuint id, uint width, uint height, uint depth)
