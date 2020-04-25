@@ -273,6 +273,41 @@ public:
 		return tex;
 	}
 
+	fn loadImageIntoLayer(file: sys.File, layer: GLint)
+	{
+		data := file.data;
+		x, y, comp: i32;
+
+		ptr := stbi_load_from_memory(data, out x, out y, out comp, STBI_rgb_alpha);
+
+		// Free the file and return.
+		scope (exit) {
+			stbi_image_free(ptr);
+			sys.reference(ref file, null);
+		}
+
+		if (ptr is null) {
+			str := .format("could not load '%s'", file.name);
+			throw new Exception(str);
+		}
+
+		id := this.id;
+		target := this.target;
+		format := GL_RGBA;
+
+		glTextureSubImage3D(this.id,          // texture
+		                    0,                // level
+		                    0,                // xoffset
+		                    0,                // yoffset
+		                    layer,            // zoffset
+		                    x,                // width
+		                    y,                // height
+		                    1,                // depth
+		                    format,           // format
+		                    GL_UNSIGNED_BYTE, // type
+		                    cast(void*)ptr);
+	}
+
 protected:
 	this(GLuint target, GLuint id, uint width, uint height, uint depth)
 	{
