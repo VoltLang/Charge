@@ -306,6 +306,7 @@ public:
 		                    format,           // format
 		                    GL_UNSIGNED_BYTE, // type
 		                    cast(void*)ptr);
+		glCheckError();
 	}
 
 protected:
