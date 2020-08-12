@@ -9,7 +9,8 @@ module charge.sys;
 public import charge.sys.memory :
 	cFree,
 	cMalloc,
-	cRealloc;
+	cRealloc,
+	cMemoryUsage;
 public import charge.sys.resource :
 	Pool,
 	Resource;
