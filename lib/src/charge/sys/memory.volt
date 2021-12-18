@@ -30,4 +30,9 @@ debug {
 		cRealloc = realloc,
 		cFree = free;
 
+	fn cMemoryUsage() size_t
+	{
+		return 0;
+	}
+
 }
