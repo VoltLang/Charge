@@ -1,4 +1,4 @@
-// Copyright 2011-2019, Jakob Bornecrantz.
+// Copyright 2011-2022, Jakob Bornecrantz.
 // SPDX-License-Identifier: BSL-1.0
 module charge.game.tui.grid;
 
@@ -33,6 +33,7 @@ public:
 		setSize(width, height);
 		setGlyphSize(GlyphWidth, GlyphHeight);
 		setOffset(0, 0);
+		mColor = math.Color4b.White;
 
 		mTextBuilder = new DrawVertexBuilder(0);
 		mTextBuilder.reset(mData.length * 6u);
