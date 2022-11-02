@@ -139,6 +139,37 @@ public:
 		glBindVertexArray(0);
 	}
 
+	fn draw(ref vp: math.Matrix4x4d, ref pos: math.Point3f, ref rot: math.Quatf, scaleFactor: f32)
+	{
+		updateVBO();
+
+		offX := mWidth / 2.0f * mTextState.glyphWidth;
+		offY := mHeight / 2.0f * mTextState.glyphHeight;
+
+		origin := math.Point3f.opCall(offX, offY, 0.0f);
+		scale := math.Vector3f.opCall(scaleFactor, -scaleFactor, scaleFactor);
+
+		model: math.Matrix4x4d;
+		model.setToModel(ref pos, ref rot, ref scale, ref origin);
+
+		mat: math.Matrix4x4f;
+		mat.setToMultiplyAndTranspose(ref vp, ref model);
+
+		drawShader.bind();
+		drawShader.matrix4("matrix", 1, false, ref mat);
+
+		matrix: math.Matrix4x4f;
+		matrix.setToMultiplyAndTranspose(ref vp, ref model);
+
+		glBindVertexArray(mTextVBO.vao);
+		bitmapTexture.bind();
+
+		glDrawArrays(GL_TRIANGLES, 0, mTextVBO.num);
+
+		bitmapTexture.unbind();
+		glBindVertexArray(0);
+	}
+
 	@property fn width() u32 { return mWidth; }
 	@property fn height() u32 { return mHeight; }
 	@property fn isDirty() bool { return mDirty; }
