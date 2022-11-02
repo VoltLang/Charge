@@ -130,6 +130,17 @@ fn buildVertex(ref s: BitmapState, b: DrawVertexBuilder, x: int, y: int, c: ubyt
 	srcX2 := (1.0f / 16.0f) + srcX1;
 	srcY2 := (1.0f / 16.0f) + srcY1;
 
+	fudge := 1.0f / 1024.0f;
+	dstX1 -= fudge;
+	dstY1 -= fudge;
+	dstX2 += fudge;
+	dstY2 += fudge;
+
+	srcX1 += fudge;
+	srcY1 += fudge;
+	srcX2 -= fudge;
+	srcY2 -= fudge;
+
 	b.add(dstX1, dstY1, srcX1, srcY1, color);
 	b.add(dstX1, dstY2, srcX1, srcY2, color);
 	b.add(dstX2, dstY2, srcX2, srcY2, color);
