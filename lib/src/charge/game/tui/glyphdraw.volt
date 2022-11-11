@@ -3,11 +3,12 @@
 module charge.game.tui.glyphdraw;
 
 import charge.game.tui.grid;
+import watt.text.sink : SinkArg;
 
 
 enum TabSize = 8;
 
-fn makeTextLayout(text: string, out w: u32, out h: u32)
+fn makeTextLayout(text: SinkArg, out w: u32, out h: u32)
 {
 	x, y, mX, mY: u32;
 	foreach (dchar c; text) {
@@ -33,7 +34,7 @@ fn makeTextLayout(text: string, out w: u32, out h: u32)
 	h = mY;
 }
 
-fn makeText(grid: Grid, x: i32, y: i32, text: string)
+fn makeText(grid: Grid, x: i32, y: i32, text: SinkArg)
 {
 	currX, currY: i32;
 
