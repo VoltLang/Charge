@@ -1,4 +1,5 @@
 // Copyright 2011-2019, Jakob Bornecrantz.
+// Copyright 2019-2022, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for CommonCore.
@@ -94,7 +95,7 @@ public:
 			}
 
 			if (changed) {
-				doRenderAndSwap();
+				doRenderViewAndSwap();
 				changed = false;
 			}
 
@@ -197,7 +198,7 @@ protected:
 
 	abstract fn getTicks() long;
 	abstract fn doInput();
-	abstract fn doRenderAndSwap();
+	abstract fn doRenderViewAndSwap();
 	abstract fn doSleep(diff: long);
 	abstract fn doClose();
 

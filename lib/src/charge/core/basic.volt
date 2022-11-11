@@ -1,4 +1,5 @@
 // Copyright 2011-2019, Jakob Bornecrantz.
+// Copyright 2019-2022, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for BasicCore.
@@ -29,7 +30,7 @@ protected:
 	closeDg: dg();
 	updateActionsDg: dg(i64);
 	logicDg: dg();
-	renderDg: dg(gfx.Target, ref gfx.ViewInfo);
+	renderViewDg: dg(gfx.Target, ref gfx.ViewInfo);
 	idleDg: dg(long);
 
 
@@ -58,11 +59,11 @@ public:
 		}
 	}
 
-	override fn setRender(dgt: dg(gfx.Target, ref gfx.ViewInfo)) {
+	override fn setRenderView(dgt: dg(gfx.Target, ref gfx.ViewInfo)) {
 		if (dgt is null) {
-			renderDg = defaultDgRender;
+			renderViewDg = defaultDgRenderView;
 		} else {
-			renderDg = dgt;
+			renderViewDg = dgt;
 		}
 	}
 
@@ -83,7 +84,7 @@ protected:
 		setClose(null);
 		setUpdateActions(null);
 		setLogic(null);
-		setRender(null);
+		setRenderView(null);
 		setIdle(null);
 
 		gInstance = this;
@@ -91,9 +92,9 @@ protected:
 
 
 private:
-	final fn defaultDgRender(gfx.Target, ref gfx.ViewInfo)
+	final fn defaultDgRenderView(gfx.Target, ref gfx.ViewInfo)
 	{
-
+		// This method intentionally left empty.
 	}
 
 	final fn defaultDgI64(i64)

@@ -1,4 +1,5 @@
 // Copyright 2011-2019, Jakob Bornecrantz.
+// Copyright 2019-2022, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for App base classes.
@@ -60,7 +61,7 @@ public:
 		mCore.setClose(close);
 		mCore.setUpdateActions(updateActions);
 		mCore.setLogic(doLogic);
-		mCore.setRender(doRender);
+		mCore.setRenderView(doRender);
 		mCore.setIdle(doIdle);
 
 		mInput = ctl.Input.opCall();

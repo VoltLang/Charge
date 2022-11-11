@@ -1,4 +1,5 @@
 // Copyright 2011-2019, Jakob Bornecrantz.
+// Copyright 2019-2022, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for CoreSDL.
@@ -309,7 +310,7 @@ protected:
 		}
 	}
 
-	override fn doRenderAndSwap()
+	override fn doRenderViewAndSwap()
 	{
 		t := gfx.DefaultTarget.opCall();
 		t.bindDefault();
@@ -318,7 +319,7 @@ protected:
 		viewInfo: gfx.ViewInfo;
 		viewInfo.suitableForOrtho = true;
 
-		renderDg(t, ref viewInfo);
+		renderViewDg(t, ref viewInfo);
 		SDL_GL_SwapWindow(window);
 	}
 

@@ -1,4 +1,5 @@
 // Copyright 2011-2019, Jakob Bornecrantz.
+// Copyright 2019-2022, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file containing @ref Core and @ref Options.
@@ -135,7 +136,7 @@ public:
 	 */
 	abstract fn setUpdateActions(dgt: dg(i64));
 	abstract fn setLogic(dgt: dg());
-	abstract fn setRender(dgt: dg(gfx.Target, ref gfx.ViewInfo));
+	abstract fn setRenderView(dgt: dg(gfx.Target, ref gfx.ViewInfo));
 	abstract fn setClose(dgt: dg());
 	abstract fn setIdle(dgt: dg(i64));
 	/*!
