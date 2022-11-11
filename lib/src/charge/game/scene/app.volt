@@ -96,6 +96,21 @@ public:
 		}
 	}
 
+	override fn renderPrepare()
+	{
+		i := vec.length;
+		foreach_reverse(r; vec) {
+			i--;
+			if (r.flags & Scene.Flag.Blocker) {
+				break;
+			}
+		}
+
+		for (; i < vec.length; i++) {
+			vec[i].renderPrepare();
+		}
+	}
+
 	override fn renderView(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		i := vec.length;

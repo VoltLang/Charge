@@ -64,6 +64,11 @@ public:
 	/*!
 	 * Render view of this scene into target.
 	 */
+	abstract fn renderPrepare();
+
+	/*!
+	 * Render view of this scene into target.
+	 */
 	abstract fn renderView(gfx.Target, ref gfx.ViewInfo);
 
 	/*!

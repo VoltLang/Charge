@@ -31,6 +31,7 @@ public:
 	override fn close() {}
 	override fn updateActions(timepoint: i64) {}
 	override fn logic() {}
+	override fn renderPrepare() {}
 	override fn renderView(gfx.Target, ref gfx.ViewInfo) {}
 
 	fn keyText(ctl.Keyboard, scope const(char)[]) {}

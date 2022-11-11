@@ -61,6 +61,7 @@ public:
 		mCore.setClose(close);
 		mCore.setUpdateActions(updateActions);
 		mCore.setLogic(doLogic);
+		mCore.setRenderPrepare(doRenderPrepare);
 		mCore.setRenderView(doRenderView);
 		mCore.setIdle(doIdle);
 
@@ -100,6 +101,12 @@ public:
 	abstract fn logic();
 
 	/*!
+	 * Called berfore renderView, multiple renderViews
+	 * can be called per renderPrepare.
+	 */
+	abstract fn renderPrepare();
+
+	/*!
 	 * Called every frame.
 	 */
 	abstract fn renderView(t: gfx.Target, ref viewInfo: gfx.ViewInfo);
@@ -121,6 +128,11 @@ private:
 		scope(exit) mLogicTime.stop();
 
 		logic();
+	}
+
+	fn doRenderPrepare()
+	{
+		renderPrepare();
 	}
 
 	fn doRenderView(t: gfx.Target, ref viewInfo: gfx.ViewInfo)

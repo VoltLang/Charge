@@ -182,6 +182,11 @@ public:
 
 	}
 
+	override fn renderPrepare()
+	{
+
+	}
+
 	override fn renderView(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		initBuffers(t);
