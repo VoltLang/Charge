@@ -1,4 +1,5 @@
 // Copyright 2011-2019, Jakob Bornecrantz.
+// Copyright 2019-2022, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 module charge.game.scene.background;
 
@@ -181,7 +182,7 @@ public:
 
 	}
 
-	override fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
+	override fn renderView(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		initBuffers(t);
 

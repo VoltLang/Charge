@@ -1,4 +1,5 @@
 // Copyright 2016-2019, Jakob Bornecrantz.
+// Copyright 2019-2022, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 module power.experiments.svo;
 
@@ -51,10 +52,10 @@ public:
 		setHeader(cast(immutable(u8)[])"Loading");
 	}
 
-	override fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
+	override fn renderView(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		mHasRendered = true;
-		super.render(t, ref viewInfo);
+		super.renderView(t, ref viewInfo);
 	}
 
 	override fn logic()

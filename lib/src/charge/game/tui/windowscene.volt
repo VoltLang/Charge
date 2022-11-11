@@ -1,4 +1,5 @@
 // Copyright 2011-2019, Jakob Bornecrantz.
+// Copyright 2019-2022, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Contains classes and code to create a text-user-interface window scene.
@@ -103,7 +104,7 @@ public:
 		gridMouseDown(m, ux, uy, button);
 	}
 
-	override fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
+	override fn renderView(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		width, height: u32;
 		getSizeInPixels(out width, out height);

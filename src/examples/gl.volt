@@ -1,4 +1,5 @@
 // Copyright 2016-2019, Jakob Bornecrantz.
+// Copyright 2019-2022, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 module examples.gl;
 
@@ -111,7 +112,7 @@ public:
 		gfx.reference(ref buf, null);
 	}
 
-	override fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
+	override fn renderView(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		transform: math.Matrix4x4d;
 		t.setMatrixToOrtho(ref transform);

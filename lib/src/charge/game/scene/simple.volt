@@ -1,4 +1,5 @@
 // Copyright 2016-2019, Jakob Bornecrantz.
+// Copyright 2019-2022, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for @ref Simple, helper default implementation.
@@ -30,7 +31,7 @@ public:
 	override fn close() {}
 	override fn updateActions(timepoint: i64) {}
 	override fn logic() {}
-	override fn render(gfx.Target, ref gfx.ViewInfo) {}
+	override fn renderView(gfx.Target, ref gfx.ViewInfo) {}
 
 	fn keyText(ctl.Keyboard, scope const(char)[]) {}
 	fn keyDown(ctl.Keyboard, int) {}

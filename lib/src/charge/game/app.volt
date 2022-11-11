@@ -61,7 +61,7 @@ public:
 		mCore.setClose(close);
 		mCore.setUpdateActions(updateActions);
 		mCore.setLogic(doLogic);
-		mCore.setRenderView(doRender);
+		mCore.setRenderView(doRenderView);
 		mCore.setIdle(doIdle);
 
 		mInput = ctl.Input.opCall();
@@ -102,7 +102,7 @@ public:
 	/*!
 	 * Called every frame.
 	 */
-	abstract fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo);
+	abstract fn renderView(t: gfx.Target, ref viewInfo: gfx.ViewInfo);
 
 	/*!
 	 * Idle is a bit missleading name, this function is always called after
@@ -123,7 +123,7 @@ private:
 		logic();
 	}
 
-	fn doRender(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
+	fn doRenderView(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		mRenderTime.start();
 		mFrameTime.startFrame();
@@ -132,7 +132,7 @@ private:
 			mRenderTime.stop();
 		}
 
-		render(t, ref viewInfo);
+		renderView(t, ref viewInfo);
 
 		// Core swaps target.
 	}

@@ -1,4 +1,5 @@
 // Copyright 2011-2019, Jakob Bornecrantz.
+// Copyright 2019-2022, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for SceneManagerApp base classes.
@@ -95,7 +96,7 @@ public:
 		}
 	}
 
-	override fn render(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
+	override fn renderView(t: gfx.Target, ref viewInfo: gfx.ViewInfo)
 	{
 		i := vec.length;
 		foreach_reverse(r; vec) {
@@ -106,7 +107,7 @@ public:
 		}
 
 		for (; i < vec.length; i++) {
-			vec[i].render(t, ref viewInfo);
+			vec[i].renderView(t, ref viewInfo);
 		}
 	}
 

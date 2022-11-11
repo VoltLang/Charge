@@ -1,4 +1,5 @@
 // Copyright 2011-2019, Jakob Bornecrantz.
+// Copyright 2019-2022, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for Scene base class and Manager interface.
@@ -63,7 +64,7 @@ public:
 	/*!
 	 * Render view of this scene into target.
 	 */
-	abstract fn render(gfx.Target, ref gfx.ViewInfo);
+	abstract fn renderView(gfx.Target, ref gfx.ViewInfo);
 
 	/*!
 	 * Install all input listeners.
