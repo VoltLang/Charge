@@ -95,6 +95,7 @@ public:
 			}
 
 			if (changed) {
+				renderPrepareDg();
 				doRenderViewAndSwap();
 				changed = false;
 			}

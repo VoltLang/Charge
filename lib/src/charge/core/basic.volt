@@ -29,6 +29,7 @@ protected:
 
 	closeDg: dg();
 	updateActionsDg: dg(i64);
+	renderPrepareDg: dg();
 	logicDg: dg();
 	renderViewDg: dg(gfx.Target, ref gfx.ViewInfo);
 	idleDg: dg(long);
@@ -59,6 +60,14 @@ public:
 		}
 	}
 
+	override fn setRenderPrepare(dgt: dg()) {
+		if (dgt is null) {
+			renderPrepareDg = defaultDg;
+		} else {
+			renderPrepareDg = dgt;
+		}
+	}
+
 	override fn setRenderView(dgt: dg(gfx.Target, ref gfx.ViewInfo)) {
 		if (dgt is null) {
 			renderViewDg = defaultDgRenderView;
@@ -84,6 +93,7 @@ protected:
 		setClose(null);
 		setUpdateActions(null);
 		setLogic(null);
+		setRenderPrepare(null);
 		setRenderView(null);
 		setIdle(null);
 

@@ -136,6 +136,7 @@ public:
 	 */
 	abstract fn setUpdateActions(dgt: dg(i64));
 	abstract fn setLogic(dgt: dg());
+	abstract fn setRenderPrepare(dgt: dg());
 	abstract fn setRenderView(dgt: dg(gfx.Target, ref gfx.ViewInfo));
 	abstract fn setClose(dgt: dg());
 	abstract fn setIdle(dgt: dg(i64));
