@@ -1,4 +1,5 @@
 // Copyright 2016-2019, Jakob Bornecrantz.
+// Copyright 2019-2022, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 module charge.game.tui.glyphdraw;
 
@@ -7,6 +8,23 @@ import watt.text.sink : SinkArg;
 
 
 enum TabSize = 8;
+
+fn makeCenteredText(grid: Grid, x: i32, y: i32, width: u32, text: SinkArg)
+{
+	makeCenteredText(grid, x, y, width, cast(scope const(u8)[])text);
+}
+
+fn makeCenteredText(grid: Grid, x: i32, y: i32, width: u32, glyphs: scope const(u8)[])
+{
+	if (width < glyphs.length) {
+		width = cast(u32)(glyphs.length);
+	}
+
+	start := cast(i32)((width / 2) - (glyphs.length / 2)) + x;
+	foreach (glyph; glyphs) {
+		grid.put(start++, y, glyph);
+	}
+}
 
 fn makeTextLayout(text: SinkArg, out w: u32, out h: u32)
 {
@@ -70,10 +88,7 @@ fn makeButton(grid: Grid, x: i32, y: i32, width: u32, single: bool,
 		makeFrameDouble(grid, x, y, width, 3);
 	}
 
-	start := cast(i32)((width / 2) - (glyphs.length / 2) + cast(u32)x);
-	foreach (glyph; glyphs) {
-		grid.put(start++, y+1, glyph);
-	}
+	makeCenteredText(grid, x, y + 1, width, glyphs);
 }
 
 fn makeFrameSingle(grid: Grid, x: i32, y: i32, w: u32, h: u32)
