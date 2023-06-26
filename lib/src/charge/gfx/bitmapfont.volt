@@ -173,7 +173,7 @@ fn initBitmap()
 			src := x / 8;
 			sub := x % 8;
 			data := (glyphData[y][src] >> sub) & 1;
-			stack[dst] = data ? 0xffffffffu : 0u;
+			stack[dst] = data ? 0xffffffffu : 0xff000000u;
 		}
 	}
 
