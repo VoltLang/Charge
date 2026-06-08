@@ -1,7 +1,13 @@
-// Copyright 2016-2019, Jakob Bornecrantz.
+// Copyright 2016-2026, Jakob Bornecrantz.
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Source file for TimeTrackers and trackers.
+ *
+ * Each frame builds a linked list of `Entry` objects that each own an OpenGL
+ * timestamp query (`glGenQueries`). Those queries must be freed with
+ * `glDeleteQueries`; relying on the GC alone is not enough because Volt does
+ * not tie object collection to GL context teardown. Shutdown cleanup is
+ * registered via `core.addInitAndCloseRunners`.
  *
  * @ingroup gfx
  */
@@ -10,11 +16,19 @@ module charge.gfx.timetracker;
 import watt.text.sink : Sink;
 import watt.text.format : format;
 
+import core = charge.core;
 import math = charge.math;
 
 import lib.gl.gl33;
 
 import charge.gfx.gl;
+
+
+global this()
+{
+	// These run after the GL context is created, and before it is destroyed.
+	core.addInitAndCloseRunners(cast(fn())null, closeTimeTracker);
+}
 
 
 final class TimeTracker
@@ -46,6 +60,14 @@ public:
 		}
 
 		gTracker.getLastFrame(sink);
+	}
+
+	global fn close()
+	{
+		if (gTracker !is null) {
+			gTracker.close();
+			gTracker = null;
+		}
 	}
 
 	fn startFrame()
@@ -87,6 +109,13 @@ private:
 	mStart: TimeTracker;
 	mRunning: bool;
 	mLast: GLuint64;
+
+
+public:
+	~this()
+	{
+		close();
+	}
 
 
 private:
@@ -200,6 +229,8 @@ public:
 
 		pop(t);
 
+		// Recycle unconsumed frame entries before overwriting mLastFrame.
+		recycleChain(mLastFrame);
 		mLastFrame = mFrame;
 		mFrame = null;
 		mRoot = null;
@@ -262,6 +293,40 @@ private:
 		e.mNext = mPool;
 		mPool = e;
 	}
+
+	fn recycleChain(e: Entry)
+	{
+		while (e !is null) {
+			tmp := e;
+			e = e.mNext;
+			putEntry(tmp);
+		}
+	}
+
+	fn close()
+	{
+		recycleChain(mLastFrame);
+		recycleChain(mFrame);
+		drainPool();
+		mLastFrame = null;
+		mFrame = null;
+		mRoot = null;
+	}
+
+	fn drainPool()
+	{
+		while (mPool !is null) {
+			e := mPool;
+			mPool = e.mNext;
+			e.mNext = null;
+			e.close();
+		}
+	}
+}
+
+private fn closeTimeTracker()
+{
+	TimeTracker.close();
 }
 
 fn printIndent(sink: Sink, numRunning: u32)
