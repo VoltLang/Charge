@@ -1,4 +1,4 @@
-// Copyright 2016-2019, Jakob Bornecrantz.
+// Copyright 2016-2026, Jakob Bornecrantz.
 // Copyright 2019, Collabora, Ltd.
 // SPDX-License-Identifier: BSL-1.0
 /*!
@@ -61,22 +61,21 @@ public:
 		dummy: void*;
 		buffer := cast(SimpleBuffer)sys.Resource.alloc(
 			typeid(SimpleBuffer), uri, name, 0, out dummy);
-		buffer.__ctor(0, 0);
+		buffer.__ctor();
 		buffer.update(vb);
 		return buffer;
 	}
 
 	fn update(vb: SimpleVertexBuilder)
 	{
-		deleteBuffers();
-		vb.bake(out vao, out buf, out num);
+		vb.bake(ref vao, ref buf, ref bufSize, out num);
 	}
 
 
 protected:
-	this(GLuint vao, GLuint buf)
+	this()
 	{
-		super(vao, buf);
+		super();
 	}
 }
 
@@ -150,30 +149,40 @@ class SimpleVertexBuilder : Builder
 
 	alias add = Builder.add;
 
-	final fn bake(out vao: GLuint, out buf: GLuint, out num: GLsizei)
+	final fn bake(ref vao: GLuint, ref buf: GLuint, ref bufSize: GLsizeiptr, out num: GLsizei)
 	{
-		// Setup vertex buffer and upload the data.
-		glGenBuffers(1, &buf);
-		glGenVertexArrays(1, &vao);
-
-		// And the darkness bind them.
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ARRAY_BUFFER, buf);
-
-		glBufferData(GL_ARRAY_BUFFER, cast(GLsizeiptr)length, ptr, GL_STATIC_DRAW);
-
+		dataSize := cast(GLsizeiptr)length;
 		stride := cast(GLsizei)typeid(SimpleVertex).size;
-		glVertexAttribPointer(0, 3, GL_FLOAT, 0, stride, null);
-		glVertexAttribPointer(1, 2, GL_FLOAT, 0, stride, cast(void*)(4 * 3));
-		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, 1, stride, cast(void*)(4 * 5));
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-
 		num = cast(GLsizei)length / stride;
+
+		if (buf) {
+			glBindBuffer(GL_ARRAY_BUFFER, buf);
+			if (dataSize <= bufSize) {
+				glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, ptr);
+			} else {
+				glBufferData(GL_ARRAY_BUFFER, dataSize, ptr, GL_STATIC_DRAW);
+				bufSize = dataSize;
+			}
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		} else {
+			glGenBuffers(1, &buf);
+			glGenVertexArrays(1, &vao);
+
+			glBindVertexArray(vao);
+			glBindBuffer(GL_ARRAY_BUFFER, buf);
+			glBufferData(GL_ARRAY_BUFFER, dataSize, ptr, GL_STATIC_DRAW);
+			bufSize = dataSize;
+
+			glVertexAttribPointer(0, 3, GL_FLOAT, 0, stride, null);
+			glVertexAttribPointer(1, 2, GL_FLOAT, 0, stride, cast(void*)(4 * 3));
+			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, 1, stride, cast(void*)(4 * 5));
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
+
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+		}
 	}
 }
 

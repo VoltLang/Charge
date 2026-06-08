@@ -1,4 +1,4 @@
-// Copyright 2016-2019, Jakob Bornecrantz.
+// Copyright 2016-2026, Jakob Bornecrantz.
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Super simple 2D drawing helper.
@@ -58,21 +58,20 @@ public:
 		dummy: void*;
 		buffer := cast(DrawBuffer)sys.Resource.alloc(
 			typeid(DrawBuffer), uri, name, 0, out dummy);
-		buffer.__ctor(0, 0);
+		buffer.__ctor();
 		buffer.update(vb);
 		return buffer;
 	}
 
 	fn update(vb: DrawVertexBuilder)
 	{
-		deleteBuffers();
-		vb.bake(out vao, out buf, out num);
+		vb.bake(ref vao, ref buf, ref bufSize, out num);
 	}
 
 protected:
-	this(GLuint vao, GLuint buf)
+	this()
 	{
-		super(vao, buf);
+		super();
 	}
 }
 
@@ -138,30 +137,42 @@ class DrawVertexBuilder : Builder
 
 	alias add = Builder.add;
 
-	final fn bake(out vao: GLuint, out buf: GLuint, out num: GLsizei)
+	final fn bake(ref vao: GLuint, ref buf: GLuint, ref bufSize: GLsizeiptr, out num: GLsizei)
 	{
-		// Setup vertex buffer and upload the data.
-		glGenBuffers(1, &buf);
-		glGenVertexArrays(1, &vao);
-
-		// And the darkness bind them.
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ARRAY_BUFFER, buf);
-
-		glBufferData(GL_ARRAY_BUFFER, cast(GLsizeiptr)length, ptr, GL_STATIC_DRAW);
-
+		dataSize := cast(GLsizeiptr)length;
 		stride := cast(GLsizei)typeid(DrawVertex).size;
-		glVertexAttribPointer(0, 2, GL_FLOAT, 0, stride, null);
-		glVertexAttribPointer(1, 2, GL_FLOAT, 0, stride, cast(void*)(4 * 2));
-		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, 1, stride, cast(void*)(4 * 4));
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-
 		num = cast(GLsizei)length / stride;
+
+		if (buf) {
+			glBindBuffer(GL_ARRAY_BUFFER, buf);
+			if (dataSize <= bufSize) {
+				// Update the buffer if it's big enough.
+				glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, ptr);
+			} else {
+				// Grow the buffer if it's too small.
+				glBufferData(GL_ARRAY_BUFFER, dataSize, ptr, GL_STATIC_DRAW);
+				bufSize = dataSize;
+			}
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		} else {
+			glGenBuffers(1, &buf);
+			glGenVertexArrays(1, &vao);
+
+			glBindVertexArray(vao);
+			glBindBuffer(GL_ARRAY_BUFFER, buf);
+			glBufferData(GL_ARRAY_BUFFER, dataSize, ptr, GL_STATIC_DRAW);
+			bufSize = dataSize;
+
+			glVertexAttribPointer(0, 2, GL_FLOAT, 0, stride, null);
+			glVertexAttribPointer(1, 2, GL_FLOAT, 0, stride, cast(void*)(4 * 2));
+			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, 1, stride, cast(void*)(4 * 4));
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
+
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+		}
 	}
 }
 

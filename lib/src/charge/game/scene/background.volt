@@ -18,6 +18,7 @@ class Background : Scene
 protected:
 	mBuf: GLuint;
 	mVao: GLuint;
+	mBufSize: GLsizeiptr;
 	mNum: GLsizei;
 
 	mWidth: uint;
@@ -151,10 +152,7 @@ public:
 			b.add(lX2, lY2, 1.0f, 1.0f);
 		}
 
-		if (mBuf) { glDeleteBuffers(1, &mBuf); mBuf = 0; }
-		if (mVao) { glDeleteVertexArrays(1, &mVao); mVao = 0; }
-
-		b.bake(out mVao, out mBuf, out mNum);
+		b.bake(ref mVao, ref mBuf, ref mBufSize, out mNum);
 		gfx.destroy(ref b);
 	}
 
@@ -170,6 +168,7 @@ public:
 		gfx.reference(ref mLogo, null);
 		if (mBuf) { glDeleteBuffers(1, &mBuf); mBuf = 0; }
 		if (mVao) { glDeleteVertexArrays(1, &mVao); mVao = 0; }
+		mBufSize = 0;
 	}
 
 	override fn updateActions(timepoint: i64)

@@ -1,4 +1,4 @@
-// Copyright 2016-2019, Jakob Bornecrantz.
+// Copyright 2016-2026, Jakob Bornecrantz.
 // SPDX-License-Identifier: BSL-1.0
 /*!
  * Vertex buffers.
@@ -45,6 +45,7 @@ public:
 	enum string uri = "buf://";
 	vao: GLuint;
 	buf: GLuint;
+	bufSize: GLsizeiptr;
 
 
 public:
@@ -58,15 +59,17 @@ protected:
 	fn deleteBuffers()
 	{
 		if (buf) { glDeleteBuffers(1, &buf); buf = 0; }
-		if (vao) { glDeleteVertexArrays(1, &vao); vao = 0; }	
+		if (vao) { glDeleteVertexArrays(1, &vao); vao = 0; }
+		bufSize = 0;
 	}
 
 
 private:
-	this(vao: GLuint, buf: GLuint)
+	this()
 	{
-		this.vao = vao;
-		this.buf = buf;
+		this.vao = 0;
+		this.buf = 0;
+		this.bufSize = 0;
 		super();
 	}
 }
